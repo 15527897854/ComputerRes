@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="e804abe6-a3c5-44b9-a7b8-f0a4b3ce8d64" name="Default" comment="" />
+    <ignored path="ComputerRes.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DaemonCodeAnalyzer">
+    <disable_hints />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="ComputerRes" />
+  </component>
+  <component name="FileEditorManager">
+    <splitter split-orientation="horizontal" split-proportion="0.46423018">
+      <split-first>
+        <leaf>
+          <file leaf-file-name="modelService.js" pinned="false" current="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/model/modelService.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="5" column="35" selection-start="104" selection-end="104" vertical-scroll-proportion="-2.443459" vertical-offset="1197" max-vertical-offset="3781">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="modelSerControl.js" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/control/modelSerControl.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="177" column="36" selection-start="4295" selection-end="4295" vertical-scroll-proportion="0.0" vertical-offset="3007" max-vertical-offset="3515">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="modelSpace.ejs" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/views/modelSpace.ejs">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="87" column="13" selection-start="2835" selection-end="2835" vertical-scroll-proportion="0.0" vertical-offset="1083" max-vertical-offset="5757">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="sysControl.js" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/control/sysControl.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="12" column="2" selection-start="296" selection-end="296" vertical-scroll-proportion="0.0" vertical-offset="689" max-vertical-offset="1140">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="modelSerRoute.js" pinned="false" current="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/routes/modelSerRoute.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="229" column="38" selection-start="7294" selection-end="7294" vertical-scroll-proportion="0.0" vertical-offset="2773" max-vertical-offset="4693">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="header.ejs" pinned="false" current="true" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/views/header.ejs">
+              <provider selected="true" editor-type-id="text-editor">
+                <state line="68" column="45" selection-start="2777" selection-end="2777" vertical-scroll-proportion="0.5365854" vertical-offset="1072" max-vertical-offset="1596">
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
+  </component>
+  <component name="FindManager">
+    <FindUsagesManager>
+      <setting name="OPEN_NEW_TAB" value="false" />
+    </FindUsagesManager>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="changedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/views/modelSers.ejs" />
+        <option value="$PROJECT_DIR$/views/skySpace.ejs" />
+        <option value="$PROJECT_DIR$/public/js/main1.js" />
+        <option value="$PROJECT_DIR$/control/modelControl.js" />
+        <option value="$PROJECT_DIR$/model/modelService.js" />
+        <option value="$PROJECT_DIR$/control/sysControl.js" />
+        <option value="$PROJECT_DIR$/views/test_skySpace.ejs" />
+        <option value="$PROJECT_DIR$/public/js/deployModel.js" />
+        <option value="$PROJECT_DIR$/views/footer.ejs" />
+        <option value="$PROJECT_DIR$/views/modelSerDeploy.ejs" />
+        <option value="$PROJECT_DIR$/public/js/deployModel2.js" />
+        <option value="$PROJECT_DIR$/public/css/deployModel2.css" />
+        <option value="$PROJECT_DIR$/control/modelSerControl.js" />
+        <option value="$PROJECT_DIR$/views/modelSpace.ejs" />
+        <option value="$PROJECT_DIR$/routes/modelSerRoute.js" />
+        <option value="$PROJECT_DIR$/views/header.ejs" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="1592" />
+    <option name="y" value="-8" />
+    <option name="width" value="1616" />
+    <option name="height" value="876" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectReloadState">
+    <option name="STATE" value="0" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ComputerRes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ComputerRes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ComputerRes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="options.splitter.main.proportions" value="0.3" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="options.lastSelected" value="settings.nodejs" />
+    <property name="recentsLimit" value="5" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="restartRequiresConfirmation" value="true" />
+    <property name="FullScreen" value="false" />
+    <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\NodeJS\ComputerRes\views" />
+      <recent name="E:\NodeJS\ComputerRes\views\test" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Node.js.Debug(x64) - 4.1.2">
+    <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
+      <option name="VMOptions" />
+      <option name="arguments" />
+      <option name="filePath" />
+      <option name="name" value="Dart" />
+      <option name="saveOutputToFile" value="false" />
+      <option name="showConsoleOnStdErr" value="false" />
+      <option name="showConsoleOnStdOut" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
+      <option name="VMOptions" />
+      <option name="arguments" />
+      <option name="filePath" />
+      <option name="scope" value="ALL" />
+      <option name="testName" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" singleton="true" config-file="">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug" singleton="true">
+      <method />
+    </configuration>
+    <configuration default="true" type="NodeJSConfigurationType" factoryName="Node.js" working-dir="">
+      <browser start="false" url="" with-js-debugger="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Debug(x64) - 4.1.2" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="D:/NodeJS/node" path-to-js-file="bin/www" working-dir="$PROJECT_DIR$">
+      <browser start="false" url="" with-js-debugger="false" />
+      <RunnerSettings RunnerId="NodeJS.debug" />
+      <ConfigurationWrapper RunnerId="NodeJS.debug" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Debug(x86) - 0.10.36" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="D:/Program Files (x86)/nodejs/node" path-to-js-file="bin/www" working-dir="$PROJECT_DIR$">
+      <browser start="false" url="" with-js-debugger="false" />
+      <RunnerSettings RunnerId="NodeJS.debug" />
+      <ConfigurationWrapper RunnerId="NodeJS.debug" />
+      <method />
+    </configuration>
+    <list size="2">
+      <item index="0" class="java.lang.String" itemvalue="Node.js.Debug(x64) - 4.1.2" />
+      <item index="1" class="java.lang.String" itemvalue="Node.js.Debug(x86) - 0.10.36" />
+    </list>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="e804abe6-a3c5-44b9-a7b8-f0a4b3ce8d64" name="Default" comment="" />
+      <created>1458120473417</created>
+      <updated>1458120473417</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TodoView" selected-index="0">
+    <todo-panel id="selected-file">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+    </todo-panel>
+    <todo-panel id="default-changelist">
+      <are-packages-shown value="false" />
+      <are-modules-shown value="false" />
+      <flatten-packages value="false" />
+      <is-autoscroll-to-source value="false" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="1592" y="-8" width="1616" height="876" extended-state="6" />
+    <editor active="false" />
+    <layout>
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960895" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18452759" sideWeight="0.6675978" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33240223" sideWeight="0.56499684" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24984147" sideWeight="0.45530728" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33240223" sideWeight="0.43500316" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282123" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="myTodoPanelSettings">
+      <TodoPanelSettings />
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints-dialog>
+        <breakpoints-dialog />
+      </breakpoints-dialog>
+      <option name="time" value="85" />
+    </breakpoint-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/control/remoteReqControl.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="28" selection-start="427" selection-end="427" vertical-scroll-proportion="0.33193278" vertical-offset="222" max-vertical-offset="798" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/js/deployModel.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="40" selection-start="364" selection-end="364" vertical-scroll-proportion="0.42128602" vertical-offset="0" max-vertical-offset="1938">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/js/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="23" selection-start="285" selection-end="285" vertical-scroll-proportion="0.6200466" vertical-offset="0" max-vertical-offset="1387">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/modelSerDeploy.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="6" selection-start="497" selection-end="497" vertical-scroll-proportion="-8.142858" vertical-offset="0" max-vertical-offset="1520">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/css/deployModel2.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="0" selection-start="354" selection-end="354" vertical-scroll-proportion="0.0" vertical-offset="103" max-vertical-offset="532" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/express/lib/router/layer.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="98" column="0" selection-start="1732" selection-end="1732" vertical-scroll-proportion="0.33173078" vertical-offset="1610" max-vertical-offset="3344" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/test_skySpace.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="45" column="36" selection-start="1534" selection-end="1534" vertical-scroll-proportion="2.2036083" vertical-offset="0" max-vertical-offset="2698">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/js/deployModel2.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="0" selection-start="50" selection-end="50" vertical-scroll-proportion="0.12638581" vertical-offset="0" max-vertical-offset="451">
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/control/modelSerControl.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="177" column="36" selection-start="4295" selection-end="4295" vertical-scroll-proportion="0.0" vertical-offset="3007" max-vertical-offset="3515">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/control/sysControl.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="2" selection-start="296" selection-end="296" vertical-scroll-proportion="0.0" vertical-offset="689" max-vertical-offset="1140">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/control/modelControl.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="26" selection-start="525" selection-end="525" vertical-scroll-proportion="1.051282" vertical-offset="24" max-vertical-offset="817">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/footer.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="62" selection-start="306" selection-end="306" vertical-scroll-proportion="0.5097561" vertical-offset="0" max-vertical-offset="1634">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/modelSpace.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="87" column="13" selection-start="2835" selection-end="2835" vertical-scroll-proportion="0.0" vertical-offset="1083" max-vertical-offset="5757">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/routes/modelSerRoute.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="229" column="38" selection-start="7294" selection-end="7294" vertical-scroll-proportion="0.0" vertical-offset="2773" max-vertical-offset="4693">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model/modelService.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5" column="35" selection-start="104" selection-end="104" vertical-scroll-proportion="-2.443459" vertical-offset="1197" max-vertical-offset="3781">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/views/header.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="68" column="45" selection-start="2777" selection-end="2777" vertical-scroll-proportion="0.5365854" vertical-offset="1072" max-vertical-offset="1596">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
+
