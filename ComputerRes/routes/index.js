@@ -7,9 +7,10 @@ var modelSerRoute = require('./modelSerRoute');
 
 module.exports = function(app)
 {
-    //use route for sys
+    //use route for systemsetting
     sysRoute(app);
 
+    //use route for modelservice
     modelSerRoute(app);
 
     //Homepage

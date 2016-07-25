@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var ModelInstance = require('./model/modelInstance');
 
 var routes = require('./routes/index');
 
@@ -21,7 +22,22 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//正在运行的模型实例
+app.modelIns = [];
+
+//http request
 routes(app);
+
+//socket connection
+var socket = require('./socket/mc_socket');
+var sockTrans = new socket(app);
+
+setInterval(function () {
+  if(app.modelIns.length == 1)
+  {
+    sockTrans.sendMsg(app.modelIns[0], 'Welcome !!! ');
+  }
+},1000);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

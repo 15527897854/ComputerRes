@@ -14,5 +14,10 @@ module.exports =  {
         name:'ComputerRes',
         host:'127.0.0.1',
         port:'27017'
+    },
+    socket:
+    {
+        host:'127.0.0.1',
+        port:'6000'
     }
 };

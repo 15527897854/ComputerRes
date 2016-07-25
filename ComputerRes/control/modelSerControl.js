@@ -65,96 +65,38 @@ ModelSerControl.getModelSerByMsId = function(msid, callback)
 //新增模型服务
 ModelSerControl.addNewModelSer = function(newmodelser, callback)
 {
-    //请求参数
-    var options = {
-        host: setting.gate.host,
-        port: setting.gate.port,
-        path: '/modelser',
-        method: 'POST',
-        headers: {
-            'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
-        }
-    };
-    //像门户网站发送登记信息
-    romoteReqCtrl.Request(
-        options,
-        newmodelser,
-        function(err, data)
-        {
-            if(err)
-            {
-                return callback(err);
-            }
-            var ms = new ModelSerModel(data);
-            ms.save(function(err, data)
-            {
-                var path = __dirname + '\\..\\geo_model\\' + data._id + '\\';
-                fs.mkdirSync(path);
-                return callback(null, data);
-            });
-        }
-    );
+    // //请求参数
+    // var options = {
+    //     host: setting.gate.host,
+    //     port: setting.gate.port,
+    //     path: '/modelser',
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+    //     }
+    // };
+    // //像门户网站发送登记信息
+    // romoteReqCtrl.Request(
+    //     options,
+    //     newmodelser,
+    //     function(err, data)
+    //     {
+    //         if(err)
+    //         {
+    //             return callback(err);
+    //         }
+    //         var ms = new ModelSerModel(data);
+    //         ms.save(function(err, data)
+    //         {
+    //             var path = __dirname + '\\..\\geo_model\\' + data._id + '\\';
+    //             fs.mkdirSync(path);
+    //             return callback(null, data);
+    //         });
+    //     }
+    // );
 }
 
-ModelSerControl.fileTraverse = function(path, callback)
-{
-    fs.readdir(path, function(err, data)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-
-        for(var i = 0; i < data.length; i++)
-        {
-            var tmpfile = path + data[i];
-            var tmpsta = fs.statSync(tmpfile);
-            if(tmpsta.isDirectory())
-            {
-                data[i] =
-                {
-                    "type":"dir",
-                    "name":data[i],
-                    "update":(tmpsta.birthtime.getYear() + 1900) + '-'
-                        + tmpsta.birthtime.getMonth() + '-'
-                        + tmpsta.birthtime.getDay() + ' '
-                        + tmpsta.birthtime.getHours() + ':'
-                        + tmpsta.birthtime.getMinutes() + ':'
-                        + tmpsta.birthtime.getSeconds()
-                };
-            }
-            else
-            {
-                data[i] =
-                {
-                    "type":"file",
-                    "name":data[i],
-                    "size":tmpsta.size,
-                    "update":(tmpsta.birthtime.getYear() + 1900) + '-'
-                        + tmpsta.birthtime.getMonth() + '-'
-                        + tmpsta.birthtime.getDay() + ' '
-                        + tmpsta.birthtime.getHours() + ':'
-                        + tmpsta.birthtime.getMinutes() + ':'
-                        + tmpsta.birthtime.getSeconds()
-                };
-            }
-        }
-        return callback(null, data);
-    });
-};
-
-ModelSerControl.newDir = function(dirname, callback)
-{
-    return fs.mkdir(dirname, function(err, res)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, res);
-    });
-}
-
+//根据OID查询模型服务信息
 ModelSerControl.getByOID = function(msid, callback)
 {
     ModelSerModel.getByOID(msid,function(err, data)
@@ -167,6 +109,7 @@ ModelSerControl.getByOID = function(msid, callback)
     });
 }
 
+//更新模型服务信息
 ModelSerControl.update = function(ms, callback)
 {
     ModelSerModel.update(ms, function(err, data)
@@ -178,3 +121,73 @@ ModelSerControl.update = function(ms, callback)
         return callback(null, data);
     });
 }
+
+//开启运行实例
+ModelSerControl.run = function (ms_id, callback) {
+    ModelSerModel.run(ms_id, function (err, data) {
+        if(err)
+        {
+            return callback(err);
+        }
+        return callback(null, data);
+    })
+}
+
+// ModelSerControl.fileTraverse = function(path, callback)
+// {
+//     fs.readdir(path, function(err, data)
+//     {
+//         if(err)
+//         {
+//             return callback(err);
+//         }
+//
+//         for(var i = 0; i < data.length; i++)
+//         {
+//             var tmpfile = path + data[i];
+//             var tmpsta = fs.statSync(tmpfile);
+//             if(tmpsta.isDirectory())
+//             {
+//                 data[i] =
+//                 {
+//                     "type":"dir",
+//                     "name":data[i],
+//                     "update":(tmpsta.birthtime.getYear() + 1900) + '-'
+//                         + tmpsta.birthtime.getMonth() + '-'
+//                         + tmpsta.birthtime.getDay() + ' '
+//                         + tmpsta.birthtime.getHours() + ':'
+//                         + tmpsta.birthtime.getMinutes() + ':'
+//                         + tmpsta.birthtime.getSeconds()
+//                 };
+//             }
+//             else
+//             {
+//                 data[i] =
+//                 {
+//                     "type":"file",
+//                     "name":data[i],
+//                     "size":tmpsta.size,
+//                     "update":(tmpsta.birthtime.getYear() + 1900) + '-'
+//                         + tmpsta.birthtime.getMonth() + '-'
+//                         + tmpsta.birthtime.getDay() + ' '
+//                         + tmpsta.birthtime.getHours() + ':'
+//                         + tmpsta.birthtime.getMinutes() + ':'
+//                         + tmpsta.birthtime.getSeconds()
+//                 };
+//             }
+//         }
+//         return callback(null, data);
+//     });
+// };
+//
+// ModelSerControl.newDir = function(dirname, callback)
+// {
+//     return fs.mkdir(dirname, function(err, res)
+//     {
+//         if(err)
+//         {
+//             return callback(err);
+//         }
+//         return callback(null, res);
+//     });
+// }

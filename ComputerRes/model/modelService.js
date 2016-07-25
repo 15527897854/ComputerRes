@@ -5,6 +5,9 @@
 
 var mongodb = require('./mongoDB');
 var ObjectId = require('mongodb').ObjectID;
+var fs = require('fs');
+var uuid = require('node-uuid');
+var exec = require('child_process').exec;
 
 //ModelService模型
 function ModelService(modelser)
@@ -143,9 +146,9 @@ ModelService.getByOID = function(_oid,callback)
                 mongodb.close();
                 if(err)
                 {
-                    callback(err);
+                    return callback(err);
                 }
-                callback(null,ms);
+                return callback(null,ms);
             })
         });
     });
@@ -192,3 +195,38 @@ ModelService.update = function(newmodelser,callback)
         });
     });
 };
+
+//启动一个模型服务实例
+ModelService.run = function (ms_id, callback) {
+    this.getByOID(ms_id, function (err, ms) {
+        if(err)
+        {
+            return callback(err);
+        }
+        ModelService.getByOID(ms_id, function (err, ms) {
+           fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + 'package.config', 'utf-8',function(err,data){
+                if(err){
+                    return callback(err);
+                }else{
+                    var params = data.split('\r\n');
+                    var startPos = '';
+                    var muid = uuid.v1();
+                    for(var i = 0; i < params.length; i++)
+                    {
+                        params[i] = params[i].split(' ');
+                        if(params[i][0] == 'start')
+                        {
+                            startPos = params[i][1];
+                        }
+                    }
+                    //执行程序
+                    exec(__dirname + '/../geo_model/' + ms.ms_path + startPos, [muid] ,{
+                        cwd:__dirname + '/../geo_model/' + ms.ms_path
+                    });
+                    return callback(null, muid, ms);
+                }
+            });
+        });
+        return callback(null, true);
+    });
+}
