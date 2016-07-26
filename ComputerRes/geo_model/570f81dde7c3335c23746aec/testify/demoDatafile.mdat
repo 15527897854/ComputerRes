@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="gb2312" standalone="yes" ?>
+<ModelData name="示例数据" uid="335bc19f-dc23-4ef5-9245-c0aa5a96c345" >
+    <DatasetDeclarations>
+      <DatasetDeclaration name="INIT_PARAMETER" type="internal" description="初始参数数据集">
+        <UDXDeclaration id="84ace7d1-226d-4c64-88c8-eca9b64addbb" name="INIT_PARAMETER" description="">
+          <UDXNode id="84ace7d1-226d-4c64-88c8-eca9b64addbb">
+            <UDXNode id="af1eb42e-e294-43a2-adf5-942fa58e6a64" name="data1" type="DTKT_FLOAT" description="数据1" value="NULL" />
+            <UDXNode id="9bcc6e59-13e0-4e08-b089-869b425d225f" name="data2" type="DTKT_FLOAT" description="数据2" value="NULL" />
+          </UDXNode>
+          <UDXAttachment>
+            <UDXUnits />
+            <UNXConcepts />
+          </UDXAttachment>
+        </UDXDeclaration>
+      </DatasetDeclaration>
+      <DatasetDeclaration name="OUTPUT_PARAMETER" type="internal" description="运算结果数据集">
+        <UDXDeclaration id="c63c10ef-f260-45d8-be07-d6139b1f33d9" name="OUTPUT_PARAMETER" description="">
+          <UDXNode id="c63c10ef-f260-45d8-be07-d6139b1f33d9">
+            <UDXNode id="b542d4d4-8bf3-497f-8b44-4b501e96dc34" name="double" type="DTKT_FLOAT" description="结果数据1" value="NULL" />
+          </UDXNode>
+          <UDXAttachment>
+            <UDXUnits />
+            <UNXConcepts />
+          </UDXAttachment>
+        </UDXDeclaration>
+      </DatasetDeclaration>
+    </DatasetDeclarations>
+</ModelData >
