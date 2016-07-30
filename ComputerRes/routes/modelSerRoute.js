@@ -92,7 +92,7 @@ module.exports = function(app)
             var msid = req.params.msid;
             if(msid == 'all')
             {
-                //查询本地数据库数据
+                //查询本地数据库全部数据
                 ModelSerCrtl.getLocalModelSer(function(err, data)
                 {
                     if(err)
@@ -112,18 +112,114 @@ module.exports = function(app)
             }
             else
             {
-                ModelSerCrtl.getModelSerByMsId(msid, function(err, data)
+                //停止服务
+                if(req.query.ac == "stop")
                 {
+                    ModelSerCrtl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
+                            return res.end(JSON.stringify({
+                                "res":"Error",
+                                "mess":"Error in get object"
+                            }));
+                        }
+                        if(ms.ms_status == 0)
+                        {
+                            return res.end(JSON.stringify({
+                                "res":"Stopped"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_status = 0;
+                            ModelSerCrtl.update(ms, function (err, data) {
+                                if(err)
+                                {
+                                    return res.end(JSON.stringify({
+                                        "res":"Error",
+                                        "mess":"Error in update object"
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    "res":"Success"
+                                }));
+                            })
+                        }
+                    });
+                }
+                //开启服务
+                else if(req.query.ac == "start")
+                {
+                    ModelSerCrtl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
+                            return res.end(JSON.stringify({
+                                "res":"Error",
+                                "mess":"Error in get object"
+                            }));
+                        }
+                        if(ms.ms_status == 1)
+                        {
+                            return res.end(JSON.stringify({
+                                "res":"Started"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_status = 1;
+                            ModelSerCrtl.update(ms, function (err, data) {
+                                if(err)
+                                {
+                                    return res.end(JSON.stringify({
+                                        "res":"Error",
+                                        "mess":"Error in update object"
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    "res":"Success"
+                                }));
+                            })
+                        }
+                    });
+                }
+                else
+                {
+                    ModelSerCrtl.getByOID(msid, function(err, ms)
+                    {
+                        if(err)
+                        {
+                            return res.end('Error!');
+                        }
+                        return res.render('modelSer',{
+                            modelSer:ms
+                        });
+                    });
+                }
+            }
+        });
+
+    //模型运行准备界面
+    app.route('/modelser/preparation/:msid')
+        .get(function (req, res, next) {
+            var msid = req.params.msid;
+            ModelSerCrtl.getByOID(msid, function(err, ms)
+            {
+                if(err)
+                {
+                    return res.end('Error in get modelService model : ' + JSON.stringify(err));
+                }
+                ModelSerCrtl.getInputData(ms._id, function (err, data) {
                     if(err)
                     {
-                        return res.end('Error!');
+                        return res.end('Error in get input data : ' + JSON.stringify(err))
                     }
-                    return res.render('modelSer',
-                        {
-                            modelSer:data
-                        });
+                    console.log('input data : ' + JSON.stringify(data));
+                    return res.render('modelRunPro',{
+                        modelSer:ms,
+                        input:data
+                    });
                 });
-            }
+            });
         });
 
     //获取某个Model_Service的JSON数据
@@ -139,8 +235,15 @@ module.exports = function(app)
 
     app.route('/modelser/test/:msid')
         .get(function (req, res, next) {
-            ModelSerCrtl.run(req.params.msid, function (err, data) {
-                res.end('END!');
-            })
-        })
+            // ModelSerCrtl.run(req.params.msid, function (err, data) {
+            //     res.end('END!');
+            // });
+            ModelSerCrtl.getInputData(req.params.msid, function (err, data) {
+                if(err)
+                {
+                    return res.end(JSON.stringify(err));
+                }
+                return res.end(JSON.stringify(data));
+            });
+        });
 }

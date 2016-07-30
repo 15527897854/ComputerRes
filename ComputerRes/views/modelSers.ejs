@@ -3,6 +3,10 @@
 <head>
     <title>模型浏览</title>
     <%- include headInclude.ejs %>
+    <!--dynamic table-->
+    <link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />
+    <link href="/js/advanced-datatable/css/demo_table.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/js/data-tables/DT_bootstrap.css" />
 </head>
 <body class="sticky-header">
 <section>
@@ -11,75 +15,100 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-
-        <div class="adv-table">
-            <table  class="display table table-bordered table-striped" id="dynamic-table">
-                <thead>
-                    <tr>
-                        <th>模型名称</th>
-                        <th>模型版本</th>
-                        <th>平台</th>
-                        <th>状态</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <%
-                    data.forEach(function (item) {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table  class="display table table-bordered table-striped" id="dynamic-table">
+                        <thead>
+                            <tr>
+                                <th>模型服务名称</th>
+                                <th>版本</th>
+                                <th>平台</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                        data.forEach(function (item) {
                         %><tr>
-                        <td><%=item.ms_model.m_name %></td>
-                        <td><%=item.mv_num %></td>
-                        <td>
-                            <span class="label label-info">
-                                <i class="fa fa-windows"></i>
-                                windows
-                            </span>
-                        </td>
-                        <td><%if(item.ms_status == 1)
-                            {
+                            <td><%=item.ms_model.m_name %></td>
+                            <td><%=item.mv_num %></td>
+                            <td>
+                                <%if(item.ms_platform == 1){
+                                %><span class="label label-info">
+                                    <i class="fa fa-windows"></i>
+                                    windows
+                                </span>
+                                <%
+                                }else {
+                                %><span class="label label-info">
+                                    <i class="fa fa-linux"></i>
+                                    linux
+                                </span>
+                                <%
+                                }%>
+                            </td>
+                            <td><%if(item.ms_status == 1)
+                                {
                                 %><span class="badge badge-success">可用</span><%
-                            }
-                            else
-                            {
+                                }
+                                else
+                                {
                                 %><span class="badge badge-defult">不可用</span><%
-                            }%>
-                        </td>
-                        <td>
-                            <button class="btn btn-info btn-xs" type="button">
-                                <i class="fa fa-book"></i>
-                                详情
-                            </button>
-                            <%if(item.ms_status == 1)
-                            {%>
-                            <button class="btn btn-default btn-xs" type="button">
-                                <i class="fa fa-retweet"></i>调用
-                            </button>
-                            <button class="btn btn-danger btn-xs" type="button">
-                                <i class="fa fa-stop"></i>
-                            </button><%
-                            }else
-                            {%>
-                            <button class="btn btn-default btn-xs" disabled="disabled" type="button">
-                                <i class="fa fa-retweet"></i>调用
-                            </button>
-                            <button class="btn btn-success btn-xs" type="button">
-                                <i class="fa fa-play"></i>
-                            </button>
-                            <button class="btn btn-warning btn-xs" type="button">
-                                <i class="fa fa-trash-o"></i>
-                            </button>
-                            <% }%>
+                                }%>
+                            </td>
+                            <td>
+                                <button class="btn btn-info btn-xs" type="button"
+                                    onclick="window.location = '/modelser/<%=item._id %>'">
+                                    <i class="fa fa-book"></i>
+                                    详情
+                                </button>
+                                <%if(item.ms_status == 1)
+                                {%>
+                                <button class="btn btn-default btn-xs" type="button"
+                                        onclick="window.open('/modelser/preparation/<%=item._id %>')">
+                                    <i class="fa fa-retweet"></i>调用
+                                </button>
+                                <button class="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip"
+                                        data-placement="bottom" title="" data-original-title="停止服务"
+                                        onclick="ms_stop('<%=item._id %>')" >
+                                    <i class="fa fa-stop"></i>
+                                </button><%
+                                }else
+                                {%>
+                                <button class="btn btn-default btn-xs" disabled="disabled" type="button">
+                                    <i class="fa fa-retweet"></i>调用
+                                </button>
+                                <button class="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip"
+                                        data-placement="bottom" title="" data-original-title="启动服务"
+                                        onclick="ms_start('<%=item._id %>')" >
+                                    <i class="fa fa-play"></i>
+                                </button>
+                                <button class="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip"
+                                        data-placement="bottom" title="" data-original-title="删除服务">
+                                    <i class="fa fa-trash-o"></i>
+                                </button>
+                                <% }%>
 
-                        </td>
+                            </td>
                         </tr><%
-                    });
-                    %>
-                </tbody>
-            </table>
-        </div>
+                        });
+                        %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         <%- include footer.ejs %>
     </div>
 </section>
+
 <%- include footerInclude.ejs %>
+<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
+
+<!--dynamic table-->
+<script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+<!--dynamic table initialization -->
+<script src="/js/dynamic_table_init.js"></script>
 </body>
 </html>

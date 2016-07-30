@@ -1,109 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-
-    <link rel="stylesheet" href="/css/bootstrap.css">
-    <script src="/js/jquery.js" type="text/javascript"></script>
-    <script src="/js/bootstrap.js"></script>
-    <script src="/js/runModel.js"></script>
-    <link href="/css/main1.css" rel="stylesheet">
-    <link href="/css/uploadfile.css" rel="stylesheet">
-    <script src="/js/jquery.uploadfile.js" type="text/javascript"></script>
+    <title>模型服务器</title>
+    <%- include headInclude.ejs %>
 </head>
-<body>
-
-<% include header.ejs %>
-
-<!--start 主体body-->
-<div class="container">
-    <div class="panel panel-success">
-        <div class="panel-heading clearfix">
-            <div class="clearfix">
-                <div class="pull-left" id="modelNameDiv">
-                    <h4><%= modelSer.m_name %></h4>
-                </div>
-                <div class="pull-right" id="runBtnDiv">
-                    <button type="button" class="btn btn-lg btn-danger" id="btnRunModel" data-toggle="modal">运行模型</button>
-                </div>
-            </div>
-            <div  id="progressDiv" >
-                <div class="progress progress-striped active">
-                    <div class="progress-bar progress-bar-success" role="progressbar"
-                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
-                         style="width: 40%;">
-                        <span class="sr-only">40% 完成</span>
+<body class="sticky-header">
+<section>
+    <!-- 左导航栏 -->
+    <%- include header.ejs %>
+    <div class="main-content">
+        <!-- 上导航栏 -->
+        <%- include nav.ejs %>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="blog-img">
+                            <% if(modelSer.ms_img == null || modelSer.ms_img == ''){
+                                %><img src="/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" ><%
+                            }
+                            else {
+                                %><img src="/images/modelImg/<%=modelSer.ms_img %>" alt="<%=modelSer.ms_model.m_name %>" ><%
+                            }%>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <h1 class="mtop35"><%=modelSer.ms_model.m_name  %></h1>
+                        <p style="font-size: 14px; color:#aaa" >
+                            部署人&nbsp;:&nbsp;<%=modelSer.ms_user.u_name %>&nbsp;&nbsp;&nbsp;&nbsp;
+                            Email&nbsp;:&nbsp;<%=modelSer.ms_user.u_email %>
+                            <br />
+                            模型类型&nbsp;:&nbsp;<%=modelSer.ms_model.m_type %>
+                            <br />
+                            版本号&nbsp;:&nbsp;<%=modelSer.mv_num %>
+                            <br />
+                            所在平台&nbsp;:&nbsp;<%
+                            if(modelSer.ms_platform == 1)
+                            {
+                                %><span class="label label-info">
+                                    <i class="fa fa-windows"></i>
+                                    windows
+                                </span><%
+                            }
+                            else if(modelSer.ms_platform == 2)
+                            {
+                                %><span class="label label-info">
+                                    <i class="fa fa-linux"></i>
+                                    linux
+                                </span><%
+                            }
+                            else
+                            {
+                                %><span class="label label-info">
+                                    未知平台
+                                </span><%
+                            }
+                            %>
+                            <br />
+                            部署时间&nbsp;:&nbsp;<%=modelSer.ms_update %>
+                            <br />
+                            状态&nbsp;:&nbsp;<% if(modelSer.ms_status == 1){
+                                %><span class="badge badge-success">可用</span><%
+                            }else {
+                                %><span class="badge badge-defult">不可用</span><%
+                            }%>
+                            <br />
+                            描述&nbsp;:&nbsp;
+                            <br />
+                            <%=modelSer.ms_des %>
+                        </p>
+                        <% if(modelSer.ms_model.m_url != null)
+                        {
+                            %><a style="more" href="<%=modelSer.ms_model.m_url %>" >更多信息</a><%
+                        }%>
+                        <br />
+                        <div class="btn-group btn-group-justified" style="width: 50%">
+                            <a href="#" class="btn btn-default"
+                               onclick="window.open('/modelser/preparation/<%=modelSer._id %>')"
+                            <%if(modelSer.ms_status == 0)
+                            {
+                                %>disabled="disable" <%
+                            }%>>
+                                <i class="fa fa-retweet"></i>调用
+                            </a>
+                            <% if(modelSer.ms_status == 0)
+                            {
+                                %>
+                            <a href="#" class="btn btn-success" onclick="ms_start('<%=modelSer._id %>')" >
+                                <i class="fa fa-play"></i>启动服务
+                            </a>
+                            <a href="#" class="btn btn-warning">
+                                <i class="fa fa-trash-o"></i>删除服务
+                            </a><%
+                            }
+                            else if(modelSer.ms_status == 1)
+                            {
+                                %>
+                            <a href="#" class="btn btn-danger" onclick="ms_stop('<%=modelSer._id %>')" >
+                                <i class="fa fa-stop"></i>关闭服务
+                            </a><%
+                            }%>
+                        </div>
                     </div>
                 </div>
             </div>
-
-
         </div>
-        <div class="panel-body">
-            <div id="tabDiv">
-                <!-- Nav tabs -->
-                <ul class="nav nav-tab vertical-tab" role="tablist" id="vtab">
-                    <li role="presentation">
-                        <a href="#divDetailInfo" id="tabDetailInfo" aria-controls="home" role="tab"
-                           data-toggle="tab">模型详细信息</a>
-                    </li>
-                    <li role="presentation" id="tabServerInfo" class="active">
-                        <a href="#divServerInfo"  aria-controls="inbox" role="tab"
-                           data-toggle="tab">服务器信息</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#divServerStatus" id="tabServerStatus" aria-controls="outbox" role="tab"
-                           data-toggle="tab">服务器状态</a>
-                    </li>
-                    <li role="presentation" id="tabRunResult" class="hidden">
-                        <a href="#divRunResult" aria-controls="inbox1" role="tab"
-                           data-toggle="tab">模型运行结果</a>
-                    </li>
-                </ul>
-
-                <!-- Tab panes -->
-                <div class="tab-content vertical-tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="divDetailInfo">
-                        <h3>名称:<%=modelSer.m_name %></h3>
-                        <h3>版本:<%=modelSer.mv_num %></h3>
-                        <h3>类型:<%=modelSer.m_name %></h3>
-                        <h3>注册时间:<%=modelSer.m_update %></h3>
-                        <h3>描述:<%=modelSer.m_des %></h3>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="divServerInfo"></div>
-                    <div role="tabpanel" class="tab-pane" id="divServerStatus"></div>
-                    <div role="tabpanel" class="tab-pane" id="divRunResult">
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        <%- include footer.ejs %>
     </div>
-    <div class="modal fade" id="upload">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">上传UDX参数</h4>
-                </div>
-                <div class="modal-body" id="uploadContent">
-                    <div id="fileuploader">Upload</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="btnRun" data-dismiss="modal">运行</button>
-                    <button type="button" class="btn btn-primary" id="btnClose" data-dismiss="modal">关闭</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!--end 主体body-->
-
-<hr/>
-
-<% include footer.ejs %>
-
+</section>
+<%- include footerInclude.ejs %>
+<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
 </body>
 </html>

@@ -20,6 +20,7 @@ SysControl.getState = function(callback)
     {
         'hostname':os.hostname(),
         'systemtype':os.type(),
+        'platform' : os.platform(),
         'release': os.release(),
         'uptime':os.uptime(),
         'loadavg':os.loadavg(),
@@ -37,7 +38,11 @@ SysControl.getState = function(callback)
             console.log(err);
             return callback(err);
         }
-        sysinfo.disk = stdout;
+        var array = stdout.split("\r\r\n");
+        array.pop();
+        array.pop();
+        array.shift();
+        sysinfo.disk = array;
         return callback(null, sysinfo);
     });
 }

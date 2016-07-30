@@ -6,7 +6,15 @@ var sysControl = require('../control/sysControl');
 
 module.exports = function(app)
 {
+    //得到当前状态页面
     app.route('/status')
+        .get(function(req, res, next)
+        {
+            res.render('status');
+        });
+
+    //得到当前状态JSON数据
+    app.route('/json/status')
         .get(function(req, res, next)
         {
             sysControl.getState(function(err,sysinfo)
@@ -14,6 +22,7 @@ module.exports = function(app)
                 res.end(JSON.stringify(sysinfo));
             });
         });
+
     app.route('/info')
         .get(function(req,res,next)
         {
