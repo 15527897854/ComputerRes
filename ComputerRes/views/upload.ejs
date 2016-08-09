@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link href="/css/jquery.stepy.css" rel="stylesheet">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/blueimp-gallery.min.css">
+    <link rel="stylesheet" href="/css/jquery.fileupload.css">
+    <link rel="stylesheet" href="/css/jquery.fileupload-ui.css">
+    <link rel='stylesheet' href='/css/upload.css'/>
+    <link href="/css/style-responsive.css" rel="stylesheet">
+
+    <%- include headInclude.ejs %>
+</head>
+<body class="sticky-header">
+    <section>
+        <!-- 左导航栏 -->
+        <%- include header.ejs %>
+        <div class="main-content">
+            <!-- 上导航栏 -->
+            <%- include nav.ejs %>
+
+            <div style="min-height: 600px; padding:20px; font: 14px 'Lucida Grande', Helvetica, Arial, sans-serif,'Microsoft YaHei';">
+
+                <div class="container">
+                    <br>
+                    <form style="border-top: 1px dotted rgba(0, 0, 0, 0.3);"  id="fileupload" action="/upload" method="POST" enctype="multipart/form-data">
+                        <h3>上传模型</h3> <br>
+                        <div class="row fileupload-buttonbar">
+                            <div class="col-lg-7">
+                                <!-- The fileinput-button span is used to style the file input field as button -->
+                                <span class="btn btn-success fileinput-button">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>添加文件...</span>
+                                    <input id="addfile" type="file" name="files[]" >
+                                </span>
+                                <button type="submit" class="btn btn-primary start">
+                                    <i class="glyphicon glyphicon-upload"></i>
+                                    <span>开始上传</span>
+                                </button>
+                                <button type="reset" class="btn btn-warning cancel">
+                                    <i class="glyphicon glyphicon-ban-circle"></i>
+                                    <span>取消上传</span>
+                                </button>
+                                <button type="button" class="btn btn-danger delete">
+                                    <i class="glyphicon glyphicon-trash"></i>
+                                    <span>删除文件</span>
+                                </button>
+                                <input type="checkbox" class="toggle">
+                                <!-- The global file processing state -->
+                                <span class="fileupload-process"></span>
+                            </div>
+                            <!-- The global progress state -->
+                            <div class="col-lg-5 fileupload-progress fade">
+                                <!-- The global progress bar -->
+                                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                </div>
+                                <!-- The extended global progress state -->
+                                <div class="progress-extended">&nbsp;</div>
+                            </div>
+                        </div>
+                        <!--<span style="color: #5c708d;margin-left:20px">提示：请以压缩包的形式上传，压缩包名称需和模型名称一致！</span>-->
+                        <!--<br><br>-->
+                        <table role="presentation" class="table table-striped">
+                            <tbody class="files"></tbody>
+                        </table>
+                    </form>
+                    <br>
+                    <!-- The blueimp Gallery widget -->
+                    <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
+                        <div class="slides"></div>
+                        <h3 class="title"></h3>
+                        <a class="prev">‹</a>
+                        <a class="next">›</a>
+                        <a class="close">×</a>
+                        <a class="play-pause"></a>
+                        <ol class="indicator"></ol>
+                    </div>
+                </div>
+
+                <div class="wrapper">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p style="border-top: 1px dotted rgba(0, 0, 0, 0.3);"></p>
+                            <h3 >模型服务信息</h3> <br>
+                            <div class="box-widget">
+                                <div class="widget-head clearfix">
+                                    <div id="top_tabby" class="block-tabby pull-left"></div>
+                                </div>
+                                <div class="widget-container">
+                                    <div class="widget-block">
+                                        <div class="widget-content box-padding">
+                                            <form id="stepy_form" class=" form-horizontal left-align form-well">
+                                                <fieldset title="Step 1">
+                                                    <legend>上传者信息</legend>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">用户名</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <input class="form-control" placeholder="admin" id="u_name" name="name" type="text"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">邮箱</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <input class="form-control" id="u_email" name="email" type="email"/>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset title="Step 2">
+                                                    <legend>模型信息</legend>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">模型名称</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <input type="text" id="m_name" name="m_name" placeholder="GeoModel" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">模型类型</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <input type="text" id="m_type" name="m_type" placeholder="Geo" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">详细信息地址</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <input type="url" id="m_url" name="m_url"  class="form-control">
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                                <fieldset title="Step 3">
+                                                    <legend>模型服务信息</legend>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">模型服务版本</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <input type="text" id="mv_num" name="mv_num" placeholder="0" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">模型服务所在平台</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <select id="ms_platform" name="ms_platform" class="form-control">
+                                                                <option value ="1">0：本机</option>
+                                                                <option value ="2">1：外部</option>
+                                                            </select>
+                                                            <!--<input type="text" id="ms_platform" name="ms_platform" placeholder="0:本机  1:外部" class="form-control">-->
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">模型参数</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <input type="text" id="ms_xml" name="ms_xml" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">模型状态</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <input type="text" id="ms_status" name="ms_status" placeholder="0" class="form-control">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">模型服务描述</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <!--<input type="text" id="ms_des" name="ms_des" class="form-control">-->
+                                                            <textarea rows="3" cols="90" id="ms_des" name="ms_des" class="form-control"></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-md-2 col-sm-2 control-label">模型描述图片</label>
+                                                        <div class="col-md-6 col-sm-6">
+                                                            <!--<input type="text" id="ms_img" name="ms_img" class="form-control">-->
+
+                                                            <div>
+                                                                <input id="imageupload" name="ms_img" type="file" name="files[]">
+                                                                <!--<input type="submit" value="提交">-->
+                                                                <br>
+                                                                <div id="progressUpload" class="progressUpload" style="width: 300px; height: 20px; background: #e3e3e3;">
+                                                                    <div class="progressUpload-bar progressUpload-bar-success"
+                                                                         style="height: 20px; width: 0; background: #428cff;"></div>
+                                                                </div>
+
+                                                                <div id="uploadPercent" style="width: 300px; height: 30px;">
+                                                                    <span>0%</span>
+                                                                    <span style="float:right;">100%</span>
+                                                                </div>
+
+                                                                <div id="files" class="files"></div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                                <button id="btnSave" type="submit" class="finish btn btn-info btn-extend"> 保存！</button>
+                                            </form>
+                                            <!--<span id="save_Status" style="display: inline;margin-left: 50px;"></span>-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <%- include footer.ejs %>
+        </div>
+    </section>
+
+<%- include footerInclude.ejs %>
+
+<script src="/js/jquery.validate.min.js"></script>
+<script src="/js/jquery.stepy.js"></script>
+
+<script>
+        /*=====STEPY WIZARD WITH VALIDATION====*/
+        $(function() {
+            $('#stepy_form').stepy({
+                backLabel: '上一步',
+                nextLabel: '下一步',
+                errorImage: true,
+//                block: true,
+                description: true,
+                legend: false,
+                titleClick: true,
+                titleTarget: '#top_tabby',
+                validate: true,
+                finishButton:true,
+                finish: function() {
+                    return false;
+                }
+            });
+            $('#stepy_form').validate({
+                errorPlacement: function(error, element) {
+                    $('#stepy_form div.stepy-error').append(error);
+//                    $("#btnSave").attr("disabled","disabled");
+                },
+                rules: {
+                    name: 'required',
+                    email: 'required',
+                    m_url:'required',
+                    m_name:'required',
+                    m_type:'required',
+                    mv_num:'required',
+                    ms_des:'required',
+                    ms_platform:'required',
+                    ms_status:'required'
+                },
+                messages: {
+                    name: {
+                        required: '请填写用户名!'
+                    },
+                    email: {
+                        required: '请填写您的邮箱!'
+                    },
+                    m_url: {
+                        required: '请填写模型详细信息地址!'
+                    },
+                    m_name: {
+                        required: '请填写模型名称!'
+                    },
+                    m_type: {
+                        required: '请填写模型类型!'
+                    },
+                    mv_num: {
+                        required: '请填写模型版本号!'
+                    },
+                    ms_des: {
+                        required: '请填写模型描述信息!'
+                    },
+                    ms_platform: {
+                        required: '请填写模型运行平台!'
+                    },
+                    ms_status: {
+                        required: '请填写模型服务状态!'
+                    }
+                }
+            });
+        });
+</script>
+<!--提交表单-->
+<script type="text/javascript">
+    $("#btnSave").click(function(){
+        $("#imageupload").val();
+        $.ajax({
+            type:"POST",
+            url:"/modelser/mongo",
+            data:{
+                m_name:$("#m_name").val(),
+                m_type:$("#m_type").val(),
+                m_url:$("#m_url").val(),
+                m_id:$("#m_id").val(),
+                mv_num:$("#mv_num").val(),
+                ms_des:$("#ms_des").val(),
+                ms_platform:$("#ms_platform").val(),
+//                ms_img:$("#imageupload").val().files[0].name,
+                ms_xml:$("#ms_xml").val(),
+                ms_status:$("#ms_status").val(),
+                u_name:$("#u_name").val(),
+                u_email:$("#u_email").val()
+            },
+            datatype:"json",
+            success:function (data) {
+//                console.log(data.status);
+                if(data.status==1){
+//                    $("#btnSave").attr("disabled","disabled");
+                    alert("保存成功！");
+                }
+                else if(data.status==0){
+                    alert("保存失败！");
+                }
+                else if(data.status==2){
+                    alert("请先上传模型！");
+                }
+                else if(data.status==3){
+                    alert("该模型已存在！");
+                }
+            }
+        });
+    });
+</script>
+
+<!-- The template to display files available for upload -->
+<script id="template-upload" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+<tr class="template-upload fade">
+    <td>
+        <span class="preview"></span>
+    </td>
+    <td>
+        <p class="name">{%=file.name%}</p>
+        <strong class="error text-danger"></strong>
+    </td>
+    <td>
+        <p class="size">处理中...</p>
+        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
+    </td>
+    <td>
+        {% if (!i && !o.options.autoUpload) { %}
+            <button class="btn btn-primary start" disabled>
+                <i class="glyphicon glyphicon-upload"></i>
+                <span>开始</span>
+            </button>
+        {% } %}
+        {% if (!i) { %}
+            <button class="btn btn-warning cancel">
+                <i class="glyphicon glyphicon-ban-circle"></i>
+                <span>取消</span>
+            </button>
+        {% } %}
+    </td>
+</tr>
+{% } %}
+</script>
+<!-- The template to display files available for download -->
+<script id="template-download" type="text/x-tmpl">
+{% for (var i=0, file; file=o.files[i]; i++) { %}
+<tr class="template-download fade">
+    <td>
+        <span class="preview">
+            {% if (file.thumbnailUrl) { %}
+                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
+            {% } %}
+        </span>
+    </td>
+    <td>
+        <p class="name">
+            {% if (file.url) { %}
+                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+            {% } else { %}
+                <span>{%=file.name%}</span>
+            {% } %}
+        </p>
+        {% if (file.error) { %}
+            <div><span class="label label-danger">出错</span> {%=file.error%}</div>
+        {% } %}
+    </td>
+    <td>
+        <span class="size">{%=o.formatFileSize(file.size)%}</span>
+    </td>
+    <td>
+        {% if (file.deleteUrl) { %}
+            <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                <i class="glyphicon glyphicon-trash"></i>
+                <span>删除</span>
+            </button>
+            <input type="checkbox" name="delete" value="1" class="toggle">
+        {% } else { %}
+            <button class="btn btn-warning cancel">
+                <i class="glyphicon glyphicon-ban-circle"></i>
+                <span>取消</span>
+            </button>
+        {% } %}
+    </td>
+</tr>
+{% } %}
+</script>
+<!--<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>-->
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+<script src="/js/uploader/jquery.ui.widget.js"></script>
+<!-- The Templates plugin is included to render the upload/download listings -->
+<script src="/js/uploader/tmpl.min.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="/js/uploader/load-image.min.js"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+<script src="/js/uploader/canvas-to-blob.min.js"></script>
+<!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
+<!--<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>-->
+<!-- blueimp Gallery script -->
+<script src="/js/uploader/jquery.blueimp-gallery.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="/js/uploader/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="/js/uploader/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script src="/js/uploader/jquery.fileupload-process.js"></script>
+<!-- The File Upload image preview & resize plugin -->
+<script src="/js/uploader/jquery.fileupload-image.js"></script>
+<!-- The File Upload audio preview plugin -->
+<script src="/js/uploader/jquery.fileupload-audio.js"></script>
+<!-- The File Upload video preview plugin -->
+<script src="/js/uploader/jquery.fileupload-video.js"></script>
+<!-- The File Upload validation plugin -->
+<script src="/js/uploader/jquery.fileupload-validate.js"></script>
+<!-- The File Upload user interface plugin -->
+<script src="/js/uploader/jquery.fileupload-ui.js"></script>
+<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
+<!--[if (gte IE 8)&(lt IE 10)]>
+<script src="/js/cors/jquery.xdr-transport.js"></script>
+<![endif]-->
+<!-- The main application script -->
+<script src="/js/uploader/main.js"></script>
+<script src="/js/uploader/upload.js"></script>
+
+</body>
+</html>

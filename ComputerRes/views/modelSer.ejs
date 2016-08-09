@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模型服务器</title>
+    <%- include headInclude.ejs %>
+</head>
+<body class="sticky-header">
+<section>
+    <!-- 左导航栏 -->
+    <%- include header.ejs %>
+    <div class="main-content">
+        <!-- 上导航栏 -->
+        <%- include nav.ejs %>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="blog-img">
+                            <% if(modelSer.ms_img == null || modelSer.ms_img == ''){
+                                %><img src="/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" ><%
+                            }
+                            else {
+                                %><img src="/images/modelImg/<%=modelSer.ms_img %>" alt="<%=modelSer.ms_model.m_name %>" ><%
+                            }%>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <h1 class="mtop35"><%=modelSer.ms_model.m_name  %></h1>
+                        <p style="font-size: 14px; color:#aaa" >
+                            部署人&nbsp;:&nbsp;<%=modelSer.ms_user.u_name %>&nbsp;&nbsp;&nbsp;&nbsp;
+                            Email&nbsp;:&nbsp;<%=modelSer.ms_user.u_email %>
+                            <br />
+                            模型类型&nbsp;:&nbsp;<%=modelSer.ms_model.m_type %>
+                            <br />
+                            版本号&nbsp;:&nbsp;<%=modelSer.mv_num %>
+                            <br />
+                            所在平台&nbsp;:&nbsp;<%
+                            if(modelSer.ms_platform == 1)
+                            {
+                                %><span class="label label-info">
+                                    <i class="fa fa-windows"></i>
+                                    windows
+                                </span><%
+                            }
+                            else if(modelSer.ms_platform == 2)
+                            {
+                                %><span class="label label-info">
+                                    <i class="fa fa-linux"></i>
+                                    linux
+                                </span><%
+                            }
+                            else
+                            {
+                                %><span class="label label-info">
+                                    未知平台
+                                </span><%
+                            }
+                            %>
+                            <br />
+                            部署时间&nbsp;:&nbsp;<%=modelSer.ms_update %>
+                            <br />
+                            状态&nbsp;:&nbsp;<% if(modelSer.ms_status == 1){
+                                %><span class="badge badge-success">可用</span><%
+                            }else {
+                                %><span class="badge badge-defult">不可用</span><%
+                            }%>
+                            <br />
+                            描述&nbsp;:&nbsp;
+                            <br />
+                            <%=modelSer.ms_des %>
+                        </p>
+                        <% if(modelSer.ms_model.m_url != null)
+                        {
+                            %><a style="more" href="<%=modelSer.ms_model.m_url %>" >更多信息</a><%
+                        }%>
+                        <br />
+                        <div class="btn-group btn-group-justified" style="width: 50%">
+                            <a href="#" class="btn btn-default"
+                               onclick="window.open('/modelser/preparation/<%=modelSer._id %>')"
+                            <%if(modelSer.ms_status == 0)
+                            {
+                                %>disabled="disable" <%
+                            }%>>
+                                <i class="fa fa-retweet"></i>调用
+                            </a>
+                            <% if(modelSer.ms_status == 0)
+                            {
+                                %>
+                            <a href="#" class="btn btn-success" onclick="ms_start('<%=modelSer._id %>')" >
+                                <i class="fa fa-play"></i>启动服务
+                            </a>
+                            <a href="#" class="btn btn-warning">
+                                <i class="fa fa-trash-o"></i>删除服务
+                            </a><%
+                            }
+                            else if(modelSer.ms_status == 1)
+                            {
+                                %>
+                            <a href="#" class="btn btn-danger" onclick="ms_stop('<%=modelSer._id %>')" >
+                                <i class="fa fa-stop"></i>关闭服务
+                            </a><%
+                            }%>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%- include footer.ejs %>
+    </div>
+</section>
+<%- include footerInclude.ejs %>
+<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
+</body>
+</html>
