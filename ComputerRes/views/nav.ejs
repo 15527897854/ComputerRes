@@ -1,0 +1,173 @@
+<script src="/js/jquery-1.10.2.min.js"></script>
+
+
+<script id="nav-news-li" type="text/html">
+    <li class="new">
+        <a href="">
+            <span class="task-info">
+                <span class="name">{ms_name}<span onclick="click()" class="badge badge-success">new</span></span>
+                <span class="msg">{notice}</span>
+            </span>
+        </a>
+    </li>
+</script>
+
+<!-- header section start-->
+<div class="header-section">
+
+    <!--toggle button start-->
+    <a class="toggle-btn"><i class="fa fa-bars"></i></a>
+    <!--toggle button end-->
+
+    <!--notification menu start -->
+    <div class="menu-right">
+        <ul class="notification-menu">
+            <li>
+                <a href="#" class="btn btn-default dropdown-toggle info-number" data-toggle="dropdown">
+                    <i class="fa fa-tasks"></i>
+                    <!--<span class="badge">8</span>-->
+                </a>
+                <div class="dropdown-menu dropdown-menu-head pull-right">
+                    <h5 class="title">模型运行情况</h5>
+                    <ul class="dropdown-list user-list">
+                        <li>
+                            <a href="#">
+                                <div class="task-info">
+                                    <div>当前模型运行实例数 : </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <div class="task-info">
+                                    <div>模型1 进度:</div>
+                                </div>
+                                <div class="progress progress-striped">
+                                    <div style="width: 90%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="90" role="progressbar" class="progress-bar progress-bar-success">
+                                        <span class="">90%</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="new">
+                            <a href="#">
+                                <div class="task-info">
+                                    <div>模型2 进度:</div>
+                                </div>
+                                <div class="progress progress-striped">
+                                    <div style="width: 90%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="90" role="progressbar" class="progress-bar progress-bar-success">
+                                        <span class="">90%</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="new">
+                            <a href="#">
+                                <div class="task-info">
+                                    <div>模型3 进度:</div>
+                                </div>
+                                <div class="progress progress-striped">
+                                    <div style="width: 90%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="90" role="progressbar" class="progress-bar progress-bar-success">
+                                        <span class="">90%</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="new"><a href="/modelSer/all">查看所有模型运行情况</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li>
+                <a href="#"  class="btn btn-default dropdown-toggle info-number" data-toggle="dropdown">
+                    <i class="fa fa-envelope-o"></i>
+                    <span id="newsNum" class="badge"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-head pull-right">
+                    <h5 class="title">消息</h5>
+
+                    <ul id="nav-news-ul" class="dropdown-list normal-list"></ul>
+
+                </div>
+            </li>
+            <li>
+                <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <img src="/images/photos/user-avatar.png" alt="" />
+                    管理员
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-usermenu pull-right">
+                    <li><a href="#"><i class="fa fa-user"></i>信息</a></li>
+                    <li><a href="#"><i class="fa fa-cog"></i>设置</a></li>
+                    <li><a href="#"><i class="fa fa-sign-out"></i>登出</a></li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+    <!--notification menu end -->
+
+</div>
+<!-- header section end-->
+
+<script type="text/javascript">
+    function Polling() {
+        $.ajax({
+            url:'/notices',
+            type:'GET',
+            data:{latest:true},
+            datatype:'json',
+            success:function (data){
+                if(data.length){
+                    $('#newsNum').html(data.length);
+                    renderNews(data.data);
+                }
+                else {
+                    $('#newsNum').html(null);
+                    renderNews(null);
+                }
+                setTimeout(Polling,5000);
+            }
+        })
+    }
+
+    function click() {
+        $.ajax({
+            url: '/notices',
+            type: 'GET',
+            data: {latest: true},
+            datatype: 'json',
+            success: function (data) {
+                if (data.length) {
+                    $('#newsNum').html(data.length);
+                    renderNews(data.data);
+                }
+                else{
+                    $('#newsNum').html(null);
+                    renderNews(null);
+                }
+            }
+        })
+    }
+
+    (function () {
+        Polling();
+    })();
+
+    function renderNews(data) {
+        if(data){
+            $('#nav-news-ul').html('');
+            data.forEach(function (item) {
+                var tmp = $('#nav-news-li').html();
+                tmp = tmp.replace(/\{(\w+)\}/g, function (source, key) {
+                    return item[key];
+                });
+                $('#nav-news-ul').append(tmp);
+            });
+            $('#nav-news-ul').append('<li class="new"><a href="/note">查看所有消息</a></li>');
+        }
+        else {
+            $('#nav-news-ul').html('');
+            $('#nav-news-ul').append('<li class="new"><a href="/note">没有未读消息</a></li>');
+        }
+    }
+</script>

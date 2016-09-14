@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模型服务调用</title>
+    <%- include headInclude.ejs %>
+    <link href="/css/uploadfile.css" rel="stylesheet" />
+</head>
+<body class="sticky-header">
+<section>
+    <!-- 左导航栏 -->
+    <%- include header.ejs %>
+    <div class="main-content">
+        <!-- 上导航栏 -->
+        <%- include nav.ejs %>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                模型服务信息
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                 </span>
+            </div>
+            <%
+            var data_name = [];
+            %>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="blog-img">
+                            <img src="/images/modelImg/default.png" alt="模型调用" >
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <p style="font-size: 14px; color:#aaa" >
+                            <strong>模型名称&nbsp;:&nbsp;</strong><%=modelSer.ms_model.m_name  %>
+                            <br />
+                            <strong>模型类型&nbsp;:&nbsp;</strong><%=modelSer.ms_model.m_type %>
+                            <br />
+                            <strong>版本号&nbsp;:&nbsp;</strong><%=modelSer.mv_num %>
+                            <br />
+                            <strong>所在平台&nbsp;:&nbsp;</strong><%
+                            if(modelSer.ms_platform == 1)
+                            {
+                            %><span class="label label-info">
+                                    <i class="fa fa-windows"></i>
+                                    windows
+                                </span><%
+                            }
+                            else if(modelSer.ms_platform == 2)
+                            {
+                            %><span class="label label-info">
+                                    <i class="fa fa-linux"></i>
+                                    linux
+                                </span><%
+                            }
+                            else
+                            {
+                            %><span class="label label-info">
+                                    未知平台
+                                </span><%
+                            }
+                            %>
+                            <br />
+                            <strong>部署时间&nbsp;:&nbsp;</strong><%=modelSer.ms_update %>
+                            <br />
+                            <strong>状态&nbsp;:&nbsp;</strong><% if(modelSer.ms_status == 1){
+                            %><span class="badge badge-success">可用</span><%
+                            }else {
+                            %><span class="badge badge-defult">不可用</span><%
+                            }%>
+                            <br />
+                            <strong>描述&nbsp;:&nbsp;</strong>
+                            <br />
+                            <%=modelSer.ms_des %>
+                        </p>
+                        <% if(modelSer.ms_model.m_url != null)
+                        {
+                        %><a style="more" href="<%=modelSer.ms_model.m_url %>" >更多信息</a><%
+                        }%>
+                        <br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                数据输入
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                 </span>
+            </div>
+            <div id="data-panel" class="panel-body">
+                <h4><strong>状态信息</strong></h4>
+                <p><strong>名称&nbsp;:&nbsp;</strong><%= input.$.name %></p>
+                <p><strong>描述&nbsp;:&nbsp;</strong><%= input.$.description %></p>
+                <br />
+                <h4><strong>事件</strong></h4>
+                <section class="panel">
+                    <header class="panel-heading custom-tab ">
+                        <ul class="nav nav-tabs">
+                            <% for(var i = 0; i < input.Event.length; i++){ %>
+                            <li class="<% if(i == 0){%>active<%}%>">
+                                <a href="#<%=input.Event[i].$.name + i.toString() %>" data-toggle="tab">
+                                    <i class="fa fa-flash"></i>
+                                    <%=input.Event[i].$.name %>
+                                </a>
+                            </li>
+                            <% } %>
+                        </ul>
+                    </header>
+                    <div class="panel-body">
+                        <div class="tab-content">
+                            <% for(var i = 0; i < input.Event.length; i++)
+                            { %>
+                            <div class="tab-pane <% if(i == 0){ %>active<%}%>" id="<%=input.Event[i].$.name + i.toString() %>">
+                                <p><strong>类型：</strong><%=input.Event[i].$.type %></p>
+                                <p><strong>描述：</strong><%=input.Event[i].$.description %></p>
+                                <% if(input.Event[i].hasOwnProperty('ResponseParameter'))
+                                {
+                                    %><p><strong>数据参考：</strong><%=input.Event[i].ResponseParameter.$.datasetReference %></p><%
+                                }
+                                else if(input.Event[i].hasOwnProperty('DispatchParameter'))
+                                {
+                                    %><p><strong>数据参考：</strong><%=input.Event[i].DispatchParameter.$.datasetReference %></p><%
+                                }
+                                if(input.Event[i].$.type == 'response') {
+                                    data_name.push(input.Event[i].$.name); %>
+                                <p id="data_pre_p_<%=input.Event[i].$.name %>"><strong>数据准备情况：</strong><span class="label label-warning">未准备</span></p>
+                                <input id="data_<%=input.Event[i].$.name %>" type="hidden" value="" />
+                                <div class="btn-group btn-group-justified" style="width: 60%">
+                                    <a href="#modal_datainput_<%=input.Event[i].$.name %>" data-toggle="modal" class="btn btn-default"  >
+                                        <i class="fa fa-pencil"></i>手动输入
+                                    </a>
+                                    <a href="#modal_fileinput_<%=input.Event[i].$.name %>" data-toggle="modal" class="btn btn-default"  >
+                                        <i class="fa fa-file-text"></i>上传文件
+                                    </a>
+                                </div>
+                                <!-- 手动输入数据窗口 -->
+                                <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1"
+                                     id="modal_datainput_<%=input.Event[i].$.name %>" class="modal fade" style="display: none;">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                                                <h4 class="modal-title">手动输入数据</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h4>UDX数据</h4>
+                                                <textarea id="ta_inputdata_<%=input.Event[i].$.name %>" class=" form-control" style="height: 200px" ></textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                                <button type="button" class="btn btn-success" id="btn_stream_<%=input.Event[i].$.name %>">确认</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 上传数据文件窗口 -->
+                                <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1"
+                                     id="modal_fileinput_<%=input.Event[i].$.name %>" class="modal fade" style="display: none;">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                                                <h4 class="modal-title">上传数据文件</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h4>UDX文件</h4>
+                                                <div id="fileuploader_<%=input.Event[i].$.name %>">Upload</div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                                <button type="button" class="btn btn-success" id="btn_upload_<%=input.Event[i].$.name %>">确认</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                操作
+            </div>
+            <div class="panel-body" style="text-align: center;">
+                <button id="btn_run" class="btn btn-success" style="width: 20%" >
+                    <i class="fa fa-cogs"></i>运行
+                </button>
+                <button href="#" class="btn btn-warning" style="width: 20%" onclick="window.close()" >
+                    <i class="fa fa-reply"></i>取消
+                </button>
+            </div>
+        </div>
+        <%- include footer.ejs %>
+    </div>
+</section>
+<%- include footerInclude.ejs %>
+<script type="text/javascript" src="/js/jquery.uploadfile.min.js" ></script>
+<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
+<script type="text/javascript" >
+    $(document).ready(function () {
+        <% for(var i = 0; i < data_name.length; i++)
+        {%>
+        var upload_<%=data_name[i] %> = $("#fileuploader_<%=data_name[i] %>").uploadFile({
+            //上传路径
+            url:"/geodata/file/",
+            //上传文件名
+            fileName:"myfile",
+            //是否多个文件
+            multiple:false,
+            //是否拖拽上传
+            dragDrop:true,
+            //最大文件数
+            maxFileCount:1,
+            //规定上传文件格式
+            acceptFiles:"*/*",
+            //最大文件大小
+            maxFileSize:100*1024*1024,
+            //表单数据
+            formData:
+            {
+                state:'<%= input.$.name %>'
+            },
+            //上传文件按钮文本
+            uploadStr:"上传文件",
+            //取消上传按钮文本
+            cancelStr:"取消文件",
+            //拖拽上传提示文本（带HTML）
+            dragDropStr:"<span><b>拖拽上传</b></span>",
+            //完成上传提示文本
+            doneStr:"完成上传",
+            //是否自动传
+            autoSubmit:false,
+            //是否显示已上传文件
+            showDownload:false,
+            //上传完成回调
+            onSuccess:function(files, data, xhr, pd)
+            {
+                var resJSON = JSON.parse(data);
+                if(resJSON.res == 'suc')
+                {
+                    //添加数据ID并显示数据加载完成
+                    $('#data_<%=data_name[i] %>').val(resJSON.gd_id);
+                    $('#data_pre_p_<%=data_name[i] %>').html('<strong>数据准备情况：</strong>' +
+                            '<span class="label label-success">已准备</span>' +
+                            '数据ID : ' + resJSON.gd_id);
+                    //隐藏
+                    $('#modal_fileinput_<%=data_name[i] %>').modal('hide');
+                    //弹出提示条
+                    $('#data-panel').append('<div class="alert alert-success fade in">' +
+                            '<button type="button" class="close close-sm" data-dismiss="alert">' +
+                            '<i class="fa fa-times"></i>' +
+                            '</button>' +
+                            '<strong>数据上传成功!</strong><br /> ' +
+                            '<%=data_name[i] %> 事件数据准备成功！数据ID:' + resJSON.gd_id + '</div>');
+                    //上传控件清空
+                    upload_<%=data_name[i] %>.reset();
+                }
+            }
+        });
+
+        //手动上传数据
+        $('#btn_stream_<%=data_name[i] %>').click(function () {
+            var stream = $('#ta_inputdata_<%=data_name[i] %>').val();
+            $.ajax({
+                url : '/geodata/stream',
+                type : 'POST',
+                data : {
+                    state : '<%= input.$.name %>',
+                    data : stream
+                },
+                success : function (data)
+                {
+                    var resJSON = JSON.parse(data);
+                    if(resJSON.res == 'suc') {
+                        //添加数据ID并显示数据加载完成
+                        $('#data_<%= data_name[i] %>').val(resJSON.gd_id);
+                        $('#data_pre_p_<%= data_name[i] %>').html('<strong>数据准备情况：</strong>' +
+                                '<span class="label label-success">已准备</span>' +
+                                '数据ID : ' + resJSON.gd_id);
+                        //隐藏
+                        $('#modal_datainput_<%= data_name[i] %>').modal('hide');
+                        //弹出提示条
+                        $('#data-panel').append('<div class="alert alert-success fade in">' +
+                                '<button type="button" class="close close-sm" data-dismiss="alert">' +
+                                '<i class="fa fa-times"></i>' +
+                                '</button>' +
+                                '<strong>数据上传成功!</strong><br /> ' +
+                                '<%= data_name[i] %> 事件数据准备成功！数据ID:' + resJSON.gd_id + '</div>');
+                    }
+                }
+            });
+        });
+
+        //开始上传数据文件
+        $('#btn_upload_<%=data_name[i] %>').click(function () {
+            upload_<%=data_name[i] %>.startUpload();
+        });
+        <%
+        }%>
+
+        //开始运行按钮
+        $('#btn_run').click(function () {
+            //准备Form数据
+            var dataNames = '<%=data_name %>'.split(',');
+            var dataInput = [];
+            for(var i = 0; i < dataNames.length; i++)
+            {
+                if($('#data_' + dataNames[i]).val() == '')
+                {
+                    return alert('数据未完全准备！');
+                }
+                var item = {
+                    'Event' : dataNames[i],
+                    'DataId' : $('#data_' + dataNames[i]).val()
+                }
+                dataInput.push(item);
+            }
+
+            //异步请求
+            $.ajax({
+                url:'/modelser/<%=modelSer._id %>?ac=run',
+                type:'GET',
+                data:'inputdata=' + JSON.stringify(dataInput),
+                success:function (data) {
+                    var resJson = JSON.parse(data);
+                    if(resJson.res = 'suc')
+                    {
+                        window.location.href = '/modelserrun/' + resJson.msr_id;
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

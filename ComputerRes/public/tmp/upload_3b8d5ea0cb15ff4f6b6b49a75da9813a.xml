@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<Dataset name="Dataset" kernelType="structure">
+    <XDO name="c" kernelType="double" value="2.82843" />
+    <XDO name="d" kernelType="double" value="-2.82843" />
+</Dataset>

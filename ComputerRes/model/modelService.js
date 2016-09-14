@@ -1,0 +1,352 @@
+/**
+ * Created by Franklin on 16-4-5.
+ * model for ModelService
+ */
+
+var mongodb = require('./mongoDB');
+var ObjectId = require('mongodb').ObjectID;
+var fs = require('fs');
+var uuid = require('node-uuid');
+var exec = require('child_process').exec;
+var xmlparse = require('xml2js').parseString;
+var setting = require('../setting');
+
+//ModelService模型
+function ModelService(modelser)
+{
+    if(modelser != null)
+    {
+        this._id = modelser._id;
+        this.ms_model = modelser.ms_model;
+        this.mv_num = modelser.mv_num;
+        this.ms_des = modelser.ms_des;
+        this.ms_platform = modelser.ms_platform;
+        this.ms_update = modelser.ms_update;
+        this.ms_path = modelser.ms_path;
+        this.ms_img = modelser.ms_img;
+        this.ms_xml = modelser.ms_xml;
+        this.ms_status = modelser.ms_status;
+        this.ms_user = modelser.ms_user;
+    }
+    else
+    {
+        this._id = new ObjectId();
+        this.ms_model = '';
+        this.mv_num = 0;
+        this.ms_des = '';
+        this.ms_update = '';
+        this.ms_path = '';
+        this.ms_xml = '';
+        this.ms_status = 0;
+        this.ms_user = '';
+    }
+    return this;
+}
+
+module.exports = ModelService;
+
+//新增模型服务信息
+ModelService.prototype.save = function(callback)
+{
+    //ModelService
+    var modelservice = {
+        _id : new ObjectId(this._id),
+        ms_model : this.ms_model,
+        mv_num : this.mv_num,
+        ms_des : this.ms_des,
+        ms_update : this.ms_update,
+        ms_platform : this.ms_platform,
+        ms_path : this.ms_path,
+        ms_img : this.ms_img,
+        ms_xml : this.ms_xml,
+        ms_status : this.ms_status,
+        ms_user : this.ms_user
+    };
+
+    //打开数据库
+    mongodb.open(function(err,db)
+    {
+        if(err)
+        {
+            return callback(err);
+        }
+        //打开数据集
+        db.collection('modelservice',function(err,collection)
+        {
+            if(err)
+            {
+                mongodb.close();
+                return callback(err);
+            }
+            //插入一条数据
+            collection.insert(modelservice,{safe:true},function(err,modelservice)
+            {
+                mongodb.close();
+                if(err)
+                {
+                    return callback(err);
+                }
+                callback(null, modelservice.ops[0]);
+            });
+        });
+    });
+};
+
+//删除模型服务
+ModelService.delete = function (_oid, callback) {
+    mongodb.open(function (err, db) {
+       if(err)
+       {
+           console.log(err);
+           return callback(err);
+       }
+       db.collection('modelservice', function (err, collection) {
+           if(err)
+           {
+               console.log(err);
+               mongodb.close();
+               return callback(err);
+           }
+           var oid = new ObjectId(_oid);
+           collection.remove({_id: oid}, function (err, count) {
+               if(err)
+               {
+                   console.log(err);
+                   return callback(err);
+               }
+               return callback(null, count);
+           });
+
+       });
+    });
+}
+
+//根据计算服务器获取模型服务
+ModelService.getAll = function(flag, callback)
+{
+    //打开数据库
+    mongodb.open(function(err,db)
+    {
+        if(err)
+        {
+            console.log(err);
+            return callback(err);
+        }
+
+        db.collection('modelservice',function(err,collection)
+        {
+            if(err)
+            {
+                mongodb.close();
+                return callback(err);
+            }
+            var condi = {};
+            if(flag == 'ALL')
+            {
+                condi = {};
+            }
+            else
+            {
+                condi = { ms_status : { $ne : -1 }}
+            }
+            collection.find(condi).toArray(function(err,data)
+            {
+                mongodb.close();
+                if(err)
+                {
+                    return callback(err);
+                }
+                return callback(null,data);
+            });
+        });
+    });
+};
+
+//根据OID获取Model
+ModelService.getByOID = function(_oid,callback)
+{
+    //打开数据库
+    mongodb.open(function(err,db)
+    {
+        if(err)
+        {
+            return callback(err);
+        }
+
+        //打开数据集
+        db.collection('modelservice',function(err,collection)
+        {
+            if(err)
+            {
+                mongodb.close();
+                return callback(err);
+            }
+            var oid = new ObjectId(_oid);
+            collection.findOne({_id:oid},function(err,ms)
+            {
+                mongodb.close();
+                if(err)
+                {
+                    return callback(err);
+                }
+                return callback(null, ms);
+            })
+        });
+    });
+};
+
+//更新模型数据
+ModelService.update = function(newmodelser,callback)
+{
+    mongodb.open(function(err,db)
+    {
+        if(err)
+        {
+            return callback(err);
+        }
+
+        db.collection('modelservice',function(err,collection)
+        {
+            if(err)
+            {
+                mongodb.close();
+                return callback(err);
+            }
+            collection.update(
+                {_id:newmodelser._id},
+                {$set:{
+                    ms_model : newmodelser.ms_model,
+                    mv_num : newmodelser.mv_num,
+                    ms_des : newmodelser.ms_des,
+                    ms_platform : newmodelser.ms_platform,
+                    ms_update : newmodelser.ms_update,
+                    ms_path : newmodelser.ms_path,
+                    ms_img : newmodelser.ms_img,
+                    ms_xml : newmodelser.ms_xml,
+                    ms_status : newmodelser.ms_status,
+                    ms_user : newmodelser.ms_user
+                }},
+                function(err, mess)
+                {
+                    mongodb.close();
+                    if(err)
+                    {
+                        return callback(err);
+                    }
+                    return callback(null, mess);
+                }
+            );
+        });
+    });
+};
+
+//启动一个模型服务实例
+ModelService.run = function (ms_id, guid, callback) {
+    this.getByOID(ms_id, function (err, ms) {
+        if(err)
+        {
+            return callback(err);
+        }
+        ModelService.getByOID(ms_id, function (err, ms) {
+            if(err)
+            {
+                return callback(err);
+            }
+            ModelService.readCfg(ms ,function (err, cfg) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                //执行程序
+                console.log(setting.modelpath + ms.ms_path + cfg.start);
+                exec( setting.modelpath + ms.ms_path + cfg.start + '  ' + guid, [] ,{
+                    cwd : setting.modelpath + ms.ms_path
+                });
+                return callback(null, ms);
+            });
+        });
+    });
+}
+
+//读取MDL文件
+ModelService.readMDL = function (ms, callback) {
+    ModelService.readCfg(ms, function (err, cfg) {
+        if(err)
+        {
+            return callback(err);
+        }
+        fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
+            if(err)
+            {
+                console.log('Error in read mdl file : ' + err);
+                return callback(err);
+            }
+            var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+                if(err)
+                {
+                    console.log('Error in parse mdl file : ' + err);
+                    return callback(err);
+                }
+                return callback(null, json);
+            });
+        })
+    })
+}
+
+//读取config文件
+ModelService.readCfg = function (ms, callback) {
+    fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + 'package.config', 'utf-8',function(err,data){
+        if(err){
+            console.log('Error in read config file : ' + err);
+            return callback(err);
+        }else{
+            var cfg = {
+                host : "",
+                port : "",
+                start : "",
+                mdl : "",
+                testdata : "",
+                engine : ""
+            };
+            var params = data.split('\r\n');
+            for(var i = 0; i < params.length; i++)
+            {
+                params[i] = params[i].split(' ');
+                switch (params[i][0])
+                {
+                    case 'host':
+                    {
+                        cfg.host = params[i][1];
+                        break;
+                    }
+                    case 'port':
+                    {
+                        cfg.port = params[i][1];
+                        break;
+                    }
+                    case 'start':
+                    {
+                        cfg.start = params[i][1];
+                        break;
+                    }
+                    case 'mdl':
+                    {
+                        cfg.mdl = params[i][1];
+                        break;
+                    }
+                    case 'testdata':
+                    {
+                        cfg.testdata = params[i][1];
+                        break;
+                    }
+                    case 'engine':
+                    {
+                        cfg.engine = params[i][1];
+                        break;
+                    }
+                }
+            }
+            return callback(null, cfg);
+        }
+    });
+}

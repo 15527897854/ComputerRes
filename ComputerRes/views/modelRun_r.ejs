@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模型运行信息</title>
+    <%- include headInclude.ejs %>
+    <link href="/css/uploadfile.css" rel="stylesheet" />
+</head>
+<body class="sticky-header">
+<section>
+    <!-- 左导航栏 -->
+    <%- include header.ejs %>
+    <div class="main-content">
+        <!-- 上导航栏 -->
+        <%- include nav.ejs %>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                模型服务信息
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                 </span>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="blog-img">
+                            <img src="/images/modelImg/default.png" alt="模型调用" >
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <p style="font-size: 14px; color:#aaa" >
+                            <strong>模型名称&nbsp;:&nbsp;</strong><%=ms.ms_model.m_name  %>
+                            <br />
+                            <strong>模型类型&nbsp;:&nbsp;</strong><%=ms.ms_model.m_type %>
+                            <br />
+                            <strong>版本号&nbsp;:&nbsp;</strong><%=ms.mv_num %>
+                            <br />
+                            <strong>所在平台&nbsp;:&nbsp;</strong><%
+                            if(ms.ms_platform == 1)
+                            {
+                            %><span class="label label-info">
+                                    <i class="fa fa-windows"></i>
+                                    windows
+                                </span><%
+                            }
+                            else if(ms.ms_platform == 2)
+                            {
+                            %><span class="label label-info">
+                                    <i class="fa fa-linux"></i>
+                                    linux
+                                </span><%
+                            }
+                            else
+                            {
+                            %><span class="label label-info">
+                                    未知平台
+                                </span><%
+                            }
+                            %>
+                            <br />
+                            <strong>部署时间&nbsp;:&nbsp;</strong><%=ms.ms_update %>
+                            <br />
+                            <strong>状态&nbsp;:&nbsp;</strong><% if(ms.ms_status == 1){
+                            %><span class="badge badge-success">可用</span><%
+                            }else {
+                            %><span class="badge badge-defult">不可用</span><%
+                            }%>
+                            <br />
+                            <strong>描述&nbsp;:&nbsp;</strong>
+                            <br />
+                            <%=ms.ms_des %>
+                        </p>
+                        <% if(ms.ms_model.m_url != null)
+                        {
+                        %><a style="more" href="<%=ms.ms_model.m_url %>" >更多信息</a><%
+                        }%>
+                        <br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                模型运行信息
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                 </span>
+            </div>
+            <div class="panel-body">
+                <p><strong>模型开始时间&nbsp;:&nbsp;</strong><%= msr.msr_date.toLocaleString() %></p>
+                <p><strong>模型调用者&nbsp;:&nbsp;</strong><%if(msr.msr_user.u_type == 0){ %>本地调用者<% }
+                    else {%>外部调用者<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
+                <p><strong>运行实例GUID&nbsp;:&nbsp;</strong><%= msr.msr_guid %></p>
+                <p><strong>输入数据&nbsp;:&nbsp;</strong><br />
+                    <% for(var i = 0; i < msr.msr_input.length; i++)
+                    {
+                    %><%=msr.msr_input[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a><%
+                    }%>
+                </p>
+                <p><strong>输出数据&nbsp;:&nbsp;</strong><br />
+                    <% if(msr.msr_time != 0)
+                    {
+                    for(var i = 0; i < msr.msr_output.length; i++)
+                    {
+                    %><%=msr.msr_output[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_output[i].DataId %>" ><%=msr.msr_output[i].DataId %></a><%
+                    }
+                    }%>
+                </p>
+                <p><strong>模型运行描述信息&nbsp;:&nbsp;</strong><br /><%=msr.msr_des %></p>
+                <p><strong>运行时间&nbsp;:&nbsp;</strong><%=msr.msr_time.toString() %>&nbsp;s&nbsp;</p>
+                <p><strong>当前进度&nbsp;:&nbsp;</strong></p>
+                <div class="progress progress-striped active progress-sm">
+                    <div id="bar_pro" style="width: 100%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
+                        <span class="sr-only">40% 完成</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%- include footer.ejs %>
+    </div>
+</section>
+<%- include footerInclude.ejs %>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var blFinish = true;
+        var interval = setInterval(function () {
+            if(!blFinish)
+            {
+                $.ajax({
+                    url : '/modelins/json/<%=msr.msr_guid %>',
+                    success : function (data) {
+                        var resJson = JSON.parse(data);
+                        if(resJson.res == null)
+                        {
+                            blFinish = true;
+                            setProcess(100);
+                            clearInterval(interval);
+                        }
+                        else if(resJson.res == 'suc')
+                        {
+                            switch (resJson.mis.state)
+                            {
+                                case 'MC_ENTER':
+                                {
+                                    setProcess(10);
+                                    break;
+                                }
+                                case 'MC_REQUEST':
+                                {
+                                    setProcess(20);
+                                    break;
+                                }
+                                case 'MC_CHECKDATA':
+                                {
+                                    setProcess(35);
+                                    break;
+                                }
+                                case 'MC_CALCULATE':
+                                {
+                                    setProcess(50);
+                                    break;
+                                }
+                                case 'MC_CHECKRES':
+                                {
+                                    setProcess(75);
+                                    break;
+                                }
+                                case 'MC_RESPONSE':
+                                {
+                                    setProcess(90);
+                                    break;
+                                }
+                                case 'MC_EXIT':
+                                {
+                                    setProcess(100);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                })
+            }
+        }, 200);
+    });
+
+    function setProcess(per) {
+        $('#bar_pro').css('width',per.toString() + '%');
+    }
+</script>
+</body>
+</html>

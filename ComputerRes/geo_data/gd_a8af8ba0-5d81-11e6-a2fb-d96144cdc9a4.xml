@@ -1,0 +1,11 @@
+<ModelData name="结果数据" uid="335bc19f-dc23-4ef5-9245-c0aa5a96c345">
+    <DatasetDeclarations>
+        <DatasetDeclaration name="INIT_PARAMETER" type="internal" description="结果数据集">
+            <UDXDeclaration id="c63c10ef-f260-45d8-be07-d6139b1f33d9" name="OUTPUT_PARAMETER" description="">
+                <UDXNode id="c63c10ef-f260-45d8-be07-d6139b1f33d9">
+                    <UDXNode id="b542d4d4-8bf3-497f-8b44-4b501e96dc34" name="outdata" type="DTKT_FLOAT" description="结果数据" value="253.797"/>
+                </UDXNode>
+            </UDXDeclaration>
+        </DatasetDeclaration>
+    </DatasetDeclarations>
+</ModelData>

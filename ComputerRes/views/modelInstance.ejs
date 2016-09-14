@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模型服务运行实例</title>
+    <%- include headInclude.ejs %>
+</head>
+<body class="sticky-header">
+<section>
+    <!-- 左导航栏 -->
+    <%- include header.ejs %>
+    <div class="main-content">
+        <!-- 上导航栏 -->
+        <%- include nav.ejs %>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <table  class="display table table-bordered table-striped" id="dynamic-table">
+                    <thead>
+                        <tr>
+                            <td>GUID</td>
+                            <td>名称</td>
+                            <td>版本</td>
+                            <td>启动时间</td>
+                            <td>状态</td>
+                            <td>操作</td>
+                        </tr>
+                    </thead>
+                    <tbody id="tb_data"></tbody>
+                </table>
+            </div>
+        </div>
+        <%- include footer.ejs %>
+    </div>
+</section>
+<%- include footerInclude.ejs %><!--dynamic table-->
+<script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        setInterval(function () {
+            $.ajax({
+                url:'/modelins/json/all',
+                success:function (data) {
+                    var resJson = JSON.parse(data);
+                    for(var i = 0; i < resJson.length; i++)
+                    {
+                        $('#tb_data').html('<tr>' +
+                                '<td>' + resJson[i].guid + '</td>' +
+                                '<td>' + resJson[i].ms.ms_model.m_name + '</td>' +
+                                '<td>' + resJson[i].ms.ms_num + '</td>' +
+                                '<td>' + resJson[i].start + '</td>' +
+                                '<td>' + resJson[i].state + '</td>' +
+                                '<td></td>' +
+                                '</tr>');
+                    }
+                }
+            });
+        }, 1000);
+    });
+</script>
+</body>
+</html>
