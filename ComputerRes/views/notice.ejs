@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+        #infoType li a{
+            padding:16px 15px;
+            font-size:15px
+        }
+    </style>
+
     <title>通知</title>
     <link rel="stylesheet" href="/css/jqpagination.css" />
     <%- include headInclude.ejs %>
@@ -28,7 +35,7 @@
     <%- include header.ejs %>
     <div class="main-content">
     <%- include nav.ejs %>
-    <div style="min-height: 600px">
+    <div style="min-height: 600px;">
         <div class="wrapper">
 
             <div class="mail-box">
@@ -41,12 +48,9 @@
                             </a>
                         </div>
                         <ul id="infoType" class="nav nav-pills nav-stacked mail-navigation">
-                            <li><a href="#" onclick="showPartTag('startServer')"><i class="fa fa-plus-square"></i> 开启服务  <span id="startServer" class="label label-info pull-right inbox-notification"></span></a></li>
-                            <li><a href="#" onclick="showPartTag('stopServer')"> <i class="fa fa-ban"></i> 关闭服务  <span id="stopServer" class="label label-info pull-right inbox-notification"></span></a></li>
                             <li><a href="#" onclick="showPartTag('startRun')"> <i class="fa fa-play"></i> 开始运行  <span id="startRun" class="label label-info pull-right inbox-notification"></span></a></li>
                             <li><a href="#" onclick="showPartTag('stopRun')"> <i class="fa fa-stop"></i> 停止运行 <span id="stopRun" class="label label-info pull-right inbox-notification"></span></a></li>
                             <li><a href="#" onclick="showPartTag('delServer')"> <i class="fa fa-trash-o"></i> 删除服务 <span id="delServer" class="label label-danger pull-right inbox-notification"></span></a></li>
-                            <li><a href="#" onclick="showPartTag('errInfo')"> <i class="fa fa-bug"></i> 错误信息  <span id="errInfo" class="label label-danger pull-right inbox-notification"></span></a></li>
                         </ul>
                     </div>
                 </aside>

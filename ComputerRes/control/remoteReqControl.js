@@ -4,6 +4,8 @@
  */
 var http = require('http');
 var qs = require('querystring');
+var fs = require('fs');
+var request = require('request');
 
 function RemoteReqControl()
 {
@@ -17,14 +19,17 @@ RemoteReqControl.Request = function(options, content, callback)
     var req = http.request(options, function(res) {
         res.setEncoding('utf8');
         res.on('data', function (data) {
-            console.log('---------------------------------------remote req data\n'+req.url+'\n'+data);
             return callback(null, data);
+        });
+        res.on('end',function(){
+            console.log('-------------------------res end-------------------------------');
         });
     });
 
     req.on('error', function(err){
+        console.log('_________________________\n'+options.host);
         console.log('Request Error : ' + err.message);
-        callback(err);
+        return callback(err);
     });
 
     //请求内容
@@ -32,5 +37,18 @@ RemoteReqControl.Request = function(options, content, callback)
     {
         req.write(qs.stringify(content));
     }
+
     req.end();
-}
+};
+
+RemoteReqControl.postRequest = function (req, url, callback) {
+    req.pipe(request.post(url,function (err, response, data) {
+        callback(err,data);
+    }));
+};
+
+RemoteReqControl.getRequest = function (req, url, callback) {
+    req.pipe(request.get(url,function (err, response, data) {
+        callback(err,data);
+    }));
+};

@@ -1,6 +1,7 @@
 /**
  * Created by Franklin on 2016/8/6.
  */
+var ModelSerCtrl = require('../control/modelSerControl');
 
 module.exports = function (app) {
     //模型实例页面
@@ -8,6 +9,7 @@ module.exports = function (app) {
         .get(function (req, res, next) {
             res.render('modelInstance',
                 {
+                    // user:req.session.user,
                     blmodelser : true
                 });
         });
@@ -18,7 +20,8 @@ module.exports = function (app) {
             var guid = req.params.guid;
             if(guid == 'all')
             {
-                var miss = JSON.stringify(app.modelInsColl.ModelInsArr);
+                var miss = app.modelInsColl.getAllIns();
+                miss = JSON.stringify(miss);
                 res.end(miss);
             }
             else
@@ -32,7 +35,7 @@ module.exports = function (app) {
                     };
                     return res.end(JSON.stringify({
                         'res' : 'suc',
-                        'mis' : JSON.stringify(mismodel)
+                        'mis' : mismodel
                     }));
                 }
                 else
@@ -44,4 +47,30 @@ module.exports = function (app) {
                 }
             }
         });
-}
+
+    //请求转发 获取远程的模型实例
+    app.route('/modelins/rmt/all')
+        .get(function (req, res, next) {
+            res.render('modelInstance_r',{
+                blmodelser_r : true
+            });
+        });
+    
+    app.route('/modelins/rmt/json/all')
+        .get(function (req, res) {
+            ModelSerCtrl.getChildMSRI(null, function (err, childmsri) {
+                // childmsri = JSON.parse(JSON.stringify(childmsri));
+                var data = [];
+                for(var i = 0;i<childmsri.length;i++){
+                    data[i] = {
+                        msri:childmsri[i].msri,
+                        ping:childmsri[i].ping,
+                        host:childmsri[i].host
+                    };
+                }
+                res.end(JSON.stringify({
+                    childmsri : data
+                }));
+            });
+        })
+};

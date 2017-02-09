@@ -18,7 +18,7 @@ function SocketTrans(app)
 
         // 为这个socket实例添加一个"data"事件处理函数
         socket.on('data', function(data) {
-            console.log('RECEIVED DATA FROM ' + socket.remoteAddress + ': ' + data + '\n');
+            //console.log('-------------Data--------------\n' + data );
             var cmds = data.toString();
             cmds = cmds.split('[\t\t\t]');
             //事件分支
@@ -27,7 +27,7 @@ function SocketTrans(app)
                 if(app.modelInsColl.bindSocket(cmds[0], socket) > 0)
                 {
                     socket.write('entered');
-                    console.log(cmds[0] + ' -- enter');
+                    console.log(cmds[0] + ' -- enter\n');
                     app.modelInsColl.changeStateBySocket(socket, 'MC_ENTER');
                 }
             }
@@ -41,31 +41,40 @@ function SocketTrans(app)
                     else
                     {
                         app.modelInsColl.changeStateBySocket(socket, 'MC_REQUEST');
-                        console.log(cmds[0] + ' -- request');
+                        console.log(cmds[0] + ' -- request\n');
+                        var msg = "dataReady";
+
+                        var count = 0;
+                        var gdcb = (function (index) {
+                            count ++;
+                            return function (err, item) {
+                                count --;
+                                if(!err)
+                                {
+                                    if(item.gd_type == "FILE")
+                                    {
+                                        msg += '[\t\t\t]' + msr.msr_input[index].StateId;
+                                        msg += '[\t\t]' + msr.msr_input[index].Event;
+                                        msg += '[\t\t]FILE[\t\t]' + __dirname + '/../geo_data/' +item.gd_value;
+                                    }
+                                    else if(item.gd_type == "STREAM")
+                                    {
+                                        msg += '[\t\t\t]' + msr.msr_input[index].StateId;
+                                        msg += '[\t\t]' + msr.msr_input[index].Event;
+                                        msg += '[\t\t]STREAM[\t\t]' + item.gd_value;
+                                    }
+                                }
+
+                                if(count == 0)
+                                {
+                                    socket.write(msg);
+                                }
+                            }
+                        });
+
                         for(var i = 0; i < msr.msr_input.length; i++)
                         {
-                            if(msr.msr_input[i].Event == 'LOADDATASET')
-                            {
-                                GeoDataCtrl.getByKey(msr.msr_input[i].DataId, function (err, gd) {
-                                    if(err)
-                                    {
-                                        console.log(err);
-                                    }
-                                    else
-                                    {
-                                        if(gd.gd_type == 'FILE')
-                                        {
-                                            var msg = 'dataReady[\t\t\t]FILE[\t\t\t]' + __dirname + '\\..\\geo_data\\' + gd.gd_value;
-                                            console.log('REQUEST SEND MSG : ' + msg);
-                                            socket.write(msg);
-                                        }
-                                        else if(gd.gd_type == 'STREAM')
-                                        {
-                                            socket.write('dataReady[\t\t\t]STREAM[\t\t\t]' + gd.gd_value);
-                                        }
-                                    }
-                                });
-                            }
+                            GeoDataCtrl.getByKey(msr.msr_input[i].DataId, gdcb(i));
                         }
                     }
                 });
@@ -73,78 +82,110 @@ function SocketTrans(app)
             else if(cmds[1] == 'checkdata')
             {
                 app.modelInsColl.changeStateBySocket(socket, 'MC_CHECKDATA');
-                console.log(cmds[0] + ' -- checkdata');
+                console.log(cmds[0] + ' -- checkdata\n');
                 socket.write('oncheckdata');
             }
             else if(cmds[1] == 'calculate')
             {
                 app.modelInsColl.changeStateBySocket(socket, 'MC_CALCULATE');
-                console.log(cmds[0] + ' -- calculate');
+                console.log(cmds[0] + ' -- calculate\n');
                 socket.write('oncalculate');
             }
             else if(cmds[1] == 'checkres')
             {
                 app.modelInsColl.changeStateBySocket(socket, 'MC_CHECKRES');
-                console.log(cmds[0] + ' -- checkres');
+                console.log(cmds[0] + ' -- checkres\n');
                 if(cmds.length < 3)
                 {
                     console.log('CMD Error ! ');
                 }
                 else
                 {
-                    //判断长度
-                    var length = parseInt(cmds[2]);
-
                     ModelSerRunCtrl.getByGUID(cmds[0], function (err, msr) {
                         if(err)
                         {
-                            console.log(err);
+                            console.log('Error!');
                         }
-                        else
+
+                        var msg = 'oncheckres';
+                        //判断长度
+                        for(var i = 2; i < cmds.length; i++)
                         {
-                            for(var i = 0; i < msr.msr_output.length; i++)
+                            var detail = cmds[i].split('[\t\t]');
+                            if(detail.length < 3)
                             {
-                                if(msr.msr_output[i].Event == 'RETURNDATASET')
-                                {
-                                    if(length > 1024)
+                                return socket.write('kill');
+                            }
+
+                            var filegdcb = (function (index) {
+                                return function (err, res) {
+                                    count --;
+                                    if (err)
                                     {
-                                        var gd = {
-                                            gd_id : msr.msr_output[i].DataId,
-                                            gd_rstate : 'RUNSTATE',
-                                            gd_io : 'OUTPUT',
-                                            gd_type : 'FILE',
-                                            gd_value : msr.msr_output[i].DataId + '.xml'
-                                        };
-                                        GeoDataCtrl.addData(gd, function (err, res) {
-                                            if(err)
-                                            {
-                                                console.log(err);
-                                            }
-                                            else
-                                            {
-                                                socket.write('oncheckres[\t\t\t]FILE[\t\t\t]' + __dirname + '\\..\\geo_data\\' + gd.gd_id + '.xml');
-                                            }
-                                        });
+                                        console.log(err);
                                     }
                                     else
                                     {
+                                        msg += '[\t\t\t]' + msr.msr_output[index].StateId ;
+                                        msg += '[\t\t]' + msr.msr_output[index].Event ;
+                                        msg += '[\t\t]FILE[\t\t]' + __dirname + '/../geo_data/' + msr.msr_output[index].DataId + '.xml';
+
+                                        if(count == 0)
+                                        {
+                                            socket.write(msg);
+                                        }
+                                    }
+                                }
+                            });
+
+                            var streamgdcb = (function (index) {
+                                return function (err, res) {
+                                    count --;
+                                    if(err)
+                                    {
+                                        console.log(err);
+                                    }
+                                    else
+                                    {
+                                        msg += '[\t\t\t]' + msr.msr_output[index].StateId ;
+                                        msg += '[\t\t]' + msr.msr_output[index].Event ;
+                                        msg += '[\t\t]STREAM';
+
+                                        if(count == 0)
+                                        {
+                                            socket.write(msg);
+                                        }
+                                    }
+                                }
+                            });
+
+                            var count = 0;
+                            for(var j = 0; j < msr.msr_output.length; j++)
+                            {
+                                count ++;
+                                if(msr.msr_output[j].StateId == detail[0] && msr.msr_output[j].Event == detail[1])
+                                {
+                                    if(parseInt(detail[2]) < setting.data_size)
+                                    {
                                         var gd = {
-                                            gd_id : msr.msr_output[i].DataId,
-                                            gd_rstate : 'RUNSTATE',
+                                            gd_id : msr.msr_output[j].DataId,
+                                            gd_rstate : msr.msr_output[j].StateId,
                                             gd_io : 'OUTPUT',
                                             gd_type : 'STREAM',
                                             gd_value : ''
                                         };
-                                        GeoDataCtrl.addData(gd, function (err, res) {
-                                            if(err)
-                                            {
-                                                console.log(err);
-                                            }
-                                            else
-                                            {
-                                                socket.write('oncheckres[\t\t\t]STREAM');
-                                            }
-                                        });
+                                        GeoDataCtrl.addData(gd, streamgdcb(j));
+                                    }
+                                    else
+                                    {
+                                        var gd = {
+                                            gd_id: msr.msr_output[j].DataId,
+                                            gd_rstate: 'RUNSTATE',
+                                            gd_io: 'OUTPUT',
+                                            gd_type: 'FILE',
+                                            gd_value: msr.msr_output[j].DataId + '.xml'
+                                        };
+                                        GeoDataCtrl.addData(gd, filegdcb(j));
                                     }
                                 }
                             }
@@ -155,95 +196,122 @@ function SocketTrans(app)
             else if(cmds[1] == 'response')
             {
                 app.modelInsColl.changeStateBySocket(socket, 'MC_RESPONSE');
-                console.log(cmds[0] + ' -- response');
-                if(cmds[2] == 'STREAM')
+                console.log(cmds[0] + ' -- response\n');
+
+                if(cmds.length > 2)
                 {
-                    ModelSerRunCtrl.getByGUID(cmds[0], function (err, msr) {
+                    ModelSerRunCtrl.getByGUID(cmds[0], function (err, msr)
+                    {
                         if(err)
                         {
-                            console.log(err);
+                            console.log(JSON.stringify(err));
                         }
                         else
                         {
-                            for(var i = 0; i < msr.msr_output.length; i++)
+                            var count = 0;
+                            for(var k = 2; k < cmds.length; k++)
                             {
-                                if(msr.msr_output[i].Event == 'RETURNDATASET')
+                                count ++;
+                                var gdcb = (function (index) {
+                                    return function (err, gd) {
+                                        var gddtl = cmds[index].split('[\t\t]');
+                                        gd.gd_value = gddtl[3];
+                                        GeoDataCtrl.update(gd, function (err, res)
+                                        {
+                                            count --;
+                                            if(count == 0)
+                                            {
+                                                socket.write('dataRecv');
+                                            }
+
+                                        });
+                                    }
+                                });
+                                var detail = cmds[k].split('[\t\t]');
+                                if(detail[2] == 'STREAM')
                                 {
-                                    GeoDataCtrl.getByKey(msr.msr_output[i].DataId, function (err, item) {
-                                        if(err)
+                                    for(var i = 0; i < msr.msr_output.length; i++)
+                                    {
+                                        if(detail[0] == msr.msr_output[i].StateId && detail[1] == msr.msr_output[i].Event)
                                         {
-                                            console.log(err);
+                                            GeoDataCtrl.getByKey(msr.msr_output[i].DataId, gdcb(k));
                                         }
-                                        else
-                                        {
-                                            item.gd_value = cmds[3];
-                                            GeoDataCtrl.update(item, function (err, gd) {
-                                               if(err)
-                                               {
-                                                   console.log(err);
-                                               }
-                                               else
-                                               {
-                                                   //发送收到消息
-                                                   socket.write('dataRecv');
-                                               }
-                                            });
-                                        }
-                                    });
+                                    }
+                                }
+                                else if(detail[2] == 'FILE')
+                                {
+                                    count --;
+                                    //检测文件是否存在
+
+
+                                    if(count == 0)
+                                    {
+                                        socket.write('dataRecv');
+                                    }
                                 }
                             }
                         }
                     });
                 }
-                else if(cmds[2] == 'FILE')
+                else
                 {
-                    //检测文件是否存在
-
-                    //发送收到消息
                     socket.write('dataRecv');
                 }
             }
             else if(cmds[1] == 'exit')
             {
                 app.modelInsColl.changeStateBySocket(socket, 'MC_EXIT');
-                console.log(cmds[0] + ' -- exit');
+                console.log(cmds[0] + ' -- exit\n');
                 socket.write('bye');
             }
         });
 
         // 为这个socket实例添加一个"close"事件处理函数
         socket.on('close', function(data) {
-            mi = app.modelInsColl.getBySocekt(socket);
-            ModelSerRunCtrl.getByGUID(mi.guid, function (err,msr) {
-                //移除该实例
-                app.modelInsColl.removeBySocekt(socket);
-                if(err)
-                {
-                    return console.log('Error in removing modelIns and finding MSR');
-                }
-                var date_now = new Date();
-                var data_begin = new Date(msr.msr_date);
-                var time_span = date_now.getTime() - data_begin.getTime();
-                time_span = time_span/1000;
-                msr.msr_time = time_span;
-                ModelSerRunCtrl.update(msr, function (err, data) {
+            if(!setting.debug)
+            {
+                mi = app.modelInsColl.getBySocekt(socket);
+                ModelSerRunCtrl.getByGUID(mi.guid, function (err,msr) {
+                    //移除该实例
+                    app.modelInsColl.removeBySocekt(socket);
                     if(err)
                     {
-                        return console.log('Error in removing modelIns and updating MSR');
+                        return console.log('Error in removing modelIns and finding MSR');
                     }
+                    if(msr == null)
+                    {
+                        return ;
+                    }
+                    var date_now = new Date();
                     //通知消息数据
                     var noticeData = {
                         time:new Date(),
-                        ms_name:ms.ms_model.m_name,
-                        notice:'模型服务已开启！',
-                        type:'startServer',
+                        ms_name:msr.msr_ms.m_name,
+                        notice:'模型服务停止运行！',
+                        type:'stopRun',
                         hasRead:0
                     };
+                    console.log("++++++++++++++++++++++++++++++run stopped++++++++++++++++++++++++++++++++++");
                     NoticeCtrl.addNotice(noticeData,function (err, data) {
-
+                        if(err){
+                            return console.log('Error in addNotice');
+                        }
+                        if(msr != null)
+                        {
+                            var data_begin = new Date(msr.msr_date);
+                            var time_span = date_now.getTime() - data_begin.getTime();
+                            time_span = time_span / 1000;
+                            msr.msr_time = time_span;
+                            ModelSerRunCtrl.update(msr, function (err2, data) {
+                                if(err2)
+                                {
+                                    return console.log('Error in removing modelIns and updating MSR');
+                                }
+                            });
+                        }
                     });
                 });
-            });
+            }
             console.log('CLOSED: ' + socket.remoteAddress + ' ' + socket.remotePort);
         });
 

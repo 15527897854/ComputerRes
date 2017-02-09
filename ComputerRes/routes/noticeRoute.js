@@ -66,7 +66,10 @@ module.exports = function (app) {
                     if(err){
                         res.send({status:0});
                     }
-                    res.send({status:1});
+                    else
+                    {
+                        res.send({status:1});
+                    }
                 })
             })
     });

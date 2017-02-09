@@ -3,6 +3,7 @@
  * The setting of the site
  */
 var os  = require('os');
+var fs = require('fs');
 
 module.exports =  {
     gate:{
@@ -34,5 +35,10 @@ module.exports =  {
         host:'127.0.0.1',
         port:'6000'
     },
-    modelpath:'E:/Nodejs/ComputerRes/geo_model/'
+    modelpath: __dirname + '/geo_model/',
+    data_size : 1024,
+    debug : true,
+    parent : [
+        '222.192.7.74','172.21.212.217'
+    ]
 };

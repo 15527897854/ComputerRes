@@ -11,7 +11,7 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="background: #EFF0F4;">
             <div class="panel-body">
                 <table  class="display table table-bordered table-striped" id="dynamic-table">
                     <thead>
@@ -46,7 +46,7 @@
                         $('#tb_data').html('<tr>' +
                                 '<td>' + resJson[i].guid + '</td>' +
                                 '<td>' + resJson[i].ms.ms_model.m_name + '</td>' +
-                                '<td>' + resJson[i].ms.ms_num + '</td>' +
+                                '<td>' + resJson[i].ms.mv_num + '</td>' +
                                 '<td>' + resJson[i].start + '</td>' +
                                 '<td>' + resJson[i].state + '</td>' +
                                 '<td></td>' +

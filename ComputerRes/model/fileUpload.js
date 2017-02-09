@@ -51,6 +51,7 @@ FileUploadCollection.prototype.update =function (item) {
         if(item.sessionId == this.collection[i].sessionId)
         {
             this.collection[i] = item;
+            return 1;
         }
     }
     return -1;

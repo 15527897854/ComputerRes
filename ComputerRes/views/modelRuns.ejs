@@ -12,31 +12,55 @@
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="background: #EFF0F4;">
             <div class="panel-body">
                 <table  class="display table table-bordered table-striped" id="tb_msr">
                     <thead>
                     <tr>
                         <td>记录ID</td>
                         <td>名称</td>
-                        <td>GUID</td>
+                        <td>GUID
+                        <% if(host!= 'localhost'){ %>
+                            <td>地址</td>
+                        <% } %>
                         <td>调用时间</td>
                         <td>状态</td>
                         <td>操作</td>
                     </tr>
                     </thead>
                     <tbody id="tb_data">
-                        <% for(var i = 0; i < msr.length; i++)
-                        {%>
-                        <tr>
-                            <td><%=msr[i]._id %></td>
-                            <td><%=msr[i].msr_ms.m_name %></td>
-                            <td><%=msr[i].msr_guid %></td>
-                            <td><%=msr[i].msr_date %></td>
-                            <td><% if(msr[i].msr_time == 0){%>未完成<%}else{%>已完成<%} %></td>
-                            <td><a href="/modelserrun/<%=msr[i]._id %>">查看详情</a></td>
-                        </tr><%
-                        }%>
+                        <% if(host == 'localhost'){ %>
+                            <% for(var i = 0; i < msr.length; i++) {%>
+                            <tr>
+                                <td><%=msr[i]._id %></td>
+                                <td><%=msr[i].msr_ms.m_name %></td>
+                                <td><%=msr[i].msr_guid %></td>
+                                <td><%=msr[i].msr_date %></td>
+                                <td><% if(msr[i].msr_time == 0){%>未完成<%}else{%>已完成<%} %></td>
+                                <td><a href="/modelserrun/<%=msr[i]._id %>">查看详情</a></td>
+                            </tr>
+                            <% } %>
+                        <% }else{ %>
+                            <% childmsr.forEach(function (cmsr) {
+                                if(cmsr.ping == 'suc')
+                                {
+                                    var items = JSON.parse(cmsr.msr);
+                                    items.forEach(function (msr) {
+                                %>
+                                <tr>
+                                    <td><%=msr._id %></td>
+                                    <td><%=msr.msr_ms.m_name %></td>
+                                    <td><%=msr.msr_guid %></td>
+                                    <td><%=cmsr.host %></td>
+                                    <td><%=msr.msr_date %></td>
+                                    <td><% if(msr.msr_time == 0){%>未完成<%}else{%>已完成<%} %></td>
+                                    <td><a href="/modelserrun/rmt/<%=cmsr.host%>/<%=msr._id %>">查看详情</a></td>
+                                </tr>
+                            <%
+                            });
+                            }
+                            }); %>
+                        <% } %>
                     </tbody>
                 </table>
             </div>

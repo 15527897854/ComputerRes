@@ -23,7 +23,21 @@
                 <div class="row">
                     <div class="col-md-2">
                         <div class="blog-img">
-                            <img src="/images/modelImg/default.png" alt="模型调用" >
+                            <% if(host == 'localhost'){ %>
+                            <% if(ms.ms_img == null || ms.ms_img == ''){
+                            %><img src="/images/modelImg/default.png" alt="<%=ms.ms_model.m_name %>" ><%
+                            }
+                            else {
+                            %><img width="128" height="128" src="/images/modelImg/<%=ms.ms_img %>" alt="<%=ms.ms_model.m_name %>" ><%
+                            }%>
+                            <% }else{ %>
+                            <% if(ms.ms_img == null || ms.ms_img == ''){
+                            %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=ms.ms_model.m_name %>" ><%
+                            }
+                            else {
+                            %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=ms.ms_img %>" alt="<%=ms.ms_model.m_name %>" ><%
+                            }%>
+                            <% } %>
                         </div>
                     </div>
                     <div class="col-md-7">
@@ -92,17 +106,35 @@
                 else {%>外部调用者<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
                 <p><strong>运行实例GUID&nbsp;:&nbsp;</strong><%= msr.msr_guid %></p>
                 <p><strong>输入数据&nbsp;:&nbsp;</strong><br />
-                    <% for(var i = 0; i < msr.msr_input.length; i++)
-                    {
-                        %><%=msr.msr_input[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a><%
-                    }%>
+                    <% if(host == 'localhost') { %>
+                        <% for(var i = 0; i < msr.msr_input.length; i++)
+                        {
+                            %><%=msr.msr_input[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a><br /><%
+                        }%>
+                    <% }else{ %>
+                        <% for(var i = 0; i < msr.msr_input.length; i++)
+                        {
+                        %><%=msr.msr_input[i].Event %>&nbsp;:&nbsp;<a href="/geodata/rmt/<%=host %>/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a><br /><%
+                        }%>
+                    <% } %>
+
                 </p>
                 <p><strong>输出数据&nbsp;:&nbsp;</strong><br />
                 <% if(msr.msr_time != 0)
                 {
-                    for(var i = 0; i < msr.msr_output.length; i++)
+                    if(host == 'localhost')
                     {
-                    %><%=msr.msr_output[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_output[i].DataId %>" ><%=msr.msr_output[i].DataId %></a><%
+                        for(var i = 0; i < msr.msr_output.length; i++)
+                        {
+                %><%=msr.msr_output[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_output[i].DataId %>" ><%=msr.msr_output[i].DataId %></a><br /><%
+                        }
+                    }
+                    else
+                    {
+                        for(var i = 0; i < msr.msr_output.length; i++)
+                        {
+                %><%=msr.msr_output[i].Event %>&nbsp;:&nbsp;<a href="/geodata/rmt/<%=host %>/<%=msr.msr_output[i].DataId %>" ><%=msr.msr_output[i].DataId %></a><br /><%
+                        }
                     }
                 }%>
                 </p>
@@ -122,7 +154,7 @@
 <%- include footerInclude.ejs %>
 <script type="text/javascript">
     $(document).ready(function () {
-        var blFinish = true;
+        var blFinish = false;
         var interval = setInterval(function () {
             if(!blFinish)
             {

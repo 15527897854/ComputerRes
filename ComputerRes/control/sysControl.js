@@ -129,7 +129,7 @@ SysControl.getInfo = function(headers,callback)
         }
         return callback(null, data);
     });
-}
+};
 
 //登陆
 SysControl.login = function (l_uname, l_pwd, callback) {
@@ -138,24 +138,24 @@ SysControl.login = function (l_uname, l_pwd, callback) {
         {
             return callback(err);
         }
-        if(l_uname == uname)
+        if(l_uname == uname.ss_value)
         {
-            systemSettingModel.getValueByIndex('password', function (err, pwd) {
+            systemSettingModel.getValueByIndex('pwd', function (err, pwd) {
                 if(err)
                 {
                     return callback(err);
                 }
-                var pwd_md5 = md5.updata(l_pwd).digest('hex');
-                if(pwd_md5 == pwd)
+                // var pwd_md5 = md5.update(l_pwd).digest('hex');
+                if(l_pwd == pwd.ss_value)
                 {
                     return callback(null, {
-                        res : 'success'
+                        status:1
                     });
                 }
                 else
                 {
                     return callback(null, {
-                        res : 'Name or Pwd Err'
+                        status:2
                     });
                 }
             });
@@ -163,8 +163,17 @@ SysControl.login = function (l_uname, l_pwd, callback) {
         else
         {
             return callback(null, {
-                res : 'Name or Pwd Err'
+                status:3
             });
         }
     });
-}
+};
+
+SysControl.getValueByIndex = function (ss_index, callback) {
+    systemSettingModel.getValueByIndex(ss_index,function (err, data) {
+        if(err){
+            return callback(err);
+        }
+        return callback(null,data);
+    })
+};

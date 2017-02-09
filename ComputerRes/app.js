@@ -6,8 +6,10 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 
+var ModelIns = require('./model/modelInstance');
 var ModelInsCollection = require('./model/modelInsCollection');
 var FileUploadRecord = require('./model/fileUpload');
+var settings = require('./setting');
 
 var routes = require('./routes/index');
 
@@ -24,7 +26,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   secret:'wfsiudhjkfhoihiewhrlkjflkjasd',
-  cookie:{maxAge : 1800000},
+  cookie:{maxAge : 3600000},
   resave:false,
   saveUninitialized: true
 }));
@@ -81,5 +83,20 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+//debug for model-instance
+if(settings.debug)
+{
+  var date = new Date();
+  var mis = {
+    guid : "219e7c83-02f7-43cc-b74f-28c22874a677",
+    socket : null,
+    ms : null,
+    start : date.toLocaleString(),
+    state : 'MC_READY'
+  };
+  var modelIns = new ModelIns(mis);
+  app.modelInsColl.addIns(modelIns);
+}
 
 module.exports = app;

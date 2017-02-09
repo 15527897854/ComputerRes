@@ -15,7 +15,7 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="background: #EFF0F4;">
             <div class="panel-body">
                 <table class="display table table-bordered table-striped" id="dynamic-table">
                     <thead>
@@ -70,14 +70,14 @@
                             <td><%=cms.host %></td>
                             <td>
                                 <button class="btn btn-info btn-xs" type="button"
-                                        onclick="">
+                                        onclick="window.location = '/modelser/rmt/<%=cms.host %>/<%=ms._id %>'">
                                     <i class="fa fa-book"></i>
                                     详情
                                 </button>
                                 <%if(ms.ms_status == 1)
                                 {%>
                                 <button class="btn btn-default btn-xs" type="button"
-                                        onclick="">
+                                        onclick="window.open('/modelser/rmt/preparation/<%=cms.host %>/<%=ms._id%>')">
                                     <i class="fa fa-retweet"></i>调用
                                 </button>
                                 <button class="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip"
@@ -116,7 +116,7 @@
 </section>
 
 <%- include footerInclude.ejs %>
-<script type="text/javascript" src="/js/geomodel/rmtModelser.js" ></script>
+<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
 
 <!--dynamic table-->
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>

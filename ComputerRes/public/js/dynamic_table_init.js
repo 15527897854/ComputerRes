@@ -1,8 +1,9 @@
 
 $(document).ready(function() {
-
     $('#dynamic-table').dataTable(
         {
+            //数据URL
+            "data": "",
             //载入数据的时候是否显示“正在加载中...”
             "processing": true,
             //是否显示分页

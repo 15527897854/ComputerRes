@@ -19,7 +19,7 @@
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="background: #EFF0F4;">
             <div class="panel-body">
                 <h3 >部署模型服务</h3> <br>
                 <div class="box-widget">
@@ -60,6 +60,15 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
+                                            <label class="col-md-2 col-sm-2 control-label">模型权限</label>
+                                            <div class="col-md-6 col-sm-6">
+                                                <select id="ms_limited" name="ms_limited" class="form-control">
+                                                    <option value="0" selected="">公开</option>
+                                                    <option value="1">私有</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
                                             <label class="col-md-2 col-sm-2 control-label">详细信息地址</label>
                                             <div class="col-md-6 col-sm-6">
                                                 <input name="m_url" type="url" id="m_url" name="m_url"  class="form-control">
@@ -96,11 +105,11 @@
                                                     </div>
                                                     <div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 150px; line-height: 20px;"></div>
                                                     <div>
-                                                   <span class="btn btn-default btn-file">
-                                                   <span class="fileupload-new"><i class="fa fa-paper-clip"></i> 选择图片</span>
-                                                   <span class="fileupload-exists"><i class="fa fa-undo"></i> 更变</span>
-                                                   <input id="file_img" name="ms_img" type="file" class="default"  accept=".png,.jpg" />
-                                                   </span>
+                                                       <span class="btn btn-default btn-file">
+                                                            <span class="fileupload-new"><i class="fa fa-paper-clip"></i> 选择图片</span>
+                                                            <span class="fileupload-exists"><i class="fa fa-undo"></i> 更变</span>
+                                                            <input id="file_img" name="ms_img" type="file" class="default"  accept=".png,.jpg" />
+                                                       </span>
                                                         <a href="#" class="btn btn-danger fileupload-exists" data-dismiss="fileupload"><i class="fa fa-trash"></i> 移除</a>
                                                     </div>
                                                 </div>
@@ -164,18 +173,25 @@
             backLabel: '上一步',
             nextLabel: '下一步',
             errorImage: true,
-            block: true,
+            block: false,
             description: true,
             legend: false,
             titleClick: true,
             titleTarget: '#top_tabby',
-            validate: true,
+            validate: false,
             finishButton:true,
             finish: function() {
                 $('#div_upload').css('display','block');
                 var formdata = new FormData($('#stepy_form')[0]);
                 $.ajax({
-                    url:'/modelser',
+                    url:(function () {
+                        if('<%=host %>' == 'localhost'){
+                            return '/modelser';
+                        }
+                        else{
+                            return '/modelser/rmt/<%=host %>';
+                        }
+                    })(),
                     method:'POST',
                     data: formdata,
                     processData: false,
@@ -188,14 +204,35 @@
                             recordFinish = true;
                             if(fileFinish == true)
                             {
-                                window.location.href = '/modelser/' + oid;
+                                var newUrl;
+                                if('<%=host %>' == 'localhost'){
+                                    newUrl = '/modelser/' + oid;
+                                }
+                                else{
+                                    if($("#ms_limited").val() == 1){
+                                        newUrl = '/modelser/rmt/all';
+                                    }
+                                    newUrl = '/modelser/rmt/<%=host %>/' + oid;
+                                }
+                                window.location.href = newUrl;
                             }
+                        }
+                        else if(resJson.res == 'err 1' || resJson.res == 'err 2'){
+                            alert(resJson.des);
+                            window.location.href = '/modelser/new';
                         }
                     }
                 });
                 var fileInsterval = setInterval(function () {
                     $.ajax({
-                        url:'/modelser/file',
+                        url:(function () {
+                            if('<%=host %>' == 'localhost'){
+                                return '/modelser/file';
+                            }
+                            else{
+                                return '/modelser/rmt/file/<%=host %>';
+                            }
+                        })(),
                         method:'GET',
                         success:function (data) {
                             var resJson = JSON.parse(data);
@@ -206,12 +243,22 @@
                                 clearInterval(fileInsterval);
                                 if(recordFinish == true)
                                 {
-                                    window.location.href = '/modelser/' + oid;
+                                    var newUrl;
+                                    if('<%=host %>' == 'localhost'){
+                                        newUrl = '/modelser/' + oid;
+                                    }
+                                    else{
+                                        if($("#ms_limited").val() == 1){
+                                            newUrl = '/modelser/rmt/all';
+                                        }
+                                        newUrl = '/modelser/rmt/<%=host %>/' + oid;
+                                    }
+                                    window.location.href = newUrl;
                                 }
                             }
                         }
                     });
-                }, 100);
+                }, 300);
                 return false;
             }
         });

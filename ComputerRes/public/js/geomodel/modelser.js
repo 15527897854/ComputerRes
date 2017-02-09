@@ -4,11 +4,18 @@
  */
 
 //关闭模型服务
-function ms_stop(msid) {
+function ms_stop(msid,host) {
     if(confirm("确认关闭模型服务？") == true)
     {
         $.ajax({
-            url:'/modelser/' + msid + '?ac=stop',
+            url:(function () {
+                if(host == 'localhost'){
+                    return '/modelser/' + msid + '?ac=stop';
+                }
+                else{
+                    return '/modelser/rmt/' + host + '/' + msid + '?ac=stop';
+                }
+            })(),
             type:'PUT',
             success:function (data) {
                 var resjson = JSON.parse(data);
@@ -31,11 +38,18 @@ function ms_stop(msid) {
 }
 
 //开启模型服务
-function ms_start(msid) {
+function ms_start(msid,host) {
     if(confirm("确认开启模型服务？") == true)
     {
         $.ajax({
-            url:'/modelser/' + msid + '?ac=start',
+            url:(function () {
+                if(host == 'localhost'){
+                    return '/modelser/' + msid + '?ac=start';
+                }
+                else{
+                    return '/modelser/rmt/' + host + '/' + msid + '?ac=start';
+                }
+            })(),
             type:'PUT',
             success:function (data) {
                 var resjson = JSON.parse(data);
@@ -58,11 +72,18 @@ function ms_start(msid) {
 }
 
 //删除模型服务
-function ms_delete(ms_id) {
+function ms_delete(ms_id,host) {
     if (confirm('确认删除模型服务？'))
     {
         $.ajax({
-            url:'/modelser/' + ms_id,
+            url:(function () {
+                if(host == 'localhost'){
+                    return '/modelser/' + ms_id;
+                }
+                else{
+                    return '/modelser/rmt/' + host + '/' + ms_id;
+                }
+            })(),
             type:'DELETE',
             success:function (data) {
                 var resJson = JSON.parse(data);

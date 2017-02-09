@@ -1,6 +1,7 @@
 /**
  * Created by ChaoRan on 2016/8/20.
  */
+var mongoose = require('./mongooseModel');
 
 var mongodb = require('./mongoDB');
 var ObjectId = require('mongodb').ObjectID;
@@ -35,191 +36,48 @@ function Notice(notice)
 
 module.exports = Notice;
 
-function createTTL() {
-    mongodb.open(function(err,db)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        //打开数据集
-        db.collection('notice',function(err,collection)
-        {
-            if(err)
-            {
-                mongodb.close();
-                return callback(err);
-            }
-            //删除生命周期索引
-            collection.dropIndex({"time":-1});
-            //有效期7天
-            // collection.createIndex({"time": -1},{expireAfterSeconds: 604800});
-        });
-    });
-}
+var noteSchema = new mongoose.Schema({
+    time : {type:Date, index: { unique: true, expires: '3600*24*14' }},
+    ms_name : String,
+    notice : String,
+    type : String,
+    hasRead : Number
+},{collection:'notice'});
 
-// createTTL();
+var Note = mongoose.model('notice',noteSchema);
 
 //新增模型服务信息
 Notice.save = function(notice,callback) {
-    //Notice
-    // var notice = {
-    //     _id : new ObjectId(this._id),
-    //     time : this.time,
-    //     ms_name : this.ms_name,
-    //     notice : this.notice,
-    //     type : this.type,
-    //     hasRead : this.hasRead
-    // };
-
-    //打开数据库
-    mongodb.open(function(err,db)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        //打开数据集
-        db.collection('notice',function(err,collection)
-        {
-            if(err)
-            {
-                mongodb.close();
-                return callback(err);
-            }
-            //插入一条数据
-            collection.insert(notice,{safe:true},function(err,notice)
-            {
-                mongodb.close();
-                if(err)
-                {
-                    return callback(err);
-                }
-                callback(null,notice.ops[0]);
-            });
-        });
+    notice = new Note(notice);
+    notice.save(function (err, res) {
+        callback(err,res);
     });
 };
 
 Notice.delByOID = function (_oid, callback) {
-    //打开数据库
-    mongodb.open(function(err,db)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        //打开数据集
-        db.collection('notice',function(err,collection)
-        {
-            if(err)
-            {
-                mongodb.close();
-                return callback(err);
-            }
-            var oid = new ObjectId(_oid);
-            collection.remove({_id:oid}, function(err, ms) {
-                mongodb.close();
-                if(err)
-                {
-                    return callback(err);
-                }
-                return callback(null, ms);
-            });
-        });
+    var oid = new ObjectId(_oid);
+    Note.remove({'_id':oid},function (err, res) {
+        callback(err,res);
     });
 };
 
 Notice.getWhere = function(where, callback) {
-    //打开数据库
-    mongodb.open(function(err,db)
-    {
-        if(err)
-        {
-            console.log(err);
-            return callback(err);
-        }
-        db.collection('notice',function(err,collection)
-        {
-            if(err)
-            {
-                mongodb.close();
-                return callback(err);
-            }
-            collection.find(where).sort({time:-1}).toArray(function(err,data)
-            {
-                mongodb.close();
-                if(err)
-                {
-                    return callback(err);
-                }
-                return callback(null,data);
-            });
-        });
+    Note.find(where,function (err, res) {
+        callback(err,res);
     });
 };
 
 Notice.getByOID = function(_oid, callback) {
-    //打开数据库
-    mongodb.open(function(err,db)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-
-        //打开数据集
-        db.collection('notice',function(err,collection)
-        {
-            if(err)
-            {
-                mongodb.close();
-                return callback(err);
-            }
-            var oid = new ObjectId(_oid);
-            collection.findOne({_id:oid},function(err,ms)
-            {
-                mongodb.close();
-                if(err)
-                {
-                    return callback(err);
-                }
-                return callback(null, ms);
-            })
-        });
+    var oid = new ObjectId(_oid);
+    Note.findOne({'_id':oid},function (err, res) {
+        callback(err,res);
     });
 };
 
 Notice.update = function(newNotice,callback){
-    mongodb.open(function(err,db)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-
-        db.collection('notice',function(err,collection)
-        {
-            if(err)
-            {
-                mongodb.close();
-                return callback(err);
-            }
-            collection.update(
-                {_id:newNotice._id},
-                {$set:{
-                    hasRead : newNotice.hasRead
-                }},
-                function(err, notice)
-                {
-                    mongodb.close();
-                    if(err)
-                    {
-                        return callback(err);
-                    }
-                    return callback(null,true);
-                }
-            );
-        });
+    var where = {'_id':newNotice._id},
+        toUpdate = newNotice;
+    Note.update(where,toUpdate,function (err, res) {
+        callback(err,res);
     });
 };

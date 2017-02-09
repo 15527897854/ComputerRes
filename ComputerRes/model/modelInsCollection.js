@@ -31,6 +31,22 @@ ModelInsCollection.prototype.removeByGUID = function (guid)
     return -1;
 }
 
+//得到所有模型
+ModelInsCollection.prototype.getAllIns = function () {
+    var miss = [];
+    for(var i = 0; i < this.ModelInsArr.length; i++)
+    {
+        var mis = {
+            ms : this.ModelInsArr[i].ms,
+            guid : this.ModelInsArr[i].guid,
+            start : this.ModelInsArr[i].start,
+            state : this.ModelInsArr[i].state
+        }
+        miss.push(mis);
+    }
+    return miss;
+}
+
 //根据Socket删除模型运行实例
 ModelInsCollection.prototype.removeBySocekt = function (socket)
 {
@@ -79,7 +95,7 @@ ModelInsCollection.prototype.getByIndex = function (index) {
 }
 
 //判断一个Socket通信是否存在
-ModelInsCollection.prototype.exsit  = function (socket) {
+ModelInsCollection.prototype.exsit = function (socket) {
     for(var i = 0 ; i < this.ModelInsArr.length; i++)
     {
         if(this.ModelInsArr[i].socket == socket)

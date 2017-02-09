@@ -65,7 +65,116 @@ ModelSerControl.getChildModelSer = function(headers, callback)
             var options = {
                 host: childMs[i].host,
                 port: childMs[i].port,
-                path: '/modelser/json/all',
+                path: '/modelser/json/rmtall',
+                method: 'GET'
+            };
+            remoteReqCtrl.Request(options, null, done(i));
+        }
+    });
+}
+
+//搜做子节点的模型服务运行记录
+ModelSerControl.getChildMSR = function (headers, callback) {
+    Child.getAll(function (err, childMsr) {
+        if(err){
+            return callback(err);
+        }
+        var pending = (function (pcallback) {
+            var count = 0;
+            return function(index)
+            {
+                count ++;
+                return function (err, data) {
+                    count --;
+                    if(err)
+                    {
+                        childMsr[index].ping = 'err';
+                    }
+                    else
+                    {
+                        if(data[0] == '[' && data[data.length - 1] == ']')
+                        {
+                            childMsr[index].ping = 'suc';
+                            childMsr[index].msr = data;
+                        }
+                        else
+                        {
+                            childMsr[index].ping = 'err';
+                        }
+                    }
+                    if(count == 0)
+                    {
+                        pcallback();
+                    }
+                }
+            }
+        });
+
+        var done = pending(function () {
+            return callback(null, childMsr);
+        });
+
+        for(var i = 0; i < childMsr.length; i++)
+        {
+            var options = {
+                host: childMsr[i].host,
+                port: childMsr[i].port,
+                path: '/modelserrun/json/all',
+                method: 'GET'
+            };
+            remoteReqCtrl.Request(options, null, done(i));
+        }
+    });
+}
+
+//搜做子节点的模型服务运行实例
+ModelSerControl.getChildMSRI = function (headers, callback) {
+    Child.getAll(function (err, childMsri) {
+        if(err){
+            return callback(err);
+        }
+        var pending = (function (pcallback) {
+            var count = 0;
+            return function(index)
+            {
+                count ++;
+                return function (err, data) {
+                    console.log('data in get child MSRI\n' + JSON.stringify(data));
+                    count --;
+                    if(err)
+                    {
+                        childMsri[index].ping = 'err';
+                    }
+                    else
+                    {
+                        if(data[0] == '[' && data[data.length - 1] == ']')
+                        {
+                            childMsri[index].ping = 'suc';
+                            childMsri[index].msri = JSON.parse(data);
+                        }
+                        else
+                        {
+                            childMsri[index].ping = 'err';
+                        }
+                    }
+                    if(count == 0)
+                    {
+                        pcallback();
+                    }
+                }
+            }
+        });
+
+        var done = pending(function () {
+            return callback(null, childMsri);
+        });
+
+        for(var i = 0; i < childMsri.length; i++)
+        {
+            var options = {
+                host: childMsri[i].host,
+                port: childMsri[i].port,
+                path: '/modelins/json/all',
                 method: 'GET'
             };
             remoteReqCtrl.Request(options, null, done(i));
@@ -75,7 +184,25 @@ ModelSerControl.getChildModelSer = function(headers, callback)
 
 //得到远程模型的详细信息
 ModelSerControl.getRmtModelSer = function (cid, msid, callback) {
-
+    Child.getByOID(cid, function (err, child) {
+        if(err)
+        {
+            return callback(err);
+        }
+        var options = {
+            host: child.host,
+            port: child.port,
+            path: '/modelser/json/' + msid,
+            method: 'GET'
+        };
+        remoteReqCtrl.Request(options, null, function (err, data) {
+            if(err)
+            {
+                return callback(err);
+            }
+            return callback(null, data);
+        });
+    });
 }
 
 //搜寻本地可用模型信息
@@ -136,7 +263,19 @@ ModelSerControl.getByOID = function(msid, callback)
         }
         return callback(null, data);
     });
-}
+};
+
+//条件查询
+ModelSerControl.getByWhere = function (where, callback) {
+    ModelSerModel.getByWhere(where,function(err, data)
+    {
+        if(err)
+        {
+            return callback(err);
+        }
+        return callback(null, data);
+    });
+};
 
 //更新模型服务信息
 ModelSerControl.update = function(ms, callback)
@@ -149,7 +288,7 @@ ModelSerControl.update = function(ms, callback)
         }
         return callback(null, data);
     });
-}
+};
 
 //开启运行实例
 ModelSerControl.run = function (ms_id, guid, callback) {
@@ -160,7 +299,7 @@ ModelSerControl.run = function (ms_id, guid, callback) {
         }
         return callback(null, ms);
     })
-}
+};
 
 //得到初始输入数据
 ModelSerControl.getInputData = function (ms_id, callback) {
@@ -178,24 +317,55 @@ ModelSerControl.getInputData = function (ms_id, callback) {
             {
                 var dataDecs = mdl.ModelClass.Behavior.DatasetDeclarations.DatasetDeclaration;
                 var state = mdl.ModelClass.Behavior.StateGroup.States.State;
-                for(var i = 0; i < state.Event.length; i++)
+                if(state instanceof Array)
                 {
-                    for(var j = 0; j < dataDecs.length; j++) {
-                        if(state.Event[i].hasOwnProperty('ResponseParameter'))
+                    for(var k = 0; k < state.length; k++)
+                    {
+                        for(var i = 0; i < state[k].Event.length; i++)
                         {
-                            if (state.Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name)
-                            {
-                                state.Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
-                            }
-                        }
-                        else if(state.Event[i].hasOwnProperty('DispatchParameter'))
-                        {
-                            if (state.Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name)
-                            {
-                                state.Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                            for(var j = 0; j < dataDecs.length; j++) {
+                                if(state[k].Event[i].hasOwnProperty('ResponseParameter'))
+                                {
+                                    if (state[k].Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name)
+                                    {
+                                        state[k].Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                                    }
+                                }
+                                else if(state[k].Event[i].hasOwnProperty('DispatchParameter'))
+                                {
+                                    if (state[k].Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name)
+                                    {
+                                        state[k].Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                                    }
+                                }
                             }
                         }
                     }
+                    return callback(null, state);
+                }
+                else
+                {
+                    for(var i = 0; i < state.Event.length; i++)
+                    {
+                        for(var j = 0; j < dataDecs.length; j++) {
+                            if(state.Event[i].hasOwnProperty('ResponseParameter'))
+                            {
+                                if (state.Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name)
+                                {
+                                    state.Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                                }
+                            }
+                            else if(state.Event[i].hasOwnProperty('DispatchParameter'))
+                            {
+                                if (state.Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name)
+                                {
+                                    state.Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                                }
+                            }
+                        }
+                    }
+                    var arr = [state];
+                    return callback(null, arr);
                 }
                 return callback(null, state);
             }
@@ -206,4 +376,27 @@ ModelSerControl.getInputData = function (ms_id, callback) {
             }
         });
     });
-}
+};
+
+ModelSerControl.readCfg = function (ms, callback) {
+    ModelSerModel.readCfg(ms,function (err, data) {
+        if(err){
+            return callback(err);
+        }
+        return callback(null,data);
+    });
+};
+
+ModelSerControl.readCfgBypath = function (path, callback) {
+    ModelSerModel.readCfgBypath(path,function (err, data) {
+        if(err){
+            return callback(err);
+        }
+        return callback(null,data);
+    });
+};
+
+//根据MID查询
+// ModelSerControl.getByMID(mid, function (err, item) {
+//     return callback(err, item);
+// });

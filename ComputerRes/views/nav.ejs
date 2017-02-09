@@ -92,13 +92,12 @@
             <li>
                 <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <img src="/images/photos/user-avatar.png" alt="" />
-                    管理员
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-usermenu pull-right">
                     <li><a href="#"><i class="fa fa-user"></i>信息</a></li>
                     <li><a href="#"><i class="fa fa-cog"></i>设置</a></li>
-                    <li><a href="#"><i class="fa fa-sign-out"></i>登出</a></li>
+                    <li><a href="/logout"><i class="fa fa-sign-out"></i>登出</a></li>
                 </ul>
             </li>
 
@@ -131,22 +130,25 @@
     }
 
     function click() {
-        $.ajax({
-            url: '/notices',
-            type: 'GET',
-            data: {latest: true},
-            datatype: 'json',
-            success: function (data) {
-                if (data.length) {
-                    $('#newsNum').html(data.length);
-                    renderNews(data.data);
+        if(false)
+        {
+            $.ajax({
+                url: '/notices',
+                type: 'GET',
+                data: {latest: true},
+                datatype: 'json',
+                success: function (data) {
+                    if (data.length) {
+                        $('#newsNum').html(data.length);
+                        renderNews(data.data);
+                    }
+                    else{
+                        $('#newsNum').html(null);
+                        renderNews(null);
+                    }
                 }
-                else{
-                    $('#newsNum').html(null);
-                    renderNews(null);
-                }
-            }
-        })
+            });
+        }
     }
 
     (function () {

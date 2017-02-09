@@ -11,7 +11,10 @@
     "debug": "~2.2.0",
     "ejs": "~2.3.3",
     "express": "~4.13.1",
+    "mongoose": "^4.6.4",
     "morgan": "~1.6.1",
+    "nodemailer": "^2.6.0",
+    "request": "*",
     "serve-favicon": "~2.3.0"
   }
 }
