@@ -8,7 +8,6 @@ var geoDataRoute = require('./geoDataRoute');
 var modelInsRoute = require('./modelInstanceRoute');
 var noticeRoute = require('./noticeRoute');
 var childRoute = require('./childRoute');
-var userRoute = require('./userRoute');
 
 var sysCtrl = require('../control/sysControl');
 var ModelSerCtrl = require('../control/modelSerControl');
@@ -50,9 +49,6 @@ module.exports = function(app)
     //             }
     //         }
     //     });
-
-    //user route for user login or registrarion
-    userRoute(app);
 
     //use route for systemsetting
     sysRoute(app);
