@@ -33,7 +33,7 @@ app.use(session({
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//正在运行的模型实例
+//正在运行的模型实例集合
 app.modelInsColl = new ModelInsCollection();
 
 //创建文件传输记录变量
