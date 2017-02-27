@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>模型服务运行实例</title>
+    <%- include headInclude.ejs %>
+</head>
+<body class="sticky-header">
+<section>
+    <!-- 左导航栏 -->
+    <%- include header.ejs %>
+    <div class="main-content">
+        <!-- 上导航栏 -->
+        <%- include nav.ejs %>
+        <div class="panel panel-default" style="background: #EFF0F4;">
+            <div class="panel-body">
+                <table  class="display table table-bordered table-striped" id="dynamic-table">
+                    <thead>
+                    <tr>
+                        <td>GUID</td>
+                        <td>名称</td>
+                        <td>版本</td>
+                        <td>启动时间</td>
+                        <td>状态</td>
+                        <td>地址</td>
+                        <td>操作</td>
+                    </tr>
+                    </thead>
+                    <tbody id="tb_data"></tbody>
+                </table>
+            </div>
+        </div>
+        <%- include footer.ejs %>
+    </div>
+</section>
+<%- include footerInclude.ejs %><!--dynamic table-->
+<script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        setInterval(function () {
+            $.ajax({
+                url:'/modelins/rmt/json/all',
+                success:function (data) {
+                    //  childmsri[]->msri[]->item
+                    var td = '';
+                    var data = JSON.parse(data);
+                    console.log(data);
+                    var childmsri = data.childmsri;
+                    for(var i = 0; i < childmsri.length; i++)
+                    {
+                        if(childmsri[i].ping == 'suc'){
+                            var msris = childmsri[i].msri;
+                            msris.forEach(function (msri) {
+                                td += '<tr>' +
+                                        '<td>' + msri.guid + '</td>' +
+                                        '<td>' + msri.ms.ms_model.m_name + '</td>' +
+                                        '<td>' + msri.ms.mv_num + '</td>' +
+                                        '<td>' + msri.start + '</td>' +
+                                        '<td>' + msri.state + '</td>' +
+                                        '<td>' + childmsri[i].host + '</td>' +
+                                        '<td></td>' +
+                                        '</tr>';
+                            })
+                        }
+                    }
+                    $('#tb_data').html(td);
+                }
+            });
+        }, 1000);
+    });
+</script>
+</body>
+</html>

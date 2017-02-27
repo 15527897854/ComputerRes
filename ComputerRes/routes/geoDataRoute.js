@@ -340,6 +340,7 @@ module.exports = function (app) {
                     }
                     res.set({
                         'Content-Type': 'file/xml',
+			//可能有bug？？？
                         'Content-Length': data.length });
                     res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(gdid) + '.xml');
                     return res.end(data);

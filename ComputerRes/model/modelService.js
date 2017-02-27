@@ -168,6 +168,10 @@ ModelService.run = function (ms_id, guid, callback) {
                 {
                     cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
                 }
+                else if(cfg.type == 'sh')
+                {
+                    cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                }
                 else
                 {
                     cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;

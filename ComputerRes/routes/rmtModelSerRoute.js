@@ -374,7 +374,7 @@ module.exports = function(app)
         .delete(function (req, res) {
             var msid = req.params.msid;
             var host = req.params.host;
-            childCtrl.getByWhere({host:host},function (error, chile) {
+            childCtrl.getByWhere({host:host},function (error, child) {
                 if(error){
                     return res.end(JSON.stringify(error));
                 }

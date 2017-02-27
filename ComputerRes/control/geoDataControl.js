@@ -19,7 +19,7 @@ GeoDataCtrl.addData = function (data, callback) {
         }
         return callback(null, result);
     });
-}
+};
 
 //获取数据
 GeoDataCtrl.getByKey = function (key, callback) {
@@ -30,7 +30,7 @@ GeoDataCtrl.getByKey = function (key, callback) {
         }
         return callback(null, data);
     });
-}
+};
 
 //更新数据
 GeoDataCtrl.update = function (data, callback) {
@@ -42,4 +42,4 @@ GeoDataCtrl.update = function (data, callback) {
         }
         return callback(null, gd);
     });
-}
+};

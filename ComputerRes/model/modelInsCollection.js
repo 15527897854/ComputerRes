@@ -144,3 +144,16 @@ ModelInsCollection.prototype.changeStateBySocket = function (socket, state) {
     }
     return -1;
 }
+
+//根据GUID更改状态
+ModelInsCollection.prototype.changeStateByGUID = function (guid, state) {
+    for(var i = 0 ; i < this.ModelInsArr.length; i++)
+    {
+        if(this.ModelInsArr[i].guid == guid)
+        {
+            this.ModelInsArr[i].state = state;
+            return 1;
+        }
+    }
+    return -1;
+}

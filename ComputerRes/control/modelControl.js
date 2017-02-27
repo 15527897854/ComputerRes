@@ -6,7 +6,7 @@ var remoteSerCtrl = require('./remoteReqControl');
 var setting = require('../setting');
 
 var ModelControl = function()
-{}
+{};
 
 module.exports = ModelControl;
 
@@ -35,4 +35,4 @@ ModelControl.getByOID = function(mid, callback)
             return callback(null, data);
         }
     );
-}
+};
