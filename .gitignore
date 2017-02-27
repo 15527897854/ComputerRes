@@ -4,3 +4,5 @@ node_modules
 /ComputerRes/public/js/geomodel/login.js
 /ComputerRes/public/js/geomodel/resetpwd.js
 /ComputerRes/public/js/messages_zh.js
+/ComputerRes/routes/userRoute.js
+/ComputerRes/views/resetpwd.ejs
