@@ -37,5 +37,5 @@ module.exports =  {
     },
     modelpath: __dirname + '/geo_model/',
     data_size : 1024,
-    debug : false
+    debug : true
 };
