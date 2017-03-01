@@ -50,6 +50,11 @@ var Note = mongoose.model('notice',noteSchema);
 Notice.save = function(notice,callback) {
     notice = new Note(notice);
     notice.save(function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in save!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -57,12 +62,22 @@ Notice.save = function(notice,callback) {
 Notice.delByOID = function (_oid, callback) {
     var oid = new ObjectId(_oid);
     Note.remove({'_id':oid},function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in delete!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
 
 Notice.getWhere = function(where, callback) {
     Note.find(where,function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -70,6 +85,11 @@ Notice.getWhere = function(where, callback) {
 Notice.getByOID = function(_oid, callback) {
     var oid = new ObjectId(_oid);
     Note.findOne({'_id':oid},function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -78,6 +98,11 @@ Notice.update = function(newNotice,callback){
     var where = {'_id':newNotice._id},
         toUpdate = newNotice;
     Note.update(where,toUpdate,function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in update!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };

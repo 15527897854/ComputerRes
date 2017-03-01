@@ -17,6 +17,11 @@ var Users = mongoose.model('systemsetting',userSchema);
 SystemSetting.getValueByIndex = function(ss_index, callback)
 {
         Users.findOne({'ss_index':ss_index},function (err, data) {
+            if(err)
+            {
+                console.log('mongoDB err in query!');
+                return callback(err);
+            }
             callback(err,data);
         });
 };

@@ -7,6 +7,7 @@ var ModelSerCtrl = require('../control/modelSerControl');
 var setting = require('../setting');
 var remoteReqCtrl = require('../control/remoteReqControl');
 var childCtrl = require('../control/childControl');
+var ModelSerControl = require('../control/modelSerControl');
 
 module.exports = function (app) {
     //查看模型记录信息
@@ -110,6 +111,7 @@ module.exports = function (app) {
                         data = JSON.parse(data);
                     }
                     data.host = host;
+                    data.port = port;
                     // data.user = req.session.user;
                     return res.render('modelRun',data);
                 });
@@ -119,10 +121,18 @@ module.exports = function (app) {
     //远程访问  查看其它所有结点的所有模型运行记录
     app.route('/modelserrun/rmt/all')
         .get(function (req, res, next) {
-            ModelSerCtrl.getChildMSR(req.heads, function (err, childmsr) {
+            // ModelSerCtrl.getChildMSR(req.heads, function (err, childmsr) {
+            //     res.render('modelRuns',{
+            //         // user:req.session.user,
+            //         childmsr : childmsr,
+            //         blmodelser_r : true,
+            //         host : 'rmt'
+            //     });
+            // });
+            ModelSerControl.getChildInfo(req,'/modelserrun/json/all',function (err,data) {
                 res.render('modelRuns',{
                     // user:req.session.user,
-                    childmsr : childmsr,
+                    childmsr : data,
                     blmodelser_r : true,
                     host : 'rmt'
                 });

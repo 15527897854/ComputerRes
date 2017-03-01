@@ -41,26 +41,23 @@
                             </tr>
                             <% } %>
                         <% }else{ %>
-                            <% childmsr.forEach(function (cmsr) {
-                                if(cmsr.ping == 'suc')
-                                {
-                                    var items = JSON.parse(cmsr.msr);
-                                    items.forEach(function (msr) {
-                                %>
-                                <tr>
-                                    <td><%=msr._id %></td>
-                                    <td><%=msr.msr_ms.m_name %></td>
-                                    <td><%=msr.msr_guid %></td>
-                                    <td><%=cmsr.host %></td>
-                                    <td><%=msr.msr_date %></td>
-                                    <td><% if(msr.msr_time == 0){%>未完成<%}else{%>已完成<%} %></td>
-                                    <td><a href="/modelserrun/rmt/<%=cmsr.host%>/<%=msr._id %>">查看详情</a></td>
-                                </tr>
-                            <%
+                            <% childmsr.forEach(function (cmsr) { %>
+                                <% if(cmsr.ping == 'suc') {
+                                    var items = cmsr.msr;
+                                    items.forEach(function (msr) { %>
+                                        <tr>
+                                            <td><%=msr._id %></td>
+                                            <td><%=msr.msr_ms.m_name %></td>
+                                            <td><%=msr.msr_guid %></td>
+                                            <td><%=cmsr.host %></td>
+                                            <td><%=msr.msr_date %></td>
+                                            <td><% if(msr.msr_time == 0){%>未完成<%}else{%>已完成<%} %></td>
+                                            <td><a href="/modelserrun/rmt/<%=cmsr.host%>/<%=msr._id %>">查看详情</a></td>
+                                        </tr>
+                                    <% });
+                                }
                             });
-                            }
-                            }); %>
-                        <% } %>
+                        } %>
                     </tbody>
                 </table>
             </div>

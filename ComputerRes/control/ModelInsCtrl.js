@@ -281,6 +281,8 @@ ModelInsCtrl.exit = function (app, cmds, socket) {
     {
         return;
     }
+    app.modelInsColl.changeStateBySocket(socket, 'MC_EXIT');
+    console.log(cmds[0] + ' -- exit');
     socket.write('bye');
 }
 
