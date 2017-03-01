@@ -42,6 +42,10 @@ ModelSerControl.getChildInfo = function (req,routePath,callback) {
                     callback(null,childMs);
             });
         };
+		if(childMs.length == 0)
+		{
+			return callback(null, []);
+		}
         reqOne(0);
     })
 }
