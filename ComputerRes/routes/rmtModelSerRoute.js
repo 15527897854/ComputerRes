@@ -5,6 +5,7 @@ var ModelSerCtrl = require('../control/modelSerControl');
 var setting = require('../setting');
 var remoteReqCtrl = require('../control/remoteReqControl');
 var childCtrl = require('../control/childControl');
+var ModelSerControl = require('../control/modelSerControl');
 
 module.exports = function(app)
 {
@@ -51,10 +52,11 @@ module.exports = function(app)
             var msid = req.params.msid;
             if(msid == 'all')
             {
-                ModelSerCtrl.getChildModelSer(null, function (err, childms) {
+                ModelSerControl.getChildInfo(req,'/modelser/json/rmtall',function (err,data) {
+                    // console.log('-------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!-------------------------------------------');
                     res.render('modelSers_r',{
                         // user:req.session.user,
-                        childms : childms,
+                        childms : data,
                         blmodelser_r : true
                     });
                 });
@@ -99,6 +101,20 @@ module.exports = function(app)
                     });
                 }
                 else{
+                    //method 1
+                    // var url = 'http://' + host + ':' + child.port + '/modelser/json/'+msid + '?ac=run&inputdata=' + req.query.inputdata;
+                    // remoteReqCtrl.getRequest(req,url,function (err, data) {
+                    //     if(err){
+                    //         return res.end('Error!');
+                    //     }
+                    //     if(typeof data == 'string'){
+                    //         data = JSON.parse(data);
+                    //     }
+                    //     data.host = host;
+                    //     return res.end(JSON.stringify(data));
+                    // });
+                    
+                    //method 2
                     var options = {
                         host: host,
                         port: port,

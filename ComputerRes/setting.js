@@ -37,8 +37,5 @@ module.exports =  {
     },
     modelpath: __dirname + '/geo_model/',
     data_size : 1024,
-    debug : true,
-    parent : [
-        '222.192.7.74','172.21.212.217'
-    ]
+    debug : false
 };

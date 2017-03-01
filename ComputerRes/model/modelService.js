@@ -81,6 +81,11 @@ ModelService.prototype.save = function(callback)
     };
     modelservice = new MS(modelservice);
     modelservice.save(function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in save!');
+            return callback(err);
+        }
         callback(err,res);
     })
 };
@@ -89,6 +94,11 @@ ModelService.prototype.save = function(callback)
 ModelService.delete = function (_oid, callback) {
     var oid = new ObjectId(_oid);
     MS.remove({_id: oid},function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in delete!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -106,6 +116,11 @@ ModelService.getAll = function(flag, callback)
         where = { ms_status : { $ne : -1 }}
     }
     MS.find(where,function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         // console.log(res);
         res = JSON.parse(JSON.stringify(res));
         return callback(err,res);
@@ -116,6 +131,11 @@ ModelService.getAll = function(flag, callback)
 ModelService.getByOID = function(_oid,callback)
 {
     MS.findOne({'_id':_oid},function (err, data) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         data = JSON.parse(JSON.stringify(data));
         callback(err,data);
     })
@@ -125,6 +145,11 @@ ModelService.getByOID = function(_oid,callback)
 ModelService.getByWhere = function(where,callback)
 {
     MS.find(where,function (err, data) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         data = JSON.parse(JSON.stringify(data));
         callback(err,data);
     })
@@ -136,6 +161,11 @@ ModelService.update = function(newmodelser,callback)
     var where = {'_id':newmodelser._id},
         toUpdate = newmodelser;
     MS.update(where,toUpdate,function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in update!');
+            return callback(err);
+        }
         res = JSON.parse(JSON.stringify(res));
         callback(err,res);
     });

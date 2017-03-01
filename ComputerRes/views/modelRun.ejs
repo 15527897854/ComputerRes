@@ -24,19 +24,19 @@
                     <div class="col-md-2">
                         <div class="blog-img">
                             <% if(host == 'localhost'){ %>
-                            <% if(ms.ms_img == null || ms.ms_img == ''){
-                            %><img src="/images/modelImg/default.png" alt="<%=ms.ms_model.m_name %>" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="/images/modelImg/<%=ms.ms_img %>" alt="<%=ms.ms_model.m_name %>" ><%
-                            }%>
+                                <% if(ms.ms_img == null || ms.ms_img == ''){
+                                %><img src="/images/modelImg/default.png" alt="<%=ms.ms_model.m_name %>" ><%
+                                }
+                                else {
+                                %><img width="128" height="128" src="/images/modelImg/<%=ms.ms_img %>" alt="<%=ms.ms_model.m_name %>" ><%
+                                }%>
                             <% }else{ %>
-                            <% if(ms.ms_img == null || ms.ms_img == ''){
-                            %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=ms.ms_model.m_name %>" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=ms.ms_img %>" alt="<%=ms.ms_model.m_name %>" ><%
-                            }%>
+                                <% if(ms.ms_img == null || ms.ms_img == ''){
+                                    %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=ms.ms_model.m_name %>" ><%
+                                }
+                                else {
+                                    %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=ms.ms_img %>" alt="<%=ms.ms_model.m_name %>" ><%
+                                }%>
                             <% } %>
                         </div>
                     </div>
@@ -218,6 +218,8 @@
     function setProcess(per) {
         $('#bar_pro').css('width',per.toString() + '%');
     }
+
+
 </script>
 </body>
 </html>

@@ -71,6 +71,11 @@ ModelSerRun.prototype.save = function(callback)
     };
     modelserRun = new MSR(modelserRun);
     modelserRun.save(function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in save!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -79,6 +84,11 @@ ModelSerRun.prototype.save = function(callback)
 ModelSerRun.getAll = function(callback)
 {
     MSR.find({},function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -88,6 +98,11 @@ ModelSerRun.getByOID = function(_oid, callback)
 {
     var oid = new ObjectId(_oid);
     MSR.findOne({_id:oid},function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -97,6 +112,11 @@ ModelSerRun.getByMsId = function(_msid, callback)
 {
     var msid = new ObjectId(_msid);
     MSR.find({ms_id:msid},function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -105,6 +125,11 @@ ModelSerRun.getByMsId = function(_msid, callback)
 ModelSerRun.getByGUID = function(guid, callback)
 {
     MSR.findOne({msr_guid : guid},function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in query!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };
@@ -115,6 +140,11 @@ ModelSerRun.update = function(newmsr, callback)
     var where = {_id:newmsr._id},
         toUpdate = newmsr;
     MSR.update(where,toUpdate,function (err, res) {
+        if(err)
+        {
+            console.log('mongoDB err in update!');
+            return callback(err);
+        }
         callback(err,res);
     });
 };

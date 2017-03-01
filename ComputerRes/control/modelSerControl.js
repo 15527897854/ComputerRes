@@ -17,6 +17,35 @@ function ModelSerControl()
 
 module.exports = ModelSerControl;
 
+//搜索子节点模型服务信息信息 scr
+ModelSerControl.getChildInfo = function (req,routePath,callback) {
+    Child.getAll(function (err, childMs) {
+        var reqOne = function (index) {
+            url = 'http://' + childMs[index].host + ':' + childMs[index].port + routePath;
+            remoteReqCtrl.getRequest(req,url,function (err, data) {
+                if(err){
+                    childMs[index].ping = 'err';
+                }
+                else{
+                    if(typeof data == 'string'){
+                        data = JSON.parse(data);
+                    }
+                    childMs[index].ping = 'suc';
+                    if(routePath == '/modelserrun/json/all')
+                        childMs[index].msr = data;
+                    else if(routePath == '/modelser/json/rmtall')
+                        childMs[index].ms = data;
+                }
+                if(index<childMs.length-1)
+                    reqOne(index+1);
+                else if(index == childMs.length-1)
+                    callback(null,childMs);
+            });
+        };
+        reqOne(0);
+    })
+}
+
 //搜索子节点模型服务信息信息
 ModelSerControl.getChildModelSer = function(headers, callback)
 {

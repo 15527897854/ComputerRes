@@ -48,6 +48,7 @@ RemoteReqControl.postRequest = function (req, url, callback) {
 };
 
 RemoteReqControl.getRequest = function (req, url, callback) {
+    //TODO ping不通时如何快速的返回err
     req.pipe(request.get(url,function (err, response, data) {
         callback(err,data);
     }));

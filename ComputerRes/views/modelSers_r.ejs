@@ -33,7 +33,8 @@
                         <% childms.forEach(function (cms) {
                             if(cms.ping == 'suc')
                             {
-                                var items = JSON.parse(cms.ms);
+                                
+                                    var items = cms.ms;
                                 items.forEach(function (ms) {
                                     %>
                         <tr>
