@@ -3,7 +3,8 @@
  */
 var setting = require('../setting');
 var mongoose = require('mongoose');
-
+//加这一句，否则一直提示 mpromise (mongoose's default promise library) is deprecated
+mongoose.Promise = require('bluebird');
 var url = 'mongodb://' + setting.mongodb.host + ':' + setting.mongodb.port + '/' + setting.mongodb.name;
 mongoose.connect(url);
 
