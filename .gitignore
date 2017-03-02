@@ -7,3 +7,14 @@ node_modules
 /ComputerRes/routes/userRoute.js
 /ComputerRes/views/resetpwd.ejs
 /ComputerRes.zip
+.idea
+/ComputerRes/debug.log
+/ComputerRes/control/userCtrl.js
+/ComputerRes/public/images/modelImg/3b3b5aa0-8404-11e6-9a72-7f055accac3f.jpg
+/ComputerRes/public/images/modelImg/3fafb9d0-8195-11e6-ac8e-b5af775ac278.png
+/ComputerRes/public/images/modelImg/4b4d5aa0-7f0a-11e6-8151-71ac1a71129c.png
+/ComputerRes/public/images/modelImg/b42c9540-7f0a-11e6-b319-51a80f275d66.png
+BAK
+fonts
+images
+tmp

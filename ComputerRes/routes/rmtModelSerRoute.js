@@ -275,12 +275,13 @@ module.exports = function(app)
         });
 
     //查看所有远程结点的ms的json
-    app.route('/modelser/rmt/json/all')
+    app.route('/modelser/json/rmtall')
         .get(function (req, res, next) {
-            ModelSerCtrl.getChildModelSer(null, function (err, childms) {
+            ModelSerControl.getChildInfo(req,'/modelser/json/rmtall',function (err,data) {
+                // console.log('-------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!-------------------------------------------');
                 res.end(JSON.stringify({
                     // user:req.session.user,
-                    childms : childms,
+                    childms : data,
                     blmodelser_r : true
                 }));
             });
