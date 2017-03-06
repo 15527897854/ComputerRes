@@ -34,7 +34,7 @@ ModelSerControl.getChildInfo = function (req,routePath,callback) {
                     if(routePath == '/modelserrun/json/all')
                         childMs[index].msr = data;
                     else if(routePath == '/modelser/json/rmtall')
-                        childMs[index].ms = data;
+                        childMs[index]._doc.ms = data;
                 }
                 if(index<childMs.length-1)
                     reqOne(index+1);

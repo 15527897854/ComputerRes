@@ -87,7 +87,7 @@ module.exports = function(app)
                         path: '/modelser/json/' + msid,
                         method: 'GET'
                     };
-                    remoteReqCtrl.Request(options, null, function (err, data) {
+                    remoteReqCtrl.getRequest(req, 'http://' + host + ':' + port +  '/modelser/json/' + msid, function (err, data) {
                         if(err){
                             return res.end('Error!');
                         }
@@ -279,11 +279,14 @@ module.exports = function(app)
         .get(function (req, res, next) {
             ModelSerControl.getChildInfo(req,'/modelser/json/rmtall',function (err,data) {
                 // console.log('-------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!-------------------------------------------');
-                res.end(JSON.stringify({
-                    // user:req.session.user,
-                    childms : data,
-                    blmodelser_r : true
-                }));
+                if(err)
+                {
+                    return res.end(JSON.stringify({
+                        error : "",
+                        message : err.toString()
+                    }));
+                }
+                return res.end(JSON.stringify(data));
             });
         });
 

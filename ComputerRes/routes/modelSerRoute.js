@@ -765,13 +765,7 @@ module.exports = function(app)
             }
             else if(msid == 'rmtall')
             {
-                ModelSerCrtl.getByWhere({ms_limited:0,ms_status : { $ne : -1 }},function (err, data) {
-                    if(err)
-                    {
-                        return res.end(JSON.stringify(err));
-                    }
-                    return res.end(JSON.stringify(data));
-                });
+                next();
             }
             else
             {

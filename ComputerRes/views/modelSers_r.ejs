@@ -29,85 +29,7 @@
                         <th>操作</th>
                     </tr>
                     </thead>
-                    <tbody>
-                        <% childms.forEach(function (cms) {
-                            if(cms.ping == 'suc')
-                            {
-                                
-                                    var items = cms.ms;
-                                items.forEach(function (ms) {
-                                    %>
-                        <tr>
-                            <td><%=ms.ms_model.m_name %></td>
-                            <td><%=ms.mv_num %></td>
-                            <td>
-                                <%if(ms.ms_platform == 1){
-                                %><span class="label label-info">
-                                    <i class="fa fa-windows"></i>
-                                    windows
-                                </span>
-                                <%
-                                }else {
-                                %><span class="label label-info">
-                                    <i class="fa fa-linux"></i>
-                                    linux
-                                </span>
-                                <%
-                                }%>
-                            </td>
-                            <td>
-                                <%if(ms.ms_status == 1)
-                                {
-                                %><span class="badge badge-success">可用</span><%
-                                }
-                                else
-                                {
-                                %><span class="badge badge-defult">不可用</span><%
-                                }%>
-                            </td>
-                            <td>
-                                0/1
-                            </td>
-                            <td><%=cms.host %></td>
-                            <td>
-                                <button class="btn btn-info btn-xs" type="button"
-                                        onclick="window.location = '/modelser/rmt/<%=cms.host %>/<%=ms._id %>'">
-                                    <i class="fa fa-book"></i>
-                                    详情
-                                </button>
-                                <%if(ms.ms_status == 1)
-                                {%>
-                                <button class="btn btn-default btn-xs" type="button"
-                                        onclick="window.open('/modelser/rmt/preparation/<%=cms.host %>/<%=ms._id%>')">
-                                    <i class="fa fa-retweet"></i>调用
-                                </button>
-                                <button class="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip"
-                                        data-placement="bottom" title="" data-original-title="停止服务"
-                                        onclick="ms_stop('<%=ms._id %>','<%=cms.host %>')" >
-                                    <i class="fa fa-stop"></i>
-                                </button><%
-                                }else
-                                {%>
-                                <button class="btn btn-default btn-xs" disabled="disabled" type="button">
-                                    <i class="fa fa-retweet"></i>调用
-                                </button>
-                                <button class="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip"
-                                        data-placement="bottom" title="" data-original-title="启动服务"
-                                        onclick="ms_start('<%=ms._id %>','<%=cms.host %>')" >
-                                    <i class="fa fa-play"></i>
-                                </button>
-                                <button class="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip"
-                                        data-placement="bottom" title="" data-original-title="删除服务"
-                                        onclick="ms_delete('<%=ms._id %>','<%=cms.host %>')">
-                                    <i class="fa fa-trash-o"></i>
-                                </button>
-                                <% }%>
-                            </td>
-                        </tr>
-                                    <%
-                                });
-                            }
-                        }); %>
+                    <tbody id="rmtModelSers">
                     </tbody>
                 </table>
             </div>
@@ -122,7 +44,130 @@
 <!--dynamic table-->
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
-<!--dynamic table initialization -->
-<script src="/js/dynamic_table_init.js"></script>
+
+<script type="text/javascript" >
+    $(document).ready(function(){
+        $.ajax({
+            url:'/modelser/json/rmtall',
+            success : function (data) {
+                var jsMS = JSON.parse(data);
+                jsMS.map(function (host) {
+                    host.ms.map(function (item) {
+                        var platform = '';
+                        if(item.ms_platform == 1)
+                        {
+                            platform = '<span class="label label-info">' +
+                                    '<i class="fa fa-windows"></i>' +
+                                    'windows' +
+                                    '</span>';
+                        }
+                        else if(item.ms_platform == 2)
+                        {
+                            platform = '<span class="label label-info">' +
+                                    '<i class="fa fa-linux"></i>' +
+                                    'linux' +
+                                    '</span>';
+                        }
+                        else
+                        {
+                            platform = '<span class="label label-info">' +
+                                    'Unknown' +
+                                    '</span>';
+                        }
+
+                        var status = '';
+                        var button = '';
+                        if(item.ms_status == 1)
+                        {
+                            status = '<span class="badge badge-success">可用</span>';
+                            button = '<button class="btn btn-default btn-xs" type="button" ' +
+                                    'onclick="window.open(\'/modelser/rmt/preparation/' + host.host + '/' + item._id + '\')">' +
+                                    '<i class="fa fa-retweet"></i>调用' +
+                                    '</button>' +
+                                    '<button class="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip" ' +
+                                    'data-placement="bottom" title="" data-original-title="停止服务" ' +
+                                    'onclick="ms_stop(' + item._id + ',' + host.host + ')" > ' +
+                                    '<i class="fa fa-stop"></i> ' +
+                                    '</button>';
+                        }
+                        else
+                        {
+                            status = '<span class="badge badge-defult">不可用</span>';
+                            button = '<button class="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip" ' +
+                                    'data-placement="bottom" title="" data-original-title="启动服务" ' +
+                                    'onclick="ms_start(' + item._id + ',' + host.host + ')" > ' +
+                                    '<i class="fa fa-play"></i> ' +
+                                    '</button>&nbsp;' +
+                                    '<button class="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" ' +
+                                    'data-placement="bottom" title="" data-original-title="删除服务" ' +
+                                    'onclick="ms_delete(' + item._id + ',' + host.host + ')" > ' +
+                                    '<i class="fa fa-trash-o"></i> ' +
+                                    '</button>';
+                        }
+                        $('#rmtModelSers').append('<tr>' +
+                                '<td>' + item.ms_model.m_name +'</td>' +
+                                '<td>' + item.mv_num + '</td>' +
+                                '<td>' + platform +
+                                '</td>' +
+                                '<td>' + status +
+                                '</td>' +
+                                '<td> 0/1 ' +
+                                '</td>' +
+                                '<td>' + host.host + '</td>' +
+                                '<td>' +
+                                '<button class="btn btn-info btn-xs" type="button"' +
+                                'onclick="window.location = \'/modelser/rmt/' + host.host + '/' + item._id + '\'">' +
+                                '<i class="fa fa-book"></i> 详情' +
+                                '</button> ' + button +
+                                '</td>' +
+                                '</tr>');
+                    });
+                });
+
+                //初始化完成
+                $('#dynamic-table').dataTable(
+                        {
+                            //数据URL
+                            "data": "/modelser/json/rmtall",
+                            //载入数据的时候是否显示“正在加载中...”
+                            "processing": true,
+                            //是否显示分页
+                            "bPaginate": true,
+                            //每页显示条目数
+                            "bLengthChange": true,
+                            //排序
+                            "bSort": false,
+                            //排序配置
+                            "aaSorting": [[3, "dsc"]],
+                            //自适应宽度
+                            "bAutoWidth": true,
+                            //多语言配置
+                            "oLanguage": {
+                                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                                "sZeroRecords": "对不起，查询不到任何相关数据",
+                                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                                "sInfoEmtpy": "找不到相关数据",
+                                "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
+                                "sProcessing": "正在加载中...",
+                                "sSearch": "搜索",
+                                //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
+                                "sUrl": "",
+                                "oPaginate": {
+                                    "sFirst":    "第一页",
+                                    "sPrevious": " 上一页 ",
+                                    "sNext":     " 下一页 ",
+                                    "sLast":     " 最后一页 "
+                                }
+                            }
+                        }
+                );
+            }
+        });
+
+
+
+    });
+</script>
+
 </body>
 </html>
