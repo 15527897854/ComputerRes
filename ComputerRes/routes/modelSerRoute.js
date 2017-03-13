@@ -15,7 +15,6 @@ var ObjectId = require('mongodb').ObjectID;
 
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCrtl = require('../control/modelSerControl');
-var ModelCrtl = require('../control/modelControl');
 var NoticeCtrl = require('../control/noticeCtrl'); 
 
 var ModelIns = require('../model/modelInstance');
@@ -29,8 +28,7 @@ module.exports = function(app)
             .pipe(unzip.Parse())
             .on('entry', function (entry) {
                 var fileName = entry.path.split('/');
-                // console.log('\n++++++++++++++++++++++++++++++'+fileName);
-                if (fileName[fileName.length-1] === 'package.config') {
+                if (fileName[fileName.length - 1] === 'package.config') {
                     fs.exists(__dirname + '/../public/tmp/',function (exists) {
                         if (!exists) {
                             fs.mkdir(__dirname + '/../public/tmp/');
@@ -89,10 +87,8 @@ module.exports = function(app)
                 entry.autodrain();
             })
             .on('close',function () {
-                // console.log('------------------------------------'+JSON.stringify(fileStruct));
-                // console.log('*******************  close  ********************');
                 fileStruct.config = 1;
-                callback(config,fileStruct);
+                callback(config, fileStruct);
             });
     }
 
@@ -129,7 +125,7 @@ module.exports = function(app)
                             testdata : "",
                             engine : ""
                         };
-                        parseConfig(files.file_model.path,config,function (config,fileStruct) {
+                        parseConfig(files.file_model.path, config, function (config,fileStruct) {
                             if( !config.host || !config.port || !config.start || !config.mdl){
                                 //config结构不对
                                 //删除文件
@@ -657,8 +653,8 @@ module.exports = function(app)
                         err:err
                     }));
                 }
-                console.log('_______________del ms_____________');
-                //存储通知消息
+                // console.log('_______________del ms_____________');
+                // 存储通知消息
                 var noticeData = {
                     time:new Date(),
                     ms_name:item.ms_model.m_name,

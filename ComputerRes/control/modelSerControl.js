@@ -11,6 +11,7 @@ var ModelSerModel = require('../model/modelService');
 var File = require('../model/fileOpera');
 var Child = require('../model/child');
 var remoteReqCtrl = require('./remoteReqControl');
+var CommonBase = require('../lib/commonBase');
 
 function ModelSerControl()
 {}
@@ -241,27 +242,15 @@ ModelSerControl.getRmtModelSer = function (cid, msid, callback) {
 //搜寻本地可用模型信息
 ModelSerControl.getLocalModelSer = function(callback)
 {
-    ModelSerModel.getAll('AVAI', function(err, data)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, data);
-    });
+    ModelSerModel.getAll('AVAI', CommonBase.returnFunction(callback, 'error in getting all model services'));
 }
 
 //新增模型服务
 ModelSerControl.addNewModelSer = function(newmodelser, callback)
 {
+    CommonBase.checkParam(callback, newmodelser);
     var ms = new ModelSerModel(newmodelser);
-    ms.save(function (err, item) {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, item);
-    });
+    ms.save(CommonBase.returnFunction(callback, 'error in inserting a model service'));
 }
 
 //将记录放置在回收站
@@ -279,11 +268,11 @@ ModelSerControl.deleteToTrush = function (_oid, callback) {
                 return callback(err);
             }
             //删除文件
-            File.deleteDir(setting.modelpath + item.ms_path);
+            File.rmdir(setting.modelpath + item.ms_path);
             return callback(null, item);
         });
     });
-}
+};
 
 //根据OID查询模型服务信息
 ModelSerControl.getByOID = function(msid, callback)

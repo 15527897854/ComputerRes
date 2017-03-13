@@ -9,6 +9,7 @@ var exec = require('child_process').exec;
 var xmlparse = require('xml2js').parseString;
 var setting = require('../setting');
 var mongoose = require('./mongooseModel');
+var CommonBase = require('../lib/commonBase');
 
 //ModelService模型
 function ModelService(modelser)
@@ -80,79 +81,47 @@ ModelService.prototype.save = function(callback)
         ms_limited : this.ms_limited
     };
     modelservice = new MS(modelservice);
-    modelservice.save(function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in save!');
-            return callback(err);
-        }
-        callback(err,res);
-    })
+    modelservice.save(CommonBase.returnFunction(callback, "Error in saving model service"));
 };
 
 //删除模型服务
 ModelService.delete = function (_oid, callback) {
+    CommonBase.checkParam(callback, _oid);
     var oid = new ObjectId(_oid);
-    MS.remove({_id: oid},function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in delete!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
+    MS.remove({_id: oid},CommonBase.returnFunction(callback, "Error in removing model service"));
 };
 
 //根据计算服务器获取模型服务
 ModelService.getAll = function(flag, callback)
 {
+    CommonBase.checkParam(callback, flag);
     var where = {};
-    if(flag == 'ALL')
-    {
+    if(flag == 'ALL'){
         where = {};
     }
-    else
-    {
+    else{
         where = { ms_status : { $ne : -1 }}
     }
-    MS.find(where,function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        // console.log(res);
-        res = JSON.parse(JSON.stringify(res));
-        return callback(err,res);
-    });
+    MS.find(where, CommonBase.returnFunction(callback, 'Error in getting all model service'));
 };
 
 //根据OID获取Model
 ModelService.getByOID = function(_oid,callback)
 {
-    MS.findOne({'_id':_oid},function (err, data) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        data = JSON.parse(JSON.stringify(data));
-        callback(err,data);
-    })
+    CommonBase.checkParam(callback, _oid);
+    MS.findOne({'_id':_oid}, CommonBase.returnFunction(callback, 'Error in getting a model service by id'))
+};
+
+//通过MID查询
+ModelService.getByMID = function (_mid, callback) {
+    CommonBase.checkParam(callback, mid);
+    MS.findOne({'ms_model':{'m_id': _mid}}, CommonBase.returnFunction(callback, "Error in getting model service by mid"));
 };
 
 //条件查询
 ModelService.getByWhere = function(where,callback)
 {
-    MS.find(where,function (err, data) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        data = JSON.parse(JSON.stringify(data));
-        callback(err,data);
-    })
+    MS.find(where, CommonBase.returnFunction(callback, 'Error in getting a model service by where'));
 };
 
 //更新模型数据
@@ -160,64 +129,48 @@ ModelService.update = function(newmodelser,callback)
 {
     var where = {'_id':newmodelser._id},
         toUpdate = newmodelser;
-    MS.update(where,toUpdate,function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in update!');
-            return callback(err);
-        }
-        res = JSON.parse(JSON.stringify(res));
-        callback(err,res);
-    });
+    MS.update(where,toUpdate,CommonBase.returnFunction(callback, 'Error in updating a model service by where'));
 };
 
 //启动一个模型服务实例
 ModelService.run = function (ms_id, guid, callback) {
-    this.getByOID(ms_id, function (err, ms) {
-        if(err)
-        {
+    CommonBase.checkParam(callback, ms_id);
+    CommonBase.checkParam(callback, guid);
+    ModelService.getByOID(ms_id, function (err, ms) {
+        if (err) {
             return callback(err);
         }
-        ModelService.getByOID(ms_id, function (err, ms) {
-            if(err)
-            {
+        CommonBase.checkParam(callback, ms);
+        ModelService.readCfg(ms, function (err, cfg) {
+            if (err) {
                 return callback(err);
             }
-            ModelService.readCfg(ms ,function (err, cfg) {
-                if(err)
-                {
-                    return callback(err);
-                }
-                //执行程序
-                var cmd;
-                if(cfg.type == 'exe')
-                {
-                    cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                }
-                else if(cfg.type == 'java')
-                {
-                    cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                }
-                else if(cfg.type == 'sh')
-                {
-                    cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                }
-                else
-                {
-                    cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                }
-                console.log('ModelService Run CMD : ' + cmd);
-                exec(cmd, [] ,{
-                    cwd : setting.modelpath + ms.ms_path
-                });
-                return callback(null, ms);
+            //执行程序
+            var cmd;
+            if (cfg.type == 'exe') {
+                cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+            }
+            else if (cfg.type == 'java') {
+                cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+            }
+            else if (cfg.type == 'sh') {
+                cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+            }
+            else {
+                cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+            }
+            console.log('ModelService Run CMD : ' + cmd);
+            exec(cmd, [], {
+                cwd: setting.modelpath + ms.ms_path
             });
+            return callback(null, ms);
         });
     });
-}
+};
 
 //读取MDL文件
 ModelService.readMDL = function (ms, callback) {
+    CommonBase.checkParam(callback, ms);
     ModelService.readCfg(ms, function (err, cfg) {
         if(err)
         {
@@ -239,14 +192,11 @@ ModelService.readMDL = function (ms, callback) {
             });
         })
     })
-}
+};
 
 //读取config文件
 ModelService.readCfg = function (ms, callback) {
-    if(ms == null)
-    {
-        return callback(new Error("ModelService info is null "));
-    }
+    CommonBase.checkParam(callback, ms);
     fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + 'package.config', 'utf-8',function(err,data){
         if(err){
             console.log('Error in read config file : ' + err);
@@ -320,7 +270,8 @@ ModelService.readCfg = function (ms, callback) {
 
 //读取config文件
 ModelService.readCfgBypath = function (path, callback) {
-    fs.readFile(path, 'utf-8',function(err,data){
+    CommonBase.checkParam(callback, path);
+    fs.readFile(path, 'utf-8',function(err, data){
         if(err){
             console.log('Error in read config file : ' + err);
             return callback(err);
@@ -391,10 +342,3 @@ ModelService.readCfgBypath = function (path, callback) {
     });
 };
 
-//通过MID查询
-ModelService.getByMID = function (_mid, callback) {
-    MS.findOne({'ms_model':{'m_id': _mid}}, function (err, data) {
-        data = JSON.parse(JSON.stringify(data));
-        callback(err,data);
-    });
-}
