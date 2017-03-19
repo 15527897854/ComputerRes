@@ -111,7 +111,7 @@ ModelService.getAll = function(flag, callback)
 
 //通过MID查询
 ModelService.getByMID = function (_mid, callback) {
-    ParamCheck.checkParam(callback, mid);
+    ParamCheck.checkParam(callback, _mid);
     var where = {'ms_model':{'m_id': _mid}};
     this.getByWhere(where, callback);
 };

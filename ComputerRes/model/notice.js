@@ -5,6 +5,8 @@ var mongoose = require('./mongooseModel');
 
 var mongodb = require('./mongoDB');
 var ObjectId = require('mongodb').ObjectID;
+var ModelBase = require('./modelBase');
+var ParamCheck = require('../utils/paramCheck');
 
 function Notice(notice)
 {
@@ -33,7 +35,7 @@ function Notice(notice)
     }
     return this;
 }
-
+Notice.__proto__ = ModelBase;
 module.exports = Notice;
 
 var noteSchema = new mongoose.Schema({
@@ -45,6 +47,8 @@ var noteSchema = new mongoose.Schema({
 },{collection:'notice'});
 
 var Note = mongoose.model('notice',noteSchema);
+Notice.baseModel = Note;
+Notice.modelName = 'model';
 
 //新增模型服务信息
 Notice.save = function(notice,callback) {
@@ -60,49 +64,19 @@ Notice.save = function(notice,callback) {
 };
 
 Notice.delByOID = function (_oid, callback) {
+    ParamCheck.checkParam(callback,_oid);
     var oid = new ObjectId(_oid);
-    Note.remove({'_id':oid},function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in delete!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
+    Note.remove({'_id':oid},this.returnFunction(callback, 'Error in delete by oid in notice'));
 };
 
 Notice.getWhere = function(where, callback) {
-    Note.find(where,function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
+    ParamCheck.checkParam(callback, where);
+    Note.find(where,this.returnFunction(callback, 'Error in getting where in notice'));
 };
 
 Notice.getByOID = function(_oid, callback) {
+    ParamCheck.checkParam(callback, _oid);
     var oid = new ObjectId(_oid);
-    Note.findOne({'_id':oid},function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
+    Note.findOne({'_id':oid},this.returnFunction(callback, 'Error in getting by oid in notice'));
 };
 
-Notice.update = function(newNotice,callback){
-    var where = {'_id':newNotice._id},
-        toUpdate = newNotice;
-    Note.update(where,toUpdate,function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in update!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
-};
