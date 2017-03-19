@@ -7,6 +7,7 @@ var ObjectId = require('mongodb').ObjectID;
 var settings = require('../setting');
 var mongoose = require('./mongooseModel');
 var ModelBase = require('./modelBase');
+var CheckParam = require('../utils/paramCheck');
 
 //ModelSerRun模型
 function ModelSerRun( modelserRun )
@@ -88,54 +89,22 @@ ModelSerRun.prototype.save = function(callback)
 //获取模型运行服务
 ModelSerRun.getAll = function(callback)
 {
-    MSR.find({},function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
+
+    MSR.find({}, this.returnFunction(callback, "error in getting all model service runs"));
 };
 
 //根据ms_id获取ModelSerRun
 ModelSerRun.getByMsId = function(_msid, callback)
 {
+    ParamCheck.checkParam(callback,_msid);
     var msid = new ObjectId(_msid);
-    MSR.find({ms_id:msid},function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
+    MSR.find({ms_id:msid}, this.returnFunction(callback, "error in getting by MsId model service runs"));
 };
 
 //根据msr_guid获取ModelSerRun
 ModelSerRun.getByGUID = function(guid, callback)
 {
-    MSR.findOne({msr_guid : guid},function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
+    ParamCheck.checkParam(callback,guid);
+    MSR.findOne({msr_guid : guid},this.returnFunction(callback, "error in getting by GUID model service runs"));
 };
 
-//更新模型运行数据
-ModelSerRun.update = function(newmsr, callback)
-{
-    var where = {_id:newmsr._id},
-        toUpdate = newmsr;
-    MSR.update(where,toUpdate,function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in update!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
-};
