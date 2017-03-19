@@ -266,7 +266,7 @@ Transitionize.prototype.init = function() {
   if (this.isSafari()) this.element.style.webkitTransition = transitions.join(', ');
 };
 });
-require.register("ftlabs-fastclick/lib/fastclick.js", function(exports, require, module){
+require.register("ftlabs-fastclick/utils/fastclick.js", function(exports, require, module){
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
  *
@@ -1402,10 +1402,10 @@ require.alias("abpetkov-transitionize/transitionize.js", "switchery/deps/transit
 require.alias("abpetkov-transitionize/transitionize.js", "switchery/deps/transitionize/index.js");
 require.alias("abpetkov-transitionize/transitionize.js", "transitionize/index.js");
 require.alias("abpetkov-transitionize/transitionize.js", "abpetkov-transitionize/index.js");
-require.alias("ftlabs-fastclick/lib/fastclick.js", "switchery/deps/fastclick/lib/fastclick.js");
-require.alias("ftlabs-fastclick/lib/fastclick.js", "switchery/deps/fastclick/index.js");
-require.alias("ftlabs-fastclick/lib/fastclick.js", "fastclick/index.js");
-require.alias("ftlabs-fastclick/lib/fastclick.js", "ftlabs-fastclick/index.js");
+require.alias("ftlabs-fastclick/utils/fastclick.js", "switchery/deps/fastclick/lib/fastclick.js");
+require.alias("ftlabs-fastclick/utils/fastclick.js", "switchery/deps/fastclick/index.js");
+require.alias("ftlabs-fastclick/utils/fastclick.js", "fastclick/index.js");
+require.alias("ftlabs-fastclick/utils/fastclick.js", "ftlabs-fastclick/index.js");
 require.alias("switchery/switchery.js", "switchery/index.js");if (typeof exports == "object") {
   module.exports = require("switchery");
 } else if (typeof define == "function" && define.amd) {

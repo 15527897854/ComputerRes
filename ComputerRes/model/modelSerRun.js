@@ -6,6 +6,7 @@ var mongodb = require('./mongoDB');
 var ObjectId = require('mongodb').ObjectID;
 var settings = require('../setting');
 var mongoose = require('./mongooseModel');
+var ModelBase = require('./modelBase');
 
 //ModelSerRun模型
 function ModelSerRun( modelserRun )
@@ -38,6 +39,8 @@ function ModelSerRun( modelserRun )
     }
     return this;
 }
+ModelSerRun.__proto__ = ModelBase;
+ModelSerRun.modelName = "model service run";
 
 module.exports = ModelSerRun;
 
@@ -53,6 +56,8 @@ var MSRSchema = new mongoose.Schema({
     msr_des :  String
 },{collection:'modelserrun'});
 var MSR = mongoose.model('modelserrun',MSRSchema);
+
+ModelSerRun.baseModel = MSR;
 
 //新增模型服务运行信息
 ModelSerRun.prototype.save = function(callback)
@@ -84,20 +89,6 @@ ModelSerRun.prototype.save = function(callback)
 ModelSerRun.getAll = function(callback)
 {
     MSR.find({},function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in query!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
-};
-
-//根据OID获取ModelSerRun
-ModelSerRun.getByOID = function(_oid, callback)
-{
-    var oid = new ObjectId(_oid);
-    MSR.findOne({_id:oid},function (err, res) {
         if(err)
         {
             console.log('mongoDB err in query!');

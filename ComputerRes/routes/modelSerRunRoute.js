@@ -59,6 +59,10 @@ module.exports = function (app) {
             if(msrid == 'all')
             {
                 ModelSerRunCtrl.getAll(function (err, msr) {
+                    if(err)
+                    {
+                        return res.end('Error : ' + err);
+                    }
                     return res.end(JSON.stringify(msr))
                 });
             }

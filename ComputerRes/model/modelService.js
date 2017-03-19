@@ -9,7 +9,8 @@ var exec = require('child_process').exec;
 var xmlparse = require('xml2js').parseString;
 var setting = require('../setting');
 var mongoose = require('./mongooseModel');
-var CommonBase = require('../lib/commonBase');
+var ModelBase = require('./modelBase');
+var ParamCheck = require('../utils/paramCheck');
 
 //ModelService模型
 function ModelService(modelser)
@@ -45,6 +46,8 @@ function ModelService(modelser)
     return this;
 }
 
+ModelService.__proto__ = ModelBase;
+
 module.exports = ModelService;
 
 var msSchema = new mongoose.Schema({
@@ -61,6 +64,8 @@ var msSchema = new mongoose.Schema({
     ms_img : String
 },{collection:'modelservice'});
 var MS = mongoose.model('modelservice',msSchema);
+ModelService.baseModel = MS;
+ModelService.modelName = "model service";
 
 //新增模型服务信息
 ModelService.prototype.save = function(callback)
@@ -81,20 +86,19 @@ ModelService.prototype.save = function(callback)
         ms_limited : this.ms_limited
     };
     modelservice = new MS(modelservice);
-    modelservice.save(CommonBase.returnFunction(callback, "Error in saving model service"));
-};
-
-//删除模型服务
-ModelService.delete = function (_oid, callback) {
-    CommonBase.checkParam(callback, _oid);
-    var oid = new ObjectId(_oid);
-    MS.remove({_id: oid},CommonBase.returnFunction(callback, "Error in removing model service"));
+    modelservice.save(function (err, item) {
+        if(err)
+        {
+            return callback(err);
+        }
+        return callback(null, item);
+    });
 };
 
 //根据计算服务器获取模型服务
 ModelService.getAll = function(flag, callback)
 {
-    CommonBase.checkParam(callback, flag);
+    ParamCheck.checkParam(callback, flag);
     var where = {};
     if(flag == 'ALL'){
         where = {};
@@ -102,45 +106,25 @@ ModelService.getAll = function(flag, callback)
     else{
         where = { ms_status : { $ne : -1 }}
     }
-    MS.find(where, CommonBase.returnFunction(callback, 'Error in getting all model service'));
-};
-
-//根据OID获取Model
-ModelService.getByOID = function(_oid,callback)
-{
-    CommonBase.checkParam(callback, _oid);
-    MS.findOne({'_id':_oid}, CommonBase.returnFunction(callback, 'Error in getting a model service by id'))
+    MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
 };
 
 //通过MID查询
 ModelService.getByMID = function (_mid, callback) {
-    CommonBase.checkParam(callback, mid);
-    MS.findOne({'ms_model':{'m_id': _mid}}, CommonBase.returnFunction(callback, "Error in getting model service by mid"));
-};
-
-//条件查询
-ModelService.getByWhere = function(where,callback)
-{
-    MS.find(where, CommonBase.returnFunction(callback, 'Error in getting a model service by where'));
-};
-
-//更新模型数据
-ModelService.update = function(newmodelser,callback)
-{
-    var where = {'_id':newmodelser._id},
-        toUpdate = newmodelser;
-    MS.update(where,toUpdate,CommonBase.returnFunction(callback, 'Error in updating a model service by where'));
+    ParamCheck.checkParam(callback, mid);
+    var where = {'ms_model':{'m_id': _mid}};
+    this.getByWhere(where, callback);
 };
 
 //启动一个模型服务实例
 ModelService.run = function (ms_id, guid, callback) {
-    CommonBase.checkParam(callback, ms_id);
-    CommonBase.checkParam(callback, guid);
+    ParamCheck.checkParam(callback, ms_id);
+    ParamCheck.checkParam(callback, guid);
     ModelService.getByOID(ms_id, function (err, ms) {
         if (err) {
             return callback(err);
         }
-        CommonBase.checkParam(callback, ms);
+        ParamCheck.checkParam(callback, ms);
         ModelService.readCfg(ms, function (err, cfg) {
             if (err) {
                 return callback(err);
@@ -165,12 +149,12 @@ ModelService.run = function (ms_id, guid, callback) {
             });
             return callback(null, ms);
         });
-    });
+    }.bind(this));
 };
 
 //读取MDL文件
 ModelService.readMDL = function (ms, callback) {
-    CommonBase.checkParam(callback, ms);
+    ParamCheck.checkParam(callback, ms);
     ModelService.readCfg(ms, function (err, cfg) {
         if(err)
         {
@@ -196,7 +180,7 @@ ModelService.readMDL = function (ms, callback) {
 
 //读取config文件
 ModelService.readCfg = function (ms, callback) {
-    CommonBase.checkParam(callback, ms);
+    ParamCheck.checkParam(callback, ms);
     fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + 'package.config', 'utf-8',function(err,data){
         if(err){
             console.log('Error in read config file : ' + err);
@@ -270,7 +254,7 @@ ModelService.readCfg = function (ms, callback) {
 
 //读取config文件
 ModelService.readCfgBypath = function (path, callback) {
-    CommonBase.checkParam(callback, path);
+    ParamCheck.checkParam(callback, path);
     fs.readFile(path, 'utf-8',function(err, data){
         if(err){
             console.log('Error in read config file : ' + err);

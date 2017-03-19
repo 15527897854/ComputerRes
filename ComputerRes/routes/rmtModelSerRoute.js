@@ -259,7 +259,7 @@ module.exports = function(app)
                     path: '/modelser/preparation/json/' + msid,
                     method: 'GET'
                 };
-                remoteReqCtrl.Request(options, null, function (err, data) {
+                remoteReqCtrl.getRequest(req, 'http://' + host + ':' + port + '/modelser/preparation/json/' + msid, function (err, data) {
                     if(err){
                         return res.end('Error!');
                     }
