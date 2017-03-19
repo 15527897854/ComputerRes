@@ -6,15 +6,18 @@ var setting = require('../setting');
 var http = require('http');
 var fs = require('fs');
 var rimraf = require('rimraf');
+var unzip = require('unzip');
+var ObjectId = require('mongodb').ObjectID;
 
 var ModelSerModel = require('../model/modelService');
-var File = require('../model/fileOpera');
+var FileOpera = require('../utils/fileOpera');
 var Child = require('../model/child');
 var remoteReqCtrl = require('./remoteReqControl');
-var CommonBase = require('../lib/commonBase');
+var ControlBase = require('./controlBase');
+var ParamCheck = require('../utils/paramCheck');
 
-function ModelSerControl()
-{}
+var ModelSerControl = function () {};
+ModelSerControl.__proto__ = ControlBase;
 
 module.exports = ModelSerControl;
 
@@ -49,7 +52,7 @@ ModelSerControl.getChildInfo = function (req,routePath,callback) {
 		}
         reqOne(0);
     })
-}
+};
 
 //搜索子节点模型服务信息信息
 ModelSerControl.getChildModelSer = function(headers, callback)
@@ -242,16 +245,81 @@ ModelSerControl.getRmtModelSer = function (cid, msid, callback) {
 //搜寻本地可用模型信息
 ModelSerControl.getLocalModelSer = function(callback)
 {
-    ModelSerModel.getAll('AVAI', CommonBase.returnFunction(callback, 'error in getting all model services'));
-}
+    ModelSerModel.getAll('AVAI', this.returnFunction(callback, 'error in getting all model services'));
+};
 
 //新增模型服务
-ModelSerControl.addNewModelSer = function(newmodelser, callback)
+ModelSerControl.addNewModelSer = function(fields, files, callback)
 {
-    CommonBase.checkParam(callback, newmodelser);
-    var ms = new ModelSerModel(newmodelser);
-    ms.save(CommonBase.returnFunction(callback, 'error in inserting a model service'));
-}
+    ModelSerControl.parseConfig(files.file_model.path, function (config, fileStruct) {
+        if( !config.host || !config.port || !config.start || !config.mdl){
+            return res.end(JSON.stringify({
+                'res':'err 1',
+                'des':'长传的压缩包不包含config文件或config文件结构不正确！'
+            }));
+        }
+        else if(!fileStruct.model || !fileStruct.mdl || !fileStruct.start){
+            //文件结构不对
+            //删除文件
+            fs.unlinkSync(files.file_model.path);
+            return res.end(JSON.stringify({
+                'res':'err 2',
+                'des':'上传文件结构不正确！'
+            }));
+        }
+        //通过验证
+        var date = new Date();
+        var img = null;
+        if(files.ms_img.size != 0)
+        {
+            img = uuid.v1() + path.extname(files.ms_img.path);
+            fs.renameSync(files.ms_img.path, setting.modelpath + '../public/images/modelImg/' + img);
+        }
+        else
+        {
+            FileOpera.rmdir(files.ms_img.path);
+        }
+
+        //产生新的OID
+        var oid = new ObjectId();
+
+        //解压路径
+        var model_path = setting.modelpath + oid.toString() + '/';
+
+        //解压
+        fs.createReadStream(files.file_model.path).pipe(unzip.Extract({path: model_path}));
+
+        //删除文件
+        FileOpera.rmdir(files.file_model.path);
+
+        //生成新的纪录
+        var newmodelser = {
+            _id : oid,
+            ms_model : {
+                m_name:fields.m_name,
+                m_type:fields.m_type,
+                m_url:fields.m_url
+            },
+            ms_limited:fields.ms_limited,
+            mv_num:fields.mv_num,
+            ms_des:fields.ms_des,
+            ms_update:date.toLocaleString(),
+            ms_platform:setting.platform,
+            ms_path:oid.toString() + '/',
+            ms_img:img,
+            ms_xml:fields.ms_xml,
+            ms_status:0,
+            ms_user:{
+                u_name:fields.u_name,
+                u_email:fields.u_email
+            }
+        };
+
+        var ms = new ModelSerModel(newmodelser);
+        ms.save(this.returnFunction(callback, 'error in inserting a model service'));
+    }.bind(this));
+
+};
 
 //将记录放置在回收站
 //并删除文件
@@ -268,7 +336,7 @@ ModelSerControl.deleteToTrush = function (_oid, callback) {
                 return callback(err);
             }
             //删除文件
-            File.rmdir(setting.modelpath + item.ms_path);
+            FileOpera.rmdir(setting.modelpath + item.ms_path);
             return callback(null, item);
         });
     });
@@ -278,18 +346,6 @@ ModelSerControl.deleteToTrush = function (_oid, callback) {
 ModelSerControl.getByOID = function(msid, callback)
 {
     ModelSerModel.getByOID(msid,function(err, data)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, data);
-    });
-};
-
-//条件查询
-ModelSerControl.getByWhere = function (where, callback) {
-    ModelSerModel.getByWhere(where,function(err, data)
     {
         if(err)
         {
@@ -416,6 +472,86 @@ ModelSerControl.readCfgBypath = function (path, callback) {
         }
         return callback(null,data);
     });
+};
+
+ModelSerControl.parseConfig = function (path, callback) {
+    var config = {
+        host : "",
+        port : "",
+        start : "",
+        type : "",
+        mdl : "",
+        testdata : "",
+        engine : ""
+    };
+    fs.createReadStream(path)
+        .pipe(unzip.Parse())
+        .on('entry', function (entry) {
+            var fileName = entry.path.split('/');
+            if (fileName[fileName.length - 1] === 'package.config') {
+                fs.exists(__dirname + '/../public/tmp/',function (exists) {
+                    if (!exists) {
+                        fs.mkdir(__dirname + '/../public/tmp/');
+                    }
+                    var path = __dirname + '/../public/tmp/' + Date.parse(new Date())+'.config';
+                    entry.pipe(fs.createWriteStream(path));
+                    ModelSerControl.readCfgBypath(path,function (err, cfg) {
+                        config = cfg;
+                        console.log('--------------------------------------------\n'+JSON.stringify(config));
+                        fs.exists(path, function (exist) {
+                            if(exist){
+                                fs.unlink(path);
+                            }
+                        });
+                    });
+                });
+            }
+            else {
+                entry.autodrain();
+            }
+        })
+        .on('close',function () {
+            if( config.host && config.port && config.start && config.mdl){
+                ModelSerControl.parseUploadFile(path,config,callback);
+            }
+            else if(config){
+                fs.unlinkSync(path);
+                callback(config,null);
+            }
+        });
+};
+
+ModelSerControl.parseUploadFile = function(path,config,callback)
+{
+    var fileStruct = {
+        model : 0,
+        testify : 0,
+        start : 0,
+        mdl : 0,
+        config : 0
+    };
+    fs.createReadStream(path)
+        .pipe(unzip.Parse())
+        .on('entry', function (entry) {
+            var fileName = entry.path;
+            if(fileName == 'model/' ){
+                fileStruct.model = 1;
+            }
+            else if(fileName == 'testify/'){
+                fileStruct.testify = 1;
+            }
+            else if(fileName == config.start){
+                fileStruct.start = 1;
+            }
+            else if(fileName == config.mdl){
+                fileStruct.mdl = 1;
+            }
+            entry.autodrain();
+        })
+        .on('close',function () {
+            fileStruct.config = 1;
+            callback(config, fileStruct);
+        });
 };
 
 //根据MID查询

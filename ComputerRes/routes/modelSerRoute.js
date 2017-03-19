@@ -3,7 +3,6 @@
  * Route for model-service
  */
 
-var mount_uploadify = require('uploadify');
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
@@ -15,214 +14,27 @@ var ObjectId = require('mongodb').ObjectID;
 
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCrtl = require('../control/modelSerControl');
-var NoticeCtrl = require('../control/noticeCtrl'); 
-
+var NoticeCtrl = require('../control/noticeCtrl');
 var ModelIns = require('../model/modelInstance');
+var ModelSerMid = require('../middlewares/modelserMid');
 
 var remoteModelSerRoute = require('./rmtModelSerRoute');
 
 module.exports = function(app)
 {
-    function parseConfig(path,config,callback) {
-        fs.createReadStream(path)
-            .pipe(unzip.Parse())
-            .on('entry', function (entry) {
-                var fileName = entry.path.split('/');
-                if (fileName[fileName.length - 1] === 'package.config') {
-                    fs.exists(__dirname + '/../public/tmp/',function (exists) {
-                        if (!exists) {
-                            fs.mkdir(__dirname + '/../public/tmp/');
-                        }
-                        var path = __dirname + '/../public/tmp/'+Date.parse(new Date())+'.config';
-                        entry.pipe(fs.createWriteStream(path));
-                        ModelSerCrtl.readCfgBypath(path,function (err, cfg) {
-                            config = cfg;
-                            console.log('--------------------------------------------\n'+JSON.stringify(config));
-                            fs.exists(path,function (exist) {
-                                if(exist){
-                                    fs.unlink(path);
-                                }
-                            })
-                        });
-                    });
-                }
-                else {
-                    entry.autodrain();
-                }
-            })
-            .on('close',function () {
-                if( config.host && config.port && config.start && config.mdl){
-                    parseUploadFile(path,config,callback);
-                }
-                else if(config){
-                    callback(config,null);
-                }
-            });
-    }
-
-    function parseUploadFile(path,config,callback) {
-        var fileStruct = {
-            model : 0,
-            testify : 0,
-            start : 0,
-            mdl : 0,
-            config : 0
-        };
-        fs.createReadStream(path)
-            .pipe(unzip.Parse())
-            .on('entry', function (entry) {
-                var fileName = entry.path;
-                if(fileName == 'model/' ){
-                    fileStruct.model = 1;
-                }
-                else if(fileName == 'testify/'){
-                    fileStruct.testify = 1;
-                }
-                else if(fileName == config.start){
-                    fileStruct.start = 1;
-                }
-                else if(fileName == config.mdl){
-                    fileStruct.mdl = 1;
-                }
-                entry.autodrain();
-            })
-            .on('close',function () {
-                fileStruct.config = 1;
-                callback(config, fileStruct);
-            });
-    }
-
     //新增模型服务
     app.route('/modelser')
         .post(function(req, res, next)
         {
-            var form = new formidable.IncomingForm();
-            form.encoding = 'utf-8';    	                //设置编辑
-            form.uploadDir = setting.modelpath + 'tmp/';	//设置上传目录
-            form.keepExtensions = true;                     //保留后缀
-            form.maxFieldsSize = 500 * 1024 * 1024;         //文件大小
-
-            fs.exists(setting.modelpath,function (exists) {
-                if (!exists) {
-                    fs.mkdir(setting.modelpath);
+            ModelSerMid.NewModelSer(req, function (err, item) {
+                if(err)
+                {
+                    return res.end("Error : " + JSON.stringify(err));
                 }
-                fs.exists(form.uploadDir,function (exists) {
-                    if(!exists){
-                        fs.mkdir(form.uploadDir);
-                    }
-                    //解析请求
-                    form.parse(req, function (err, fields, files) {
-                        if(err) {
-                            return res.end(JSON.stringify(err));
-                        }
-                        // 验证
-                        var config = {
-                            host : "",
-                            port : "",
-                            start : "",
-                            type : "",
-                            mdl : "",
-                            testdata : "",
-                            engine : ""
-                        };
-                        parseConfig(files.file_model.path, config, function (config,fileStruct) {
-                            if( !config.host || !config.port || !config.start || !config.mdl){
-                                //config结构不对
-                                //删除文件
-                                fs.unlinkSync(files.file_model.path);
-                                return res.end(JSON.stringify({
-                                    'res':'err 1',
-                                    'des':'长传的压缩包不包含config文件或config文件结构不正确！'
-                                }));
-                            }
-                            else if(!fileStruct.model || !fileStruct.mdl || !fileStruct.start){
-                                //文件结构不对
-                                //删除文件
-                                fs.unlinkSync(files.file_model.path);
-                                return res.end(JSON.stringify({
-                                    'res':'err 2',
-                                    'des':'上传文件结构不正确！'
-                                }));
-                            }
-                            //通过验证
-                            var date = new Date();
-                            var img = null;
-                            if(files.ms_img.size != 0)
-                            {
-                                img = uuid.v1() + path.extname(files.ms_img.path);
-                                fs.renameSync(files.ms_img.path, setting.modelpath + '../public/images/modelImg/' + img);
-                            }
-                            else
-                            {
-                                fs.unlinkSync(files.ms_img.path);
-                            }
-                            //产生新的OID
-                            var oid = new ObjectId();
-
-                            //生成新的纪录
-                            var newmodelser = {
-                                _id : oid,
-                                ms_model : {
-                                    m_name:fields.m_name,
-                                    m_type:fields.m_type,
-                                    m_url:fields.m_url
-                                },
-                                ms_limited:fields.ms_limited,
-                                mv_num:fields.mv_num,
-                                ms_des:fields.ms_des,
-                                ms_update:date.toLocaleString(),
-                                ms_platform:setting.platform,
-                                ms_path:oid.toString() + '/',
-                                ms_img:img,
-                                ms_xml:fields.ms_xml,
-                                ms_status:0,
-                                ms_user:{
-                                    u_name:fields.u_name,
-                                    u_email:fields.u_email
-                                }
-                            };
-                            //解压路径
-                            var model_path = setting.modelpath + oid.toString() + '/';
-                            // fs.exists(model_path,function (exists) {
-                            //     if (!exists) {
-                            //         fs.mkdir(form.uploadDir);
-                            //     }
-                            //解压
-                            fs.createReadStream(files.file_model.path).pipe(unzip.Extract({path: model_path}));
-
-                            //删除文件
-                            fs.unlinkSync(files.file_model.path);
-
-                            //添加纪录
-                            ModelSerCrtl.addNewModelSer(newmodelser, function (err, item) {
-                                if(err)
-                                {
-                                    return res.end('Error : ' + JSON.stringify(err));
-                                }
-                                res.end(JSON.stringify({
-                                    res : 'suc',
-                                    oid : oid.toString()
-                                }));
-                            });
-                            // });
-                        });
-                    });
-
-                    global.fileupload.add({
-                        sessionId : req.sessionID,
-                        process : 0
-                    });
-                    //上传过程中
-                    form.on('progress', function (bytesReceived, bytesExpected)
-                    {
-                        var percent = Math.round(bytesReceived/bytesExpected * 100);
-                        var newItem = {
-                            sessionId : req.sessionID,
-                            value : percent
-                        };
-                        global.fileupload.update(newItem);
-                    });
-                });
+                res.end(JSON.stringify({
+                    res : 'suc',
+                    oid : item._id.toString()
+                }));
             });
         });
 
@@ -497,10 +309,7 @@ module.exports = function(app)
                                 //添加纪录
                                 var msr = {
                                     ms_id : ms._id,
-                                    msr_ms : {
-                                        m_name : ms.ms_model.m_name,
-                                        mv_num : ms.mv_num
-                                    },
+                                    msr_ms : ms,
                                     msr_date : date.toLocaleString(),
                                     msr_time : 0,
                                     msr_user : {
