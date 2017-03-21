@@ -14,6 +14,7 @@ var settings = require('./setting');
 var routes = require('./routes/index');
 
 var app = express();
+global.app = app;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -89,7 +90,7 @@ if(settings.debug)
 {
   var date = new Date();
   var mis = {
-    guid : "219e7c83-02f7-43cc-b74f-28c22874a677",
+    guid : settings.debugGUID,
     socket : null,
     ms : null,
     start : date.toLocaleString(),

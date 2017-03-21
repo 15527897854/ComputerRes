@@ -319,6 +319,7 @@ module.exports = function(app)
                                     msr_guid : guid,
                                     msr_input : inputData,
                                     msr_output : outputData,
+                                    msr_status : 'STARTING',
                                     msr_des : ''
                                 };
                                 //存储通知消息
@@ -345,7 +346,8 @@ module.exports = function(app)
                         });
                     });
                 }
-                else    //单个模型的详情页面
+                //单个模型的详情页面
+                else
                 {
                     ModelSerCrtl.getByOID(msid, function(err, ms)
                     {

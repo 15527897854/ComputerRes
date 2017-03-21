@@ -96,8 +96,7 @@ ModelService.prototype.save = function(callback)
 };
 
 //根据计算服务器获取模型服务
-ModelService.getAll = function(flag, callback)
-{
+ModelService.getAll = function(flag, callback){
     ParamCheck.checkParam(callback, flag);
     var where = {};
     if(flag == 'ALL'){
@@ -117,7 +116,7 @@ ModelService.getByMID = function (_mid, callback) {
 };
 
 //启动一个模型服务实例
-ModelService.run = function (ms_id, guid, callback) {
+ModelService.run = function (ms_id, guid, exeoutcb, callback) {
     ParamCheck.checkParam(callback, ms_id);
     ParamCheck.checkParam(callback, guid);
     ModelService.getByOID(ms_id, function (err, ms) {
@@ -144,9 +143,9 @@ ModelService.run = function (ms_id, guid, callback) {
                 cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
             }
             console.log('ModelService Run CMD : ' + cmd);
-            exec(cmd, [], {
+            exec(cmd, {
                 cwd: setting.modelpath + ms.ms_path
-            });
+            }, exeoutcb);
             return callback(null, ms);
         });
     }.bind(this));

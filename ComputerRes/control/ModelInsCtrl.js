@@ -6,9 +6,7 @@ var ModelSerRunCtrl = require('./modelSerRunControl');
 var GeoDataCtrl = require('./geoDataControl');
 var NoticeCtrl = require('./noticeCtrl');
 
-var ModelInsCtrl = function () {
-    
-}
+var ModelInsCtrl = function () {};
 
 module.exports = ModelInsCtrl;
 
@@ -23,7 +21,7 @@ ModelInsCtrl.enter = function (app, cmds, socket) {
         console.log(cmds[0] + ' -- enter');
         app.modelInsColl.changeStateBySocket(socket, 'MC_ENTER');
     }
-}
+};
 
 ModelInsCtrl.request = function (app, cmds, socket) {
     if (app == undefined || app == null || cmds == undefined || cmds == null)
@@ -80,7 +78,7 @@ ModelInsCtrl.request = function (app, cmds, socket) {
             }
         }
     });
-}
+};
 
 ModelInsCtrl.checkdata = function (app, cmds, socket) {
     if (app == undefined || app == null || cmds == undefined || cmds == null)
@@ -90,7 +88,7 @@ ModelInsCtrl.checkdata = function (app, cmds, socket) {
     app.modelInsColl.changeStateBySocket(socket, 'MC_CHECKDATA');
     console.log(cmds[0] + ' -- checkdata');
     socket.write('oncheckdata');
-}
+};
 
 ModelInsCtrl.calculate = function (app, cmds, socket) {
     if (app == undefined || app == null || cmds == undefined || cmds == null)
@@ -100,7 +98,7 @@ ModelInsCtrl.calculate = function (app, cmds, socket) {
     app.modelInsColl.changeStateBySocket(socket, 'MC_CALCULATE');
     console.log(cmds[0] + ' -- calculate');
     socket.write('oncalculate');
-}
+};
 
 ModelInsCtrl.checkres = function(app, cmds, socket){
     if (app == undefined || app == null || cmds == undefined || cmds == null)
@@ -206,7 +204,7 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
             }
         });
     }
-}
+};
 
 ModelInsCtrl.response = function (app, cmds, socket) {
     if (app == undefined || app == null || cmds == undefined || cmds == null)
@@ -260,7 +258,6 @@ ModelInsCtrl.response = function (app, cmds, socket) {
                         count --;
                         //检测文件是否存在
 
-
                         if(count == 0)
                         {
                             socket.write('dataRecv');
@@ -274,7 +271,7 @@ ModelInsCtrl.response = function (app, cmds, socket) {
     {
         socket.write('dataRecv');
     }
-}
+};
 
 ModelInsCtrl.exit = function (app, cmds, socket) {
     if (app == undefined || app == null || cmds == undefined || cmds == null)
@@ -284,7 +281,7 @@ ModelInsCtrl.exit = function (app, cmds, socket) {
     app.modelInsColl.changeStateBySocket(socket, 'MC_EXIT');
     console.log(cmds[0] + ' -- exit');
     socket.write('bye');
-}
+};
 
 ModelInsCtrl.kill = function (app, guid) {
     if(app == undefined || app == null || guid == undefined || guid == null)
@@ -293,4 +290,4 @@ ModelInsCtrl.kill = function (app, guid) {
     }
     var mis = app.modelInsColl.getByGUID(guid);
     mis.socket.write('kill');
-}
+};

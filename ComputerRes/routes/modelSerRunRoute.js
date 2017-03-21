@@ -44,7 +44,6 @@ module.exports = function (app) {
                         res.render('modelRun', {
                             // user:req.session.user,
                             msr : msr,
-                            ms : ms,
                             blmodelser : true,
                             host : 'localhost'
                         });
@@ -73,16 +72,9 @@ module.exports = function (app) {
                     {
                         return res.end('Error : ' + err);
                     }
-                    ModelSerCtrl.getByOID(msr.ms_id, function (err, ms) {
-                        if(err)
-                        {
-                            return res.end('Error : ' + err);
-                        }
-                        return res.end(JSON.stringify({
-                            msr : msr,
-                            ms : ms
-                        }));
-                    });
+                    return res.end(JSON.stringify({
+                        msr : msr
+                    }));
                 });
             }
         });
