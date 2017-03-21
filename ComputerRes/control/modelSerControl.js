@@ -2,14 +2,17 @@
  * Created by Franklin on 16-3-27.
  * Control fot ModelService
  */
-var setting = require('../setting');
 var http = require('http');
 var fs = require('fs');
+var path = require('path');
 var rimraf = require('rimraf');
 var unzip = require('unzip');
 var ObjectId = require('mongodb').ObjectID;
+var uuid = require('node-uuid');
 
+var setting = require('../setting');
 var ModelSerModel = require('../model/modelService');
+var ModelSerRunModel = require('../model/modelSerRun');
 var FileOpera = require('../utils/fileOpera');
 var Child = require('../model/child');
 var remoteReqCtrl = require('./remoteReqControl');
@@ -55,8 +58,7 @@ ModelSerControl.getChildInfo = function (req,routePath,callback) {
 };
 
 //搜索子节点模型服务信息信息
-ModelSerControl.getChildModelSer = function(headers, callback)
-{
+ModelSerControl.getChildModelSer = function(headers, callback){
     Child.getAll(function (err, childMs) {
         if(err)
         {
@@ -243,29 +245,27 @@ ModelSerControl.getRmtModelSer = function (cid, msid, callback) {
 }
 
 //搜寻本地可用模型信息
-ModelSerControl.getLocalModelSer = function(callback)
-{
+ModelSerControl.getLocalModelSer = function(callback){
     ModelSerModel.getAll('AVAI', this.returnFunction(callback, 'error in getting all model services'));
 };
 
 //新增模型服务
-ModelSerControl.addNewModelSer = function(fields, files, callback)
-{
+ModelSerControl.addNewModelSer = function(fields, files, callback){
     ModelSerControl.parseConfig(files.file_model.path, function (config, fileStruct) {
         if( !config.host || !config.port || !config.start || !config.mdl){
-            return res.end(JSON.stringify({
-                'res':'err 1',
-                'des':'长传的压缩包不包含config文件或config文件结构不正确！'
-            }));
+            return callback({
+                message : '长传的压缩包不包含config文件或config文件结构不正确！',
+                code : -101
+            });
         }
         else if(!fileStruct.model || !fileStruct.mdl || !fileStruct.start){
             //文件结构不对
             //删除文件
             fs.unlinkSync(files.file_model.path);
-            return res.end(JSON.stringify({
-                'res':'err 2',
-                'des':'上传文件结构不正确！'
-            }));
+            return callback({
+                message : '上传文件结构不正确！',
+                code : -102
+            });
         }
         //通过验证
         var date = new Date();
@@ -343,8 +343,7 @@ ModelSerControl.deleteToTrush = function (_oid, callback) {
 };
 
 //根据OID查询模型服务信息
-ModelSerControl.getByOID = function(msid, callback)
-{
+ModelSerControl.getByOID = function(msid, callback){
     ModelSerModel.getByOID(msid,function(err, data)
     {
         if(err)
@@ -356,8 +355,7 @@ ModelSerControl.getByOID = function(msid, callback)
 };
 
 //更新模型服务信息
-ModelSerControl.update = function(ms, callback)
-{
+ModelSerControl.update = function(ms, callback){
     ModelSerModel.update(ms, function(err, data)
     {
         if(err)
@@ -370,7 +368,30 @@ ModelSerControl.update = function(ms, callback)
 
 //开启运行实例
 ModelSerControl.run = function (ms_id, guid, callback) {
-    ModelSerModel.run(ms_id, guid, function (err, ms) {
+    ModelSerModel.run(ms_id, guid, function (err, stdout, stderr) {
+        ModelSerRunModel.getByGUID(guid, function (err2, item) {
+           if(err2)
+           {
+               return console.log(JSON.stringify(err2));
+           }
+           if(err){
+               item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
+            }
+           if(stdout){
+               item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
+           }
+           if(stderr){
+               item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
+           }
+           global.app.modelInsColl.removeByGUID(guid);
+           ModelSerRunModel.update(item, function (err, res) {
+               if(err)
+               {
+                   return console.log(JSON.stringify(err2));
+               }
+           })
+        });
+    }, function (err, ms) {
         if(err)
         {
             return callback(err);
@@ -521,8 +542,7 @@ ModelSerControl.parseConfig = function (path, callback) {
         });
 };
 
-ModelSerControl.parseUploadFile = function(path,config,callback)
-{
+ModelSerControl.parseUploadFile = function(path,config,callback){
     var fileStruct = {
         model : 0,
         testify : 0,

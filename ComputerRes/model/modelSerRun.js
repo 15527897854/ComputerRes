@@ -23,6 +23,7 @@ function ModelSerRun( modelserRun )
         this.msr_guid = modelserRun.msr_guid;
         this.msr_input = modelserRun.msr_input;
         this.msr_output = modelserRun.msr_output;
+        this.msr_status = modelserRun.msr_status;
         this.msr_des = modelserRun.msr_des;
     }
     else
@@ -36,6 +37,7 @@ function ModelSerRun( modelserRun )
         this.msr_guid = '';
         this.msr_input = [];
         this.msr_output = [];
+        this.msr_status = -1;
         this.msr_des = '';
     }
     return this;
@@ -54,6 +56,7 @@ var MSRSchema = new mongoose.Schema({
     msr_guid :  String,
     msr_input :  Array,
     msr_output :  Array,
+    msr_status : Number,
     msr_des :  String
 },{collection:'modelserrun'});
 var MSR = mongoose.model('modelserrun',MSRSchema);
@@ -73,6 +76,7 @@ ModelSerRun.prototype.save = function(callback)
         msr_guid:this.msr_guid,
         msr_input:this.msr_input,
         msr_output:this.msr_output,
+        msr_status:this.msr_status,
         msr_des:this.msr_des
     };
     modelserRun = new MSR(modelserRun);
