@@ -4,6 +4,8 @@
  */
 var ObjectId = require('mongodb').ObjectID;
 var mongoose = require('./mongooseModel');
+var ModelBase = require('./modelBase');
+var ParamCheck = require('../utils/commonBase');
 
 function Child(cld) {
     if(cld != null)
@@ -20,7 +22,9 @@ function Child(cld) {
     }
 }
 
+Child.__proto__ = ModelBase;
 module.exports = Child;
+
 
 var ChildSchema = new mongoose.Schema({
     host:String,
@@ -28,6 +32,9 @@ var ChildSchema = new mongoose.Schema({
     platform:Number
 },{collection:'child'});
 var ChildModel = mongoose.model('child',ChildSchema);
+Child.baseModel = ChildModel;
+Child.modelName = "Child";
+
 //新增节点
 Child.prototype.save = function (callback) {
     var cld = {
@@ -43,22 +50,19 @@ Child.prototype.save = function (callback) {
 
 //得到全部子节点
 Child.getAll = function (callback) {
-    ChildModel.find({},function (err, res) {
-        callback(err,res);
-    });
+    ChildModel.find({},this.returnFunction(callback, 'Error in getting all child'));
 };
 
 //通过OID查询子节点信息
 Child.getByOID = function (_oid, callback) {
+    ParamCheck.checkParam(callback,_oid);
     var oid = new ObjectId(_oid);
-    ChildModel.findOne({_id:oid},function (err, res) {
-        callback(err,res);
-    });
+    ChildModel.findOne({_id:oid},this.returnFunction(callback, "error in getting by oid in child"));
 };
 
 //条件查询
 Child.getByWhere = function (where, callback) {
-    ChildModel.findOne(where,function (err, res) {
-        callback(err,res);
-    });
+    ParamCheck.checkParam(callback, where);
+    this.baseModel.findOne(where, this.returnFunction(callback, 'Error in getting by where in child'));
+
 };
