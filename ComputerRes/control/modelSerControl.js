@@ -24,41 +24,10 @@ ModelSerControl.__proto__ = ControlBase;
 
 module.exports = ModelSerControl;
 
-//搜索子节点模型服务信息信息 scr
-ModelSerControl.getChildInfo = function (req,routePath,callback) {
-    Child.getAll(function (err, childMs) {
-        var reqOne = function (index) {
-            url = 'http://' + childMs[index].host + ':' + childMs[index].port + routePath;
-            remoteReqCtrl.getRequest(req,url,function (err, data) {
-                if(err){
-                    childMs[index].ping = 'err';
-                }
-                else{
-                    if(typeof data == 'string'){
-                        data = JSON.parse(data);
-                    }
-                    childMs[index].ping = 'suc';
-                    if(routePath == '/modelserrun/json/all')
-                        childMs[index].msr = data;
-                    else if(routePath == '/modelser/json/rmtall')
-                        childMs[index]._doc.ms = data;
-                }
-                if(index<childMs.length-1)
-                    reqOne(index+1);
-                else if(index == childMs.length-1)
-                    callback(null,childMs);
-            });
-        };
-		if(childMs.length == 0)
-		{
-			return callback(null, []);
-		}
-        reqOne(0);
-    })
-};
+////////////////远程服务
 
 //搜索子节点模型服务信息信息
-ModelSerControl.getChildModelSer = function(headers, callback){
+ModelSerControl.getChildModelSer = function(callback){
     Child.getAll(function (err, childMs) {
         if(err)
         {
@@ -77,15 +46,8 @@ ModelSerControl.getChildModelSer = function(headers, callback){
                     }
                     else
                     {
-                        if(data[0] == '[' && data[data.length - 1] == ']')
-                        {
-                            childMs[index].ping = 'suc';
-                            childMs[index].ms = data;
-                        }
-                        else
-                        {
-                            childMs[index].ping = 'err';
-                        }
+                        childMs[index].ping = 'suc';
+                        childMs[index].ms = data;
                     }
                     if(count == 0)
                     {
@@ -101,148 +63,140 @@ ModelSerControl.getChildModelSer = function(headers, callback){
 
         for(var i = 0; i < childMs.length; i++)
         {
-            var options = {
-                host: childMs[i].host,
-                port: childMs[i].port,
-                path: '/modelser/json/rmtall',
-                method: 'GET'
-            };
-            remoteReqCtrl.Request(options, null, done(i));
+            remoteReqCtrl.getRequestJSON('http://' + childMs[i].host + ':' + childMs[i].port + '/modelser/json/all', done(i));
         }
     });
-}
+};
 
-//搜做子节点的模型服务运行记录
-ModelSerControl.getChildMSR = function (headers, callback) {
-    Child.getAll(function (err, childMsr) {
-        if(err){
-            return callback(err);
-        }
-        var pending = (function (pcallback) {
-            var count = 0;
-            return function(index)
-            {
-                count ++;
-                return function (err, data) {
-                    count --;
-                    if(err)
-                    {
-                        childMsr[index].ping = 'err';
-                    }
-                    else
-                    {
-                        if(data[0] == '[' && data[data.length - 1] == ']')
-                        {
-                            childMsr[index].ping = 'suc';
-                            childMsr[index].msr = data;
-                        }
-                        else
-                        {
-                            childMsr[index].ping = 'err';
-                        }
-                    }
-                    if(count == 0)
-                    {
-                        pcallback();
-                    }
-                }
-            }
-        });
-
-        var done = pending(function () {
-            return callback(null, childMsr);
-        });
-
-        for(var i = 0; i < childMsr.length; i++)
-        {
-            var options = {
-                host: childMsr[i].host,
-                port: childMsr[i].port,
-                path: '/modelserrun/json/all',
-                method: 'GET'
-            };
-            remoteReqCtrl.Request(options, null, done(i));
-        }
-    });
-}
-
-//搜做子节点的模型服务运行实例
-ModelSerControl.getChildMSRI = function (headers, callback) {
-    Child.getAll(function (err, childMsri) {
-        if(err){
-            return callback(err);
-        }
-        var pending = (function (pcallback) {
-            var count = 0;
-            return function(index)
-            {
-                count ++;
-                return function (err, data) {
-                    console.log('data in get child MSRI\n' + JSON.stringify(data));
-                    count --;
-                    if(err)
-                    {
-                        childMsri[index].ping = 'err';
-                    }
-                    else
-                    {
-                        if(data[0] == '[' && data[data.length - 1] == ']')
-                        {
-                            childMsri[index].ping = 'suc';
-                            childMsri[index].msri = JSON.parse(data);
-                        }
-                        else
-                        {
-                            childMsri[index].ping = 'err';
-                        }
-                    }
-                    if(count == 0)
-                    {
-                        pcallback();
-                    }
-                }
-            }
-        });
-
-        var done = pending(function () {
-            return callback(null, childMsri);
-        });
-
-        for(var i = 0; i < childMsri.length; i++)
-        {
-            var options = {
-                host: childMsri[i].host,
-                port: childMsri[i].port,
-                path: '/modelins/json/all',
-                method: 'GET'
-            };
-            remoteReqCtrl.Request(options, null, done(i));
-        }
-    });
-}
-
-//得到远程模型的详细信息
-ModelSerControl.getRmtModelSer = function (cid, msid, callback) {
-    Child.getByOID(cid, function (err, child) {
+//查询子节点的所有模型服务运行实例
+ModelSerControl.getAllRmtMis = function (headers, callback) {
+    Child.getAll(function (err, children) {
         if(err)
         {
             return callback(err);
         }
-        var options = {
-            host: child.host,
-            port: child.port,
-            path: '/modelser/json/' + msid,
-            method: 'GET'
-        };
-        remoteReqCtrl.Request(options, null, function (err, data) {
-            if(err)
-            {
-                return callback(err);
+
+        var pending = (function (i, host) {
+            count++;
+            return function (err, mis) {
+                count --;
+                if(!err)
+                {
+                    children[i].mis = mis;
+                }
+                if(count == 0)
+                {
+                    return callback(null, children[i]);
+                }
             }
-            return callback(null, data);
         });
+
+        var count = 0;
+        for(var i = 0; i < children.length; i++)
+        {
+            remoteReqCtrl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelins/json/all', pending(i));
+        }
     });
-}
+};
+
+//查询某个子节点某个模型服务运行实例
+ModelSerControl.getRmtMis = function(host, guid, callback){
+    if(ParamCheck.checkParam(callback, host))
+    {
+        if(ParamCheck.checkParam(callback, guid))
+        {
+            Child.getByHost(host, function (err, child) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                if(ParamCheck.checkParam(callback, child)) {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelins/json/' + guid, this.returnFunction(callback, "error in get rmt model service instance"));
+                }
+            }.bind(this));
+        }
+    }
+};
+
+//得到远程模型的详细信息
+ModelSerControl.getRmtModelSer = function (host, msid, callback) {
+    ParamCheck.checkParam(callback, host);
+    ParamCheck.checkParam(callback, msid);
+    Child.getByHost(host, function (err, child) {
+        if(err)
+        {
+            return callback(err);
+        }
+        remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/' + msid, this.returnFunction(callback, "error in get rmt model service"));
+    }.bind(this));
+};
+
+//远程启动模型
+ModelSerControl.startRmtModelSer = function (host, msid, callback) {
+    ParamCheck.checkParam(callback, host);
+    ParamCheck.checkParam(callback, msid);
+    Child.getByHost(host, function (err, child) {
+        if(err)
+        {
+            return callback(err);
+        }
+        remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=start', this.returnFunction(callback, "error in get rmt model service"));
+    }.bind(this));
+};
+
+//远程关闭模型
+ModelSerControl.stopRmtModelSer = function (host, msid, callback) {
+    ParamCheck.checkParam(callback, host);
+    ParamCheck.checkParam(callback, msid);
+    Child.getByHost(host, function (err, child) {
+        if(err)
+        {
+            return callback(err);
+        }
+        remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=stop', this.returnFunction(callback, "error in get rmt model service"));
+    }.bind(this));
+};
+
+//获取远程模型输入信息
+ModelSerControl.getRmtInputDate = function (host, msid, callback) {
+    ParamCheck.checkParam(callback, host);
+    ParamCheck.checkParam(callback, msid);
+    Child.getByHost(host, function (err, child) {
+        if(err)
+        {
+            return callback(err);
+        }
+        remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+    }.bind(this));
+};
+
+ModelSerControl.runRmtModelSer = function(host, msid, data, callback){
+    if(ParamCheck.checkParam(callback, host))
+    {
+        if(ParamCheck.checkParam(callback, host))
+        {
+            Child.getByHost(host, function(err, child){
+                if(err)
+                {
+                    return callback(err);
+                }
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + data, function(err, data)
+                    {
+                        if(err)
+                        {
+                            return callback(err);
+                        }
+                        return callback(null, data);
+                    });
+                }
+            });
+        }
+    }
+};
+
+///////////////本地服务
 
 //搜寻本地可用模型信息
 ModelSerControl.getLocalModelSer = function(callback){
@@ -414,7 +368,15 @@ ModelSerControl.getInputData = function (ms_id, callback) {
             }
             try
             {
-                var dataDecs = mdl.ModelClass.Behavior.DatasetDeclarations.DatasetDeclaration;
+                var dataDecs = null;
+                if(mdl.ModelClass.Behavior.RelatedDatasets != null)
+                {
+                    dataDecs = mdl.ModelClass.Behavior.RelatedDatasets.DatasetItem;
+                }
+                else if(mdl.ModelClass.Behavior.DatasetDeclarations != null)
+                {
+                    dataDecs = mdl.ModelClass.Behavior.DatasetDeclarations.DatasetDeclaration;
+                }
                 var state = mdl.ModelClass.Behavior.StateGroup.States.State;
                 if(state instanceof Array)
                 {
@@ -572,6 +534,33 @@ ModelSerControl.parseUploadFile = function(path,config,callback){
             fileStruct.config = 1;
             callback(config, fileStruct);
         });
+};
+
+ModelSerControl.getRmtPreparationData = function(host, msid, callback){
+    if(ParamCheck.checkParam(callback, host))
+    {
+        if(ParamCheck.checkParam(callback, msid))
+        {
+            Child.getByHost(host, function(err, child)
+            {
+                if(err)
+                {
+                    return callback(err);
+                }
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/' + msid, function(err, data)
+                    {
+                        if(err)
+                        {
+                            return callback(err);
+                        }
+                        return callback(null, data);
+                    });
+                }
+            });
+        }
+    }
 };
 
 //根据MID查询

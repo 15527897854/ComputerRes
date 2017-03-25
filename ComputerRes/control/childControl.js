@@ -43,6 +43,17 @@ ChildCtrl.getByWhere = function (where, callback) {
     });
 };
 
+//根据Host查询
+ChildCtrl.getByHost = function (host, callback) {
+    Child.getByHost(host, function (err, data) {
+        if(err)
+        {
+            return callback(err);
+        }
+        return callback(null, data);
+    });
+};
+
 //新增子节点
 ChildCtrl.AddNewChild = function(child, callback)
 {

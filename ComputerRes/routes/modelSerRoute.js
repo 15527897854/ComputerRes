@@ -17,6 +17,7 @@ var ModelSerCrtl = require('../control/modelSerControl');
 var NoticeCtrl = require('../control/noticeCtrl');
 var ModelIns = require('../model/modelInstance');
 var ModelSerMid = require('../middlewares/modelserMid');
+var RouteBase = require('./routeBase');
 
 var remoteModelSerRoute = require('./rmtModelSerRoute');
 
@@ -24,8 +25,7 @@ module.exports = function(app)
 {
     //新增模型服务
     app.route('/modelser')
-        .post(function(req, res, next)
-        {
+        .post(function(req, res, next) {
             ModelSerMid.NewModelSer(req, function (err, item) {
                 if(err)
                 {
@@ -40,8 +40,7 @@ module.exports = function(app)
 
     //远程上传ms    sessionID用于保存progress
     app.route('/modelser/:sessionid')
-        .post(function(req, res, next)
-        {
+        .post(function(req, res, next) {
             var sessionID = req.params.sessionID;
             var form = new formidable.IncomingForm();
             form.encoding = 'utf-8';    	                //设置编辑
@@ -208,6 +207,7 @@ module.exports = function(app)
         //获取模型
         .get(function(req,res,next){
             var msid = req.params.msid;
+            //获取全部模型页面
             if(msid == 'all')
             {
                 //查询本地数据库全部数据
@@ -226,6 +226,7 @@ module.exports = function(app)
                         });
                 });
             }
+            //上传模型页面
             else if(msid == 'new')
             {
                 //新增模型服务页面
@@ -238,7 +239,8 @@ module.exports = function(app)
             }
             else
             {
-                if(req.query.ac == "run")   //点击运行操作
+                //点击运行操作
+                if(req.query.ac == "run")
                 {
                     //读取输入文件参数
                     var inputData = JSON.parse(req.query.inputdata);
@@ -257,9 +259,10 @@ module.exports = function(app)
                                 {
                                     var dataid = 'gd_' + uuid.v1();
                                     var item = {
-                                        'StateId' : data[k].$.id,
-                                        'Event' : data[k].Event[i].$.name,
-                                        'DataId' : dataid
+                                        StateId : data[k].$.id,
+                                        Event : data[k].Event[i].$.name,
+                                        DataId : dataid,
+                                        Ready : false
                                     };
                                     outputData.push(item);
                                 }
@@ -319,7 +322,7 @@ module.exports = function(app)
                                     msr_guid : guid,
                                     msr_input : inputData,
                                     msr_output : outputData,
-                                    msr_status : 'STARTING',
+                                    msr_status : 0,
                                     msr_des : ''
                                 };
                                 //存储通知消息
@@ -330,7 +333,7 @@ module.exports = function(app)
                                     type:'startRun',
                                     hasRead:0
                                 };
-                                NoticeCtrl.addNotice(notice,function (err, data) {
+                                NoticeCtrl.addNotice(notice, function (err, data) {
                                     if(err)
                                     {
                                         return res.end('Error!');
@@ -498,6 +501,10 @@ module.exports = function(app)
                 {
                     return res.end('Error in get modelService model : ' + JSON.stringify(err));
                 }
+                if(ms == null)
+                {
+                    return res.end("can not find model service ! ");
+                }
                 ModelSerCrtl.getInputData(ms._id, function (err, data) {
                     if(err)
                     {
@@ -540,25 +547,19 @@ module.exports = function(app)
                 });
             });
         });
-    ///////////////////////////////////JSON
+
+    ///////////////////////////////////JSON//////////////////////////
 
 	//获取某个模型服务的输入输出数据声明
     app.route('/modelser/inputdata/json/:msid')
         .get(function (req, res, next) {
             var msid = req.params.msid;
-            ModelSerCrtl.getInputData(msid, function (err, data) {
-                if(err)
-                {
-                    return res.end("Error : " + JSON.stringify(err));
-                }
-                res.end(JSON.stringify(data));
-            })
+            ModelSerCrtl.getInputData(msid, RouteBase.returnFunction(res, "error in getting input data of model service"));
         });
 
     //获取某个Model_Service的JSON数据
     app.route('/modelser/json/:msid')
-        .get(function(req,res,next)
-        {
+        .get(function(req,res,next) {
             var msid = req.params.msid;
             if(msid == 'all')
             {
@@ -707,8 +708,7 @@ module.exports = function(app)
                             }
                             return res.end(JSON.stringify({
                                 modelSer : ms,
-                                msrs : msrs,
-                                blmodelser : true
+                                msrs : msrs
                             }));
                         });
                     });
@@ -761,4 +761,4 @@ module.exports = function(app)
     
     //远程模型访问路由
     remoteModelSerRoute(app);
-}
+};

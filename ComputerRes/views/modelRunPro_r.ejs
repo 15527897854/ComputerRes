@@ -28,21 +28,7 @@
                 <div class="row">
                     <div class="col-md-2">
                         <div class="blog-img">
-                            <% if(host == 'localhost'){ %>
-                            <% if(modelSer.ms_img == null || modelSer.ms_img == ''){
-                            %><img src="/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="/images/modelImg/<%=modelSer.ms_img %>" alt="<%=modelSer.ms_model.m_name %>" ><%
-                            }%>
-                            <% }else{ %>
-                            <% if(modelSer.ms_img == null || modelSer.ms_img == ''){
-                            %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=modelSer.ms_img %>" alt="<%=modelSer.ms_model.m_name %>" ><%
-                            }%>
-                            <% } %>
+                            <img src="/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" >
                         </div>
                     </div>
                     <div class="col-md-7">
@@ -52,6 +38,8 @@
                             <strong>模型类型&nbsp;:&nbsp;</strong><%=modelSer.ms_model.m_type %>
                             <br />
                             <strong>版本号&nbsp;:&nbsp;</strong><%=modelSer.mv_num %>
+                            <br />
+                            <strong>所在位置&nbsp;:&nbsp;</strong><%=host %>
                             <br />
                             <strong>所在平台&nbsp;:&nbsp;</strong><%
                             if(modelSer.ms_platform == 1)
@@ -139,16 +127,10 @@
     //异步加载数据
     var ms_data = [];
     var msid = '<%=modelSer._id %>';
+    var host = '<%=host%>';
     $(document).ready(function () {
         $.ajax({
-            url : (function () {
-                if('<%=host %>' == 'localhost'){
-                    return '/modelser/inputdata/json/' + msid;
-                }
-                else{
-                    return '/modelser/rmt/inputdata/<%=host %>/' + msid;
-                }
-            })(),
+            url : '/modelser/rmt/inputdata/<%=host %>/' + msid,
             method : 'GET',
             success : function (data) {
                 var myJson = JSON.parse(data);
@@ -445,26 +427,14 @@
 
                     //异步请求
                     $.ajax({
-                        url:(function () {
-                            if('<%=host %>' == 'localhost'){
-                                return '/modelser/<%=modelSer._id %>?ac=run';
-                            }
-                            else{
-                                return '/modelser/rmt/<%=host %>/<%=modelSer._id %>?ac=run';
-                            }
-                        })(),
+                        url: '/modelser/rmt/<%=host %>/<%=modelSer._id %>?ac=run',
                         type:'GET',
                         data:'inputdata=' + JSON.stringify(dataInput),
                         success:function (data) {
                             var resJson = JSON.parse(data);
                             if(resJson.res = 'suc')
                             {
-                                if('<%=host %>' == 'localhost'){
-                                    window.location.href = '/modelserrun/' + resJson.msr_id;
-                                }
-                                else{
-                                    window.location.href = '/modelserrun/rmt/<%=host %>/' + resJson.msr_id;
-                                }
+                                window.location.href = '/modelserrun/rmt/<%=host %>/' + resJson.msr_id;
                             }
                         }
                     });

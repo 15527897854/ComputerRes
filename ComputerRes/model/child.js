@@ -5,7 +5,7 @@
 var ObjectId = require('mongodb').ObjectID;
 var mongoose = require('./mongooseModel');
 var ModelBase = require('./modelBase');
-var ParamCheck = require('../utils/commonBase');
+var ParamCheck = require('../utils/paramCheck');
 
 function Child(cld) {
     if(cld != null)
@@ -64,5 +64,10 @@ Child.getByOID = function (_oid, callback) {
 Child.getByWhere = function (where, callback) {
     ParamCheck.checkParam(callback, where);
     this.baseModel.findOne(where, this.returnFunction(callback, 'Error in getting by where in child'));
+};
 
+//根据host查询
+Child.getByHost = function (host, callback) {
+    ParamCheck.checkParam(callback, host);
+    ChildModel.findOne({host : host},this.returnFunction(callback, "error in getting by oid in child"));
 };

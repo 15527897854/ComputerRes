@@ -51,17 +51,20 @@ ModelInsCtrl.request = function (app, cmds, socket) {
                     count --;
                     if(!err)
                     {
-                        if(item.gd_type == "FILE")
+                        if(item != null)
                         {
-                            msg += '[\t\t\t]' + msr.msr_input[index].StateId;
-                            msg += '[\t\t]' + msr.msr_input[index].Event;
-                            msg += '[\t\t]FILE[\t\t]' + __dirname + '/../geo_data/' +item.gd_value;
-                        }
-                        else if(item.gd_type == "STREAM")
-                        {
-                            msg += '[\t\t\t]' + msr.msr_input[index].StateId;
-                            msg += '[\t\t]' + msr.msr_input[index].Event;
-                            msg += '[\t\t]STREAM[\t\t]' + item.gd_value;
+                            if(item.gd_type == "FILE")
+                            {
+                                msg += '[\t\t\t]' + msr.msr_input[index].StateId;
+                                msg += '[\t\t]' + msr.msr_input[index].Event;
+                                msg += '[\t\t]FILE[\t\t]' + __dirname + '/../geo_data/' +item.gd_value;
+                            }
+                            else if(item.gd_type == "STREAM")
+                            {
+                                msg += '[\t\t\t]' + msr.msr_input[index].StateId;
+                                msg += '[\t\t]' + msr.msr_input[index].Event;
+                                msg += '[\t\t]STREAM[\t\t]' + item.gd_value;
+                            }
                         }
                     }
 

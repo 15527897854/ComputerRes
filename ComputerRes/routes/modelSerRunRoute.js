@@ -8,6 +8,7 @@ var setting = require('../setting');
 var remoteReqCtrl = require('../control/remoteReqControl');
 var childCtrl = require('../control/childControl');
 var ModelSerControl = require('../control/modelSerControl');
+var RouteBase = require('./routeBase');
 
 module.exports = function (app) {
     //查看模型记录信息
@@ -79,37 +80,28 @@ module.exports = function (app) {
             }
         });
 
-    app.route('/modelserrun/modelser/json/')
-
     ////////////////////////远程节点
 
-    //远程访问   查看其它单个结点的单条模型运行记录
+    //查看其它所有结点的所有模型运行记录
+    app.route('/modelserrun/rmt/json/all')
+        .get(function (req, res, next) {
+            ModelSerRunCtrl.getAllRmtModelSerRun(RouteBase.returnFunction(res, "error in get all rmt model service runs"));
+        });
+
+    //查看其它单个结点的单条模型运行记录
     app.route('/modelserrun/rmt/:host/:msrid')
         .get(function (req, res, next) {
             var host = req.params.host;
             var msrid = req.params.msrid;
-            childCtrl.getByWhere({host:host},function (error, child) {
-                if(error){
-                    res.end(JSON.stringify(error));
+            ModelSerRunCtrl.getRmtModelSerRun(host, msrid, function (err, data) {
+                if(err)
+                {
+                    return res.end('error : ' + JSON.stringify(err));
                 }
-                var port = child.port;
-                var options = {
-                    host: host,
-                    port: port,
-                    path: '/modelserrun/json/' + msrid,
-                    method: 'GET'
-                };
-                remoteReqCtrl.Request(options, null, function (err, data) {
-                    if(err){
-                        return res.end('Error!');
-                    }
-                    if(typeof data == 'string'){
-                        data = JSON.parse(data);
-                    }
-                    data.host = host;
-                    data.port = port;
-                    // data.user = req.session.user;
-                    return res.render('modelRun',data);
+                return res.render('modelRun_r', {
+                    host : host,
+                    msid : data.msr.msr_ms._id,
+                    msr : data.msr
                 });
             });
         });
@@ -117,65 +109,26 @@ module.exports = function (app) {
     //远程访问  查看其它所有结点的所有模型运行记录
     app.route('/modelserrun/rmt/all')
         .get(function (req, res, next) {
-            // ModelSerCtrl.getChildMSR(req.heads, function (err, childmsr) {
-            //     res.render('modelRuns',{
-            //         // user:req.session.user,
-            //         childmsr : childmsr,
-            //         blmodelser_r : true,
-            //         host : 'rmt'
-            //     });
-            // });
-            ModelSerControl.getChildInfo(req,'/modelserrun/json/all',function (err,data) {
-                res.render('modelRuns',{
-                    // user:req.session.user,
-                    childmsr : data,
-                    blmodelser_r : true,
-                    host : 'rmt'
-                });
+            res.render('modelRuns_r', {
+                blmodelser_r : true
             });
         });
 
-    /////////////////////////JSON
+
     //远程访问   查看其它单个结点的单条模型运行记录
     app.route('/modelserrun/rmt/json/:host/:msrid')
         .get(function (req, res, next) {
             var host = req.params.host;
             var msrid = req.params.msrid;
-            childCtrl.getByWhere({host:host},function (error, child) {
-                if(error){
-                    res.end(JSON.stringify(error));
+            ModelSerRunCtrl.getRmtModelSerRun(host, msrid, function (err, data) {
+                if(err)
+                {
+                    return res.end('error : ' + JSON.stringify(err));
                 }
-                var port = child.port;
-                var options = {
-                    host: host,
-                    port: port,
-                    path: '/modelserrun/json/' + msrid,
-                    method: 'GET'
-                };
-                remoteReqCtrl.Request(options, null, function (err, data) {
-                    if(err){
-                        return res.end('Error!');
-                    }
-                    if(typeof data == 'string'){
-                        data = JSON.parse(data);
-                    }
-                    data.host = host;
-                    // data.user = req.session.user;
-                    return res.end(JSON.stringify(data));
-                });
-            });
-        });
-
-    //远程访问  查看其它所有结点的所有模型运行记录
-    app.route('/modelserrun/rmt/json/all')
-        .get(function (req, res, next) {
-            ModelSerCtrl.getChildMSR(req.heads, function (err, childmsr) {
-                res.end(JSON.stringify({
-                    // user:req.session.user,
-                    childmsr : childmsr,
-                    blmodelser_r : true,
-                    host : 'rmt'
+                return res.end(JSON.stringify({
+                    host : host,
+                    msr : data.msr
                 }));
             });
         });
-}
+};

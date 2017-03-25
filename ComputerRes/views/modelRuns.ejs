@@ -33,7 +33,7 @@
                             <% for(var i = 0; i < msr.length; i++) {%>
                             <tr>
                                 <td><%=msr[i]._id %></td>
-                                <td><%=msr[i].msr_ms.m_name %></td>
+                                <td><%=msr[i].msr_ms.ms_model.m_name %></td>
                                 <td><%=msr[i].msr_guid %></td>
                                 <td><%=msr[i].msr_date %></td>
                                 <td><% if(msr[i].msr_time == 0){%>未完成<%}else{%>已完成<%} %></td>
@@ -51,7 +51,7 @@
                                             <td><%=msr.msr_guid %></td>
                                             <td><%=cmsr.host %></td>
                                             <td><%=msr.msr_date %></td>
-                                            <td><% if(msr.msr_time == 0){%>未完成<%}else{%>已完成<%} %></td>
+                                            <td><% if(msr.msr_status == 0){%>未完成<%}else if(msr_status == 1){%>已完成<%} else if(msr_status == -1){%>出现异常<%} %></td>
                                             <td><a href="/modelserrun/rmt/<%=cmsr.host%>/<%=msr._id %>">查看详情</a></td>
                                         </tr>
                                     <% });

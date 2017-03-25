@@ -64,6 +64,13 @@ function SocketTrans(app)
             {
                 mi = app.modelInsColl.getBySocekt(socket);
                 ModelSerRunCtrl.getByGUID(mi.guid, function (err,msr) {
+                    var mis = app.modelInsColl.getBySocekt(socket);
+                    var finished = false;
+                    if(mis.state == 'MC_EXIT' || mis.state == 'MC_RESPONSE')
+                    {
+                        finished = true;
+                    }
+
                     //移除该实例
                     app.modelInsColl.removeBySocekt(socket);
                     if(err)
@@ -94,6 +101,14 @@ function SocketTrans(app)
                             var time_span = date_now.getTime() - data_begin.getTime();
                             time_span = time_span / 1000;
                             msr.msr_time = time_span;
+                            if(finished)
+                            {
+                                msr.msr_status = 1;
+                            }
+                            else
+                            {
+                                msr.msr_status = -1;
+                            }
                             ModelSerRunCtrl.update(msr, function (err2, data) {
                                 if(err2)
                                 {

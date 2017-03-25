@@ -38,6 +38,8 @@
                             <br />
                             版本号&nbsp;:&nbsp;<%=modelSer.mv_num %>
                             <br />
+                            所在位置&nbsp;:&nbsp;<%=host %>
+                            <br />
                             所在平台&nbsp;:&nbsp;<%
                             if(modelSer.ms_platform == 1)
                             {
@@ -128,7 +130,7 @@
                     <tr>
                         <td><%= msrs[i]._id %></td>
                         <td><%= msrs[i].msr_date%></td>
-                        <td><a href="/modelserrun/<%= msrs[i]._id %>" >查看详情</a></td>
+                        <td><a href="/modelserrun/rmt/<%=host %>/<%= msrs[i]._id %>" >查看详情</a></td>
                     </tr>
                     <% }%>
                     </tbody>

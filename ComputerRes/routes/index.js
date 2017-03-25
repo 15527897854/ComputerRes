@@ -107,12 +107,6 @@ module.exports = function(app)
     //Test
     app.route('/test')
         .get(function (req, res, next) {
-            ModelSerCtrl.getChildModelSer(req.headers, function (err, data) {
-                if(err)
-                {
-
-                }
-                res.end(JSON.stringify(data));
-            });
+            res.render('test');
         });
-}
+};

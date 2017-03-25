@@ -3,6 +3,9 @@
  * Control for GeoData
  */
 var GeoData = require('../model/geoData');
+var Child = require('../model/child');
+var ParamCheck = require('../utils/paramCheck');
+var RemoteReqControl = require('./remoteReqControl');
 
 function GeoDataCtrl() {
 }
@@ -42,4 +45,53 @@ GeoDataCtrl.update = function (data, callback) {
         }
         return callback(null, gd);
     });
+};
+
+//获取远程数据
+GeoDataCtrl.getRmtData = function(req, host, gdid, callback){
+    if(ParamCheck.checkParam(callback, host))
+    {
+        if(ParamCheck.checkParam(callback, gdid))
+        {
+            Child.getByHost(host, function(err, child){
+                if(err)
+                {
+                    return callback(err);
+                }
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    RemoteReqControl.getRequest(req, 'http://' + child.host + ':' + child.port + '/geodata/' + gdid, function(err, data){
+                        if(err)
+                        {
+                            return callback(err);
+                        }
+                        return callback(null, data);
+                    }) ;
+                }
+            });
+        }
+    }
+};
+
+//上传远程数据
+GeoDataCtrl.postRmtData = function(req, host, callback){
+    if(ParamCheck.checkParam(callback, host))
+    {
+        Child.getByHost(host, function(err, child){
+            if(err)
+            {
+                return callback(err);
+            }
+            if(ParamCheck.checkParam(callback, child))
+            {
+                RemoteReqControl.postRequest(req, 'http://' + child.host + ':' + child.port + '/geodata', function(err, data){
+                    if(err)
+                    {
+                        return callback(err);
+                    }
+                    return callback(null, data);
+                }) ;
+            }
+        });
+    }
 };
