@@ -41,125 +41,135 @@ module.exports = function(app)
     //远程上传ms    sessionID用于保存progress
     app.route('/modelser/:sessionid')
         .post(function(req, res, next) {
-            var sessionID = req.params.sessionID;
-            var form = new formidable.IncomingForm();
-            form.encoding = 'utf-8';    	                //设置编辑
-            form.uploadDir = setting.modelpath + 'tmp/';	//设置上传目录
-            form.keepExtensions = true;                     //保留后缀
-            form.maxFieldsSize = 500 * 1024 * 1024;         //文件大小
-
-            fs.exists(form.uploadDir,function (exists) {
-                if(!exists){
-                    fs.mkdir(form.uploadDir);
-                }
-                //解析请求
-                form.parse(req, function (err, fields, files) {
-                    if(err) {
-                        return res.end(JSON.stringify(err));
-                    }
-                    // 验证
-                    var config = {
-                        host : "",
-                        port : "",
-                        start : "",
-                        type : "",
-                        mdl : "",
-                        testdata : "",
-                        engine : ""
-                    };
-                    parseConfig(files.file_model.path,config,function (config,fileStruct) {
-                        if( !config.host || !config.port || !config.start || !config.mdl){
-                            //config结构不对
-                            //删除文件
-                            fs.unlinkSync(files.file_model.path);
-                            return res.end(JSON.stringify({
-                                'res':'err 1',
-                                'des':'长传的压缩包不包含config文件或config文件结构不正确！'
-                            }));
-                        }
-                        else if(!fileStruct.model || !fileStruct.mdl || !fileStruct.start){
-                            //文件结构不对
-                            //删除文件
-                            fs.unlinkSync(files.file_model.path);
-                            return res.end(JSON.stringify({
-                                'res':'err 2',
-                                'des':'上传文件结构不正确！'
-                            }));
-                        }
-                        //通过验证
-                        var date = new Date();
-                        var img = null;
-                        if(files.ms_img.size != 0)
-                        {
-                            img = uuid.v1() + path.extname(files.ms_img.path);
-                            fs.renameSync(files.ms_img.path, setting.modelpath + '../public/images/modelImg/' + img);
-                        }
-                        else
-                        {
-                            fs.unlinkSync(files.ms_img.path);
-                        }
-                        //产生新的OID
-                        var oid = new ObjectId();
-
-                        //生成新的纪录
-                        var newmodelser = {
-                            _id : oid,
-                            ms_model : {
-                                m_name:fields.m_name,
-                                m_type:fields.m_type,
-                                m_url:fields.m_url
-                            },
-                            mv_num:fields.mv_num,
-                            ms_des:fields.ms_des,
-                            ms_update:date.toLocaleString(),
-                            ms_platform:setting.platform,
-                            ms_path:oid.toString() + '/',
-                            ms_img:img,
-                            ms_xml:fields.ms_xml,
-                            ms_status:0,
-                            ms_user:{
-                                u_name:fields.u_name,
-                                u_email:fields.u_email
-                            }
-                        };
-                        //解压路径
-                        var model_path = setting.modelpath + oid.toString() + '/';
-
-                        //解压
-                        fs.createReadStream(files.file_model.path).pipe(unzip.Extract({path: model_path}));
-
-                        //删除文件
-                        fs.unlinkSync(files.file_model.path);
-
-                        //添加纪录
-                        ModelSerCrtl.addNewModelSer(newmodelser, function (err, item) {
-                            if(err)
-                            {
-                                return res.end('Error : ' + JSON.stringify(err));
-                            }
-                            res.end(JSON.stringify({
-                                res : 'suc',
-                                oid : oid.toString()
-                            }));
-                        });
-                    });
-                });
-
-                global.fileupload.add({
-                    sessionId : sessionID,
-                    process : 0
-                });
-                //上传过程中
-                form.on('progress', function (bytesReceived, bytesExpected)
+            ModelSerMid.NewRmtModelSer(req, function (err, item) {
+                if(err)
                 {
-                    var percent = Math.round(bytesReceived/bytesExpected * 100);
-                    var newItem = {
-                        sessionId : sessionID,
-                        value : percent
-                    };
-                    global.fileupload.update(newItem);
-                });
+                    return res.end("Error : " + JSON.stringify(err));
+                }
+                res.end(JSON.stringify({
+                    res : 'suc',
+                    oid : item._id.toString()
+                }));
             });
+            //var sessionID = req.params.sessionID;
+            //var form = new formidable.IncomingForm();
+            //form.encoding = 'utf-8';    	                //设置编辑
+            //form.uploadDir = setting.modelpath + 'tmp/';	//设置上传目录
+            //form.keepExtensions = true;                     //保留后缀
+            //form.maxFieldsSize = 500 * 1024 * 1024;         //文件大小
+            //
+            //fs.exists(form.uploadDir,function (exists) {
+            //    if(!exists){
+            //        fs.mkdir(form.uploadDir);
+            //    }
+            //    //解析请求
+            //    form.parse(req, function (err, fields, files) {
+            //        if(err) {
+            //            return res.end(JSON.stringify(err));
+            //        }
+            //        // 验证
+            //        var config = {
+            //            host : "",
+            //            port : "",
+            //            start : "",
+            //            type : "",
+            //            mdl : "",
+            //            testdata : "",
+            //            engine : ""
+            //        };
+            //        parseConfig(files.file_model.path,config,function (config,fileStruct) {
+            //            if( !config.host || !config.port || !config.start || !config.mdl){
+            //                //config结构不对
+            //                //删除文件
+            //                fs.unlinkSync(files.file_model.path);
+            //                return res.end(JSON.stringify({
+            //                    'res':'err 1',
+            //                    'des':'长传的压缩包不包含config文件或config文件结构不正确！'
+            //                }));
+            //            }
+            //            else if(!fileStruct.model || !fileStruct.mdl || !fileStruct.start){
+            //                //文件结构不对
+            //                //删除文件
+            //                fs.unlinkSync(files.file_model.path);
+            //                return res.end(JSON.stringify({
+            //                    'res':'err 2',
+            //                    'des':'上传文件结构不正确！'
+            //                }));
+            //            }
+            //            //通过验证
+            //            var date = new Date();
+            //            var img = null;
+            //            if(files.ms_img.size != 0)
+            //            {
+            //                img = uuid.v1() + path.extname(files.ms_img.path);
+            //                fs.renameSync(files.ms_img.path, setting.modelpath + '../public/images/modelImg/' + img);
+            //            }
+            //            else
+            //            {
+            //                fs.unlinkSync(files.ms_img.path);
+            //            }
+            //            //产生新的OID
+            //            var oid = new ObjectId();
+            //
+            //            //生成新的纪录
+            //            var newmodelser = {
+            //                _id : oid,
+            //                ms_model : {
+            //                    m_name:fields.m_name,
+            //                    m_type:fields.m_type,
+            //                    m_url:fields.m_url
+            //                },
+            //                mv_num:fields.mv_num,
+            //                ms_des:fields.ms_des,
+            //                ms_update:date.toLocaleString(),
+            //                ms_platform:setting.platform,
+            //                ms_path:oid.toString() + '/',
+            //                ms_img:img,
+            //                ms_xml:fields.ms_xml,
+            //                ms_status:0,
+            //                ms_user:{
+            //                    u_name:fields.u_name,
+            //                    u_email:fields.u_email
+            //                }
+            //            };
+            //            //解压路径
+            //            var model_path = setting.modelpath + oid.toString() + '/';
+            //
+            //            //解压
+            //            fs.createReadStream(files.file_model.path).pipe(unzip.Extract({path: model_path}));
+            //
+            //            //删除文件
+            //            fs.unlinkSync(files.file_model.path);
+            //
+            //            //添加纪录
+            //            ModelSerCrtl.addNewModelSer(newmodelser, function (err, item) {
+            //                if(err)
+            //                {
+            //                    return res.end('Error : ' + JSON.stringify(err));
+            //                }
+            //                res.end(JSON.stringify({
+            //                    res : 'suc',
+            //                    oid : oid.toString()
+            //                }));
+            //            });
+            //        });
+            //    });
+            //
+            //    global.fileupload.add({
+            //        sessionId : sessionID,
+            //        process : 0
+            //    });
+            //    //上传过程中
+            //    form.on('progress', function (bytesReceived, bytesExpected)
+            //    {
+            //        var percent = Math.round(bytesReceived/bytesExpected * 100);
+            //        var newItem = {
+            //            sessionId : sessionID,
+            //            value : percent
+            //        };
+            //        global.fileupload.update(newItem);
+            //    });
+            //});
         });
 
     //获取上传文件百分比

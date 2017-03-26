@@ -113,14 +113,7 @@
                 </p>
                 <p><strong>输出数据&nbsp;:&nbsp;</strong><br />
                     <span id="sp_dataoutput">
-                    <% if(msr.msr_time != 0)
-                    {
-                        for(var i = 0; i < msr.msr_output.length; i++)
-                        {
-                %><%=msr.msr_output[i].StateId %>&nbsp;&nbsp;&nbsp;<%=msr.msr_output[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_output[i].DataId %>" ><%=msr.msr_output[i].DataId %></a><br /><%
-                        }
 
-                    }%>
                     </span>
                 </p>
                 <p id="p_des"><strong>模型运行描述信息&nbsp;:&nbsp;</strong><br /><%=msr.msr_des %></p>
@@ -229,7 +222,6 @@
     
     function ProcessFinished() {
         $('#bar_pro').css('width','100%');
-        $('#bar_pro_div').css('class','progress-bar progress-bar-success');
     }
 
 

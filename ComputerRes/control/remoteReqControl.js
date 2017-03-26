@@ -61,6 +61,23 @@ RemoteReqControl.putRequestJSON = function (url, callback) {
         catch (ex) {
             return callback(ex, null);
         }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.deleteRequestJSON = function (url, callback) {
+    request.delete(url,function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
         return callback(null, data);
     });
 };

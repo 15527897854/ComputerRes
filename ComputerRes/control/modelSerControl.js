@@ -146,30 +146,39 @@ ModelSerControl.startRmtModelSer = function (host, msid, callback) {
 
 //远程关闭模型
 ModelSerControl.stopRmtModelSer = function (host, msid, callback) {
-    ParamCheck.checkParam(callback, host);
-    ParamCheck.checkParam(callback, msid);
-    Child.getByHost(host, function (err, child) {
-        if(err)
+    if(ParamCheck.checkParam(callback, host))
+    {
+        if(ParamCheck.checkParam(callback, msid))
         {
-            return callback(err);
+            Child.getByHost(host, function (err, child) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=stop', this.returnFunction(callback, "error in get rmt model service"));
+            }.bind(this));
         }
-        remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=stop', this.returnFunction(callback, "error in get rmt model service"));
-    }.bind(this));
+    }
 };
 
 //获取远程模型输入信息
 ModelSerControl.getRmtInputDate = function (host, msid, callback) {
-    ParamCheck.checkParam(callback, host);
-    ParamCheck.checkParam(callback, msid);
-    Child.getByHost(host, function (err, child) {
-        if(err)
+    if(ParamCheck.checkParam(callback, host))
+    {
+        if(ParamCheck.checkParam(callback, msid))
         {
-            return callback(err);
+            Child.getByHost(host, function (err, child) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+            }.bind(this));
         }
-        remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
-    }.bind(this));
+    }
 };
 
+//运行远程模型
 ModelSerControl.runRmtModelSer = function(host, msid, data, callback){
     if(ParamCheck.checkParam(callback, host))
     {
@@ -193,6 +202,37 @@ ModelSerControl.runRmtModelSer = function(host, msid, data, callback){
                 }
             });
         }
+    }
+};
+
+//删除模型服务
+ModelSerControl.deleteRmtModelSer = function(host, msid, callback) {
+    if(ParamCheck.checkParam(callback, host))
+    {
+        if(ParamCheck.checkParam(callback, msid))
+        {
+            Child.getByHost(host, function (err, child) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                remoteReqCtrl.deleteRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+            }.bind(this));
+        }
+    }
+};
+
+//远程上传模型
+ModelSerControl.postRmtModelSer = function(req, host, callback){
+    if(ParamCheck.checkParam(callback, host))
+    {
+        Child.getByHost(host, function (err, child) {
+            if(err)
+            {
+                return callback(err);
+            }
+            remoteReqCtrl.postRequest(req, 'http://' + child.host + ':' + child.port + '/modelser/' + req.sessionID , this.returnFunction(callback, "error in get input data of rmt model service"));
+        }.bind(this));
     }
 };
 
@@ -322,36 +362,51 @@ ModelSerControl.update = function(ms, callback){
 
 //开启运行实例
 ModelSerControl.run = function (ms_id, guid, callback) {
-    ModelSerModel.run(ms_id, guid, function (err, stdout, stderr) {
-        ModelSerRunModel.getByGUID(guid, function (err2, item) {
-           if(err2)
-           {
-               return console.log(JSON.stringify(err2));
-           }
-           if(err){
-               item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
-            }
-           if(stdout){
-               item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
-           }
-           if(stderr){
-               item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
-           }
-           global.app.modelInsColl.removeByGUID(guid);
-           ModelSerRunModel.update(item, function (err, res) {
-               if(err)
-               {
-                   return console.log(JSON.stringify(err2));
-               }
-           })
-        });
-    }, function (err, ms) {
+    ModelSerModel.getByOID(ms_id, function(err, ms)
+    {
         if(err)
         {
             return callback(err);
         }
-        return callback(null, ms);
-    })
+        if(ms.ms_status != 1)
+        {
+            return callback({
+                Error : -1,
+                Message : 'Service is not available'
+            });
+        }
+        ModelSerModel.run(ms_id, guid, function (err, stdout, stderr) {
+            ModelSerRunModel.getByGUID(guid, function (err2, item) {
+                if(err2)
+                {
+                    return console.log(JSON.stringify(err2));
+                }
+                if(err){
+                    item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
+                }
+                if(stdout){
+                    item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
+                }
+                if(stderr){
+                    item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
+                }
+                global.app.modelInsColl.removeByGUID(guid);
+                ModelSerRunModel.update(item, function (err, res) {
+                    if(err)
+                    {
+                        return console.log(JSON.stringify(err2));
+                    }
+                })
+            });
+        }, function (err, ms) {
+            if(err)
+            {
+                return callback(err);
+            }
+            return callback(null, ms);
+        });
+    });
+
 };
 
 //得到初始输入数据

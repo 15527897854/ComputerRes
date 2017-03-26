@@ -99,6 +99,17 @@ var RmtModelSerTable = React.createClass({
         }
     },
 
+    deleteRmtModelSerHandle : function(e, host, msid) {
+        if(confirm('确定删除模型?') == true)
+        {
+            Axios.delete('/modelser/rmt/' + host + '/' + msid ).then(
+                data => {
+                    this.refresh();
+                }
+            );
+        }
+    },
+
     openModelSerInfoHandle : function (e, host, msid) {
         window.location = '/modelser/rmt/' + host + '/' + msid;
     },
@@ -166,7 +177,8 @@ var RmtModelSerTable = React.createClass({
                         </button>
                     );
                     button2 = (
-                        <button className="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="删除服务"  >
+                        <button className="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="删除服务"
+                            onClick={(e) => { this.deleteRmtModelSerHandle(e, host.host, item._id) }} >
                             <i className="fa fa-trash-o"> </i>
                         </button>
                     );

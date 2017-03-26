@@ -32,19 +32,24 @@ module.exports = function(app)
     app.route('/modelser/rmt/:host')
         .post(function (req, res, next) {
             var host = req.params.host;
-            childCtrl.getByWhere({host:host},function (error, child) {
-                if(error){
-                    return res.end(JSON.stringify(error));
+            ModelSerControl.postRmtModelSer(req, host, function(err, data){
+                if(err){
+                    return res.end(JSON.stringify(err));
                 }
-                var url = 'http://' + host + ':' + child.port + '/modelser/'+req.sessionID;
-                // console.log('upload sessionId:'+req.sessionID);
-                remoteReqCtrl.postRequest(req,url,function (err, data) {
-                    if(err){
-                        return res.end(JSON.stringify(err));
-                    }
-                    return res.end(data);
-                });
+                return res.end(data);
             });
+            //childCtrl.getByWhere({host:host},function (error, child) {
+            //    if(error){
+            //        return res.end(JSON.stringify(error));
+            //    }
+            //    var url = 'http://' + host + ':' + child.port + '/modelser/'+ req.sessionID;
+            //    remoteReqCtrl.postRequest(req,url,function (err, data) {
+            //        if(err){
+            //            return res.end(JSON.stringify(err));
+            //        }
+            //        return res.end(data);
+            //    });
+            //});
         })
         .get(function (req, res, next) {
             res.render('modelsers_r',{
@@ -56,6 +61,15 @@ module.exports = function(app)
     app.route('/modelser/rmt/json/all')
         .get(function (req, res, next) {
             ModelSerControl.getChildModelSer(RouteBase.returnFunction(res, 'error in getting all rmt model services'));
+        });
+
+    //远程上传模型页面
+    app.route('/modelser/rmt/:host/new')
+        .get(function(req, res, next){
+            var host = req.params.host;
+            res.render('modelSerNew_r',{
+                host : host
+            });
         });
 
     //操控特定结点的特定ms
@@ -105,7 +119,7 @@ module.exports = function(app)
         .delete(function (req, res) {
             var msid = req.params.msid;
             var host = req.params.host;
-
+            ModelSerControl.deleteRmtModelSer(host, msid, RouteBase.returnFunction(res, 'Error in delete a rmt model service!'));
         });
 
     //获取某个模型服务的输入输出数据声明
@@ -113,7 +127,19 @@ module.exports = function(app)
         .get(function (req, res, next) {
             var host = req.params.host;
             var msid = req.params.msid;
-            ModelSerControl.getRmtInputDate(host, msid, RouteBase.returnFunction(res, "Error in getting input data of rmt model service"));
+            ModelSerControl.getRmtInputDate(host, msid, function(err, data){
+                if(err)
+                {
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : errMessage + JSON.stringify(err)
+                    }));
+                }
+                return res.end(JSON.stringify({
+                    result : 'suc',
+                    data : data.data
+                }));
+            });
         });
 
     //特定结点的特定ms进入准备调用页面
@@ -152,81 +178,5 @@ module.exports = function(app)
                     data["host"] = host;
                     return res.end(JSON.stringify(data));
                 });
-        })
-        .put(function (req, res) {
-            console.log('------------'+req.url);
-            var msid = req.params.msid;
-            var host = req.params.host;
-            childCtrl.getByWhere({host:host},function (error, child) {
-                if(error){
-                    return res.end(JSON.stringify(error));
-                }
-                var port = child.port;
-                //bug  有时候报错。。。
-                //停止服务
-                if(req.query.ac == "stop")
-                {
-                    var options = {
-                        host: host,
-                        port: port,
-                        path: '/modelser/' + msid + '?ac=stop',
-                        method: 'PUT'
-                    };
-                    remoteReqCtrl.Request(options, null, function (err, data) {
-                        if(err){
-                            return res.end(JSON.stringify({
-                                "res":"Error",
-                                "mess":"Error in remote request"
-                            }));
-                        }
-                        return res.end(data);
-                    });
-                }
-                //开启服务
-                else if(req.query.ac == "start")
-                {
-                    var options = {
-                        host: host,
-                        port: port,
-                        path: '/modelser/' + msid + '?ac=start',
-                        method: 'PUT'
-                    };
-                    remoteReqCtrl.Request(options, null, function (err, data) {
-                        if(err){
-                            return res.end(JSON.stringify({
-                                "res":"Error",
-                                "mess":"Error in remote request"
-                            }));
-                        }
-                        return res.end(data);
-                    });
-                }
-            })
-        })
-        .delete(function (req, res) {
-            var msid = req.params.msid;
-            var host = req.params.host;
-            childCtrl.getByWhere({host:host},function (error, child) {
-                if(error){
-                    return res.end(JSON.stringify(error));
-                }
-                var port = child.port;
-                var options = {
-                    host: host,
-                    port: port,
-                    path: '/modelser/' + msid,
-                    method: 'DELETE'
-                };
-                console.log('________________________del ms');
-                remoteReqCtrl.Request(options, null, function (err, data) {
-                    if(err){
-                        return res.end(JSON.stringify({
-                            "res":"Error",
-                            "mess":"Error in remote request"
-                        }));
-                    }
-                    return res.end(data);
-                });
-            });
         });
-}
+};
