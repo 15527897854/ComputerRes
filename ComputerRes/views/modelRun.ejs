@@ -106,37 +106,15 @@
                 else {%>外部调用者<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
                 <p><strong>运行实例GUID&nbsp;:&nbsp;</strong><%= msr.msr_guid %></p>
                 <p><strong>输入数据&nbsp;:&nbsp;</strong><br />
-                    <% if(host == 'localhost') { %>
-                        <% for(var i = 0; i < msr.msr_input.length; i++)
-                        {
-                            %><%=msr.msr_input[i].StateId %>&nbsp;&nbsp;&nbsp;<%=msr.msr_input[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a><br /><%
-                        }%>
-                    <% }else{ %>
-                        <% for(var i = 0; i < msr.msr_input.length; i++)
-                        {
-                        %><%=msr.msr_input[i].StateId %>&nbsp;&nbsp;&nbsp;<%=msr.msr_input[i].Event %>&nbsp;:&nbsp;<a href="/geodata/rmt/<%=host %>/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a><br /><%
-                        }%>
-                    <% } %>
-
+                    <% for(var i = 0; i < msr.msr_input.length; i++)
+                    {
+                        %><%=msr.msr_input[i].StateId %>&nbsp;&nbsp;&nbsp;<%=msr.msr_input[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a><br /><%
+                    }%>
                 </p>
                 <p><strong>输出数据&nbsp;:&nbsp;</strong><br />
-                <% if(msr.msr_time != 0)
-                {
-                    if(host == 'localhost')
-                    {
-                        for(var i = 0; i < msr.msr_output.length; i++)
-                        {
-                %><%=msr.msr_output[i].StateId %>&nbsp;&nbsp;&nbsp;<%=msr.msr_output[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_output[i].DataId %>" ><%=msr.msr_output[i].DataId %></a><br /><%
-                        }
-                    }
-                    else
-                    {
-                        for(var i = 0; i < msr.msr_output.length; i++)
-                        {
-                %><%=msr.msr_output[i].StateId %>&nbsp;&nbsp;&nbsp;<%=msr.msr_output[i].Event %>&nbsp;:&nbsp;<a href="/geodata/rmt/<%=host %>/<%=msr.msr_output[i].DataId %>" ><%=msr.msr_output[i].DataId %></a><br /><%
-                        }
-                    }
-                }%>
+                    <span id="sp_dataoutput">
+
+                    </span>
                 </p>
                 <p id="p_des"><strong>模型运行描述信息&nbsp;:&nbsp;</strong><br /><%=msr.msr_des %></p>
                 <p><strong>运行时间&nbsp;:&nbsp;</strong><span id="sp_time"><%=msr.msr_time.toString() %>&nbsp;s&nbsp;</span></p>
@@ -175,6 +153,19 @@
                                     var descript = jsItem.msr.msr_des.replace(/\r\n/g, '<br />');
                                     $('#p_des').html('<strong>模型运行描述信息&nbsp;:&nbsp;</strong><br />' + descript);
                                     $('#sp_time').html( jsItem.msr.msr_time + '&nbsp; s &nbsp;');
+                                    if(jsItem.msr.msr_status == 1)
+                                    {
+                                        var output = '';
+                                        for(var i = 0; i < jsItem.msr.msr_output.length; i++)
+                                        {
+                                            output += jsItem.msr.msr_output[i].StateId +
+                                                    '&nbsp;&nbsp;&nbsp;' + jsItem.msr.msr_output[i].Event +
+                                                    '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.msr.msr_output[i].DataId + '" >'
+                                                    + jsItem.msr.msr_output[i].DataId +'</a><br />';
+                                        }
+
+                                        $('#sp_dataoutput').html(output);
+                                    }
                                 }
                             });
                         }
@@ -222,7 +213,7 @@
                     }
                 })
             }
-        }, 200);
+        }, 500);
     });
 
     function setProcess(per) {
@@ -231,7 +222,6 @@
     
     function ProcessFinished() {
         $('#bar_pro').css('width','100%');
-        $('#bar_pro_div').css('class','progress-bar progress-bar-success');
     }
 
 

@@ -7,18 +7,21 @@ module.exports = ParamCheck;
 
 ParamCheck.checkParam = function(callback, param, type)
 {
-    if(param == null || param == undefined)
+    if(param == null || param == 'undefined' ||typeof param == 'undefined')
     {
-        return callback({
+        callback({
             err : "param error",
             message : "param is null"
         });
+        return false;
     }
     if(type != null && typeof param != type)
     {
-        return callback({
+        callback({
             err : "param error",
             message : "type of param is wrong"
         });
+        return false;
     }
+    return true;
 };

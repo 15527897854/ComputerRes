@@ -9,7 +9,7 @@ var ModelSerRunInfo = React.createClass({
     getInitialState : function () {
         return {
             msrid : "",
-            ms_id : "",
+            ms_id : ""
         };
     },
 

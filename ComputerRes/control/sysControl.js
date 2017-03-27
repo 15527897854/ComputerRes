@@ -11,12 +11,11 @@ var setting = require('../setting');
 var systemSettingModel = require('../model/systemSetting');
 
 var SysControl = function()
-{}
+{};
 
 module.exports = SysControl;
 
-SysControl.getState = function(callback)
-{
+SysControl.getState = function(callback) {
     var sysinfo =
     {
         'hostname':os.hostname(),
@@ -119,8 +118,7 @@ SysControl.getState = function(callback)
     }
 };
 
-SysControl.getInfo = function(headers,callback)
-{
+SysControl.getInfo = function(headers,callback) {
     systemSettingModel.getValueByIndex('sysinfo',function(err, data)
     {
         if(err)
@@ -176,4 +174,9 @@ SysControl.getValueByIndex = function (ss_index, callback) {
         }
         return callback(null,data);
     })
+};
+
+//获取设置信息
+SysControl.getSettings = function(callback){
+    return callback(null, setting);
 };

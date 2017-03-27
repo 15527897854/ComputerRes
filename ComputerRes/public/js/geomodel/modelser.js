@@ -94,7 +94,7 @@ function ms_delete(ms_id,host) {
                 else if(resJson.res == 'suc')
                 {
                     alert('模型服务删除成功!');
-                    window.location.reload();
+                    window.location.href = '/modelser/all'
                 }
             }
         });

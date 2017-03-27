@@ -51,17 +51,20 @@ ModelInsCtrl.request = function (app, cmds, socket) {
                     count --;
                     if(!err)
                     {
-                        if(item.gd_type == "FILE")
+                        if(item != null)
                         {
-                            msg += '[\t\t\t]' + msr.msr_input[index].StateId;
-                            msg += '[\t\t]' + msr.msr_input[index].Event;
-                            msg += '[\t\t]FILE[\t\t]' + __dirname + '/../geo_data/' +item.gd_value;
-                        }
-                        else if(item.gd_type == "STREAM")
-                        {
-                            msg += '[\t\t\t]' + msr.msr_input[index].StateId;
-                            msg += '[\t\t]' + msr.msr_input[index].Event;
-                            msg += '[\t\t]STREAM[\t\t]' + item.gd_value;
+                            if(item.gd_type == "FILE")
+                            {
+                                msg += '[\t\t\t]' + msr.msr_input[index].StateId;
+                                msg += '[\t\t]' + msr.msr_input[index].Event;
+                                msg += '[\t\t]FILE[\t\t]' + __dirname + '/../geo_data/' +item.gd_value;
+                            }
+                            else if(item.gd_type == "STREAM")
+                            {
+                                msg += '[\t\t\t]' + msr.msr_input[index].StateId;
+                                msg += '[\t\t]' + msr.msr_input[index].Event;
+                                msg += '[\t\t]STREAM[\t\t]' + item.gd_value;
+                            }
                         }
                     }
 
@@ -121,6 +124,8 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
 
             var msg = 'oncheckres';
             //判断长度
+
+            var count = 0;
             for(var i = 2; i < cmds.length; i++)
             {
                 var detail = cmds[i].split('[\t\t]');
@@ -171,12 +176,11 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
                     }
                 });
 
-                var count = 0;
                 for(var j = 0; j < msr.msr_output.length; j++)
                 {
-                    count ++;
                     if(msr.msr_output[j].StateId == detail[0] && msr.msr_output[j].Event == detail[1])
                     {
+                        count ++;
                         if(parseInt(detail[2]) < setting.data_size)
                         {
                             var gd = {

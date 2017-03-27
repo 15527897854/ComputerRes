@@ -93,14 +93,13 @@ ModelSerRun.prototype.save = function(callback)
 //获取模型运行服务
 ModelSerRun.getAll = function(callback)
 {
-
     MSR.find({}, this.returnFunction(callback, "error in getting all model service runs"));
 };
 
 //根据ms_id获取ModelSerRun
 ModelSerRun.getByMsId = function(_msid, callback)
 {
-    ParamCheck.checkParam(callback,_msid);
+    CheckParam.checkParam(callback,_msid);
     var msid = new ObjectId(_msid);
     MSR.find({ms_id:msid}, this.returnFunction(callback, "error in getting by MsId model service runs"));
 };
@@ -108,7 +107,7 @@ ModelSerRun.getByMsId = function(_msid, callback)
 //根据msr_guid获取ModelSerRun
 ModelSerRun.getByGUID = function(guid, callback)
 {
-    ParamCheck.checkParam(callback,guid);
+    CheckParam.checkParam(callback,guid);
     MSR.findOne({msr_guid : guid},this.returnFunction(callback, "error in getting by GUID model service runs"));
 };
 

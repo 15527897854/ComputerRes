@@ -38,6 +38,8 @@
                             <br />
                             版本号&nbsp;:&nbsp;<%=modelSer.mv_num %>
                             <br />
+                            所在位置&nbsp;:&nbsp;<%=host %>
+                            <br />
                             所在平台&nbsp;:&nbsp;<%
                             if(modelSer.ms_platform == 1)
                             {
@@ -80,7 +82,7 @@
                         <br />
                         <div class="btn-group btn-group-justified" style="width: 50%">
                             <a href="#" class="btn btn-default"
-                               onclick="window.open('/modelser/preparation/<%=modelSer._id %>')"
+                               onclick="window.open('/modelser/rmt/preparation/<%=host%>/<%=modelSer._id %>')"
                                <%if(modelSer.ms_status == 0)
                                {
                                %>disabled="disable" <%
@@ -90,17 +92,17 @@
                             <% if(modelSer.ms_status == 0)
                             {
                             %>
-                            <a href="#" class="btn btn-success" onclick="ms_start('<%=modelSer._id %>')" >
+                            <a href="#" class="btn btn-success" onclick="ms_start('<%=modelSer._id %>', '<%=host %>')" >
                                 <i class="fa fa-play"></i>启动服务
                             </a>
-                            <a href="#" class="btn btn-warning">
+                            <a href="#" class="btn btn-warning" onclick="ms_delete('<%=modelSer._id %>', '<%=host %>')">
                                 <i class="fa fa-trash-o"></i>删除服务
                             </a><%
                             }
                             else if(modelSer.ms_status == 1)
                             {
                             %>
-                            <a href="#" class="btn btn-danger" onclick="ms_stop('<%=modelSer._id %>')" >
+                            <a href="#" class="btn btn-danger" onclick="ms_stop('<%=modelSer._id %>', '<%=host %>')" >
                                 <i class="fa fa-stop"></i>关闭服务
                             </a><%
                             }%>
@@ -128,7 +130,7 @@
                     <tr>
                         <td><%= msrs[i]._id %></td>
                         <td><%= msrs[i].msr_date%></td>
-                        <td><a href="/modelserrun/<%= msrs[i]._id %>" >查看详情</a></td>
+                        <td><a href="/modelserrun/rmt/<%=host %>/<%= msrs[i]._id %>" >查看详情</a></td>
                     </tr>
                     <% }%>
                     </tbody>
@@ -143,7 +145,7 @@
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
 
-<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
+<script type="text/javascript" src="/js/geomodel/rmtModelser.js" ></script>
 <script type="text/javascript" >
     $('#tb_msr').dataTable(
             {

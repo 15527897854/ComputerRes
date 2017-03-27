@@ -323,29 +323,43 @@ module.exports = function (app) {
         .get(function (req, res, next) {
             var gdid = req.params.gdid;
             var host = req.params.host;
-            childCtrl.getByWhere({host:host},function (error, child) {
-                if(error){
-                    return res.end('Error!');
+            GeoDataCtrl.getRmtData(req, host, gdid, function(err, data)
+            {
+                if(err)
+                {
+                    return res.end('err');
                 }
-
-                var port = child.port;
-                var url = 'http://' + host + ':' + port + '/geodata/' + gdid;
-                remoteReqCtrl.getRequest(req,url,function (err, data) {
-                    if(err){
-                        console.log('---------------------err--------------------\n'+err);
-                        return res.end(JSON.stringify({
-                            res:'err',
-                            mess:JSON.stringify(err)
-                        }));
-                    }
-                    res.set({
-                        'Content-Type': 'file/xml',
-			            //可能有bug？？？
-                        'Content-Length': data.length });
-                    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(gdid) + '.xml');
-                    return res.end(data);
-                });
+                var filename = gdid + '.xml';
+                res.set({
+                    'Content-Type': 'file/xml',
+                    'Content-Length': data.length });
+                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                return res.end(data);
             });
+
+            //childCtrl.getByWhere({host:host},function (error, child) {
+            //    if(error){
+            //        return res.end('Error!');
+            //    }
+            //
+            //    var port = child.port;
+            //    var url = 'http://' + host + ':' + port + '/geodata/' + gdid;
+            //    remoteReqCtrl.getRequest(req,url,function (err, data) {
+            //        if(err){
+            //            console.log('---------------------err--------------------\n'+err);
+            //            return res.end(JSON.stringify({
+            //                res:'err',
+            //                mess:JSON.stringify(err)
+            //            }));
+            //        }
+            //        res.set({
+            //            'Content-Type': 'file/xml',
+			 //           //可能有bug？？？
+            //            'Content-Length': data.length });
+            //        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(gdid) + '.xml');
+            //        return res.end(data);
+            //    });
+            //});
         });
     
-}
+};

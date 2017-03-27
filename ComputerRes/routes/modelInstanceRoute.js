@@ -5,11 +5,9 @@ var ModelSerCtrl = require('../control/modelSerControl');
 
 module.exports = function (app) {
     //模型实例页面
-    app.route('/modelins')
+    app.route('/modelins/all')
         .get(function (req, res, next) {
-            res.render('modelInstance',
-                {
-                    // user:req.session.user,
+            res.render('modelInstance',{
                     blmodelser : true
                 });
         });
@@ -58,7 +56,7 @@ module.exports = function (app) {
     
     app.route('/modelins/rmt/json/all')
         .get(function (req, res) {
-            ModelSerCtrl.getChildMSRI(null, function (err, childmsri) {
+            ModelSerCtrl.getAllRmtMis(null, function (err, childmsri) {
                 // childmsri = JSON.parse(JSON.stringify(childmsri));
                 var data = [];
                 for(var i = 0;i<childmsri.length;i++){
@@ -72,5 +70,19 @@ module.exports = function (app) {
                     childmsri : data
                 }));
             });
-        })
+        });
+
+    app.route('/modelins/rmt/json/:host/:guid')
+        .get(function(req, res, next)
+        {
+            var host = req.params.host;
+            var guid = req.params.guid;
+            ModelSerCtrl.getRmtMis(host, guid, function(err, data){
+                if(err)
+                {
+                    return res.end('error : ' + JSON.stringify(err));
+                }
+                return res.end(JSON.stringify(data));
+            });
+        });
 };

@@ -3,7 +3,9 @@ var setting = require('../setting');
 var fs = require('fs');
 
 var ModelSerRun = require('../model/modelSerRun');
-var ModelSer = require('../model/modelService');
+var RemoteReqControl = require('./remoteReqControl');
+var Child = require('../model/child');
+var ParamCheck = require('../utils/paramCheck');
 
 function ModelSerRunCtrl()
 {}
@@ -20,7 +22,7 @@ ModelSerRunCtrl.addItem = function (msr, callback) {
         }
         return callback(null, data);
     });
-}
+};
 
 //根据OID查询模型运行记录
 ModelSerRunCtrl.getByOID = function (oid, callback) {
@@ -31,7 +33,7 @@ ModelSerRunCtrl.getByOID = function (oid, callback) {
         }
         return callback(null, item);
     });
-}
+};
 
 //根据GUID查询模型运行记录信息
 ModelSerRunCtrl.getByGUID = function (guid, callback) {
@@ -42,7 +44,7 @@ ModelSerRunCtrl.getByGUID = function (guid, callback) {
         }
         return callback(null, item);
     });
-}
+};
 
 //根据MSID查询模型运行记录
 ModelSerRunCtrl.getByMSID = function (msid, callback) {
@@ -53,7 +55,7 @@ ModelSerRunCtrl.getByMSID = function (msid, callback) {
         }
         return callback(null, data);
     });
-}
+};
 
 //得到全部模型运行记录
 ModelSerRunCtrl.getAll = function (callback) {
@@ -62,38 +64,9 @@ ModelSerRunCtrl.getAll = function (callback) {
         {
             return callback(err);
         }
-
-        // var pending = (function (pcallback) {
-        //     var count = 0;
-        //     return function (index) {
-        //         count ++;
-        //         return function (err, ms) {
-        //             count --;
-        //             if(err)
-        //             {
-        //                 data[index].ms = {};
-        //                 console.log(err);
-        //             }
-        //             data[index].ms = ms;
-        //             if(count == 0)
-        //             {
-        //                 pcallback();
-        //             }
-        //         }
-        //     }
-        // });
-        //
-        // var done = pending(function () {
-        //     return callback(null, data);
-        // });
-        //
-        // for(var i = 0; i < data.length; i++)
-        // {
-        //     ModelSer.getByOID(data[i].ms_id.toString(), done(i));
-        // }
         return callback(null, data);
     });
-}
+};
 
 //更新模型运行记录信息
 ModelSerRunCtrl.update = function (msr, callback) {
@@ -102,6 +75,68 @@ ModelSerRunCtrl.update = function (msr, callback) {
        {
            return callback(err);
        }
-       return (null, data);
+       return callback(null, data);
     });
-}
+};
+
+ModelSerRunCtrl.getRmtModelSerRun = function (host, msrid, callback) {
+    ParamCheck.checkParam(callback, host);
+    ParamCheck.checkParam(callback, msrid);
+    Child.getByHost(host, function (err, child) {
+        if(err)
+        {
+            return callback(err);
+        }
+        if(ParamCheck.checkParam(callback, child))
+        {
+            RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/' + msrid, function (err, data) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                return callback(null, data);
+            });
+        }
+    });
+};
+
+ModelSerRunCtrl.getAllRmtModelSerRun = function (callback) {
+    Child.getAll(function(err, children){
+        if(err)
+        {
+            return callback(err);
+        }
+        if(children.length == 0)
+        {
+            return callback(null, [])
+        }
+        var count = 0;
+        var pending = function(index)
+        {
+            count ++;
+            return function (err, data)
+            {
+                count --;
+                if(err)
+                {
+                    children[index].ping = 'err';
+                    children[index].err = err;
+                }
+                else
+                {
+                    children[index].ping = 'suc';
+                    children[index].msr = data;
+                }
+                if(count == 0)
+                {
+                    return callback(null, children);
+                }
+            }
+        };
+
+        for(var i = 0; i < children.length; i++)
+        {
+            RemoteReqControl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelserrun/json/all', pending(i));
+        }
+    });
+};

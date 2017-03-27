@@ -8,60 +8,86 @@ var fs = require('fs');
 var request = require('request');
 
 function RemoteReqControl()
-{
-}
+{}
 
 module.exports = RemoteReqControl;
 
-//远程请求
-RemoteReqControl.Request = function(options, content, callback)
-{
-    var req = http.request(options, function(res) {
-        res.setEncoding('utf8');
-        res.on('data', function (data) {
-            return callback(null, data);
-        });
-        res.on('end',function(){
-            console.log('-------------------------res end-------------------------------');
-        });
-    });
-
-    req.on('error', function(err){
-        console.log('_________________________\n'+options.host);
-        console.log('Request Error : ' + err.message);
-        return callback(err);
-    });
-
-    //请求内容
-    if(content != null)
-    {
-        req.write(qs.stringify(content));
-    }
-
-    req.end();
-};
-
-RemoteReqControl.postRequest = function (req, url, callback) {
-    req.pipe(request.post(url,function (err, response, data) {
-        return callback(err,data);
-    }));
-};
-
 RemoteReqControl.getRequest = function (req, url, callback) {
     //TODO ping不通时如何快速的返回err
-    req.pipe(request.get(url,function (err, response, data) {
+    req.pipe(request.get(url, function (err, response, data) {
         if(err)
         {
             return callback(err);
         }
-        try
+        return callback(null, data);
+    }));
+};
+
+RemoteReqControl.postRequest = function (req, url, callback) {
+    req.pipe(request.post(url,function (err, response, data) {
+        if(err)
         {
-            var obj = eval('(' + data + ')');
-        }
-        catch (ex)
-        {
-            return callback(ex, null);
+            return callback(err);
         }
         return callback(null, data);
     }));
+};
+
+
+RemoteReqControl.getRequestJSON = function (url, callback) {
+    request.get(url,function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.putRequestJSON = function (url, callback) {
+    request.put(url,function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.deleteRequestJSON = function (url, callback) {
+    request.delete(url,function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.ping = function(target, callback){
+    request.head('http://' + target, function(error, response, body){
+        if (error) {
+            return callback({result : 'Err'});
+        } else {
+            return callback({result : 'OK'});
+        }
+    });
 };
