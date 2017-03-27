@@ -124,6 +124,8 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
 
             var msg = 'oncheckres';
             //判断长度
+
+            var count = 0;
             for(var i = 2; i < cmds.length; i++)
             {
                 var detail = cmds[i].split('[\t\t]');
@@ -174,12 +176,11 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
                     }
                 });
 
-                var count = 0;
                 for(var j = 0; j < msr.msr_output.length; j++)
                 {
-                    count ++;
                     if(msr.msr_output[j].StateId == detail[0] && msr.msr_output[j].Event == detail[1])
                     {
+                        count ++;
                         if(parseInt(detail[2]) < setting.data_size)
                         {
                             var gd = {

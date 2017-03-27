@@ -10433,6 +10433,8 @@ var ReactDOM = __webpack_require__(111);
 var RmtModelSerTable = __webpack_require__(210);
 var RmtModelSerRunTable = __webpack_require__(208);
 var ModelSerInfo = __webpack_require__(209);
+var SystemSetting = __webpack_require__(212);
+var ChildrenTable = __webpack_require__(213);
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -10448,6 +10450,16 @@ if(document.getElementById('modelserinfo') != null) {
 if(document.getElementById('rmtModelSerRunTable') != null) {
     ReactDOM.render(React.createElement(RmtModelSerRunTable, {source: "/modelserrun/rmt/json/all"}),
         document.getElementById('rmtModelSerRunTable'));
+}
+
+if(document.getElementById('settingPage') != null) {
+    ReactDOM.render(React.createElement(SystemSetting, {source: "/settings"}),
+        document.getElementById('settingPage'));
+}
+
+if(document.getElementById('childPanel') != null) {
+    ReactDOM.render(React.createElement(ChildrenTable, {source: "/child-node/json/all"}),
+        document.getElementById('childPanel'));
 }
 
 /***/ }),
@@ -23575,9 +23587,9 @@ var RmtModelSerRunTable = React.createClass({displayName: "RmtModelSerRunTable",
                                 //每页显示条目数
                                 "bLengthChange": true,
                                 //排序
-                                "bSort": false,
+                                "bSort": true,
                                 //排序配置
-                                "aaSorting": [[3, "dsc"]],
+                                "aaSorting": [[4, "dsc"]],
                                 //自适应宽度
                                 "bAutoWidth": true,
                                 //多语言配置
@@ -24030,6 +24042,237 @@ module.exports = RmtModelSerTable;
 
 module.exports = __webpack_require__(93);
 
+
+/***/ }),
+/* 212 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by Franklin on 2017/3/26.
+ */
+
+var React = __webpack_require__(34);
+var Axios = __webpack_require__(35);
+
+var SystemSetting = React.createClass({displayName: "SystemSetting",
+    getInitialState : function () {
+        return {
+            loading : true,
+            err : null,
+            data : null
+        };
+    },
+
+    componentDidMount : function () {
+        this.refresh();
+    },
+
+    refresh : function(){
+        Axios.get(this.props.source).then(
+            function(data)  { this.setState({ loading : false, err : null, data : data.data }); }.bind(this),
+            function(err)  { this.setState({ loading : false, err : err, data : null }); }.bind(this)
+        );
+    },
+
+    render : function()
+    {
+        if(this.state.loading)
+        {
+            return (React.createElement("span", null, "loading..."));
+        }
+        if(this.state.err)
+        {
+            return (React.createElement("span", null, "err: ", JSON.stringify(this.state.err)));
+        }
+        var platform = (React.createElement("span", {className: "label label-info"}, "Unknown"));
+        if(this.state.data.platform == 1)
+        {
+            platform = (React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-windows"}), "windows"));
+        }
+        else if(this.state.data.platform == 2)
+        {
+            platform = (React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-linux"}), "linux"));
+        }
+        var debug = '否';
+        if(this.state.data.debug)
+        {
+            debug = '是';
+        }
+        return (
+            React.createElement("div", {className: "wrapper"}, 
+                React.createElement("p", null, React.createElement("strong", null, "当前版本 : "), React.createElement("span", null, "v", this.state.data.version), " "), 
+                React.createElement("p", null, React.createElement("strong", null, "计算机资源OID : "), React.createElement("span", null, "v", this.state.data.oid), " "), 
+                React.createElement("p", null, React.createElement("strong", null, "开放端口 : "), React.createElement("span", null, this.state.data.port), " "), 
+                React.createElement("p", null, React.createElement("strong", null, "平台 : "), React.createElement("span", null, platform), " "), 
+                React.createElement("p", null, React.createElement("strong", null, "模型信息库 : "), React.createElement("span", null, "数据库名称 : ", this.state.data.mongodb.name, " 服务器 : ", this.state.data.mongodb.host, " 端口 : ", this.state.data.mongodb.port), " "), 
+                React.createElement("p", null, React.createElement("strong", null, "UDX数据库 : "), React.createElement("span", null, "服务器 : ", this.state.data.redis.host, " 端口 : ", this.state.data.redis.port), " "), 
+                React.createElement("p", null, React.createElement("strong", null, "Socket : "), React.createElement("span", null, "服务器 : ", this.state.data.socket.host, " 端口 : ", this.state.data.socket.port), " "), 
+                React.createElement("p", null, React.createElement("strong", null, "数据分界点 : "), React.createElement("span", null, this.state.data.data_size, " byte"), " "), 
+                React.createElement("p", null, React.createElement("strong", null, "调试状态 : "), React.createElement("span", null,  debug ), " ")
+            )
+        );
+    }
+});
+
+module.exports = SystemSetting;
+
+/***/ }),
+/* 213 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by Franklin on 2017/3/26.
+ */
+var React = __webpack_require__(34);
+var Axios = __webpack_require__(35);
+
+var ChildrenTable = React.createClass({displayName: "ChildrenTable",
+    getInitialState : function () {
+        return {
+            loading : true,
+            err : null,
+            children : null
+        };
+    },
+
+    componentDidMount : function () {
+        this.refresh();
+    },
+
+    refresh : function () {
+        Axios.get(this.props.source).then(
+            function(data)  {
+                if(data.data.res == 'err')
+                {
+                    this.setState({loading : false, err : data.data.message});
+                }
+                else
+                {
+                    this.setState({loading : false, err : false, data : data.data.children});
+                    //初始化完成
+                    $('#dynamic-table').dataTable(
+                        {
+                            //数据URL
+                            "data": "/modelser/json/rmtall",
+                            //载入数据的时候是否显示“正在加载中...”
+                            "processing": true,
+                            //是否显示分页
+                            "bPaginate": true,
+                            //每页显示条目数
+                            "bLengthChange": true,
+                            //排序
+                            "bSort": true,
+                            //排序配置
+                            "aaSorting": [[1, "dsc"]],
+                            //自适应宽度
+                            "bAutoWidth": true,
+                            //多语言配置
+                            "oLanguage": {
+                                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                                "sZeroRecords": "对不起，查询不到任何相关数据",
+                                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                                "sInfoEmtpy": "找不到相关数据",
+                                "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
+                                "sProcessing": "正在加载中...",
+                                "sSearch": "搜索",
+                                //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
+                                "sUrl": "",
+                                "oPaginate": {
+                                    "sFirst":    "第一页",
+                                    "sPrevious": " 上一页 ",
+                                    "sNext":     " 下一页 ",
+                                    "sLast":     " 最后一页 "
+                                }
+                            }
+                        }
+                    );
+
+                }
+            }.bind(this),
+            function(err)  {
+                this.setState({loading : false, err : err});
+            }.bind(this)
+        );
+    },
+
+    openUploadModelSerHandle : function (e, host) {
+        window.location.href = '/modelser/rmt/' + host + '/new';
+    },
+
+    render : function () {
+        if(this.state.loading)
+        {
+            return (
+                React.createElement("span", null, "加载中...")
+            );
+        }
+        if(this.state.err)
+        {
+            return (
+                React.createElement("span", null, "Error : ", JSON.stringify(this.state.err))
+            );
+        }
+        var Children = this.state.data.map(function(child) {
+            var platform;
+            if(child.platform == 1)
+            {
+                platform = (React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-windows"}), "windows"));
+            }
+            else if(child.platform == 2)
+            {
+                platform = (React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-linux"}), "linux"));
+            }
+            else
+            {
+                platform = (React.createElement("span", {className: "label label-info"}, "Unknown"));
+            }
+            var status;
+            var button;
+            if(child.ping == 1)
+            {
+                status = (React.createElement("span", {className: "badge badge-success"}, "可用"));
+                button = (
+                    React.createElement("button", {className: "btn btn-default btn-xs", type: "button", onClick:  function(e){this.openUploadModelSerHandle(e, child.host)}.bind(this)}, 
+                        React.createElement("i", {className: "fa fa-cloud-upload"}, " "), "上传模型"
+                    ));
+            }
+            else
+            {
+                status = (React.createElement("span", {className: "badge badge-defult"}, "不可用"));
+            }
+            return (
+                React.createElement("tr", null, 
+                    React.createElement("td", null, child.host), 
+                    React.createElement("td", null, child.port), 
+                    React.createElement("td", null, platform), 
+                    React.createElement("td", null, status), 
+                    React.createElement("td", null, 
+                        React.createElement("button", {className: "btn btn-info btn-xs", type: "button"}, React.createElement("i", {className: "fa fa-book"}), "详情"), " ", 
+                        button
+                    )
+                )
+            );
+        }.bind(this));
+        return (
+            React.createElement("table", {className: "display table table-bordered table-striped", id: "dynamic-table"}, 
+                React.createElement("thead", null, 
+                React.createElement("tr", null, 
+                    React.createElement("th", null, "地址"), 
+                    React.createElement("th", null, "端口"), 
+                    React.createElement("th", null, "平台"), 
+                    React.createElement("th", null, "状态"), 
+                    React.createElement("th", null, "操作")
+                )
+                ), 
+                React.createElement("tbody", null, 
+                Children
+                )
+            )
+        );
+    }
+});
+
+module.exports = ChildrenTable;
 
 /***/ })
 /******/ ]);

@@ -6,6 +6,7 @@ var os  = require('os');
 var fs = require('fs');
 
 module.exports =  {
+    version : 0.2,
     gate:{
         host:'127.0.0.1',
         port:3000

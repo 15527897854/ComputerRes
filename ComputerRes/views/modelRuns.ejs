@@ -3,6 +3,10 @@
 <head>
     <title>模型运行记录</title>
     <%- include headInclude.ejs %>
+    <!--dynamic table-->
+    <link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />
+    <link href="/js/advanced-datatable/css/demo_table.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/js/data-tables/DT_bootstrap.css" />
 </head>
 <body class="sticky-header">
 <section>
@@ -12,17 +16,14 @@
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
 
-        <div class="panel panel-default" style="background: #EFF0F4;">
+        <div class="panel panel-default" >
             <div class="panel-body">
                 <table  class="display table table-bordered table-striped" id="tb_msr">
                     <thead>
                     <tr>
                         <td>记录ID</td>
                         <td>名称</td>
-                        <td>GUID
-                        <% if(host!= 'localhost'){ %>
-                            <td>地址</td>
-                        <% } %>
+                        <td>GUID</td>
                         <td>调用时间</td>
                         <td>状态</td>
                         <td>操作</td>
@@ -79,13 +80,13 @@
                 //是否显示分页
                 "bPaginate": true,
                 //每页显示条目数
-                "bLengthChange": false,
+                "bLengthChange": true,
                 //搜索栏
-                "bFilter": false,
+                "bFilter": true,
                 //排序
                 "bSort": true,
                 //排序配置
-                "aaSorting": [[1, "desc"]],
+                "aaSorting": [[3, "desc"]],
                 //自适应宽度
                 "bAutoWidth": true,
                 //多语言配置

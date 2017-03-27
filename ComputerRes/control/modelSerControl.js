@@ -33,6 +33,12 @@ ModelSerControl.getChildModelSer = function(callback){
         {
             return callback(err);
         }
+
+        if(childMs.length == 0)
+        {
+            return callback(null, [])
+        }
+
         var pending = (function (pcallback) {
             var count = 0;
             return function(index)

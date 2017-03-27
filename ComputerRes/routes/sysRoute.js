@@ -35,4 +35,11 @@ module.exports = function(app)
                 return res.end(JSON.stringify(data));
             })
         });
-}
+
+    app.route('/settings')
+        .get(function(req, res, next){
+            sysControl.getSettings(function(err, data){
+                res.end(JSON.stringify(data));
+            });
+        });
+};

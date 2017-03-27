@@ -42,15 +42,13 @@ module.exports = function (app) {
         var cid = req.params.cid;
         if(cid == 'all')
         {
-            ChildCtrl.getAll(function (err, clds) {
+            ChildCtrl.getAllWithPing(function (err, children) {
                 if(err)
                 {
                     return res.end('Error : ' + err);
                 }
                 res.end(JSON.stringify({
-                    // user:req.session.user,
-                    clds : clds,
-                    blmodelser_r : true
+                    children : children
                 }));
             });
         }

@@ -106,6 +106,10 @@ ModelSerRunCtrl.getAllRmtModelSerRun = function (callback) {
         {
             return callback(err);
         }
+        if(children.length == 0)
+        {
+            return callback(null, [])
+        }
         var count = 0;
         var pending = function(index)
         {

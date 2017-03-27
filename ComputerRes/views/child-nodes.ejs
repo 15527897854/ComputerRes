@@ -15,62 +15,21 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-default" style="background: #EFF0F4;">
+        <section class="panel">
+            <header class="panel-heading">
+                运算父节点
+            </header>
             <div class="panel-body">
-                <table class="display table table-bordered table-striped" id="dynamic-table">
-                    <thead>
-                    <tr>
-                        <th>地址</th>
-                        <th>端口</th>
-                        <th>平台</th>
-                        <th>状态</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% clds.forEach(function (item) {%>
-                        <tr>
-                            <td><%=item.host %></td>
-                            <td><%=item.port %></td>
-                            <td><% if(item.platform == 1){
-                                %>
-                                <span class="label label-info">
-                                    <i class="fa fa-windows"></i>
-                                    windows
-                                </span>
-                                <%
-                                }else if(item.platform == 2){
-                                %>
-                                <span class="label label-info">
-                                    <i class="fa fa-linux"></i>
-                                    linux
-                                </span>
-                                <%
-                                }else {
-                                %>
-                                <span class="label label-info">
-                                        未知平台
-                                </span>
-                                <%
-                                } %>
-                            </td>
-                            <td></td>
-                            <td>
-                                <button class="btn btn-info btn-xs" type="button"
-                                        onclick="">
-                                    <i class="fa fa-book"></i>
-                                    详情
-                                </button>
-                                <button class="btn btn-info btn-xs" type="button" onclick="window.open('/modelser/rmt/<%=item.host %>/new')">
-                                    <i class="fa fa-book"></i>上传模型服务
-                                </button>
-                            </td>
-                        </tr>
-                    <%}); %>
-                    </tbody>
-                </table>
             </div>
-        </div>
+        </section>
+        <section class="panel">
+            <header class="panel-heading">
+                运算子节点
+            </header>
+            <div class="panel-body">
+                <div id="childPanel"></div>
+            </div>
+        </section>
         <%- include footer.ejs %>
     </div>
 </section>
@@ -80,7 +39,9 @@
 <!--dynamic table-->
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+
+<script type="text/javascript" src="/js/output/bundle.js" ></script>
 <!--dynamic table initialization -->
-<script src="/js/dynamic_table_init.js"></script>
+<!--<script src="/js/dynamic_table_init.js"></script>-->
 </body>
 </html>

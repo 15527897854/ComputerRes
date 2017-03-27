@@ -81,3 +81,13 @@ RemoteReqControl.deleteRequestJSON = function (url, callback) {
         return callback(null, data);
     });
 };
+
+RemoteReqControl.ping = function(target, callback){
+    request.head('http://' + target, function(error, response, body){
+        if (error) {
+            return callback({result : 'Err'});
+        } else {
+            return callback({result : 'OK'});
+        }
+    });
+};

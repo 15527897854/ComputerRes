@@ -90,7 +90,6 @@ function SocketTrans(app)
                         type:'stopRun',
                         hasRead:0
                     };
-                    //console.log("++++++++++++++++++++++++++++++run stopped++++++++++++++++++++++++++++++++++");
                     NoticeCtrl.addNotice(noticeData,function (err, data) {
                         if(err){
                             return console.log('Error in addNotice');
