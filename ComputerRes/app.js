@@ -45,14 +45,7 @@ routes(app);
 
 //socket connection
 var socket = require('./socket/mc_socket');
-var sockTrans = new socket(app);
-
-// setInterval(function () {
-//   if(app.modelInsColl.ModelInsArr.length == 1)
-//   {
-//     sockTrans.sendMsg(app.modelIns[0], 'Welcome !!! ');
-//   }
-// }, 1000);
+var sockTrans = socket(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -17,7 +17,7 @@ FileUploadCollection.prototype.add = function (item) {
         return 1;
     }
     return -1;
-}
+};
 
 //删除
 FileUploadCollection.prototype.remove = function(sessionId){
@@ -30,7 +30,7 @@ FileUploadCollection.prototype.remove = function(sessionId){
         }
     }
     return -1;
-}
+};
 
 //查询
 FileUploadCollection.prototype.get = function (sessionId) {
@@ -42,7 +42,7 @@ FileUploadCollection.prototype.get = function (sessionId) {
         }
     }
     return -1;
-}
+};
 
 //更新
 FileUploadCollection.prototype.update =function (item) {
@@ -55,4 +55,4 @@ FileUploadCollection.prototype.update =function (item) {
         }
     }
     return -1;
-}
+};

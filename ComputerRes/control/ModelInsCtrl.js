@@ -124,7 +124,6 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
 
             var msg = 'oncheckres';
             //判断长度
-
             var count = 0;
             for(var i = 2; i < cmds.length; i++)
             {

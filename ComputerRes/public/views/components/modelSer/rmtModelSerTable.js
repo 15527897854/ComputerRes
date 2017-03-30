@@ -13,6 +13,7 @@ var RmtModelSerTable = React.createClass({
             init : true
         };
     },
+
     componentDidMount : function () {
         this.refresh();
     },
@@ -41,9 +42,9 @@ var RmtModelSerTable = React.createClass({
                                 //每页显示条目数
                                 "bLengthChange": true,
                                 //排序
-                                "bSort": false,
+                                "bSort": true,
                                 //排序配置
-                                "aaSorting": [[5, "dsc"]],
+                                "aaSorting": [[3, "desc"]],
                                 //自适应宽度
                                 "bAutoWidth": true,
                                 //多语言配置

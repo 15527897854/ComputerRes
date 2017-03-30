@@ -3,6 +3,7 @@
  * Route for Sys
  */
 var sysControl = require('../control/sysControl');
+var RouteBase = require('./routeBase');
 
 module.exports = function(app)
 {
@@ -38,8 +39,19 @@ module.exports = function(app)
 
     app.route('/settings')
         .get(function(req, res, next){
-            sysControl.getSettings(function(err, data){
-                res.end(JSON.stringify(data));
+            sysControl.getSettings(RouteBase.returnFunction(res, 'error in getting setting'));
+        });
+
+    app.route('/parent')
+        .get(function(req, res, next){
+            sysControl.getParent(RouteBase.returnFunction(res, 'error in getting parent'));
+        });
+
+    app.route('/checkserver/:server')
+        .get(function(req, res, next){
+            var server = req.params.server;
+            sysControl.checkServer(server, function(reslut){
+                return res.end(JSON.stringify(reslut));
             });
         });
 };

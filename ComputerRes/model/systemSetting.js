@@ -3,9 +3,12 @@
  * Model for SystemSetting
  */
 var mongoose = require('./mongooseModel');
+var ModelBase = require('./modelBase');
 
-function SystemSetting(ss)
-{}
+function SystemSetting(ss) {}
+SystemSetting.__proto__ = ModelBase;
+SystemSetting.ModelName = 'system setting';
+
 module.exports = SystemSetting;
 
 var userSchema = new mongoose.Schema({
@@ -14,8 +17,7 @@ var userSchema = new mongoose.Schema({
 },{collection:'systemsetting'});
 var Users = mongoose.model('systemsetting',userSchema);
 
-SystemSetting.getValueByIndex = function(ss_index, callback)
-{
+SystemSetting.getValueByIndex = function(ss_index, callback) {
         Users.findOne({'ss_index':ss_index},function (err, data) {
             if(err)
             {
