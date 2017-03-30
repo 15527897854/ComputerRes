@@ -9,6 +9,7 @@ var RmtModelSerRunTable = require('../components/modelSerRun/rmtModelSerRunTable
 var ModelSerInfo = require('../components/modelSer/modelSerInfo');
 var SystemSetting = require('../components/systemSetting/systemSetting');
 var ChildrenTable = require('../components/children/ChildrenTable');
+var ParentPanel = require('../components/systemSetting/parentPanel');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -34,4 +35,9 @@ if(document.getElementById('settingPage') != null) {
 if(document.getElementById('childPanel') != null) {
     ReactDOM.render(<ChildrenTable source="/child-node/json/all"/>,
         document.getElementById('childPanel'));
+}
+
+if(document.getElementById('parentPanel') != null) {
+    ReactDOM.render(<ParentPanel source="/parent"/>,
+        document.getElementById('parentPanel'));
 }

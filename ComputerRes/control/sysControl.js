@@ -9,9 +9,11 @@ var md5 = crypto.createHash('md5');
 
 var setting = require('../setting');
 var systemSettingModel = require('../model/systemSetting');
+var ControlBase = require('./controlBase');
+var RemoteControl = require('./remoteReqControl');
 
-var SysControl = function()
-{};
+var SysControl = function() {};
+SysControl.__proto__ = ControlBase;
 
 module.exports = SysControl;
 
@@ -174,6 +176,24 @@ SysControl.getValueByIndex = function (ss_index, callback) {
         }
         return callback(null,data);
     })
+};
+
+//获取父节点
+SysControl.getParent = function(callback){
+    systemSettingModel.getValueByIndex('parent', this.returnFunction(callback, 'error in get parent'));
+};
+
+//设置父节点
+SysControl.setParent = function(callback){
+
+};
+
+//检查服务器是否可用
+SysControl.checkServer = function(server, callback){
+    RemoteControl.ping(server + '/ping', function(result)
+    {
+        return callback(result);
+    });
 };
 
 //获取设置信息

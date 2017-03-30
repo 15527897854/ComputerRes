@@ -39,5 +39,5 @@ module.exports =  {
     modelpath: __dirname + '/geo_model/',
     data_size : 1024,
     debug : false,
-    debugGUID : '29551017-53c7-485f-a2c1-9ee9e3cc3228'
+    debugGUID : '39cf2f16-c527-4e78-a7f1-a317d9aba332'
 };

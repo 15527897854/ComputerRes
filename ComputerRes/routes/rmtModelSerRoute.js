@@ -179,4 +179,18 @@ module.exports = function(app)
                     return res.end(JSON.stringify(data));
                 });
         });
+
+    //模型图像转发
+    app.route('/modelser/rmt/img/:host/:imgname')
+        .get(function(req, res, next){
+            var host = req.params.host;
+            var imgname = req.params.imgname;
+            ModelSerControl.getRmtImg(host, imgname, res, function(err, result)
+            {
+                if(err)
+                {
+                    return res.end(JSON.stringify(err));
+                }
+            });
+        });
 };

@@ -137,7 +137,7 @@ ModelSerControl.getRmtModelSer = function (host, msid, callback) {
     }.bind(this));
 };
 
-//远程启动模型
+//启动远程模型
 ModelSerControl.startRmtModelSer = function (host, msid, callback) {
     ParamCheck.checkParam(callback, host);
     ParamCheck.checkParam(callback, msid);
@@ -150,7 +150,7 @@ ModelSerControl.startRmtModelSer = function (host, msid, callback) {
     }.bind(this));
 };
 
-//远程关闭模型
+//关闭远程模型
 ModelSerControl.stopRmtModelSer = function (host, msid, callback) {
     if(ParamCheck.checkParam(callback, host))
     {
@@ -211,7 +211,7 @@ ModelSerControl.runRmtModelSer = function(host, msid, data, callback){
     }
 };
 
-//删除模型服务
+//删除远程模型服务
 ModelSerControl.deleteRmtModelSer = function(host, msid, callback) {
     if(ParamCheck.checkParam(callback, host))
     {
@@ -239,6 +239,24 @@ ModelSerControl.postRmtModelSer = function(req, host, callback){
             }
             remoteReqCtrl.postRequest(req, 'http://' + child.host + ':' + child.port + '/modelser/' + req.sessionID , this.returnFunction(callback, "error in get input data of rmt model service"));
         }.bind(this));
+    }
+};
+
+//远程查看图像
+ModelSerControl.getRmtImg = function(host, imgname, res, callback){
+    if(ParamCheck.checkParam(callback, host))
+    {
+        if(ParamCheck.checkParam(callback, imgname))
+        {
+            Child.getByHost(host, function(err, child){
+                if(err)
+                {
+                    return callback(err);
+                }
+                remoteReqCtrl.getRequestPipe(res, 'http://' + child.host + ':' + child.port + '/images/modelImg/' + imgname);
+                return callback(null, true);
+            });
+        }
     }
 };
 

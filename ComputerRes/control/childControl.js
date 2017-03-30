@@ -5,9 +5,7 @@
 var Child = require('../model/child');
 var RemoteRequestControl = require("./remoteReqControl");
 
-function ChildCtrl() {
-    
-}
+function ChildCtrl() {}
 
 module.exports = ChildCtrl;
 
@@ -30,6 +28,10 @@ ChildCtrl.getAllWithPing = function (callback) {
             return callback(err)
         }
         var count = 0;
+        if(children.length == 0)
+        {
+            return callback(null, []);
+        }
         var pending = function(index)
         {
             count ++;
@@ -52,7 +54,7 @@ ChildCtrl.getAllWithPing = function (callback) {
         };
         for(var i = 0; i < children.length; i++)
         {
-            RemoteRequestControl.ping(children[i].host, pending(i))
+            RemoteRequestControl.ping(children[i].host + ':' + children[i].port + '/ping', pending(i))
         }
         // return callback(null, data);
     });
