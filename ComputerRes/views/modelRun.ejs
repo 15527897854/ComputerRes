@@ -4,9 +4,12 @@
     <title>模型运行信息</title>
     <%- include headInclude.ejs %>
     <link href="/css/uploadfile.css" rel="stylesheet" />
+    <link href="/css/ol.css" type="text/css"/>
+    <link rel="stylesheet" href="/css/ol3-layerswitcher.css" />
+    <!--<link rel="stylesheet" href="/css/layerswitcher.css" />-->
 </head>
-<body class="sticky-header">
-<section>
+<body id="myBody" class="sticky-header">
+<section >
     <!-- 左导航栏 -->
     <%- include header.ejs %>
     <div class="main-content">
@@ -106,17 +109,28 @@
                 else {%>外部调用者<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
                 <p><strong>运行实例GUID&nbsp;:&nbsp;</strong><%= msr.msr_guid %></p>
                 <p><strong>输入数据&nbsp;:&nbsp;</strong><br />
-                    <% for(var i = 0; i < msr.msr_input.length; i++)
-                    {
-                        %><%=msr.msr_input[i].StateId %>&nbsp;&nbsp;&nbsp;<%=msr.msr_input[i].Event %>&nbsp;:&nbsp;<a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a><br /><%
-                    }%>
+                    <% for(var i = 0; i < msr.msr_input.length; i++) { %>
+                        <%=msr.msr_input[i].StateId %>
+                        &nbsp;&nbsp;&nbsp;
+                        <%=msr.msr_input[i].Event %>
+                        &nbsp;:&nbsp;
+                        <a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a>
+                        &nbsp;&nbsp;&nbsp;
+                        <a><span class="udx_snapshot btn-lg" data-toggle="modal" data-target="#myModal" id="<%=msr.msr_input[i].DataId %>">Snapshot</span></a>
+                    <br />
+                    <%}%>
                 </p>
                 <p><strong>输出数据&nbsp;:&nbsp;</strong><br />
                     <span id="sp_dataoutput">
 
                     </span>
                 </p>
-                <p id="p_des"><strong>模型运行描述信息&nbsp;:&nbsp;</strong><br /><%=msr.msr_des %></p>
+                <p id="p_des" style="white-space: pre-line">
+                    <strong>模型运行描述信息&nbsp;:&nbsp;</strong>
+                    <br />
+                    <%=msr.msr_des
+                    %>
+                </p>
                 <p><strong>运行时间&nbsp;:&nbsp;</strong><span id="sp_time"><%=msr.msr_time.toString() %>&nbsp;s&nbsp;</span></p>
                 <p><strong>当前进度&nbsp;:&nbsp;</strong></p>
                 <div id="bar_pro_div" class="progress progress-striped active progress-sm">
@@ -126,10 +140,41 @@
                 </div>
             </div>
         </div>
+
+        <!-- 模态框（Modal） -->
+        <!--TODO 打开modal后滚动条对原始窗体不作用-->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="overflow-y: hidden">
+            <div class="modal-dialog" style="width: 750px;">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: rgba(0,0,0,0);width: 750px;position: absolute;top: 0;left: 0;z-index: 100;">
+                            <button type="button" id="close-modal" class="close" data-dismiss="modal" aria-hidden="true" style="color: #000;">
+                                &times;
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel" style="color: #000;">
+                                UDX Visualization
+                            </h4>
+                        </div>
+                        <div class="modal-body" style="padding: 0;">
+                        <div id="map" style="width:750px;height: 500px;" class="map"></div>
+                    </div>
+                    <!--<div class="modal-footer">-->
+                        <!--<button type="button" class="btn btn-default" data-dismiss="modal">关闭-->
+                        <!--</button>-->
+                        <!--<button type="button" class="btn btn-primary">-->
+                            <!--提交更改-->
+                        <!--</button>-->
+                    <!--</div>-->
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+        </div>
         <%- include footer.ejs %>
     </div>
 </section>
 <%- include footerInclude.ejs %>
+<script src="/js/polyfill.min.js"></script>
+<script src="/js/ol.js"></script>
+<script src="/js/ol3-layerswitcher.js"></script>
+<script src="/js/proj4.js"></script>
 <script type="text/javascript" src="/js/output/bundle.js" ></script>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -160,8 +205,10 @@
                                         {
                                             output += jsItem.msr.msr_output[i].StateId +
                                                     '&nbsp;&nbsp;&nbsp;' + jsItem.msr.msr_output[i].Event +
-                                                    '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.msr.msr_output[i].DataId + '" >'
-                                                    + jsItem.msr.msr_output[i].DataId +'</a><br />';
+                                                    '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.msr.msr_output[i].DataId + '" >' +
+                                                    jsItem.msr.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                                    '<a><span class="udx_snapshot" id="' + jsItem.msr.msr_output[i].DataId + '">Snapshot</span></a>' +
+                                                    '<br />';
                                         }
 
                                         $('#sp_dataoutput').html(output);
@@ -225,6 +272,133 @@
     }
 
 
+</script>
+<script type="text/javascript">
+    $("#close-modal").click(function () {
+        var nice = $("html").niceScroll();
+        nice.opt.enablemousewheel = true;
+        nice.opt.mousescrollstep = 40;
+    })
+
+    $(".udx_snapshot").click(function () {
+        var nice = $("html").niceScroll();
+        nice.opt.enablemousewheel = false;
+        nice.opt.mousescrollstep = 0;
+        if($('#map:has(canvas)').length!=0){
+            $("#map").empty();
+        }
+        $.ajax({
+            url:'/geodata/snapshot/' + this.id,
+            success:function (data) {
+                var rst = JSON.parse(data);
+                console.log(rst.data)
+                if(rst.suc == true){
+                    var imageExtent,projection,map;
+                    var ENCorner = [rst.ENCorner[0],rst.ENCorner[1]];
+                    var WSCorner = [rst.WSCorner[0],rst.WSCorner[1]];
+                    ENCorner = proj4('EPSG:3857').forward(ENCorner);
+                    WSCorner = proj4('EPSG:3857').forward(WSCorner);
+                    projection = 'EPSG:3857';
+                    imageExtent = [WSCorner[0],WSCorner[1],ENCorner[0],ENCorner[1]];
+                    console.log(imageExtent);
+                    if(rst.dataType == 'geotiff'){
+                        map = new ol.Map({
+                            layers: [
+//                                new ol.layer.Group({
+//                                    'title': 'Base maps',
+//                                    layers: [
+//                                        new ol.layer.Tile({
+//                                            title: 'OSM',
+//                                            type: 'base',
+//                                            visible: true,
+//                                            source: new ol.source.OSM()
+//                                        })
+//                                    ]
+//                                }),
+                                new ol.layer.Group({
+                                    title: 'Overlays',
+                                    layers: [
+                                        new ol.layer.Tile({
+                                            title: 'OSM',
+//                                            type: 'base',
+                                            visible: true,
+                                            source: new ol.source.OSM()
+                                        }),
+                                        new ol.layer.Image({
+                                            title: 'geotiff',
+                                            source: new ol.source.ImageStatic({
+                                                ratio: 1,
+                                                params: {'LAYERS': 'show:0'},
+                                                url: rst.data,
+                                                imageExtent: imageExtent,
+                                                projection:projection
+                                            })
+                                        })
+                                    ]
+                                })
+                            ],
+                            target: 'map',
+                            view: new ol.View({
+                                center: ol.extent.getCenter(imageExtent),
+                                projection:projection
+                            })
+                        });
+                    }
+                    else if(rst.dataType == 'shp'){
+                        map = new ol.Map({
+                            layers: [
+//                                new ol.layer.Group({
+//                                    'title': 'Base maps',
+//                                    layers: [
+//                                        new ol.layer.Tile({
+//                                            title: 'OSM',
+//                                            type: 'base',
+//                                            visible: true,
+//                                            source: new ol.source.OSM()
+//                                        })
+//                                    ]
+//                                }),
+                                new ol.layer.Group({
+                                    title: 'Layers',
+                                    layers: [
+                                        new ol.layer.Tile({
+                                            title: 'OSM',
+//                                            type: 'base',
+                                            visible: true,
+                                            source: new ol.source.OSM()
+                                        }),
+                                        new ol.layer.Vector({
+                                            ratio: 1,
+                                            params: {'LAYERS': 'show:0'},
+                                            title: 'shapefile',
+                                            source: new ol.source.Vector({
+                                                url: rst.data,     // 地图来源
+                                                format: new ol.format.GeoJSON()    // 解析矢量地图的格式化类
+                                            })
+                                        })
+                                    ]
+                                })
+                            ],
+                            target: 'map',
+                            view: new ol.View({
+                                center: ol.extent.getCenter(imageExtent),
+                                projection:projection
+                            })
+                        });
+                    }
+                    map.getView().fit(imageExtent, map.getSize());
+                    var layerSwitcher = new ol.control.LayerSwitcher({
+                        tipLabel: 'Légende' // Optional label for button
+                    });
+                    map.addControl(layerSwitcher);
+                }
+                else{
+                    alert('udx data err!');
+                    $('#close-modal').trigger("click");
+                }
+            }
+        })
+    })
 </script>
 </body>
 </html>
