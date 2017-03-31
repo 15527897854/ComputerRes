@@ -126,8 +126,8 @@
     </div>
 </section>
 <%- include footerInclude.ejs %>
-<script type="text/javascript" src="/js/jquery.form.js" ></script>
-<script type="text/javascript" src="/js/jquery.uploadfile.min.js" ></script>
+
+<script type="text/javascript" src="/js/jquery.form.js"></script><script type="text/javascript" src="/js/jquery.uploadfile.min.js" ></script>
 <script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
 <script type="text/javascript" >
     var closeTag = (function (e){
@@ -142,13 +142,6 @@
     var msid = '<%=modelSer._id %>';
     $(document).ready(function () {
         $.ajax({
-            url : (function () {
-                if('<%=host %>' == 'localhost'){
-                    return '/modelser/inputdata/json/' + msid;
-                }
-                else{
-                    return '/modelser/rmt/inputdata/<%=host %>/' + msid;
-                }
             })(),
             method : 'GET',
             success : function (data) {

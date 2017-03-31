@@ -20,7 +20,7 @@ var SystemSetting = React.createClass({
 
     refresh : function(){
         Axios.get(this.props.source).then(
-            data => { this.setState({ loading : false, err : null, data : data.data }); },
+            data => { this.setState({ loading : false, err : null, data : data.data.data }); },
             err => { this.setState({ loading : false, err : err, data : null }); }
         );
     },

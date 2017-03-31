@@ -70,52 +70,53 @@ function SocketTrans(app)
                     {
                         finished = true;
                     }
-
-                    //移除该实例
-                    app.modelInsColl.removeBySocekt(socket);
-                    if(err)
-                    {
-                        return console.log('Error in removing modelIns and finding MSR');
-                    }
                     if(msr == null)
                     {
                         return ;
                     }
                     var date_now = new Date();
-                    //通知消息数据
-                    var noticeData = {
-                        time:new Date(),
-                        ms_name:msr.msr_ms.m_name,
-                        notice:'模型服务停止运行！',
-                        type:'stopRun',
-                        hasRead:0
-                    };
-                    NoticeCtrl.addNotice(noticeData,function (err, data) {
-                        if(err){
-                            return console.log('Error in addNotice');
-                        }
-                        if(msr != null)
+                    if(msr != null)
+                    {
+                        var data_begin = new Date(msr.msr_date);
+                        var time_span = date_now.getTime() - data_begin.getTime();
+                        time_span = time_span / 1000;
+                        msr.msr_time = time_span;
+                        if(finished)
                         {
-                            var data_begin = new Date(msr.msr_date);
-                            var time_span = date_now.getTime() - data_begin.getTime();
-                            time_span = time_span / 1000;
-                            msr.msr_time = time_span;
-                            if(finished)
+                            msr.msr_status = 1;
+                        }
+                        else
+                        {
+                            msr.msr_status = -1;
+                        }
+                        ModelSerRunCtrl.update(msr, function (err2, data) {
+                            if(err2)
                             {
-                                msr.msr_status = 1;
+                                return console.log('Error in removing modelIns and updating MSR');
                             }
-                            else
+
+                            //移除该实例
+                            app.modelInsColl.removeBySocekt(socket);
+                            if(err)
                             {
-                                msr.msr_status = -1;
+                                return console.log('Error in removing modelIns and finding MSR');
                             }
-                            ModelSerRunCtrl.update(msr, function (err2, data) {
-                                if(err2)
-                                {
-                                    return console.log('Error in removing modelIns and updating MSR');
+
+                            //通知消息数据
+                            var noticeData = {
+                                time:new Date(),
+                                ms_name:msr.msr_ms.m_name,
+                                notice:'模型服务停止运行！',
+                                type:'stopRun',
+                                hasRead:0
+                            };
+                            NoticeCtrl.addNotice(noticeData,function (err, data) {
+                                if(err){
+                                    return console.log('Error in addNotice');
                                 }
                             });
-                        }
-                    });
+                        });
+                    }
                 });
             }
             console.log('CLOSED: ' + socket.remoteAddress + ' ' + socket.remotePort);

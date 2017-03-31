@@ -11,7 +11,7 @@ $(document).ready(function() {
             //每页显示条目数
             "bLengthChange": true,
             //排序
-            "bSort": false,
+            "bSort": true,
             //排序配置
             "aaSorting": [[3, "dsc"]],
             //自适应宽度

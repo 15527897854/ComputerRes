@@ -15,6 +15,11 @@ var setting = require('../setting');
 
 module.exports = function(app)
 {
+    app.route('/ping')
+        .get(function(req, res, next){
+            res.end('OK');
+        });
+
     // // 未登录只能访问登录和注册页面,已登录不能访问这两个页面
     // app.route('*')
     //     .get(function checkLoginStatus(req, res, next) {

@@ -41,7 +41,7 @@ var ChildrenTable = React.createClass({
                             //排序
                             "bSort": true,
                             //排序配置
-                            "aaSorting": [[1, "dsc"]],
+                            "aaSorting": [[3, "desc"]],
                             //自适应宽度
                             "bAutoWidth": true,
                             //多语言配置

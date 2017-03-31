@@ -13,20 +13,26 @@ this.modelName = "";
 module.exports = ModelBase;
 
 ModelBase.delete = function (_oid, callback) {
-    ParamCheck.checkParam(callback, _oid);
-    var oid = new ObjectId(_oid);
-    this.baseModel.remove({_id: oid},this.returnFunction(callback, "Error in removing" + this.modelName));
+    if(ParamCheck.checkParam(callback, _oid))
+    {
+        var oid = new ObjectId(_oid);
+        this.baseModel.remove({_id: oid},this.returnFunction(callback, "Error in removing" + this.modelName));
+    }
 };
 
 ModelBase.getByOID = function(_oid,callback){
-    ParamCheck.checkParam(callback, _oid);
-    var oid = new ObjectId(_oid);
-    this.baseModel.findOne({'_id' : oid}, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by id'));
+    if(ParamCheck.checkParam(callback, _oid))
+    {
+        var oid = new ObjectId(_oid);
+        this.baseModel.findOne({'_id' : oid}, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by id'));
+    }
 };
 
 ModelBase.getByWhere = function (where, callback) {
-    ParamCheck.checkParam(callback, where);
-    this.baseModel.find(where, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by id'));
+    if(ParamCheck.checkParam(callback, where))
+    {
+        this.baseModel.find(where, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by id'));
+    }
 };
 
 ModelBase.update = function (newItem, callback) {
