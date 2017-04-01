@@ -11,7 +11,10 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-default">
+        <section class="panel">
+            <header class="panel-heading">
+                本地模型运行实例
+            </header>
             <div class="panel-body">
                 <table  class="display table table-bordered table-striped" id="dynamic-table">
                     <thead>
@@ -27,7 +30,7 @@
                     <tbody id="tb_data"></tbody>
                 </table>
             </div>
-        </div>
+        </section>
         <%- include footer.ejs %>
     </div>
 </section>

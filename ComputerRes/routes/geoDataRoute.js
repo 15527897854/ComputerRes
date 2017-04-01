@@ -12,6 +12,7 @@ var remoteReqCtrl = require('../control/remoteReqControl');
 var request = require('request');
 var ModelSerCtrl = require('../control/modelSerControl');
 var childCtrl = require('../control/childControl');
+var RouteBase = require('./routeBase');
 
 module.exports = function (app) {
     
@@ -56,8 +57,7 @@ module.exports = function (app) {
                                 //存入数据库
                                 var geodata = {
                                     gd_id : gdid,
-                                    gd_rstate : fields.stateid,
-                                    gd_io : 'INPUT',
+                                    gd_tag : 'INPUT',
                                     gd_type : 'FILE',
                                     gd_value : fname
                                 };
@@ -84,8 +84,7 @@ module.exports = function (app) {
                             fs.readFile(files.myfile.path, function (err, data) {
                                 var geodata = {
                                     gd_id : gdid,
-                                    gd_rstate :fields.stateid,
-                                    gd_io : 'INPUT',
+                                    gd_tag : 'INPUT',
                                     gd_type : 'STREAM',
                                     gd_value : data
                                 };
@@ -135,8 +134,7 @@ module.exports = function (app) {
                         //存入数据库
                         var geodata = {
                             gd_id : gdid,
-                            gd_rstate : state,
-                            gd_io : 'INPUT',
+                            gd_tag : 'INPUT',
                             gd_type : 'FILE',
                             gd_value : fname
                         };
@@ -161,7 +159,7 @@ module.exports = function (app) {
                 var geodata = {
                     gd_id : gdid,
                     gd_rstate : state,
-                    gd_io : 'INPUT',
+                    gd_tag : 'INPUT',
                     gd_type : 'STREAM',
                     gd_value : data
                 };
@@ -183,6 +181,12 @@ module.exports = function (app) {
             }
         });
 
+    //得到全部数据的JSON
+    app.route('/geodata/json/all')
+        .get(function (req, res, next) {
+            GeoDataCtrl.getAllData(RouteBase.returnFunction(res, 'error in getting all geo data!'));
+        });
+
     //返回下载的json数据
     app.route('/geodata/json/:gdid')
         .get(function (req, res, next) {
@@ -196,36 +200,31 @@ module.exports = function (app) {
                 {
                     return res.end('No Data!');
                 }
-                var filename = gd.gd_id + '.xml';
                 if(gd.gd_type == 'FILE')
                 {
-                    fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                    fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, 'utf8' ,function (err, data) {
                         if(err)
                         {
                             return res.end('error');
                         }
-                        return res.end(JSON.stringify({
-                            set:{
-                                'Content-Type': 'file/xml',
-                                'Content-Length': data.length },
-                            data:data,
-                            filename:filename
-                        }));
+                        res.send('<xmp>' + data + '</xmp>');
+                        return res.end();
                     })
                 }
                 else if(gd.gd_type == 'STREAM')
                 {
-                    return res.end(JSON.stringify({
-                        set:{
-                            'Content-Type': 'file/xml',
-                            'Content-Length': gd.gd_value.length },
-                        data:gd.gd_value,
-                        filename:filename
-                    }))
+                    res.end(gd.gd_value);
                 }
             });
         });
-    
+
+    //数据中心页面
+    app.route('/geodata/all')
+        .get(function (req, res, next) {
+            return res.render('dataCollection');
+        });
+
+
     //下载数据文件
     app.route('/geodata/:gdid')
         .get(function (req, res, next) {
@@ -253,7 +252,8 @@ module.exports = function (app) {
                         res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
                         res.end(data);
                     })
-                } else if(gd.gd_type == 'STREAM')
+                }
+                else if(gd.gd_type == 'STREAM')
                 {
                     res.set({
                         'Content-Type': 'file/xml',
@@ -291,7 +291,6 @@ module.exports = function (app) {
                 });
             });
         });
-
 
     //请求转发 数据流
     app.route('/geodata/stream/:host')
@@ -336,30 +335,5 @@ module.exports = function (app) {
                 res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
                 return res.end(data);
             });
-
-            //childCtrl.getByWhere({host:host},function (error, child) {
-            //    if(error){
-            //        return res.end('Error!');
-            //    }
-            //
-            //    var port = child.port;
-            //    var url = 'http://' + host + ':' + port + '/geodata/' + gdid;
-            //    remoteReqCtrl.getRequest(req,url,function (err, data) {
-            //        if(err){
-            //            console.log('---------------------err--------------------\n'+err);
-            //            return res.end(JSON.stringify({
-            //                res:'err',
-            //                mess:JSON.stringify(err)
-            //            }));
-            //        }
-            //        res.set({
-            //            'Content-Type': 'file/xml',
-			 //           //可能有bug？？？
-            //            'Content-Length': data.length });
-            //        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(gdid) + '.xml');
-            //        return res.end(data);
-            //    });
-            //});
         });
-    
 };

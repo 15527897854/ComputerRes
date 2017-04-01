@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>远程模型服务浏览</title>
+    <title>门户云服务</title>
     <%- include headInclude.ejs %>
     <!--dynamic table-->
     <link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />
     <link href="/js/advanced-datatable/css/demo_table.css" rel="stylesheet" />
     <link rel="stylesheet" href="/js/data-tables/DT_bootstrap.css" />
+
+    <link href="/css/uploadfile.css" rel="stylesheet" />
 </head>
 <body class="sticky-header">
 <section>
@@ -15,12 +17,15 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <section class="panel">
+        <section class="panel" >
             <header class="panel-heading">
-                远程模型服务
+                数据中心
             </header>
-            <div class="panel-body">
-                <div id="rmtModelSerTable" ></div>
+            <div id="dataCollectionTable" class="panel-body">
+
+            </div>
+            <div id="dataUploader" class="panel-body">
+
             </div>
         </section>
         <%- include footer.ejs %>
@@ -28,12 +33,15 @@
 </section>
 
 <%- include footerInclude.ejs %>
-<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
 
 <!--dynamic table-->
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
-<script type="text/javascript" src="/js/output/bundle.js" ></script>
-
+<!--dynamic table initialization -->
+<!--<script src="/js/dynamic_table_init.js"></script>-->
+<script src="/js/output/bundle.js" ></script>
+<script type="text/javascript" src="/js/jquery.form.js"></script>
+<script type="text/javascript" src="/js/jquery.uploadfile.min.js" ></script>
+<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
 </body>
 </html>

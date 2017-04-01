@@ -68,8 +68,7 @@ ModelService.baseModel = MS;
 ModelService.modelName = "model service";
 
 //新增模型服务信息
-ModelService.prototype.save = function(callback)
-{
+ModelService.prototype.save = function(callback) {
     //ModelService
     var modelservice = {
         _id : new ObjectId(this._id),
@@ -97,15 +96,17 @@ ModelService.prototype.save = function(callback)
 
 //根据计算服务器获取模型服务
 ModelService.getAll = function(flag, callback){
-    ParamCheck.checkParam(callback, flag);
-    var where = {};
-    if(flag == 'ALL'){
-        where = {};
+    if(ParamCheck.checkParam(callback, flag))
+    {
+        var where = {};
+        if(flag == 'ALL'){
+            where = {};
+        }
+        else{
+            where = { ms_status : { $ne : -1 }}
+        }
+        MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
     }
-    else{
-        where = { ms_status : { $ne : -1 }}
-    }
-    MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
 };
 
 //通过MID查询
@@ -117,210 +118,217 @@ ModelService.getByMID = function (_mid, callback) {
 
 //启动一个模型服务实例
 ModelService.run = function (ms_id, guid, exeoutcb, callback) {
-    ParamCheck.checkParam(callback, ms_id);
-    ParamCheck.checkParam(callback, guid);
-    ModelService.getByOID(ms_id, function (err, ms) {
-        if (err) {
-            return callback(err);
+    if(ParamCheck.checkParam(callback, ms_id)){
+        if(ParamCheck.checkParam(callback, guid)){
+            ModelService.getByOID(ms_id, function (err, ms) {
+                if (err) {
+                    return callback(err);
+                }
+                ParamCheck.checkParam(callback, ms);
+                ModelService.readCfg(ms, function (err, cfg) {
+                    if (err) {
+                        return callback(err);
+                    }
+                    //执行程序
+                    var cmd;
+                    if (cfg.type == 'exe') {
+                        cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                    }
+                    else if (cfg.type == 'java') {
+                        cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                    }
+                    else if (cfg.type == 'sh') {
+                        cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                    }
+                    else {
+                        cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                    }
+                    console.log('ModelService Run CMD : ' + cmd);
+                    exec(cmd, {
+                        cwd: setting.modelpath + ms.ms_path
+                    }, exeoutcb);
+                    return callback(null, ms);
+                });
+            }.bind(this));
         }
-        ParamCheck.checkParam(callback, ms);
-        ModelService.readCfg(ms, function (err, cfg) {
-            if (err) {
-                return callback(err);
-            }
-            //执行程序
-            var cmd;
-            if (cfg.type == 'exe') {
-                cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-            }
-            else if (cfg.type == 'java') {
-                cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-            }
-            else if (cfg.type == 'sh') {
-                cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-            }
-            else {
-                cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-            }
-            console.log('ModelService Run CMD : ' + cmd);
-            exec(cmd, {
-                cwd: setting.modelpath + ms.ms_path
-            }, exeoutcb);
-            return callback(null, ms);
-        });
-    }.bind(this));
+    }
 };
 
 //读取MDL文件
 ModelService.readMDL = function (ms, callback) {
-    ParamCheck.checkParam(callback, ms);
-    ModelService.readCfg(ms, function (err, cfg) {
-        if(err)
-        {
-            return callback(err);
-        }
-        fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
+    if(ParamCheck.checkParam(callback, ms))
+    {
+        ModelService.readCfg(ms, function (err, cfg) {
             if(err)
             {
-                console.log('Error in read mdl file : ' + err);
                 return callback(err);
             }
-            var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+            fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
                 if(err)
                 {
-                    console.log('Error in parse mdl file : ' + err);
+                    console.log('Error in read mdl file : ' + err);
                     return callback(err);
                 }
-                return callback(null, json);
-            });
-        })
-    })
+                var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+                    if(err)
+                    {
+                        console.log('Error in parse mdl file : ' + err);
+                        return callback(err);
+                    }
+                    return callback(null, json);
+                });
+            })
+        });
+    }
 };
 
 //读取config文件
 ModelService.readCfg = function (ms, callback) {
-    ParamCheck.checkParam(callback, ms);
-    fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + 'package.config', 'utf-8',function(err,data){
-        if(err){
-            console.log('Error in read config file : ' + err);
-            return callback(err);
-        }
-        else{
-            var cfg = {
-                host : "",
-                port : "",
-                start : "",
-                type : "",
-                mdl : "",
-                testdata : "",
-                engine : ""
-            };
-            var params = data.split('\r\n');
-            for(var i = 0; i < params.length; i++)
-            {
-                params[i] = params[i].split(' ');
-                switch (params[i][0])
+    if(ParamCheck.checkParam(callback, ms))
+    {
+        fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + 'package.config', 'utf-8',function(err,data){
+            if(err){
+                console.log('Error in read config file : ' + err);
+                return callback(err);
+            }
+            else{
+                var cfg = {
+                    host : "",
+                    port : "",
+                    start : "",
+                    type : "",
+                    mdl : "",
+                    testdata : "",
+                    engine : ""
+                };
+                var params = data.split('\r\n');
+                for(var i = 0; i < params.length; i++)
                 {
-                    case 'host':
+                    params[i] = params[i].split(' ');
+                    switch (params[i][0])
                     {
-                        cfg.host = params[i][1];
-                        break;
-                    }
-                    case 'port':
-                    {
-                        cfg.port = params[i][1];
-                        break;
-                    }
-                    case 'start':
-                    {
-                        if(params[i].length < 2)
+                        case 'host':
                         {
+                            cfg.host = params[i][1];
                             break;
                         }
-                        cfg.start = params[i][1];
-                        for(var j = 2; j < params[i].length; j++)
+                        case 'port':
                         {
-                            cfg.start = cfg.start + ' ' + params[i][j];
+                            cfg.port = params[i][1];
+                            break;
                         }
-                        break;
-                    }
-                    case 'mdl':
-                    {
-                        cfg.mdl = params[i][1];
-                        break;
-                    }
-                    case 'testdata':
-                    {
-                        cfg.testdata = params[i][1];
-                        break;
-                    }
-                    case 'engine':
-                    {
-                        cfg.engine = params[i][1];
-                        break;
-                    }
-                    case 'type':
-                    {
-                        cfg.type = params[i][1];
-                        break;
+                        case 'start':
+                        {
+                            if(params[i].length < 2)
+                            {
+                                break;
+                            }
+                            cfg.start = params[i][1];
+                            for(var j = 2; j < params[i].length; j++)
+                            {
+                                cfg.start = cfg.start + ' ' + params[i][j];
+                            }
+                            break;
+                        }
+                        case 'mdl':
+                        {
+                            cfg.mdl = params[i][1];
+                            break;
+                        }
+                        case 'testdata':
+                        {
+                            cfg.testdata = params[i][1];
+                            break;
+                        }
+                        case 'engine':
+                        {
+                            cfg.engine = params[i][1];
+                            break;
+                        }
+                        case 'type':
+                        {
+                            cfg.type = params[i][1];
+                            break;
+                        }
                     }
                 }
+                return callback(null, cfg);
             }
-            return callback(null, cfg);
-        }
-    });
+        });
+    }
 };
 
 //读取config文件
 ModelService.readCfgBypath = function (path, callback) {
-    ParamCheck.checkParam(callback, path);
-    fs.readFile(path, 'utf-8',function(err, data){
-        if(err){
-            console.log('Error in read config file : ' + err);
-            return callback(err);
-        }
-        else{
-            var cfg = {
-                host : "",
-                port : "",
-                start : "",
-                type : "",
-                mdl : "",
-                testdata : "",
-                engine : ""
-            };
-            var params = data.split('\r\n');
-            for(var i = 0; i < params.length; i++)
-            {
-                params[i] = params[i].split(' ');
-                switch (params[i][0])
+    if(ParamCheck.checkParam(callback, path)){
+        fs.readFile(path, 'utf-8',function(err, data){
+            if(err){
+                console.log('Error in read config file : ' + err);
+                return callback(err);
+            }
+            else{
+                var cfg = {
+                    host : "",
+                    port : "",
+                    start : "",
+                    type : "",
+                    mdl : "",
+                    testdata : "",
+                    engine : ""
+                };
+                var params = data.split('\r\n');
+                for(var i = 0; i < params.length; i++)
                 {
-                    case 'host':
+                    params[i] = params[i].split(' ');
+                    switch (params[i][0])
                     {
-                        cfg.host = params[i][1];
-                        break;
-                    }
-                    case 'port':
-                    {
-                        cfg.port = params[i][1];
-                        break;
-                    }
-                    case 'start':
-                    {
-                        if(params[i].length < 2)
+                        case 'host':
                         {
+                            cfg.host = params[i][1];
                             break;
                         }
-                        cfg.start = params[i][1];
-                        for(var j = 2; j < params[i].length; j++)
+                        case 'port':
                         {
-                            cfg.start = cfg.start + ' ' + params[i][j];
+                            cfg.port = params[i][1];
+                            break;
                         }
-                        break;
-                    }
-                    case 'mdl':
-                    {
-                        cfg.mdl = params[i][1];
-                        break;
-                    }
-                    case 'testdata':
-                    {
-                        cfg.testdata = params[i][1];
-                        break;
-                    }
-                    case 'engine':
-                    {
-                        cfg.engine = params[i][1];
-                        break;
-                    }
-                    case 'type':
-                    {
-                        cfg.type = params[i][1];
-                        break;
+                        case 'start':
+                        {
+                            if(params[i].length < 2)
+                            {
+                                break;
+                            }
+                            cfg.start = params[i][1];
+                            for(var j = 2; j < params[i].length; j++)
+                            {
+                                cfg.start = cfg.start + ' ' + params[i][j];
+                            }
+                            break;
+                        }
+                        case 'mdl':
+                        {
+                            cfg.mdl = params[i][1];
+                            break;
+                        }
+                        case 'testdata':
+                        {
+                            cfg.testdata = params[i][1];
+                            break;
+                        }
+                        case 'engine':
+                        {
+                            cfg.engine = params[i][1];
+                            break;
+                        }
+                        case 'type':
+                        {
+                            cfg.type = params[i][1];
+                            break;
+                        }
                     }
                 }
+                return callback(null, cfg);
             }
-            return callback(null, cfg);
-        }
-    });
+        });
+    }
 };

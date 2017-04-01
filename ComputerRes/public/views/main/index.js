@@ -10,6 +10,9 @@ var ModelSerInfo = require('../components/modelSer/modelSerInfo');
 var SystemSetting = require('../components/systemSetting/systemSetting');
 var ChildrenTable = require('../components/children/ChildrenTable');
 var ParentPanel = require('../components/systemSetting/parentPanel');
+var CloudModelSerTable = require('../components/modelSer/cloudModelSerTable');
+var DataCollectionTable = require('../components/data/dataCollectionTable');
+var DataUploader = require('../components/data/dataUploader');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -40,4 +43,14 @@ if(document.getElementById('childPanel') != null) {
 if(document.getElementById('parentPanel') != null) {
     ReactDOM.render(<ParentPanel source="/parent"/>,
         document.getElementById('parentPanel'));
+}
+
+if(document.getElementById('cloudModelSerTable') != null) {
+    ReactDOM.render(<CloudModelSerTable source=""/>,
+        document.getElementById('cloudModelSerTable'));
+}
+
+if(document.getElementById('dataCollectionTable') != null) {
+    ReactDOM.render(<DataCollectionTable source="/geodata/json/all"/>,
+        document.getElementById('dataCollectionTable'));
 }

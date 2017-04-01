@@ -212,6 +212,11 @@ module.exports = function(app)
             }));
         });
 
+    app.route('/modelser/cloud')
+        .get(function(req, res, next){
+            res.render('cloudModelSers');
+        });
+
     //展示某个模型服务
     app.route('/modelser/:msid')
         //获取模型

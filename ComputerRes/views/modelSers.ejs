@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>模型浏览</title>
+    <title>本地模型服务浏览</title>
     <%- include headInclude.ejs %>
     <!--dynamic table-->
     <link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />
@@ -15,7 +15,10 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-            <div class="panel panel-default" >
+            <section class="panel" >
+                <header class="panel-heading">
+                    本地模型服务&nbsp;&nbsp;&nbsp;&nbsp;
+                </header>
                 <div class="panel-body">
                     <table class="display table table-bordered table-striped" id="dynamic-table">
                         <thead>
@@ -110,7 +113,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
         <%- include footer.ejs %>
     </div>
 </section>
@@ -123,5 +126,6 @@
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
 <!--dynamic table initialization -->
 <script src="/js/dynamic_table_init.js"></script>
+<script src="/js/output/bundle.js" ></script>
 </body>
 </html>
