@@ -10436,6 +10436,9 @@ var ModelSerInfo = __webpack_require__(210);
 var SystemSetting = __webpack_require__(213);
 var ChildrenTable = __webpack_require__(208);
 var ParentPanel = __webpack_require__(212);
+var CloudModelSerTable = __webpack_require__(216);
+var DataCollectionTable = __webpack_require__(218);
+var DataUploader = __webpack_require__(219);
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -10467,6 +10470,17 @@ if(document.getElementById('parentPanel') != null) {
     ReactDOM.render(React.createElement(ParentPanel, {source: "/parent"}),
         document.getElementById('parentPanel'));
 }
+
+if(document.getElementById('cloudModelSerTable') != null) {
+    ReactDOM.render(React.createElement(CloudModelSerTable, {source: ""}),
+        document.getElementById('cloudModelSerTable'));
+}
+
+if(document.getElementById('dataCollectionTable') != null) {
+    ReactDOM.render(React.createElement(DataCollectionTable, {source: "/geodata/json/all"}),
+        document.getElementById('dataCollectionTable'));
+}
+
 
 /***/ }),
 /* 94 */
@@ -24402,6 +24416,487 @@ module.exports = SystemSetting;
 
 module.exports = __webpack_require__(93);
 
+
+/***/ }),
+/* 215 */,
+/* 216 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by Franklin on 2017/3/30.
+ */
+var React = __webpack_require__(20);
+var Axios = __webpack_require__(21);
+
+var CloudModelSerTable = React.createClass({displayName: "CloudModelSerTable",
+    getInitialState : function () {
+        return {
+            loading : true,
+            err : null,
+            data : null
+        };
+    },
+
+    componentDidMount : function () {
+        //this.refresh();
+        //初始化完成
+        $('#model-gate-table').dataTable(
+            {
+                //数据URL
+                "data": "/modelser/json/rmtall",
+                //载入数据的时候是否显示“正在加载中...”
+                "processing": true,
+                //是否显示分页
+                "bPaginate": true,
+                //每页显示条目数
+                "bLengthChange": true,
+                //排序
+                "bSort": true,
+                //排序配置
+                "aaSorting": [[3, "desc"]],
+                //自适应宽度
+                "bAutoWidth": true,
+                //多语言配置
+                "oLanguage": {
+                    "sLengthMenu": "每页显示 _MENU_ 条记录",
+                    "sZeroRecords": "对不起，查询不到任何相关数据",
+                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                    "sInfoEmtpy": "找不到相关数据",
+                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
+                    "sProcessing": "正在加载中...",
+                    "sSearch": "搜索",
+                    //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
+                    "sUrl": "",
+                    "oPaginate": {
+                        "sFirst":    "第一页",
+                        "sPrevious": " 上一页 ",
+                        "sNext":     " 下一页 ",
+                        "sLast":     " 最后一页 "
+                    }
+                }
+            }
+        );
+    },
+
+    refresh : function () {
+        Axios.get(this.props.source).then(
+            function(data)  {
+                if(data.data.res == 'err')
+                {
+                    this.setState({loading : false, err : data.data.message});
+                }
+                else
+                {
+                    this.setState({loading : false, err : false, parent : data.data.data});
+                }
+            }.bind(this),
+            function(err)  {
+                this.setState({loading : false, err : err});
+            }.bind(this)
+        );
+    },
+
+    render : function() {
+        //if(this.state.loading)
+        //{
+        //    return (
+        //        <span>加载中...</span>
+        //    );
+        //}
+        return (
+            React.createElement("div", null, 
+                React.createElement("table", {className: "display table table-bordered table-striped", id: "model-gate-table"}, 
+                    React.createElement("thead", null, 
+                    React.createElement("tr", null, 
+                        React.createElement("th", null, "模型服务名称"), 
+                        React.createElement("th", null, "版本"), 
+                        React.createElement("th", null, "平台"), 
+                        React.createElement("th", null, "状态"), 
+                        React.createElement("th", null, "已下载"), 
+                        React.createElement("th", null, "操作")
+                    )
+                    ), 
+                    React.createElement("tbody", null, 
+                    React.createElement("tr", null, 
+                        React.createElement("td", null, "计算平方根"), 
+                        React.createElement("td", null, "1"), 
+                        React.createElement("td", null, React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-windows"}), " windows")), 
+                        React.createElement("td", null, "可用"), 
+                        React.createElement("th", null, "已下载"), 
+                        React.createElement("td", null, 
+                            React.createElement("button", {className: "btn btn-info btn-xs"}, React.createElement("i", {className: "fa fa-book"}, " "), "详情"), " ", 
+                            React.createElement("button", {className: "btn btn-default btn-xs"}, React.createElement("i", {className: "fa fa-download"}, " "), "下载")
+                        )
+                    )
+                    )
+                ), 
+                React.createElement("div", null, 
+                    React.createElement("div", {"aria-hidden": "true", "aria-labelledby": "gateGateModelDetail", role: "dialog", tabIndex: "-1", id: "diaDetail", className: "modal fade"}, 
+                        React.createElement("div", {className: "modal-dialog"}, 
+                            React.createElement("div", {className: "modal-content"}, 
+                                React.createElement("div", {className: "modal-header"}, 
+                                    React.createElement("button", {"aria-hidden": "true", "data-dismiss": "modal", className: "close", type: "button"}, "×"), 
+                                    React.createElement("h4", {className: "modal-title"}, "服务")
+                                ), 
+                                React.createElement("div", {className: "modal-body"}
+
+                                ), 
+                                React.createElement("div", {className: "modal-footer"}, 
+                                    React.createElement("button", {id: "btn_ok", type: "button", className: "btn btn-default", "data-dismiss": "modal"}, "关闭")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+            );
+    }
+});
+
+module.exports = CloudModelSerTable;
+
+/***/ }),
+/* 217 */,
+/* 218 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by Franklin on 2017/3/30.
+ */
+var React = __webpack_require__(20);
+var Axios = __webpack_require__(21);
+
+var DataUploader = __webpack_require__(219);
+
+var DataCollectionTable = React.createClass({displayName: "DataCollectionTable",
+    getInitialState : function () {
+        return {
+            loading : true,
+            err : null,
+            data : null
+        };
+    },
+
+    componentDidMount : function () {
+        this.refresh();
+    },
+
+    refresh : function () {
+        Axios.get(this.props.source).then(
+            function(data)  {
+                if(data.data.res == 'err')
+                {
+                    this.setState({loading : false, err : data.data.message});
+                }
+                else
+                {
+                    this.setState({loading : false, err : false, data : data.data.data});
+                    $('#dataCollection-table').dataTable(
+                        {
+                            //数据URL
+                            "data": "/modelser/json/rmtall",
+                            //载入数据的时候是否显示“正在加载中...”
+                            "processing": true,
+                            //是否显示分页
+                            "bPaginate": true,
+                            //每页显示条目数
+                            "bLengthChange": true,
+                            //排序
+                            "bSort": true,
+                            //排序配置
+                            "aaSorting": [[0, "desc"]],
+                            //自适应宽度
+                            "bAutoWidth": true,
+                            //多语言配置
+                            "oLanguage": {
+                                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                                "sZeroRecords": "对不起，查询不到任何相关数据",
+                                "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                                "sInfoEmtpy": "找不到相关数据",
+                                "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
+                                "sProcessing": "正在加载中...",
+                                "sSearch": "搜索",
+                                //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
+                                "sUrl": "",
+                                "oPaginate": {
+                                    "sFirst":    "第一页",
+                                    "sPrevious": " 上一页 ",
+                                    "sNext":     " 下一页 ",
+                                    "sLast":     " 最后一页 "
+                                }
+                            }
+                        }
+                    );
+                }
+            }.bind(this),
+            function(err)  {
+                this.setState({loading : false, err : err});
+            }.bind(this)
+        );
+    },
+
+    displayData : function(e, gdid)
+    {
+        window.open('/geodata/json/' + gdid);
+    },
+
+    downloadData : function(e, gdid)
+    {
+        window.open('/geodata/' + gdid);
+    },
+
+    render : function() {
+        if(this.state.loading)
+        {
+            return (
+                React.createElement("span", null, "加载中...")
+            );
+        }
+        if(this.state.err)
+        {
+            return (
+                React.createElement("span", null, "Error:", JSON.stringify(this.state.err))
+            );
+        }
+        var dataItems = this.state.data.map(function(item){
+            var format = null;
+            if(item.gd_type == 'FILE')
+            {
+                format = (React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-file"}), " 文件"));
+            }
+            else if(item.gd_type == 'STREAM')
+            {
+                format = (React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-ellipsis-v"}), " 数据流"));
+            }
+            return(
+                React.createElement("tr", {key: item.gd_id}, 
+                    React.createElement("td", null, item.gd_id), 
+                    React.createElement("td", null, format), 
+                    React.createElement("td", null, item.gd_tag), 
+                    React.createElement("td", null, 
+                        React.createElement("button", {className: "btn btn-info btn-xs", onClick: function(e)  {this.displayData(e, item.gd_id)}.bind(this)}, React.createElement("i", {className: "fa fa-book"}, " "), " 查看"), " ", 
+                        React.createElement("button", {className: "btn btn-success btn-xs", onClick: function(e)  {this.displayData(e, item.gd_id)}.bind(this)}, React.createElement("i", {className: "fa fa-picture-o"}, " "), " 渲染"), " ", 
+                        React.createElement("button", {className: "btn btn-default btn-xs", onClick: function(e)  {this.downloadData(e, item.gd_id)}.bind(this)}, React.createElement("i", {className: "fa fa-download"}, " "), " 下载"), " ", 
+                        React.createElement("button", {className: "btn btn-warning btn-xs"}, React.createElement("i", {className: "fa fa-trash-o"}, " "))
+                    )
+                )
+            );
+        }.bind(this));
+        return (
+            React.createElement("div", null, 
+                React.createElement("div", null, 
+                    React.createElement(DataUploader, null)
+                ), 
+                React.createElement("table", {className: "display table table-bordered table-striped", id: "dataCollection-table"}, 
+                    React.createElement("thead", null, 
+                        React.createElement("tr", null, 
+                            React.createElement("th", null, "数据ID"), 
+                            React.createElement("th", null, "存储方式"), 
+                            React.createElement("th", null, "标签"), 
+                            React.createElement("th", null, "操作")
+                        )
+                    ), 
+                    React.createElement("tbody", null, 
+                        dataItems
+                    )
+                ), 
+                React.createElement("div", {"aria-hidden": "true", "aria-labelledby": "gateGateModelDetail", role: "dialog", tabIndex: "-1", id: "diaDetail", className: "modal fade"}, 
+                    React.createElement("div", {className: "modal-dialog"}, 
+                        React.createElement("div", {className: "modal-content"}, 
+                            React.createElement("div", {className: "modal-header"}, 
+                                React.createElement("button", {"aria-hidden": "true", "data-dismiss": "modal", className: "close", type: "button"}, "×"), 
+                                React.createElement("h4", {className: "modal-title"}, "服务")
+                            ), 
+                            React.createElement("div", {className: "modal-body"}
+
+                            ), 
+                            React.createElement("div", {className: "modal-footer"}, 
+                                React.createElement("button", {id: "btn_ok", type: "button", className: "btn btn-default", "data-dismiss": "modal"}, "关闭")
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+});
+
+module.exports = DataCollectionTable;
+
+/***/ }),
+/* 219 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by Franklin on 2017/3/31.
+ */
+var React = __webpack_require__(20);
+
+var DataUploader = React.createClass({displayName: "DataUploader",
+    getInitialState : function () {
+        var id = '';
+        if(this.props['data-id'])
+        {
+            id = this.props['data-id'];
+        }
+        return {
+            id : id,
+            gdid : '',
+            form : null,
+            uploader : null
+        };
+    },
+
+    onInputSubmit : function(e){
+
+    },
+
+    onFileSubmit : function(e){
+        this.state.uploader.startUpload();
+    },
+
+    onSelectSubmit : function(e){
+
+    },
+
+    onUploadStreamFinished : function() {
+
+    },
+
+    onUploadFileFinished : function(files, data, xhr, pd){
+
+    },
+
+    onSelectFinished : function() {
+
+    },
+
+    onFinished : function () {
+
+    },
+
+    componentDidMount : function () {
+        this.setState({uploader : $('#fileuploader_' + this.state.id).uploadFile({
+            //上传路径
+            url : '/geodata/file/',
+            //上传文件名
+            fileName :"myfile",
+            //是否多个文件
+            multiple : false,
+            //是否拖拽上传
+            dragDrop : true,
+            //最大文件数
+            maxFileCount:1,
+            //规定上传文件格式
+            acceptFiles:"*/*",
+            //最大文件大小
+            maxFileSize:100*1024*1024,
+            //表单数据
+            formData:this.state.form,
+            //动态表单
+            dynamicFormData : function(){
+                var test = {test : 1};
+                return test;
+            },
+            //上传文件按钮文本
+            uploadStr:"上传文件",
+            //取消上传按钮文本
+            cancelStr:"取消文件",
+            //拖拽上传提示文本（带HTML）
+            dragDropStr:"<span><b>拖拽上传</b></span>",
+            //完成上传提示文本
+            doneStr:"完成上传",
+            //是否自动传
+            autoSubmit:false,
+            //是否显示已上传文件
+            showDownload:false,
+            //上传完成回调
+            onSuccess : this.onUploadFileFinished
+        })});
+    },
+
+    render : function(){
+        var selectBtn = null;
+        if(this.props['data-type'] == 'SELECT')
+        {
+            selectBtn = (
+                React.createElement("button", {className: "btn btn-default", type: "button"}, React.createElement("i", {className: "fa fa-link"}), "选择数据")
+            );
+        }
+        var id = '';
+        if(this.props['data-id'])
+        {
+            id = this.props['data-id'];
+        }
+        return (
+            React.createElement("div", null, 
+                React.createElement("div", {className: "btn-group"}, 
+                    React.createElement("button", {className: "btn btn-default", type: "button", "data-toggle": "modal", "data-target": '#dataInputModel' + id}, React.createElement("i", {className: "fa fa-pencil"}), "手动输入"), 
+                    React.createElement("button", {className: "btn btn-default", type: "button", "data-toggle": "modal", "data-target": "#dataFileModel" + id}, React.createElement("i", {className: "fa fa-file"}), "上传文件"), 
+                    selectBtn
+                ), 
+                React.createElement("div", {"aria-hidden": "true", "aria-labelledby": "dataInputModel", role: "dialog", tabIndex: "-1", id: "dataInputModel" + id, className: "modal fade"}, 
+                    React.createElement("div", {className: "modal-dialog"}, 
+                        React.createElement("div", {className: "modal-content"}, 
+                            React.createElement("div", {className: "modal-header"}, 
+                                React.createElement("button", {"aria-hidden": "true", "data-dismiss": "modal", className: "close", type: "button"}, "×"), 
+                                React.createElement("h4", {className: "modal-title"}, "手动输入")
+                            ), 
+                            React.createElement("div", {className: "modal-body"}, 
+                                React.createElement("h4", null, "数据标签"), 
+                                React.createElement("input", {type: "text", className: "form-control"}), 
+                                React.createElement("h4", null, "UDX数据"), 
+                                React.createElement("textarea", {className: "form-control", style: {height:'200px'}})
+                            ), 
+                            React.createElement("div", {className: "modal-footer"}, 
+                                React.createElement("button", {id: "btn_input_ok", type: "button", className: "btn btn-success", "data-dismiss": "modal"}, "提交"), 
+                                React.createElement("button", {id: "btn_input_close", type: "button", className: "btn btn-default", "data-dismiss": "modal"}, "关闭")
+                            )
+                        )
+                    )
+                ), 
+                React.createElement("div", {"aria-hidden": "true", "aria-labelledby": "dataFileModel", role: "dialog", tabIndex: "-1", id: "dataFileModel" + id, className: "modal fade"}, 
+                    React.createElement("div", {className: "modal-dialog"}, 
+                        React.createElement("div", {className: "modal-content"}, 
+                            React.createElement("div", {className: "modal-header"}, 
+                                React.createElement("button", {"aria-hidden": "true", "data-dismiss": "modal", className: "close", type: "button"}, "×"), 
+                                React.createElement("h4", {className: "modal-title"}, "上传文件")
+                            ), 
+                            React.createElement("div", {className: "modal-body"}, 
+                                React.createElement("h4", null, "数据标签"), 
+                                React.createElement("input", {type: "text", className: "form-control"}), 
+                                React.createElement("h4", null, "数据文件"), 
+                                React.createElement("div", {id: 'fileuploader_' + this.state.id}, "Upload")
+                            ), 
+                            React.createElement("div", {className: "modal-footer"}, 
+                                React.createElement("button", {id: "btn_file_ok", type: "button", className: "btn btn-success", onClick: this.onFileSubmit}, "提交"), 
+                                React.createElement("button", {id: "btn_file_close", type: "button", className: "btn btn-default", "data-dismiss": "modal"}, "关闭")
+                            )
+                        )
+                    )
+                ), 
+                React.createElement("div", {"aria-hidden": "true", "aria-labelledby": "dataLinkModel", role: "dialog", tabIndex: "-1", id: "dataLinkModel" + id, className: "modal fade"}, 
+                    React.createElement("div", {className: "modal-dialog"}, 
+                        React.createElement("div", {className: "modal-content"}, 
+                            React.createElement("div", {className: "modal-header"}, 
+                                React.createElement("button", {"aria-hidden": "true", "data-dismiss": "modal", className: "close", type: "button"}, "×"), 
+                                React.createElement("h4", {className: "modal-title"}, "链接数据")
+                            ), 
+                            React.createElement("div", {className: "modal-body"}
+
+                            ), 
+                            React.createElement("div", {className: "modal-footer"}, 
+                                React.createElement("button", {id: "btn_ok", type: "button", className: "btn btn-default", "data-dismiss": "modal"}, "关闭")
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+});
+
+module.exports = DataUploader;
 
 /***/ })
 /******/ ]);

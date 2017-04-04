@@ -185,7 +185,7 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
                             var gd = {
                                 gd_id : msr.msr_output[j].DataId,
                                 gd_rstate : msr.msr_output[j].StateId,
-                                gd_io : 'OUTPUT',
+                                gd_tag : 'OUTPUT',
                                 gd_type : 'STREAM',
                                 gd_value : ''
                             };
@@ -196,7 +196,7 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
                             var gd = {
                                 gd_id: msr.msr_output[j].DataId,
                                 gd_rstate: 'RUNSTATE',
-                                gd_io: 'OUTPUT',
+                                gd_tag: 'OUTPUT',
                                 gd_type: 'FILE',
                                 gd_value: msr.msr_output[j].DataId + '.xml'
                             };

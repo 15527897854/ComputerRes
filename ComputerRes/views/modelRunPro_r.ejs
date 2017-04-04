@@ -287,19 +287,20 @@
                             if(resJSON.res == 'suc')
                             {
                                 //添加数据ID并显示数据加载完成
-                                $('#data_' + resJSON.stateid + '_' + resJSON.eventname).val(resJSON.gd_id);
-                                $('#data_pre_p_' + resJSON.stateid + '_' + resJSON.eventname).html('<strong>数据准备情况：</strong>' +
+                                $('#data_' + ms_data[index].stateid + '_' + ms_data[index].eventname).val(resJSON.gd_id);
+                                ms_data[index].gd_id = resJSON.gd_id;
+                                $('#data_pre_p_' + ms_data[index].stateid + '_' + ms_data[index].eventname).html('<strong>数据准备情况：</strong>' +
                                         '<span class="label label-success">已准备</span>' +
                                         '数据ID : ' + resJSON.gd_id);
                                 //隐藏
-                                $('#modal_fileinput_' + resJSON.stateid + '_' + resJSON.eventname).modal('hide');
+                                $('#modal_fileinput_' + ms_data[index].stateid + '_' + ms_data[index].eventname).modal('hide');
                                 //弹出提示条
                                 $('#data-panel').append('<div class="alert alert-success fade in">' +
                                         '<button type="button" class="close close-sm" data-dismiss="alert">' +
                                         '<i class="fa fa-times"></i>' +
                                         '</button>' +
                                         '<strong>数据上传成功!</strong><br /> ' +
-                                        resJSON.eventname + ' 事件数据准备成功！数据ID:' + resJSON.gd_id + '</div>');
+                                        ms_data[index].eventname + ' 事件数据准备成功！数据ID:' + resJSON.gd_id + '</div>');
                                 //上传控件清空
                                 ms_data[index].upload.reset();
                             }
@@ -307,14 +308,7 @@
                     });
                     ms_data[i].upload = $('#fileuploader_' + ms_data[i].id).uploadFile({
                         //上传路径
-                        url:(function () {
-                            if('<%=host %>' == 'localhost'){
-                                return "/geodata/file/";
-                            }
-                            else{
-                                return "/geodata/file/<%=host %>";
-                            }
-                        })(),
+                        url:"/geodata/file/<%=host %>",
                         //上传文件名
                         fileName:"myfile",
                         //是否多个文件
@@ -353,14 +347,7 @@
                        return  function () {
                            var stream = $('#ta_inputdata_' + ms_data[index].id).val();
                            $.ajax({
-                               url : (function () {
-                                   if('<%=host %>' == 'localhost'){
-                                       return "/geodata/stream/";
-                                   }
-                                   else{
-                                       return "/geodata/stream/<%=host %>";
-                                   }
-                               })(),
+                               url : "/geodata/stream/<%=host %>",
                                type : 'POST',
                                data : {
                                    stateid : ms_data[index].stateid,
@@ -373,6 +360,7 @@
                                    if(resJSON.res == 'suc') {
                                        //添加数据ID并显示数据加载完成
                                        $('#data_' + ms_data[index].id).val(resJSON.gd_id);
+                                       ms_data[index].gd_id = resJSON.gd_id;
                                        $('#data_pre_p_' + ms_data[index].id).html('<strong>数据准备情况：</strong>' +
                                                '<span class="label label-success">已准备</span>' +
                                                '数据ID : ' + resJSON.gd_id);
@@ -415,14 +403,12 @@
                         {
                             return alert('数据未完全准备！');
                         }
-                        if($('#data_' + ms_data[i].id).val() != ""){
-                            var item = {
-                                'StateId' : ms_data[i].stateid,
-                                'Event' : ms_data[i].eventname,
-                                'DataId' : $('#data_' + ms_data[i].id).val()
-                            }
-                            dataInput.push(item);
+                        var item = {
+                            'StateId' : ms_data[i].stateid,
+                            'Event' : ms_data[i].eventname,
+                            'DataId' : ms_data[i].gd_id
                         }
+                        dataInput.push(item);
                     }
 
                     //异步请求

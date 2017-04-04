@@ -405,6 +405,10 @@ ModelSerControl.run = function (ms_id, guid, callback) {
                 {
                     return console.log(JSON.stringify(err2));
                 }
+                if(item == null)
+                {
+                    return console.log( 'Can not find MSR when it is ended !');
+                }
                 if(err){
                     item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
                 }
@@ -640,8 +644,3 @@ ModelSerControl.getRmtPreparationData = function(host, msid, callback){
         }
     }
 };
-
-//根据MID查询
-// ModelSerControl.getByMID(mid, function (err, item) {
-//     return callback(err, item);
-// });

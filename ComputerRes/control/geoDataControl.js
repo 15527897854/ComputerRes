@@ -7,8 +7,7 @@ var Child = require('../model/child');
 var ParamCheck = require('../utils/paramCheck');
 var RemoteReqControl = require('./remoteReqControl');
 
-function GeoDataCtrl() {
-}
+function GeoDataCtrl() {}
 
 module.exports = GeoDataCtrl;
 
@@ -44,6 +43,17 @@ GeoDataCtrl.update = function (data, callback) {
             return callback(err);
         }
         return callback(null, gd);
+    });
+};
+
+//获取全部数据
+GeoDataCtrl.getAllData = function(callback){
+    GeoData.getAll(function(err, items){
+        if(err)
+        {
+            return callback(err);
+        }
+        return callback(null, items);
     });
 };
 

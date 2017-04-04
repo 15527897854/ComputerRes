@@ -12,10 +12,12 @@ var remoteReqCtrl = require('../control/remoteReqControl');
 var request = require('request');
 var ModelSerCtrl = require('../control/modelSerControl');
 var childCtrl = require('../control/childControl');
-var UDXVisualization = require('../model/UDX_Visualization');
-var UDXConvertor = require('../model/UDXConvertor');
 
-module.exports = function (app) {
+
+var RouteBase = require('./routeBase');
+
+var UDXVisualization = require('../model/UDX_Visualization');
+var UDXConvertor = require('../model/UDXConvertor');module.exports = function (app) {
     
     //上传地理模型数据文件
     app.route('/geodata/file')
@@ -49,6 +51,11 @@ module.exports = function (app) {
                     {
                         return res.end("Error : Can not find files ! " )
                     }
+                    var gd_tag = '';
+                    if(fields.gd_tag)
+                    {
+                        gd_tag = fields.gd_tag;
+                    }
                     fs.stat(files.myfile.path, function (err, stats) {
                         //判断文件大小
                         if(stats.size - 16 > setting.data_size)
@@ -58,8 +65,7 @@ module.exports = function (app) {
                                 //存入数据库
                                 var geodata = {
                                     gd_id : gdid,
-                                    gd_rstate : fields.stateid,
-                                    gd_io : 'INPUT',
+                                    gd_tag : gd_tag,
                                     gd_type : 'FILE',
                                     gd_value : fname
                                 };
@@ -73,8 +79,6 @@ module.exports = function (app) {
                                     return res.end(JSON.stringify(
                                         {
                                             res : 'suc',
-                                            stateid : fields.stateid,
-                                            eventname : fields.eventname,
                                             gd_id : gdid
                                         }));
                                 });
@@ -86,8 +90,7 @@ module.exports = function (app) {
                             fs.readFile(files.myfile.path, function (err, data) {
                                 var geodata = {
                                     gd_id : gdid,
-                                    gd_rstate :fields.stateid,
-                                    gd_io : 'INPUT',
+                                    gd_tag : gd_tag,
                                     gd_type : 'STREAM',
                                     gd_value : data
                                 };
@@ -102,8 +105,6 @@ module.exports = function (app) {
                                     return res.end(JSON.stringify(
                                         {
                                             res : 'suc',
-                                            stateid : fields.stateid,
-                                            eventname : fields.eventname,
                                             gd_id : gdid
                                         }));
                                 });
@@ -118,10 +119,14 @@ module.exports = function (app) {
     //上传数据流
     app.route('/geodata/stream')
         .post(function (req, res, next) {
-
             var data = req.body.data;
             var state = req.body.stateid;
             var eventname = req.body.eventname;
+            var gd_tag = '';
+            if(req.body.gd_tag)
+            {
+                gd_tag = req.body.gd_tag;
+            }
 
             //生成数据ID
             var gdid = 'gd_' + uuid.v1();
@@ -137,8 +142,7 @@ module.exports = function (app) {
                         //存入数据库
                         var geodata = {
                             gd_id : gdid,
-                            gd_rstate : state,
-                            gd_io : 'INPUT',
+                            gd_tag : gd_tag,
                             gd_type : 'FILE',
                             gd_value : fname
                         };
@@ -150,8 +154,6 @@ module.exports = function (app) {
                             }
                             return res.end(JSON.stringify({
                                     res : 'suc',
-                                    stateid : state,
-                                    eventname : eventname,
                                     gd_id : gdid
                                 }));
                         });
@@ -163,7 +165,7 @@ module.exports = function (app) {
                 var geodata = {
                     gd_id : gdid,
                     gd_rstate : state,
-                    gd_io : 'INPUT',
+                    gd_tag : gd_tag,
                     gd_type : 'STREAM',
                     gd_value : data
                 };
@@ -177,12 +179,16 @@ module.exports = function (app) {
                     return res.end(JSON.stringify(
                         {
                             res : 'suc',
-                            stateid : state,
-                            eventname : eventname,
                             gd_id : gdid
                         }));
                 });
             }
+        });
+
+    //得到全部数据的JSON
+    app.route('/geodata/json/all')
+        .get(function (req, res, next) {
+            GeoDataCtrl.getAllData(RouteBase.returnFunction(res, 'error in getting all geo data!'));
         });
 
     //返回下载的json数据
@@ -198,36 +204,31 @@ module.exports = function (app) {
                 {
                     return res.end('No Data!');
                 }
-                var filename = gd.gd_id + '.xml';
                 if(gd.gd_type == 'FILE')
                 {
-                    fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                    fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, 'utf8' ,function (err, data) {
                         if(err)
                         {
                             return res.end('error');
                         }
-                        return res.end(JSON.stringify({
-                            set:{
-                                'Content-Type': 'file/xml',
-                                'Content-Length': data.length },
-                            data:data,
-                            filename:filename
-                        }));
+                        res.send('<xmp>' + data + '</xmp>');
+                        return res.end();
                     })
                 }
                 else if(gd.gd_type == 'STREAM')
                 {
-                    return res.end(JSON.stringify({
-                        set:{
-                            'Content-Type': 'file/xml',
-                            'Content-Length': gd.gd_value.length },
-                        data:gd.gd_value,
-                        filename:filename
-                    }))
+                    res.end(gd.gd_value);
                 }
             });
         });
-    
+
+    //数据中心页面
+    app.route('/geodata/all')
+        .get(function (req, res, next) {
+            return res.render('dataCollection');
+        });
+
+
     //下载数据文件
     app.route('/geodata/:gdid')
         .get(function (req, res, next) {
@@ -255,7 +256,8 @@ module.exports = function (app) {
                         res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
                         res.end(data);
                     })
-                } else if(gd.gd_type == 'STREAM')
+                }
+                else if(gd.gd_type == 'STREAM')
                 {
                     res.set({
                         'Content-Type': 'file/xml',
@@ -293,7 +295,6 @@ module.exports = function (app) {
                 });
             });
         });
-
 
     //请求转发 数据流
     app.route('/geodata/stream/:host')
@@ -338,32 +339,7 @@ module.exports = function (app) {
                 res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
                 return res.end(data);
             });
-
-            //childCtrl.getByWhere({host:host},function (error, child) {
-            //    if(error){
-            //        return res.end('Error!');
-            //    }
-            //
-            //    var port = child.port;
-            //    var url = 'http://' + host + ':' + port + '/geodata/' + gdid;
-            //    remoteReqCtrl.getRequest(req,url,function (err, data) {
-            //        if(err){
-            //            console.log('---------------------err--------------------\n'+err);
-            //            return res.end(JSON.stringify({
-            //                res:'err',
-            //                mess:JSON.stringify(err)
-            //            }));
-            //        }
-            //        res.set({
-            //            'Content-Type': 'file/xml',
-			 //           //可能有bug？？？
-            //            'Content-Length': data.length });
-            //        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(gdid) + '.xml');
-            //        return res.end(data);
-            //    });
-            //});
         });
-
     app.route('/geodata/snapshot/:gdid')
         .get(function (req, res, next) {
             //根据gdid_config.json判断是否生成过配置文件,图像定位信息写在配置文件中

@@ -16,7 +16,10 @@
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
 
-        <div class="panel panel-default" >
+        <section class="panel" >
+            <header class="panel-heading">
+                本地模型运行记录
+            </header>
             <div class="panel-body">
                 <table  class="display table table-bordered table-striped" id="tb_msr">
                     <thead>
@@ -62,7 +65,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
 
         <%- include footer.ejs %>
     </div>
