@@ -130,7 +130,7 @@ var DataCollectionTable = React.createClass({
                         <tr>
                             <th>数据ID</th>
                             <th>存储方式</th>
-                            <th>描述</th>
+                            <th>标签</th>
                             <th>操作</th>
                         </tr>
                     </thead>

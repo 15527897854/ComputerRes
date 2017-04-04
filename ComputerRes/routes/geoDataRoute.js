@@ -48,6 +48,11 @@ module.exports = function (app) {
                     {
                         return res.end("Error : Can not find files ! " )
                     }
+                    var gd_tag = '';
+                    if(fields.gd_tag)
+                    {
+                        gd_tag = fields.gd_tag;
+                    }
                     fs.stat(files.myfile.path, function (err, stats) {
                         //判断文件大小
                         if(stats.size - 16 > setting.data_size)
@@ -57,7 +62,7 @@ module.exports = function (app) {
                                 //存入数据库
                                 var geodata = {
                                     gd_id : gdid,
-                                    gd_tag : 'INPUT',
+                                    gd_tag : gd_tag,
                                     gd_type : 'FILE',
                                     gd_value : fname
                                 };
@@ -71,8 +76,6 @@ module.exports = function (app) {
                                     return res.end(JSON.stringify(
                                         {
                                             res : 'suc',
-                                            stateid : fields.stateid,
-                                            eventname : fields.eventname,
                                             gd_id : gdid
                                         }));
                                 });
@@ -84,7 +87,7 @@ module.exports = function (app) {
                             fs.readFile(files.myfile.path, function (err, data) {
                                 var geodata = {
                                     gd_id : gdid,
-                                    gd_tag : 'INPUT',
+                                    gd_tag : gd_tag,
                                     gd_type : 'STREAM',
                                     gd_value : data
                                 };
@@ -99,8 +102,6 @@ module.exports = function (app) {
                                     return res.end(JSON.stringify(
                                         {
                                             res : 'suc',
-                                            stateid : fields.stateid,
-                                            eventname : fields.eventname,
                                             gd_id : gdid
                                         }));
                                 });
@@ -115,10 +116,14 @@ module.exports = function (app) {
     //上传数据流
     app.route('/geodata/stream')
         .post(function (req, res, next) {
-
             var data = req.body.data;
             var state = req.body.stateid;
             var eventname = req.body.eventname;
+            var gd_tag = '';
+            if(req.body.gd_tag)
+            {
+                gd_tag = req.body.gd_tag;
+            }
 
             //生成数据ID
             var gdid = 'gd_' + uuid.v1();
@@ -134,7 +139,7 @@ module.exports = function (app) {
                         //存入数据库
                         var geodata = {
                             gd_id : gdid,
-                            gd_tag : 'INPUT',
+                            gd_tag : gd_tag,
                             gd_type : 'FILE',
                             gd_value : fname
                         };
@@ -146,8 +151,6 @@ module.exports = function (app) {
                             }
                             return res.end(JSON.stringify({
                                     res : 'suc',
-                                    stateid : state,
-                                    eventname : eventname,
                                     gd_id : gdid
                                 }));
                         });
@@ -159,7 +162,7 @@ module.exports = function (app) {
                 var geodata = {
                     gd_id : gdid,
                     gd_rstate : state,
-                    gd_tag : 'INPUT',
+                    gd_tag : gd_tag,
                     gd_type : 'STREAM',
                     gd_value : data
                 };
@@ -173,8 +176,6 @@ module.exports = function (app) {
                     return res.end(JSON.stringify(
                         {
                             res : 'suc',
-                            stateid : state,
-                            eventname : eventname,
                             gd_id : gdid
                         }));
                 });

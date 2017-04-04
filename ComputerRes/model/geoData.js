@@ -89,6 +89,10 @@ GeoData.getAll = function(callback){
             }
             var allData = [];
             var count = 0;
+            if(keys.length == 0)
+            {
+                return callback(null, []);
+            }
 
             var pending = function(index)
             {

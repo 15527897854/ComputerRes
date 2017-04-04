@@ -111,9 +111,11 @@ ModelService.getAll = function(flag, callback){
 
 //通过MID查询
 ModelService.getByMID = function (_mid, callback) {
-    ParamCheck.checkParam(callback, _mid);
-    var where = {'ms_model':{'m_id': _mid}};
-    this.getByWhere(where, callback);
+    if(ParamCheck.checkParam(callback, _mid))
+    {
+        var where = {'ms_model':{'m_id': _mid}};
+        this.getByWhere(where, callback);
+    }
 };
 
 //启动一个模型服务实例
@@ -124,31 +126,33 @@ ModelService.run = function (ms_id, guid, exeoutcb, callback) {
                 if (err) {
                     return callback(err);
                 }
-                ParamCheck.checkParam(callback, ms);
-                ModelService.readCfg(ms, function (err, cfg) {
-                    if (err) {
-                        return callback(err);
-                    }
-                    //执行程序
-                    var cmd;
-                    if (cfg.type == 'exe') {
-                        cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                    }
-                    else if (cfg.type == 'java') {
-                        cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                    }
-                    else if (cfg.type == 'sh') {
-                        cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                    }
-                    else {
-                        cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                    }
-                    console.log('ModelService Run CMD : ' + cmd);
-                    exec(cmd, {
-                        cwd: setting.modelpath + ms.ms_path
-                    }, exeoutcb);
-                    return callback(null, ms);
-                });
+                if(ParamCheck.checkParam(callback, ms))
+                {
+                    ModelService.readCfg(ms, function (err, cfg) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        //执行程序
+                        var cmd;
+                        if (cfg.type == 'exe') {
+                            cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        }
+                        else if (cfg.type == 'java') {
+                            cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        }
+                        else if (cfg.type == 'sh') {
+                            cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        }
+                        else {
+                            cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        }
+                        console.log('ModelService Run CMD : ' + cmd);
+                        exec(cmd, {
+                            cwd: setting.modelpath + ms.ms_path
+                        }, exeoutcb);
+                        return callback(null, ms);
+                    });
+                }
             }.bind(this));
         }
     }

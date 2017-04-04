@@ -24692,7 +24692,7 @@ var DataCollectionTable = React.createClass({displayName: "DataCollectionTable",
                         React.createElement("tr", null, 
                             React.createElement("th", null, "数据ID"), 
                             React.createElement("th", null, "存储方式"), 
-                            React.createElement("th", null, "描述"), 
+                            React.createElement("th", null, "标签"), 
                             React.createElement("th", null, "操作")
                         )
                     ), 
