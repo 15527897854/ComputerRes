@@ -414,7 +414,6 @@ ModelSerControl.run = function (ms_id, guid, callback) {
                 if(stderr){
                     item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
                 }
-                global.app.modelInsColl.removeByGUID(guid);
                 ModelSerRunModel.update(item, function (err, res) {
                     if(err)
                     {

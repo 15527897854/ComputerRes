@@ -249,7 +249,7 @@ Convertor.SHP2GEOJSON = function (srcPath, dstPath, callback) {
     })
 };
 
-Convertor.SHPDataset2GEOJSON = function (srcDataset,dstPath, callback) {
+Convertor.SHPDataset2GEOJSON = function (gdid,srcDataset, callback) {
     var srcRootNode = lib_udx.getDatasetNode(srcDataset);
     var count = lib_udx.getNodeChildCount(srcRootNode);
     if (count < 3) {
@@ -273,7 +273,8 @@ Convertor.SHPDataset2GEOJSON = function (srcDataset,dstPath, callback) {
     var minx,miny,maxx,maxy;
     minx = miny = 99999;
     maxx = maxy = -99999;
-    // var hasProj = true;
+    var notGetProj = true;
+    var isPlain = true;
     for(var i=0;i<featureSize;i++){
         var feature = {};
         feature["type"] = "Feature";
@@ -295,12 +296,28 @@ Convertor.SHPDataset2GEOJSON = function (srcDataset,dstPath, callback) {
         for(var j=0;j<coorList.length;j++){
             var x = parseInt(coorList[j].split(" ")[0]);
             var y = parseInt(coorList[j].split(" ")[1]);
-            var point;
-            try{
-                point = proj4('UDXProj').inverse([x,y]);
+            if(notGetProj){
+                notGetProj = false;
+                if(y>-90&&y<90){
+                    isPlain = false;
+                }
             }
-            catch(err){
-                point = proj4('EPSG:3857').inverse([x,y]);
+            var point = [x,y];
+            // try{
+            //     point = proj4('UDXProj').inverse([x,y]);
+            // }
+            // catch(err){
+            //     point = proj4('EPSG:3857').inverse([x,y]);
+            // }
+
+            //把坐标全部转换为经纬度，好像openlayers加载geojson时只识别经纬度
+            if(isPlain){
+                try{
+                    point = proj4(spatialRef).inverse([x,y]);
+                }
+                catch(err){
+                    point = proj4('EPSG:3857').inverse([x,y]);
+                }
             }
             x = point[0];
             y = point[1];
@@ -333,17 +350,132 @@ Convertor.SHPDataset2GEOJSON = function (srcDataset,dstPath, callback) {
     }
     geojson["features"] = features;
     rst = {
+        path:'/geojson/' + gdid + '.json',
         WSCorner:[minx,miny],
         ENCorner:[maxx,maxy]
-        // hasProj : true
     };
+    var dstPath = __dirname + '/../public/geojson/' + gdid + '.json';
     fs.writeFile(dstPath,JSON.stringify(geojson),function (err) {
         if(err){
             console.log('Error:save image file err!');
             callback(err);
         }
         else{
-            callback(null,rst);
+            callback(null,[rst]);
         }
     });
+};
+
+Convertor.SHPListDataset2GEOJSON = function (gdid, srcDataset, callback) {
+    var listRootNode = lib_udx.getChildNode(lib_udx.getDatasetNode(srcDataset),0);
+    var listCount = lib_udx.getNodeChildCount(listRootNode);
+    var shpList = [];
+    var convertOne = function (index) {
+        var geojson = {};
+        var srcRootNode = lib_udx.getChildNode(listRootNode,index);
+        ////////////////////////////////////////////////////////////
+        //read
+        var shpTypeN,featuresN,attrsN,spatialRefN;
+        shpTypeN = lib_udx.getChildNode(srcRootNode,0);
+        featuresN = lib_udx.getChildNode(srcRootNode,1);
+        attrsN = lib_udx.getChildNode(srcRootNode,2);
+        spatialRefN = lib_udx.getChildNode(srcRootNode,3);
+        var shptype,spatialRef;
+        shptype = lib_udx.getNodeStringValue(shpTypeN);
+        spatialRef = lib_udx.getNodeStringValue(spatialRefN);
+        geojson["type"] = "FeatureCollection";
+        var features = [];
+        var featureSize = lib_udx.getNodeChildCount(featuresN);
+        var minx,miny,maxx,maxy;
+        minx = miny = 99999;
+        maxx = maxy = -99999;
+        var notGetProj = true;
+        var isPlain = true;
+        for(var i=0;i<featureSize;i++){
+            var feature = {};
+            feature["type"] = "Feature";
+            var geometry = {};
+            var prop = {};
+            if(shptype == "wkbLineString")
+                geometry["type"] = "LineString";
+            else if(shptype == "wkbPoint")
+                geometry["type"] = "Point";
+            else if(shptype == "wkbPolygon")
+                geometry["type"] = "Polygon";
+            var coors = [];
+            var polygon = [];
+            var linestring = lib_udx.getNodeStringValue(lib_udx.getChildNode(featuresN,i));
+            var start = linestring.indexOf("(");
+            var end = linestring.indexOf(")");
+            var coorStr = linestring.substring(start+1,end);
+            var coorList = coorStr.split(",");
+            for(var j=0;j<coorList.length;j++){
+                var x = parseInt(coorList[j].split(" ")[0]);
+                var y = parseInt(coorList[j].split(" ")[1]);
+                if(notGetProj){
+                    notGetProj = false;
+                    if(y>-90&&y<90){
+                        isPlain = false;
+                    }
+                }
+                var point = [x,y];
+                if(isPlain){
+                    try{
+                        point = proj4(spatialRef).inverse([x,y]);
+                    }
+                    catch(err){
+                        point = proj4('EPSG:3857').inverse([x,y]);
+                    }
+                }
+                x = point[0];
+                y = point[1];
+                if(minx>x)
+                    minx = x;
+                if(maxx<x)
+                    maxx = x;
+                if(miny>y)
+                    miny = y;
+                if(maxy<y)
+                    maxy = y;
+                if(shptype == "wkbPoint"){
+                    coors.push(point[0]);
+                    coors.push(point[1]);
+                }
+                else if(shptype == "wkbLineString"){
+                    coors.push(point);
+                }
+                else if(shptype == "wkbPolygon"){
+                    polygon.push(point);
+                }
+            }
+            if(shptype == "wkbPolygon"){
+                coors.push(polygon);
+            }
+            geometry["coordinates"] = coors;
+            feature["geometry"] = geometry;
+            feature["properties"] = prop;
+            features.push(feature);
+        }
+        geojson["features"] = features;
+        rst = {
+            path:'/geojson/' + gdid + '_' + index + '.json',
+            WSCorner:[minx,miny],
+            ENCorner:[maxx,maxy]
+        };
+        var dstPath = __dirname + '/../public/geojson/' + gdid + '_' + index + '.json';
+        fs.writeFile(dstPath,JSON.stringify(geojson),function (err) {
+            if(err){
+                console.log('Error:save image file err!');
+                callback(err);
+            }
+            else{
+                shpList.push(rst);
+                if(index == (listCount-1))
+                    callback(null,shpList);
+                else
+                    convertOne(index+1);
+            }
+        });
+    };
+    convertOne(0);
 };

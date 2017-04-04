@@ -27,19 +27,19 @@
                     <div class="col-md-2">
                         <div class="blog-img">
                             <% if(host == 'localhost'){ %>
-                                <% if(msr.msr_ms == null || msr.msr_ms.ms_img == null || msr.msr_ms.ms_img == ''){
-                                %><img src="/images/modelImg/default.png" alt="" ><%
-                                }
-                                else {
-                                %><img width="128" height="128" src="/images/modelImg/<%=msr.msr_ms.ms_img %>" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                                }%>
+                            <% if(msr.msr_ms == null || msr.msr_ms.ms_img == null || msr.msr_ms.ms_img == ''){
+                            %><img src="/images/modelImg/default.png" alt="" ><%
+                            }
+                            else {
+                            %><img width="128" height="128" src="/images/modelImg/<%=msr.msr_ms.ms_img %>" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
+                            }%>
                             <% }else{ %>
-                                <% if(msr.msr_ms_img == null || msr.msr_ms.ms_img == ''){
-                                    %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                                }
-                                else {
-                                    %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=msr.msr_ms.ms_img %>" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                                }%>
+                            <% if(msr.msr_ms_img == null || msr.msr_ms.ms_img == ''){
+                            %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
+                            }
+                            else {
+                            %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=msr.msr_ms.ms_img %>" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
+                            }%>
                             <% } %>
                         </div>
                     </div>
@@ -106,17 +106,17 @@
             <div class="panel-body">
                 <p><strong>模型开始时间&nbsp;:&nbsp;</strong><%= msr.msr_date.toLocaleString() %></p>
                 <p><strong>模型调用者&nbsp;:&nbsp;</strong><%if(msr.msr_user.u_type == 0){ %>本地调用者<% }
-                else {%>外部调用者<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
+                    else {%>外部调用者<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
                 <p><strong>运行实例GUID&nbsp;:&nbsp;</strong><%= msr.msr_guid %></p>
                 <p><strong>输入数据&nbsp;:&nbsp;</strong><br />
                     <% for(var i = 0; i < msr.msr_input.length; i++) { %>
-                        <%=msr.msr_input[i].StateId %>
-                        &nbsp;&nbsp;&nbsp;
-                        <%=msr.msr_input[i].Event %>
-                        &nbsp;:&nbsp;
-                        <a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a>
-                        &nbsp;&nbsp;&nbsp;
-                        <a><span class="udx_snapshot btn-lg" data-toggle="modal" data-target="#myModal" id="<%=msr.msr_input[i].DataId %>">Snapshot</span></a>
+                    <%=msr.msr_input[i].StateId %>
+                    &nbsp;&nbsp;&nbsp;
+                    <%=msr.msr_input[i].Event %>
+                    &nbsp;:&nbsp;
+                    <a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a>
+                    &nbsp;&nbsp;&nbsp;
+                    <a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="<%=msr.msr_input[i].DataId %>">Snapshot</span></a>
                     <br />
                     <%}%>
                 </p>
@@ -147,22 +147,22 @@
             <div class="modal-dialog" style="width: 750px;">
                 <div class="modal-content">
                     <div class="modal-header" style="background-color: rgba(0,0,0,0);width: 750px;position: absolute;top: 0;left: 0;z-index: 100;">
-                            <button type="button" id="close-modal" class="close" data-dismiss="modal" aria-hidden="true" style="color: #000;">
-                                &times;
-                            </button>
-                            <h4 class="modal-title" id="myModalLabel" style="color: #000;">
-                                UDX Visualization
-                            </h4>
-                        </div>
-                        <div class="modal-body" style="padding: 0;">
+                        <button type="button" onclick="colseModal()" id="close-modal" class="close" data-dismiss="modal" aria-hidden="true" style="color: #000;">
+                            &times;
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel" style="color: #000;">
+                            UDX Visualization
+                        </h4>
+                    </div>
+                    <div class="modal-body" style="padding: 0;">
                         <div id="map" style="width:750px;height: 500px;" class="map"></div>
                     </div>
                     <!--<div class="modal-footer">-->
-                        <!--<button type="button" class="btn btn-default" data-dismiss="modal">关闭-->
-                        <!--</button>-->
-                        <!--<button type="button" class="btn btn-primary">-->
-                            <!--提交更改-->
-                        <!--</button>-->
+                    <!--<button type="button" class="btn btn-default" data-dismiss="modal">关闭-->
+                    <!--</button>-->
+                    <!--<button type="button" class="btn btn-primary">-->
+                    <!--提交更改-->
+                    <!--</button>-->
                     <!--</div>-->
                 </div><!-- /.modal-content -->
             </div><!-- /.modal -->
@@ -176,6 +176,151 @@
 <script src="/js/ol3-layerswitcher.js"></script>
 <script src="/js/proj4.js"></script>
 <script type="text/javascript" src="/js/output/bundle.js" ></script>
+<script type="text/javascript">
+    var snapshotReq = function (gdid) {
+        var nice = $("html").niceScroll();
+        nice.opt.mousescrollstep = 0;
+        if($('#map:has(canvas)').length!=0){
+            $("#map").empty();
+        }
+        $.ajax({
+            url:'/geodata/snapshot/' + gdid,
+            success:function (data) {
+                var rst = JSON.parse(data);
+                console.log(rst.layers)
+                if(rst.suc == true){
+                    var projection = 'EPSG:3857';
+                    var layerExtents=[],map,
+                            minx = 999999999,
+                            miny = 999999999,
+                            maxx = -999999999,
+                            maxy = -999999999;
+                    for(var j=0;j<rst.layers.length;j++){
+                        var ENCorner = rst.layers[j].ENCorner;
+                        var WSCorner = rst.layers[j].WSCorner;
+                        ENCorner = proj4('EPSG:3857').forward(ENCorner);
+                        WSCorner = proj4('EPSG:3857').forward(WSCorner);
+                        layerExtents.push([WSCorner[0],WSCorner[1],ENCorner[0],ENCorner[1]]);
+                        if(minx>WSCorner[0])
+                                minx = WSCorner[0];
+                        if(miny>WSCorner[1])
+                                miny = WSCorner[1];
+                        if(maxx<ENCorner[0])
+                                maxx = ENCorner[0];
+                        if(maxy<ENCorner[1])
+                                maxy = ENCorner[1];
+                    }
+                    var imageExtent = [minx,miny,maxx,maxy];
+
+                    var myView = new ol.View({
+                        center: ol.extent.getCenter(imageExtent),
+                        projection:projection
+                    });
+                    var overlayGroup = new ol.layer.Group({
+                        title: 'Layers',
+                        layers: [
+                            new ol.layer.Tile({
+                                title: 'OSM',
+                                visible: true,
+                                source: new ol.source.OSM()
+                            })
+                        ]
+                    });
+                    map = new ol.Map({
+                        layers: [overlayGroup],
+                        target: 'map',
+                        view: myView
+                    });
+                    if(rst.dataType == 'geotiff'){
+                        //坐标为平面坐标
+                        for(var i=0;i<rst.layers.length;i++){
+                            var title = rst.layers[i].path;
+                            title = title.substring(title.lastIndexOf('_')+1,title.indexOf('.'));
+                            overlayGroup.getLayers().push(new ol.layer.Image({
+                                title: 'grid[band:' + title + ']',
+                                source: new ol.source.ImageStatic({
+                                    ratio: 1,
+                                    params: {'LAYERS': 'show:0'},
+                                    url: rst.layers[i].path,
+                                    imageExtent: layerExtents[i],
+                                    projection:projection
+                                })
+                            }));
+                        }
+                    }
+                    else if(rst.dataType == 'shp'){
+                        //经纬度
+                        //考虑一个问题：geojosn的坐标和openlayers的坐标之间的关系
+//                        ENCorner = proj4('EPSG:4326').forward(ENCorner);
+//                        WSCorner = proj4('EPSG:4326').forward(WSCorner);
+//                        imageExtent = [WSCorner[0],WSCorner[1],ENCorner[0],ENCorner[1]];
+//                        projection = 'EPSG:4326';
+                        overlayGroup.getLayers().push(new ol.layer.Vector({
+                            ratio: 1,
+                            params: {'LAYERS': 'show:0'},
+                            title: 'shapefile',
+                            source: new ol.source.Vector({
+                                url: rst.layers[0].path,     // 地图来源
+                                format: new ol.format.GeoJSON()    // 解析矢量地图的格式化类
+                            })
+                        }));
+                    }
+                    else if(rst.dataType == 'grid list'){
+                        for(var i=0;i<rst.layers.length;i++){
+                            var title = rst.layers[i].path;
+                            var titlePart = title.split('_');
+                            var listIndex = titlePart[titlePart.length-2];
+                            var bandIndex = titlePart[titlePart.length-1];
+                            bandIndex = bandIndex.substring(0,bandIndex.indexOf('.png'));
+                            overlayGroup.getLayers().push(new ol.layer.Image({
+                                title: 'list_' + listIndex + '[band:' + bandIndex + ']',
+                                source: new ol.source.ImageStatic({
+                                    ratio: 1,
+                                    params: {'LAYERS': 'show:0'},
+                                    url: rst.layers[i].path,
+                                    imageExtent: layerExtents[i],
+                                    projection:projection
+                                })
+                            }));
+                        }
+                    }
+                    else if(rst.dataType == 'shp list'){
+                        for(var i=0;i<rst.layers.length;i++) {
+                            overlayGroup.getLayers().push(new ol.layer.Vector({
+                                ratio: 1,
+                                params: {'LAYERS': 'show:0'},
+                                title: 'shapefile',
+                                source: new ol.source.Vector({
+                                    url: rst.layers[i].path,     // 地图来源
+                                    format: new ol.format.GeoJSON()    // 解析矢量地图的格式化类
+                                })
+                            }));
+                        }
+                    }
+                    else if(rst.dataType == 'table'){
+
+                    }
+                    map.getView().fit(imageExtent, map.getSize());
+                    var layerSwitcher = new ol.control.LayerSwitcher({
+                        tipLabel: 'Légende' // Optional label for button
+                    });
+                    map.addControl(layerSwitcher);
+                }
+                else{
+                    alert('udx data err!');
+                    $('#close-modal').trigger("click");
+                }
+            }
+        })
+    };
+
+    //未执行
+    var colseModal = function () {
+        var nice = $("html").niceScroll();
+        nice.opt.enablemousewheel = true;
+        nice.opt.mousescrollstep = 40;
+    };
+</script>
 <script type="text/javascript">
     $(document).ready(function () {
         var blFinish = false;
@@ -207,7 +352,7 @@
                                                     '&nbsp;&nbsp;&nbsp;' + jsItem.msr.msr_output[i].Event +
                                                     '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.msr.msr_output[i].DataId + '" >' +
                                                     jsItem.msr.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
-                                                    '<a><span class="udx_snapshot" id="' + jsItem.msr.msr_output[i].DataId + '">Snapshot</span></a>' +
+                                                    '<a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="' + jsItem.msr.msr_output[i].DataId + '">Snapshot</span></a>' +
                                                     '<br />';
                                         }
 
@@ -266,139 +411,12 @@
     function setProcess(per) {
         $('#bar_pro').css('width', per.toString() + '%');
     }
-    
+
     function ProcessFinished() {
         $('#bar_pro').css('width','100%');
     }
 
 
-</script>
-<script type="text/javascript">
-    $("#close-modal").click(function () {
-        var nice = $("html").niceScroll();
-        nice.opt.enablemousewheel = true;
-        nice.opt.mousescrollstep = 40;
-    })
-
-    $(".udx_snapshot").click(function () {
-        var nice = $("html").niceScroll();
-        nice.opt.enablemousewheel = false;
-        nice.opt.mousescrollstep = 0;
-        if($('#map:has(canvas)').length!=0){
-            $("#map").empty();
-        }
-        $.ajax({
-            url:'/geodata/snapshot/' + this.id,
-            success:function (data) {
-                var rst = JSON.parse(data);
-                console.log(rst.data)
-                if(rst.suc == true){
-                    var imageExtent,projection,map;
-                    var ENCorner = [rst.ENCorner[0],rst.ENCorner[1]];
-                    var WSCorner = [rst.WSCorner[0],rst.WSCorner[1]];
-                    ENCorner = proj4('EPSG:3857').forward(ENCorner);
-                    WSCorner = proj4('EPSG:3857').forward(WSCorner);
-                    projection = 'EPSG:3857';
-                    imageExtent = [WSCorner[0],WSCorner[1],ENCorner[0],ENCorner[1]];
-                    console.log(imageExtent);
-                    if(rst.dataType == 'geotiff'){
-                        map = new ol.Map({
-                            layers: [
-//                                new ol.layer.Group({
-//                                    'title': 'Base maps',
-//                                    layers: [
-//                                        new ol.layer.Tile({
-//                                            title: 'OSM',
-//                                            type: 'base',
-//                                            visible: true,
-//                                            source: new ol.source.OSM()
-//                                        })
-//                                    ]
-//                                }),
-                                new ol.layer.Group({
-                                    title: 'Overlays',
-                                    layers: [
-                                        new ol.layer.Tile({
-                                            title: 'OSM',
-//                                            type: 'base',
-                                            visible: true,
-                                            source: new ol.source.OSM()
-                                        }),
-                                        new ol.layer.Image({
-                                            title: 'geotiff',
-                                            source: new ol.source.ImageStatic({
-                                                ratio: 1,
-                                                params: {'LAYERS': 'show:0'},
-                                                url: rst.data,
-                                                imageExtent: imageExtent,
-                                                projection:projection
-                                            })
-                                        })
-                                    ]
-                                })
-                            ],
-                            target: 'map',
-                            view: new ol.View({
-                                center: ol.extent.getCenter(imageExtent),
-                                projection:projection
-                            })
-                        });
-                    }
-                    else if(rst.dataType == 'shp'){
-                        map = new ol.Map({
-                            layers: [
-//                                new ol.layer.Group({
-//                                    'title': 'Base maps',
-//                                    layers: [
-//                                        new ol.layer.Tile({
-//                                            title: 'OSM',
-//                                            type: 'base',
-//                                            visible: true,
-//                                            source: new ol.source.OSM()
-//                                        })
-//                                    ]
-//                                }),
-                                new ol.layer.Group({
-                                    title: 'Layers',
-                                    layers: [
-                                        new ol.layer.Tile({
-                                            title: 'OSM',
-//                                            type: 'base',
-                                            visible: true,
-                                            source: new ol.source.OSM()
-                                        }),
-                                        new ol.layer.Vector({
-                                            ratio: 1,
-                                            params: {'LAYERS': 'show:0'},
-                                            title: 'shapefile',
-                                            source: new ol.source.Vector({
-                                                url: rst.data,     // 地图来源
-                                                format: new ol.format.GeoJSON()    // 解析矢量地图的格式化类
-                                            })
-                                        })
-                                    ]
-                                })
-                            ],
-                            target: 'map',
-                            view: new ol.View({
-                                center: ol.extent.getCenter(imageExtent),
-                                projection:projection
-                            })
-                        });
-                    }
-                    map.getView().fit(imageExtent, map.getSize());
-                    var layerSwitcher = new ol.control.LayerSwitcher({
-                        tipLabel: 'Légende' // Optional label for button
-                    });
-                    map.addControl(layerSwitcher);
-                }
-                else{
-                    alert('udx data err!');
-                    $('#close-modal').trigger("click");
-                }
-            }
-        })
-    })
 </script>
 </body>
 </html>

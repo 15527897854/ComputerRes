@@ -29,7 +29,7 @@ module.exports = function(app)
             ModelSerMid.NewModelSer(req, function (err, item) {
                 if(err)
                 {
-                    return res.end("{Error : " + JSON.stringify(err) + '}');
+                    return res.end("Error : " + JSON.stringify(err));
                 }
                 res.end(JSON.stringify({
                     res : 'suc',

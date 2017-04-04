@@ -3,7 +3,7 @@
  */
 //Redis Database
 var client = require('./redisDB');
-var setting = require('../setting')
+var setting = require('../setting');
 
 function GeoData(gd) {
     if(gd == null)
