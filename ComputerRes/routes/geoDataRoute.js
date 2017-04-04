@@ -12,9 +12,12 @@ var remoteReqCtrl = require('../control/remoteReqControl');
 var request = require('request');
 var ModelSerCtrl = require('../control/modelSerControl');
 var childCtrl = require('../control/childControl');
+
+
 var RouteBase = require('./routeBase');
 
-module.exports = function (app) {
+var UDXVisualization = require('../model/UDX_Visualization');
+var UDXConvertor = require('../model/UDXConvertor');module.exports = function (app) {
     
     //上传地理模型数据文件
     app.route('/geodata/file')
@@ -335,6 +338,93 @@ module.exports = function (app) {
                     'Content-Length': data.length });
                 res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
                 return res.end(data);
+            });
+        });
+    app.route('/geodata/snapshot/:gdid')
+        .get(function (req, res, next) {
+            //根据gdid_config.json判断是否生成过配置文件
+            var gdid = req.params.gdid;
+            var filePath = __dirname + '/../public/images/snapshot/' + gdid + '.png';
+            var configPath = __dirname + '/../public/geojson/' + gdid + '_config.json';
+            fs.stat(configPath,function (err, stat) {
+                if(stat){
+                    //已有历史生成过
+                    fs.readFile(configPath,'utf8',function (err,data) {
+                        setTimeout(function () {
+                            res.end(data.toString());
+                        },500);
+                    });
+                }
+                else{
+                    //未生成过
+                    UDXVisualization.getDataType(gdid,function (err, dataType,srcDataset) {
+                        if(err || dataType == "Unknown"){
+                            console.log(err);
+                            res.end(JSON.stringify({
+                                suc:false
+                            }));
+                        }
+                        if(dataType == 'shp'){
+                            var dstPath = __dirname + '/../public/geojson/' + gdid + '.json';
+                            UDXConvertor.SHPDataset2GEOJSON(srcDataset,dstPath,function (err,geojson) {
+                                if(err){
+                                    console.log(err);
+                                    res.end(JSON.stringify({
+                                        suc:false
+                                    }));
+                                }
+                                else{
+                                    var rst = {
+                                        suc:true,
+                                        dataType:'shp',
+                                        data : '/geojson/' + gdid + '.json',
+                                        WSCorner:geojson.WSCorner,
+                                        ENCorner:geojson.ENCorner
+                                        // hasProj : geojson.hasProj
+                                    };
+                                    fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                        if(err){
+                                            console.log(err);
+                                            res.end(JSON.stringify({
+                                                suc:false
+                                            }));
+                                        }
+                                        res.end(JSON.stringify(rst));
+                                    });
+                                }
+                            });
+                        }
+                        else if(dataType == 'geotiff'){
+                            UDXVisualization.GtiffDataset(srcDataset,0,1,filePath,function (err,data) {
+                                if(err){
+                                    console.log(err);
+                                    res.end(JSON.stringify({
+                                        suc:false
+                                    }));
+                                }
+                                else{
+                                    var rst = {
+                                        suc:true,
+                                        dataType:'geotiff',
+                                        data:'/images/snapshot/' + gdid + '.png',
+                                        WSCorner:data.WSCorner,
+                                        ENCorner:data.ENCorner
+                                        // hasProj:data.hasProj
+                                    };
+                                    fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                        if(err){
+                                            console.log(err);
+                                            res.end(JSON.stringify({
+                                                suc:false
+                                            }));
+                                        }
+                                        res.end(JSON.stringify(rst));
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
             });
         });
 };
