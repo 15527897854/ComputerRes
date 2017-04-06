@@ -259,95 +259,79 @@ module.exports = function(app)
                 {
                     //读取输入文件参数
                     var inputData = JSON.parse(req.query.inputdata);
-                    ModelSerCrtl.getInputData(msid, function (err, data) {
-                        if(err)
-                        {
-                            return res.end(JSON.stringify(err));
-                        }
-                        //指定输出文件参数
-                        var outputData = [];
-                        for(var k = 0; k < data.length; k++)
-                        {
-                            for(var i = 0; i < data[k].Event.length; i++)
-                            {
-                                if(data[k].Event[i].$.type == 'noresponse')
-                                {
-                                    var dataid = 'gd_' + uuid.v1();
-                                    var item = {
-                                        StateId : data[k].$.id,
-                                        Event : data[k].Event[i].$.name,
-                                        DataId : dataid,
-                                        Ready : false
-                                    };
-                                    outputData.push(item);
-                                }
-                            }
-                        }
+                    var outputData = JSON.parse(req.query.outputdata);
 
-                        //生成唯一字符串GUID
-                        var guid = uuid.v4();
+                    //指定输出文件参数
+                    for(var k = 0; k < outputData.length; k++)
+                    {
+                        var dataid = 'gd_' + uuid.v1();
+                        outputData[k]['DataId'] = dataid;
+                        outputData[k]['Ready'] = false;
+                    }
 
-                        //向内存中添加模型运行记录条目
-                        var date = new Date();
-                        var mis = {
-                            guid : guid,
-                            socket : null,
-                            ms : null,
-                            start : date.toLocaleString(),
-                            state : 'MC_READY'
+                    //生成唯一字符串GUID
+                    var guid = uuid.v4();
+
+                    //向内存中添加模型运行记录条目
+                    var date = new Date();
+                    var mis = {
+                        guid : guid,
+                        socket : null,
+                        ms : null,
+                        start : date.toLocaleString(),
+                        state : 'MC_READY'
+                    };
+                    var modelIns = new ModelIns(mis);
+                    app.modelInsColl.addIns(modelIns);
+
+                    ModelSerCrtl.getByOID(msid, function(err, ms){
+                        //添加纪录
+                        var msr = {
+                            ms_id : ms._id,
+                            msr_ms : ms,
+                            msr_date : date.toLocaleString(),
+                            msr_time : 0,
+                            msr_user : {
+                                u_name : 'Admin',
+                                u_type : 0
+                            },
+                            msr_guid : guid,
+                            msr_input : inputData,
+                            msr_output : outputData,
+                            msr_status : 0,
+                            msr_des : ''
                         };
-                        var modelIns = new ModelIns(mis);
-                        app.modelInsColl.addIns(modelIns);
+                        ModelSerRunCtrl.addItem(msr ,function (err, msr) {
+                            res.end(JSON.stringify({
+                                res : 'suc',
+                                msr_id : msr._id
+                            }));
 
-                        ModelSerCrtl.getByOID(msid, function(err, ms){
-                            //添加纪录
-                            var msr = {
-                                ms_id : ms._id,
-                                msr_ms : ms,
-                                msr_date : date.toLocaleString(),
-                                msr_time : 0,
-                                msr_user : {
-                                    u_name : 'Admin',
-                                    u_type : 0
-                                },
-                                msr_guid : guid,
-                                msr_input : inputData,
-                                msr_output : outputData,
-                                msr_status : 0,
-                                msr_des : ''
-                            };
-                            ModelSerRunCtrl.addItem(msr ,function (err, msr) {
-                                res.end(JSON.stringify({
-                                    res : 'suc',
-                                    msr_id : msr._id
-                                }));
+                            //开始运行模型实例
+                            ModelSerCrtl.run(msid, guid, function (err, ms) {
+                                if(err)
+                                {
+                                    return res.end('Error : ' + err);
+                                }
 
-                                //开始运行模型实例
-                                ModelSerCrtl.run(msid, guid, function (err, ms) {
+                                //绑定内存实例的ms属性
+                                app.modelInsColl.bindMs(guid, ms);
+
+                                //存储通知消息
+                                var notice = {
+                                    time:new Date(),
+                                    ms_name:ms.ms_model.m_name,
+                                    notice:'模型服务开始运行！',
+                                    type:'startRun',
+                                    hasRead:0
+                                };
+                                NoticeCtrl.addNotice(notice, function (err, data) {
                                     if(err)
                                     {
-                                        return res.end('Error : ' + err);
+                                        console.log(JSON.stringify(err));
                                     }
-
-                                    //绑定内存实例的ms属性
-                                    app.modelInsColl.bindMs(guid, ms);
-
-                                    //存储通知消息
-                                    var notice = {
-                                        time:new Date(),
-                                        ms_name:ms.ms_model.m_name,
-                                        notice:'模型服务开始运行！',
-                                        type:'startRun',
-                                        hasRead:0
-                                    };
-                                    NoticeCtrl.addNotice(notice, function (err, data) {
-                                        if(err)
-                                        {
-                                            console.log(JSON.stringify(err));
-                                        }
-                                    });
-
                                 });
+
                             });
                         });
                     });

@@ -6,6 +6,9 @@ var GeoData = require('../model/geoData');
 var Child = require('../model/child');
 var ParamCheck = require('../utils/paramCheck');
 var RemoteReqControl = require('./remoteReqControl');
+var CommonMethod = require('../utils/commonMethod');
+var FileOpera = require('../utils/fileOpera');
+var Settings = require('../setting');
 
 function GeoDataCtrl() {}
 
@@ -13,6 +16,7 @@ module.exports = GeoDataCtrl;
 
 //添加数据
 GeoDataCtrl.addData = function (data, callback) {
+    data['gd_datetime'] = CommonMethod.getDateTimeNow();
     var geodata = new GeoData(data);
     geodata.save(function (err, result) {
         if(err)
@@ -43,6 +47,35 @@ GeoDataCtrl.update = function (data, callback) {
             return callback(err);
         }
         return callback(null, gd);
+    });
+};
+
+//删除数据
+GeoDataCtrl.delete = function(key, callback){
+    GeoData.getByKey(key, function(err, item){
+        if(err)
+        {
+            return callback(err);
+        }
+        if(item == null)
+        {
+            return callback(null, {
+                res : 'suc'
+            });
+        }
+        if(item.gd_type === 'FILE')
+        {
+            FileOpera.rmdir(Settings.modelpath + '../geo_data/' + item.gd_value);
+        }
+        GeoData.remove(key, function(err, res){
+            if(err)
+            {
+                return callback(err);
+            }
+            return callback(null, {
+                res : 'suc'
+            });
+        });
     });
 };
 
