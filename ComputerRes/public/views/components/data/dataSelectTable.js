@@ -1,23 +1,31 @@
 /**
- * Created by Franklin on 2017/3/30.
+ * Created by Franklin on 2017/4/5.
  */
 var React = require('react');
 var Axios = require('axios');
 
-var DataUploader = require('./dataUploader');
-
-var DataCollectionTable = React.createClass({
+var DataSelectTable = React.createClass({
     getInitialState : function () {
+        var id = '';
+        if(this.props['data-id'])
+        {
+            id = this.props['data-id'];
+        }
         return {
+            id : id,
             loading : true,
             err : null,
             data : null,
-            init : false
+            gdid : ''
         };
     },
 
     componentDidMount : function () {
-        this.refresh();
+        //this.refresh();
+    },
+
+    getSelectedGDID : function(){
+        return $("input[name='rd_GDID']:checked").val();
     },
 
     refresh : function () {
@@ -32,16 +40,18 @@ var DataCollectionTable = React.createClass({
                     this.setState({loading : false, err : false, data : data.data.data});
                     if(!this.state.init)
                     {
-                        $('#dataCollection-table').dataTable(
+                        $('#dataSelect-table' + this.state.id).dataTable(
                             {
                                 //数据URL
-                                "data": "/modelser/json/rmtall",
+                                "data": "/geodata/json/all",
                                 //载入数据的时候是否显示“正在加载中...”
                                 "processing": true,
                                 //是否显示分页
                                 "bPaginate": true,
                                 //每页显示条目数
-                                "bLengthChange": true,
+                                "bLengthChange": false,
+                                //初始化显示条目数
+                                "iDisplayLength" : 5,
                                 //排序
                                 "bSort": true,
                                 //排序配置
@@ -78,31 +88,6 @@ var DataCollectionTable = React.createClass({
         );
     },
 
-    displayData : function(e, gdid)
-    {
-        window.open('/geodata/json/' + gdid);
-    },
-
-    downloadData : function(e, gdid)
-    {
-        window.open('/geodata/' + gdid);
-    },
-
-    deleteData : function(e, gdid, gdtag)
-    {
-        if(confirm('确认删除此数据 - ' + gdid + ' - ' + gdtag))
-        {
-            Axios.delete('/geodata/' + gdid).then(
-                data => {
-                    if(data.data.result == 'suc'){
-                        alert('删除成功！');
-                        this.refresh();
-                    } },
-                err => {  }
-            );
-        }
-    },
-
     render : function() {
         if(this.state.loading)
         {
@@ -117,68 +102,35 @@ var DataCollectionTable = React.createClass({
             );
         }
         var dataItems = this.state.data.map(function(item){
-            var format = null;
-            if(item.gd_type == 'FILE')
-            {
-                format = (<span className="label label-info" ><i className="fa fa-file"></i> 文件</span>);
-            }
-            else if(item.gd_type == 'STREAM')
-            {
-                format = (<span className="label label-info" ><i className="fa fa-ellipsis-v"></i> 数据流</span>);
-            }
+
             return(
                 <tr key={item.gd_id}>
+                    <td><input className="radio " name="rd_GDID" type="radio" value={item.gd_id} /></td>
                     <td>{item.gd_id}</td>
-                    <td>{format}</td>
                     <td>{item.gd_datetime}</td>
                     <td>{item.gd_tag}</td>
-                    <td>
-                        <button className="btn btn-info btn-xs" onClick={(e) => {this.displayData(e, item.gd_id)} } ><i className="fa fa-book"> </i> 查看</button>&nbsp;
-                        <button className="btn btn-success btn-xs" onClick={(e) => {this.displayData(e, item.gd_id)} } ><i className="fa fa-picture-o"> </i> 渲染</button>&nbsp;
-                        <button className="btn btn-default btn-xs" onClick={(e) => {this.downloadData(e, item.gd_id)} } ><i className="fa fa-download"> </i> 下载</button>&nbsp;
-                        <button className="btn btn-warning btn-xs" onClick={(e) => {this.deleteData(e, item.gd_id, item.gd_tag)} } ><i className="fa fa-trash-o"> </i></button>
-                    </td>
                 </tr>
             );
         }.bind(this));
         return (
             <div>
-                <div>
-                    <DataUploader onFinish={this.refresh} />
-                </div>
-                <table className="display table table-bordered table-striped" id="dataCollection-table">
+                <table className="display table table-bordered table-striped" id={'dataSelect-table' + this.state.id}>
+
                     <thead>
-                        <tr>
-                            <th>数据ID</th>
-                            <th>存储方式</th>
-                            <th>生成时间</th>
-                            <th>标签</th>
-                            <th>操作</th>
-                        </tr>
+                    <tr>
+                        <th> </th>
+                        <th>数据ID</th>
+                        <th>生成时间</th>
+                        <th>标签</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {dataItems}
+                    {dataItems}
                     </tbody>
                 </table>
-                <div aria-hidden="true" aria-labelledby="gateGateModelDetail" role="dialog" tabIndex="-1" id="diaDetail" className="modal fade">
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">服务</h4>
-                            </div>
-                            <div className="modal-body">
-
-                            </div>
-                            <div className="modal-footer">
-                                <button id="btn_ok" type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         );
     }
 });
 
-module.exports = DataCollectionTable;
+module.exports = DataSelectTable;

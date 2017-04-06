@@ -17,7 +17,9 @@ var childCtrl = require('../control/childControl');
 var RouteBase = require('./routeBase');
 
 var UDXVisualization = require('../model/UDX_Visualization');
-var UDXConvertor = require('../model/UDXConvertor');module.exports = function (app) {
+var UDXConvertor = require('../model/UDXConvertor');
+
+module.exports = function (app) {
     
     //上传地理模型数据文件
     app.route('/geodata/file')
@@ -120,8 +122,6 @@ var UDXConvertor = require('../model/UDXConvertor');module.exports = function (a
     app.route('/geodata/stream')
         .post(function (req, res, next) {
             var data = req.body.data;
-            var state = req.body.stateid;
-            var eventname = req.body.eventname;
             var gd_tag = '';
             if(req.body.gd_tag)
             {
@@ -164,7 +164,6 @@ var UDXConvertor = require('../model/UDXConvertor');module.exports = function (a
                 //存入数据库
                 var geodata = {
                     gd_id : gdid,
-                    gd_rstate : state,
                     gd_tag : gd_tag,
                     gd_type : 'STREAM',
                     gd_value : data
@@ -266,6 +265,10 @@ var UDXConvertor = require('../model/UDXConvertor');module.exports = function (a
                     res.end(gd.gd_value);
                 }
             });
+        })
+        .delete(function(req, res, next){
+            var gdid = req.params.gdid;
+            GeoDataCtrl.delete(gdid, RouteBase.returnFunction(res, 'Error in delete a geo-data!'));
         });
 
     //////////////////////////////////////远程
@@ -340,6 +343,7 @@ var UDXConvertor = require('../model/UDXConvertor');module.exports = function (a
                 return res.end(data);
             });
         });
+
     app.route('/geodata/snapshot/:gdid')
         .get(function (req, res, next) {
             //根据gdid_config.json判断是否生成过配置文件,图像定位信息写在配置文件中

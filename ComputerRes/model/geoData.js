@@ -10,12 +10,14 @@ function GeoData(gd) {
     {
         this.gd_id = '';
         this.gd_tag = '';
+        this.gd_datetime = '';
         this.gd_type = '';
         this.gd_value = '';
     }
     else {
         this.gd_id = gd.gd_id;
         this.gd_tag = gd.gd_tag;
+        this.gd_datetime = gd.gd_datetime;
         this.gd_type = gd.gd_type;
         this.gd_value = gd.gd_value;
     }
@@ -30,6 +32,7 @@ GeoData.prototype.save = function (callback) {
     var fields =
     {
         "gd_tag" : this.gd_tag,
+        "gd_datetime" : this.gd_datetime,
         "gd_type" : this.gd_type,
         "gd_value" : this.gd_value
     };
