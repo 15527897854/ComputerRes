@@ -1,4 +1,21 @@
 
+function getCookie(name)
+{
+    var arr,reg = new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+    if(arr = document.cookie.match(reg))
+        return unescape(arr[2]);
+    else
+        return null;
+}
+
+function setCookie(name, value)
+{
+    var Days = 1;
+    var exp = new Date();
+    exp.setTime(exp.getTime() + Days*24*60*60*1000);
+    document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+}
+
 (function() {
     "use strict";
 
@@ -65,6 +82,18 @@
       jQuery(this).removeClass('nav-hover');
    });
 
+    if(getCookie('collapsed') === "true")
+    {
+        $(".left-side").getNiceScroll().hide();
+        if ($('body').hasClass('left-side-collapsed')) {
+            $(".left-side").getNiceScroll().hide();
+        }
+        var body = jQuery('body');
+        body.addClass('left-side-collapsed');
+        jQuery('.custom-nav ul').attr('style','');
+
+        jQuery(this).addClass('menu-collapsed');
+    }
 
    // Menu Toggle
    jQuery('.toggle-btn').click(function(){
@@ -77,22 +106,25 @@
       var bodyposition = body.css('position');
 
       if(bodyposition != 'relative') {
-
          if(!body.hasClass('left-side-collapsed')) {
+
+             setCookie('collapsed', true);
             body.addClass('left-side-collapsed');
             jQuery('.custom-nav ul').attr('style','');
 
             jQuery(this).addClass('menu-collapsed');
 
          } else {
+
+             setCookie('collapsed', false);
             body.removeClass('left-side-collapsed chat-view');
             jQuery('.custom-nav li.active ul').css({display: 'block'});
 
             jQuery(this).removeClass('menu-collapsed');
 
          }
-      } else {
-
+      }
+      else {
          if(body.hasClass('left-side-show'))
             body.removeClass('left-side-show');
          else
