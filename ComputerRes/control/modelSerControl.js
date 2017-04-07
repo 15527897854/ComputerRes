@@ -471,14 +471,42 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                                 {
                                     if (state[k].Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name)
                                     {
-                                        state[k].Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                                        if(dataDecs[j].UDXDeclaration)
+                                        {
+                                            state[k].Event[i].UDXDeclaration = dataDecs[j];
+                                        }
+                                        else if(dataDecs[j].UdxDeclaration)
+                                        {
+                                            state[k].Event[i].UDXDeclaration = dataDecs[j];
+                                        }
                                     }
                                 }
                                 else if(state[k].Event[i].hasOwnProperty('DispatchParameter'))
                                 {
                                     if (state[k].Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name)
                                     {
-                                        state[k].Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                                        if(dataDecs[j].UDXDeclaration)
+                                        {
+                                            state[k].Event[i].UDXDeclaration = dataDecs[j];
+                                        }
+                                        else if(dataDecs[j].UdxDeclaration)
+                                        {
+                                            state[k].Event[i].UDXDeclaration = dataDecs[j];
+                                        }
+                                    }
+                                }
+                                else if(state[k].Event[i].hasOwnProperty('ControlParameter'))
+                                {
+                                    if (state[k].Event[i].ControlParameter.$.datasetReference == dataDecs[j].$.name)
+                                    {
+                                        if(dataDecs[j].UDXDeclaration)
+                                        {
+                                            state[k].Event[i].UDXDeclaration = dataDecs[j];
+                                        }
+                                        else if(dataDecs[j].UdxDeclaration)
+                                        {
+                                            state[k].Event[i].UDXDeclaration = dataDecs[j];
+                                        }
                                     }
                                 }
                             }
@@ -495,14 +523,42 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                             {
                                 if (state.Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name)
                                 {
-                                    state.Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                                    if(dataDecs[j].UDXDeclaration)
+                                    {
+                                        state.Event[i].UDXDeclaration = dataDecs[j];
+                                    }
+                                    else if(dataDecs[j].UdxDeclaration)
+                                    {
+                                        state.Event[i].UDXDeclaration = dataDecs[j];
+                                    }
                                 }
                             }
                             else if(state.Event[i].hasOwnProperty('DispatchParameter'))
                             {
                                 if (state.Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name)
                                 {
-                                    state.Event[i].UDXDeclaration = dataDecs[j].UDXDeclaration;
+                                    if(dataDecs[j].UDXDeclaration)
+                                    {
+                                        state.Event[i].UDXDeclaration = dataDecs[j];
+                                    }
+                                    else if(dataDecs[j].UdxDeclaration)
+                                    {
+                                        state.Event[i].UDXDeclaration = dataDecs[j];
+                                    }
+                                }
+                            }
+                            else if(state.Event[i].hasOwnProperty('ControlParameter'))
+                            {
+                                if (state.Event[i].ControlParameter.$.datasetReference == dataDecs[j].$.name)
+                                {
+                                    if(dataDecs[j].UDXDeclaration)
+                                    {
+                                        state.Event[i].UDXDeclaration = dataDecs[j];
+                                    }
+                                    else if(dataDecs[j].UdxDeclaration)
+                                    {
+                                        state.Event[i].UDXDeclaration = dataDecs[j];
+                                    }
                                 }
                             }
                         }
