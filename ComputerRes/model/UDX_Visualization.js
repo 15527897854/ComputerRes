@@ -56,9 +56,6 @@ UDXVisualization.getDataType = function (gdid,callback) {
         }
         var srcRootNode = lib_udx.getDatasetNode(srcDataset);
         var count = lib_udx.getNodeChildCount(srcRootNode);
-        if(count <2){
-            callback("Error:udx data err!");
-        }
         var firstFloor = [];
         for(var i=0;i<count;i++){
             var node = lib_udx.getChildNode(srcRootNode,i);
