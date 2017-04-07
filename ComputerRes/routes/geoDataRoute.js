@@ -451,10 +451,7 @@ module.exports = function (app) {
                                     var rst = {
                                         suc:true,
                                         dataType:'geotiff',
-                                        data:'/images/snapshot/' + gdid + '.png',
-                                        WSCorner:data.WSCorner,
-                                        ENCorner:data.ENCorner
-                                        // hasProj:data.hasProj
+                                        layers:data
                                     };
                                     fs.writeFile(configPath,JSON.stringify(rst),function (err) {
                                         if(err){
