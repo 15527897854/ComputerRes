@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 217);
+/******/ 	return __webpack_require__(__webpack_require__.s = 219);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -375,7 +375,7 @@ module.exports = reactProdInvariant;
 
 
 
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 
 /**
  * Similar to invariant but only logs a warning if the condition is not met.
@@ -790,10 +790,10 @@ module.exports = ExecutionEnvironment;
 
 var _prodInvariant = __webpack_require__(20);
 
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 
 var invariant = __webpack_require__(21);
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 function isNative(fn) {
   // Based on isNative() from Lodash
@@ -1451,6 +1451,22 @@ module.exports = { debugTool: debugTool };
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+module.exports = __webpack_require__(24);
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(95);
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(process) {/**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -1704,7 +1720,7 @@ module.exports = ReactUpdates;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1740,7 +1756,7 @@ var ReactCurrentOwner = {
 module.exports = ReactCurrentOwner;
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1813,17 +1829,7 @@ module.exports = warning;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = __webpack_require__(24);
-
-
-/***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1843,7 +1849,7 @@ var _assign = __webpack_require__(5);
 
 var PooledClass = __webpack_require__(18);
 
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 var warning = __webpack_require__(3);
 
 var didWarnForAddedNewProperty = false;
@@ -2097,7 +2103,7 @@ function getPooledWarningPropertyDefinition(propName, getVal) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2139,12 +2145,6 @@ emptyFunction.thatReturnsArgument = function (arg) {
 };
 
 module.exports = emptyFunction;
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(95);
 
 /***/ }),
 /* 17 */
@@ -2499,9 +2499,9 @@ module.exports = PooledClass;
 
 var _assign = __webpack_require__(35);
 
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 var canDefineProperty = __webpack_require__(56);
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -3259,7 +3259,7 @@ var ReactPropTypes = __webpack_require__(203);
 var ReactVersion = __webpack_require__(205);
 
 var onlyChild = __webpack_require__(207);
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 var createElement = ReactElement.createElement;
 var createFactory = ReactElement.createFactory;
@@ -3819,7 +3819,7 @@ module.exports = ReactInstanceMap;
 
 
 
-var SyntheticEvent = __webpack_require__(14);
+var SyntheticEvent = __webpack_require__(15);
 
 var getEventTarget = __webpack_require__(48);
 
@@ -6044,10 +6044,10 @@ module.exports = ReactErrorUtils;
 
 var _prodInvariant = __webpack_require__(2);
 
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 var ReactInstanceMap = __webpack_require__(27);
 var ReactInstrumentation = __webpack_require__(9);
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 
 var invariant = __webpack_require__(1);
 var warning = __webpack_require__(3);
@@ -6568,7 +6568,7 @@ module.exports = shouldUpdateReactComponent;
 
 var _assign = __webpack_require__(5);
 
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 var warning = __webpack_require__(3);
 
 var validateDOMNesting = emptyFunction;
@@ -7034,7 +7034,7 @@ var ReactNoopUpdateQueue = __webpack_require__(54);
 var canDefineProperty = __webpack_require__(56);
 var emptyObject = __webpack_require__(59);
 var invariant = __webpack_require__(21);
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 /**
  * Base class helpers for the updating state of a component.
@@ -7151,7 +7151,7 @@ module.exports = ReactComponent;
 
 
 
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 function warnNoop(publicInstance, callerName) {
   if (process.env.NODE_ENV !== 'production') {
@@ -8245,7 +8245,7 @@ var _assign = __webpack_require__(5);
 
 var LinkedValueUtils = __webpack_require__(41);
 var ReactDOMComponentTree = __webpack_require__(4);
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 
 var warning = __webpack_require__(3);
 
@@ -8718,7 +8718,7 @@ var DOMLazyTree = __webpack_require__(22);
 var DOMProperty = __webpack_require__(17);
 var React = __webpack_require__(24);
 var ReactBrowserEventEmitter = __webpack_require__(30);
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 var ReactDOMComponentTree = __webpack_require__(4);
 var ReactDOMContainerInfo = __webpack_require__(128);
 var ReactDOMFeatureFlags = __webpack_require__(130);
@@ -8728,7 +8728,7 @@ var ReactInstrumentation = __webpack_require__(9);
 var ReactMarkupChecksum = __webpack_require__(150);
 var ReactReconciler = __webpack_require__(23);
 var ReactUpdateQueue = __webpack_require__(44);
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 
 var emptyObject = __webpack_require__(87);
 var instantiateReactComponent = __webpack_require__(82);
@@ -9778,7 +9778,7 @@ module.exports = setTextContent;
 
 var _prodInvariant = __webpack_require__(2);
 
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 var REACT_ELEMENT_TYPE = __webpack_require__(144);
 
 var getIteratorFn = __webpack_require__(178);
@@ -9966,7 +9966,7 @@ module.exports = traverseAllChildren;
  * @typechecks
  */
 
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 
 /**
  * Upstream version of event listener. Does not take into account specific
@@ -10120,7 +10120,7 @@ module.exports = focusNode;
  * @return {?DOMElement}
  */
 function getActiveElement(doc) /*?DOMElement*/{
-  doc = doc || document;
+  doc = doc || (typeof document !== 'undefined' ? document : undefined);
   if (typeof doc === 'undefined') {
     return null;
   }
@@ -10182,7 +10182,7 @@ module.exports = REACT_ELEMENT_TYPE;
 
 
 
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 var ReactComponentTreeHook = __webpack_require__(7);
 var ReactElement = __webpack_require__(19);
 
@@ -10190,7 +10190,7 @@ var checkReactTypeSpec = __webpack_require__(206);
 
 var canDefineProperty = __webpack_require__(56);
 var getIteratorFn = __webpack_require__(57);
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 function getDeclarationErrorAddendum() {
   if (ReactCurrentOwner.current) {
@@ -10427,10 +10427,10 @@ module.exports = ReactPropTypesSecret;
 /**
  * Created by Franklin on 2017/3/31.
  */
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
-var DataSelectTabel = __webpack_require__(218);
+var DataSelectTabel = __webpack_require__(212);
 
 var DataUploader = React.createClass({displayName: "DataUploader",
     getInitialState : function () {
@@ -10649,18 +10649,18 @@ module.exports = DataUploader;
 /**
  * Created by Franklin on 2017/3/14.
  */
-var React = __webpack_require__(13);
+var React = __webpack_require__(10);
 var ReactDOM = __webpack_require__(112);
 
-var RmtModelSerTable = __webpack_require__(214);
-var RmtModelSerRunTable = __webpack_require__(211);
-var ModelSerInfo = __webpack_require__(213);
-var SystemSetting = __webpack_require__(216);
+var RmtModelSerTable = __webpack_require__(216);
+var RmtModelSerRunTable = __webpack_require__(213);
+var ModelSerInfo = __webpack_require__(215);
+var SystemSetting = __webpack_require__(218);
 var ChildrenTable = __webpack_require__(209);
-var ParentPanel = __webpack_require__(215);
-var CloudModelSerTable = __webpack_require__(212);
+var ParentPanel = __webpack_require__(217);
+var CloudModelSerTable = __webpack_require__(214);
 var DataCollectionTable = __webpack_require__(210);
-var DataPreparation = __webpack_require__(219);
+var DataPreparation = __webpack_require__(211);
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -10692,6 +10692,8 @@ if(document.getElementById('parentPanel') != null) {
     ReactDOM.render(React.createElement(ParentPanel, {source: "/parent"}),
         document.getElementById('parentPanel'));
 }
+
+
 
 if(document.getElementById('cloudModelSerTable') != null) {
     ReactDOM.render(React.createElement(CloudModelSerTable, {source: ""}),
@@ -12288,8 +12290,8 @@ var EventPluginHub = __webpack_require__(25);
 var EventPropagators = __webpack_require__(26);
 var ExecutionEnvironment = __webpack_require__(6);
 var ReactDOMComponentTree = __webpack_require__(4);
-var ReactUpdates = __webpack_require__(10);
-var SyntheticEvent = __webpack_require__(14);
+var ReactUpdates = __webpack_require__(12);
+var SyntheticEvent = __webpack_require__(15);
 
 var getEventTarget = __webpack_require__(48);
 var isEventSupported = __webpack_require__(49);
@@ -12616,7 +12618,7 @@ var DOMLazyTree = __webpack_require__(22);
 var ExecutionEnvironment = __webpack_require__(6);
 
 var createNodesFromMarkup = __webpack_require__(188);
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 var invariant = __webpack_require__(1);
 
 var Danger = {
@@ -13317,7 +13319,7 @@ var _prodInvariant = __webpack_require__(2),
 
 var React = __webpack_require__(24);
 var ReactComponentEnvironment = __webpack_require__(42);
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 var ReactErrorUtils = __webpack_require__(43);
 var ReactInstanceMap = __webpack_require__(27);
 var ReactInstrumentation = __webpack_require__(9);
@@ -14226,7 +14228,7 @@ var ReactDOMComponentTree = __webpack_require__(4);
 var ReactDefaultInjection = __webpack_require__(143);
 var ReactMount = __webpack_require__(74);
 var ReactReconciler = __webpack_require__(23);
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 var ReactVersion = __webpack_require__(158);
 
 var findDOMNode = __webpack_require__(175);
@@ -14361,7 +14363,7 @@ var ReactInstrumentation = __webpack_require__(9);
 var ReactMultiChild = __webpack_require__(151);
 var ReactServerRenderingTransaction = __webpack_require__(156);
 
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 var escapeTextContentForBrowser = __webpack_require__(33);
 var invariant = __webpack_require__(1);
 var isEventSupported = __webpack_require__(49);
@@ -15517,7 +15519,7 @@ var _prodInvariant = __webpack_require__(2),
 var DOMPropertyOperations = __webpack_require__(67);
 var LinkedValueUtils = __webpack_require__(41);
 var ReactDOMComponentTree = __webpack_require__(4);
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 
 var invariant = __webpack_require__(1);
 var warning = __webpack_require__(3);
@@ -16464,7 +16466,7 @@ var _prodInvariant = __webpack_require__(2),
 
 var LinkedValueUtils = __webpack_require__(41);
 var ReactDOMComponentTree = __webpack_require__(4);
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 
 var invariant = __webpack_require__(1);
 var warning = __webpack_require__(3);
@@ -17254,10 +17256,10 @@ module.exports = ReactDebugTool;
 
 var _assign = __webpack_require__(5);
 
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 var Transaction = __webpack_require__(32);
 
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 
 var RESET_BATCHED_UPDATES = {
   initialize: emptyFunction,
@@ -17485,7 +17487,7 @@ var EventListener = __webpack_require__(86);
 var ExecutionEnvironment = __webpack_require__(6);
 var PooledClass = __webpack_require__(18);
 var ReactDOMComponentTree = __webpack_require__(4);
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 
 var getEventTarget = __webpack_require__(48);
 var getUnboundedScrollPosition = __webpack_require__(190);
@@ -17685,7 +17687,7 @@ var ReactComponentEnvironment = __webpack_require__(42);
 var ReactEmptyComponent = __webpack_require__(70);
 var ReactBrowserEventEmitter = __webpack_require__(30);
 var ReactHostComponent = __webpack_require__(72);
-var ReactUpdates = __webpack_require__(10);
+var ReactUpdates = __webpack_require__(12);
 
 var ReactInjection = {
   Component: ReactComponentEnvironment.injection,
@@ -17821,11 +17823,11 @@ var ReactComponentEnvironment = __webpack_require__(42);
 var ReactInstanceMap = __webpack_require__(27);
 var ReactInstrumentation = __webpack_require__(9);
 
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 var ReactReconciler = __webpack_require__(23);
 var ReactChildReconciler = __webpack_require__(123);
 
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 var flattenChildren = __webpack_require__(176);
 var invariant = __webpack_require__(1);
 
@@ -19251,7 +19253,7 @@ var EventPropagators = __webpack_require__(26);
 var ExecutionEnvironment = __webpack_require__(6);
 var ReactDOMComponentTree = __webpack_require__(4);
 var ReactInputSelection = __webpack_require__(73);
-var SyntheticEvent = __webpack_require__(14);
+var SyntheticEvent = __webpack_require__(15);
 
 var getActiveElement = __webpack_require__(89);
 var isTextInputElement = __webpack_require__(83);
@@ -19451,7 +19453,7 @@ var EventPropagators = __webpack_require__(26);
 var ReactDOMComponentTree = __webpack_require__(4);
 var SyntheticAnimationEvent = __webpack_require__(162);
 var SyntheticClipboardEvent = __webpack_require__(163);
-var SyntheticEvent = __webpack_require__(14);
+var SyntheticEvent = __webpack_require__(15);
 var SyntheticFocusEvent = __webpack_require__(166);
 var SyntheticKeyboardEvent = __webpack_require__(168);
 var SyntheticMouseEvent = __webpack_require__(31);
@@ -19461,7 +19463,7 @@ var SyntheticTransitionEvent = __webpack_require__(170);
 var SyntheticUIEvent = __webpack_require__(28);
 var SyntheticWheelEvent = __webpack_require__(171);
 
-var emptyFunction = __webpack_require__(15);
+var emptyFunction = __webpack_require__(16);
 var getEventCharCode = __webpack_require__(46);
 var invariant = __webpack_require__(1);
 
@@ -19677,7 +19679,7 @@ module.exports = SimpleEventPlugin;
 
 
 
-var SyntheticEvent = __webpack_require__(14);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -19721,7 +19723,7 @@ module.exports = SyntheticAnimationEvent;
 
 
 
-var SyntheticEvent = __webpack_require__(14);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -19764,7 +19766,7 @@ module.exports = SyntheticClipboardEvent;
 
 
 
-var SyntheticEvent = __webpack_require__(14);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -19887,7 +19889,7 @@ module.exports = SyntheticFocusEvent;
 
 
 
-var SyntheticEvent = __webpack_require__(14);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -20068,7 +20070,7 @@ module.exports = SyntheticTouchEvent;
 
 
 
-var SyntheticEvent = __webpack_require__(14);
+var SyntheticEvent = __webpack_require__(15);
 
 /**
  * @interface Event
@@ -20400,7 +20402,7 @@ module.exports = dangerousStyleValue;
 
 var _prodInvariant = __webpack_require__(2);
 
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 var ReactDOMComponentTree = __webpack_require__(4);
 var ReactInstanceMap = __webpack_require__(27);
 
@@ -22089,7 +22091,7 @@ var ReactNoopUpdateQueue = __webpack_require__(54);
 
 var emptyObject = __webpack_require__(59);
 var invariant = __webpack_require__(21);
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 var MIXINS_KEY = 'mixins';
 
@@ -22984,7 +22986,7 @@ var ReactPropTypesSecret = __webpack_require__(92);
 
 var emptyFunction = __webpack_require__(58);
 var getIteratorFn = __webpack_require__(57);
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 /**
  * Collection of methods that allow declaration and validation of props that are
@@ -23490,7 +23492,7 @@ var ReactPropTypeLocationNames = __webpack_require__(55);
 var ReactPropTypesSecret = __webpack_require__(92);
 
 var invariant = __webpack_require__(21);
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 var ReactComponentTreeHook;
 
@@ -23623,13 +23625,13 @@ module.exports = onlyChild;
 
 var _prodInvariant = __webpack_require__(20);
 
-var ReactCurrentOwner = __webpack_require__(11);
+var ReactCurrentOwner = __webpack_require__(13);
 var REACT_ELEMENT_TYPE = __webpack_require__(90);
 
 var getIteratorFn = __webpack_require__(57);
 var invariant = __webpack_require__(21);
 var KeyEscapeUtils = __webpack_require__(198);
-var warning = __webpack_require__(12);
+var warning = __webpack_require__(14);
 
 var SEPARATOR = '.';
 var SUBSEPARATOR = ':';
@@ -23793,8 +23795,8 @@ module.exports = traverseAllChildren;
 /**
  * Created by Franklin on 2017/3/26.
  */
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
 var ChildrenTable = React.createClass({displayName: "ChildrenTable",
     getInitialState : function () {
@@ -23951,8 +23953,8 @@ module.exports = ChildrenTable;
 /**
  * Created by Franklin on 2017/3/30.
  */
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
 var DataUploader = __webpack_require__(93);
 
@@ -24053,6 +24055,154 @@ var DataCollectionTable = React.createClass({displayName: "DataCollectionTable",
         }
     },
 
+    dataPreview : function (e,gdid) {
+        // $("#myModal").attr("aria-hidden",false);
+        var nice = $("html").niceScroll();
+        nice.opt.mousescrollstep = 0;
+        if($('#map:has(canvas)').length!=0){
+            $("#map").empty();
+        }
+        $.ajax({
+            url:'/geodata/snapshot/' + gdid,
+            success:function (data) {
+                var rst = JSON.parse(data);
+                console.log(rst.layers)
+                if(rst.suc == true){
+                    var projection = 'EPSG:3857';
+                    var layerExtents=[],map,
+                        minx = 999999999,
+                        miny = 999999999,
+                        maxx = -999999999,
+                        maxy = -999999999;
+                    for(var j=0;j<rst.layers.length;j++){
+                        var ENCorner = rst.layers[j].ENCorner;
+                        var WSCorner = rst.layers[j].WSCorner;
+                        ENCorner = proj4('EPSG:3857').forward(ENCorner);
+                        WSCorner = proj4('EPSG:3857').forward(WSCorner);
+                        layerExtents.push([WSCorner[0],WSCorner[1],ENCorner[0],ENCorner[1]]);
+                        if(minx>WSCorner[0])
+                            minx = WSCorner[0];
+                        if(miny>WSCorner[1])
+                            miny = WSCorner[1];
+                        if(maxx<ENCorner[0])
+                            maxx = ENCorner[0];
+                        if(maxy<ENCorner[1])
+                            maxy = ENCorner[1];
+                    }
+                    var imageExtent = [minx,miny,maxx,maxy];
+
+                    var myView = new ol.View({
+                        center: ol.extent.getCenter(imageExtent),
+                        projection:projection
+                    });
+                    var overlayGroup = new ol.layer.Group({
+                        title: 'Layers',
+                        layers: [
+                            new ol.layer.Tile({
+                                title: 'OSM',
+                                visible: true,
+                                source: new ol.source.OSM()
+                            })
+                        ]
+                    });
+                    map = new ol.Map({
+//                        controls: ol.control.defaults().extend([
+//                            new ol.control.ZoomToExtent({})
+//                        ]),
+                        layers: [overlayGroup],
+                        target: 'map',
+                        view: myView
+                    });
+                    if(rst.dataType == 'geotiff'){
+                        //坐标为平面坐标
+                        for(var i=0;i<rst.layers.length;i++){
+                            var title = rst.layers[i].path;
+                            title = title.substring(title.lastIndexOf('_')+1,title.indexOf('.'));
+                            overlayGroup.getLayers().push(new ol.layer.Image({
+                                title: 'grid[band:' + title + ']',
+                                source: new ol.source.ImageStatic({
+                                    ratio: 1,
+                                    params: {'LAYERS': 'show:0'},
+                                    url: rst.layers[i].path,
+                                    imageExtent: layerExtents[i],
+                                    projection:projection
+                                })
+                            }));
+                        }
+                    }
+                    else if(rst.dataType == 'shp'){
+                        //经纬度
+                        //考虑一个问题：geojosn的坐标和openlayers的坐标之间的关系
+//                        ENCorner = proj4('EPSG:4326').forward(ENCorner);
+//                        WSCorner = proj4('EPSG:4326').forward(WSCorner);
+//                        imageExtent = [WSCorner[0],WSCorner[1],ENCorner[0],ENCorner[1]];
+//                        projection = 'EPSG:4326';
+                        overlayGroup.getLayers().push(new ol.layer.Vector({
+                            ratio: 1,
+                            params: {'LAYERS': 'show:0'},
+                            title: 'shapefile',
+                            source: new ol.source.Vector({
+                                url: rst.layers[0].path,     // 地图来源
+                                format: new ol.format.GeoJSON()    // 解析矢量地图的格式化类
+                            })
+                        }));
+                    }
+                    else if(rst.dataType == 'grid list'){
+                        for(var i=0;i<rst.layers.length;i++){
+                            var title = rst.layers[i].path;
+                            var titlePart = title.split('_');
+                            var listIndex = titlePart[titlePart.length-2];
+                            var bandIndex = titlePart[titlePart.length-1];
+                            bandIndex = bandIndex.substring(0,bandIndex.indexOf('.png'));
+                            overlayGroup.getLayers().push(new ol.layer.Image({
+                                title: 'list_' + listIndex + '[band:' + bandIndex + ']',
+                                source: new ol.source.ImageStatic({
+                                    ratio: 1,
+                                    params: {'LAYERS': 'show:0'},
+                                    url: rst.layers[i].path,
+                                    imageExtent: layerExtents[i],
+                                    projection:projection
+                                })
+                            }));
+                        }
+                    }
+                    else if(rst.dataType == 'shp list'){
+                        for(var i=0;i<rst.layers.length;i++) {
+                            overlayGroup.getLayers().push(new ol.layer.Vector({
+                                ratio: 1,
+                                params: {'LAYERS': 'show:0'},
+                                title: 'shapefile',
+                                source: new ol.source.Vector({
+                                    url: rst.layers[i].path,     // 地图来源
+                                    format: new ol.format.GeoJSON()    // 解析矢量地图的格式化类
+                                })
+                            }));
+                        }
+                    }
+                    else if(rst.dataType == 'table'){
+
+                    }
+                    map.getView().fit(imageExtent, map.getSize());
+                    var layerSwitcher = new ol.control.LayerSwitcher({
+                        tipLabel: 'Légende' // Optional label for button
+                    });
+                    map.addControl(layerSwitcher);
+                }
+                else{
+                    alert('udx data err!');
+                    $('#close-modal').trigger("click");
+                }
+            }.bind(this)
+        });
+
+        //恢复滚动条
+        $('#myModal').on('hide.bs.modal',function () {
+            var nice = $("html").niceScroll();
+            nice.opt.enablemousewheel = true;
+            nice.opt.mousescrollstep = 40;
+        });
+    },
+
     render : function() {
         if(this.state.loading)
         {
@@ -24084,13 +24234,14 @@ var DataCollectionTable = React.createClass({displayName: "DataCollectionTable",
                     React.createElement("td", null, item.gd_tag), 
                     React.createElement("td", null, 
                         React.createElement("button", {className: "btn btn-info btn-xs", onClick: function(e)  {this.displayData(e, item.gd_id)}.bind(this)}, React.createElement("i", {className: "fa fa-book"}, " "), " 查看"), " ", 
-                        React.createElement("button", {className: "btn btn-success btn-xs", onClick: function(e)  {this.displayData(e, item.gd_id)}.bind(this)}, React.createElement("i", {className: "fa fa-picture-o"}, " "), " 渲染"), " ", 
+                        React.createElement("button", {className: "btn btn-success btn-xs btn-lg", "data-toggle": "modal", "data-target": "#myModal", onClick: function(e)  {this.dataPreview(e, item.gd_id)}.bind(this)}, React.createElement("i", {className: "fa fa-picture-o"}, " "), " 渲染"), " ", 
                         React.createElement("button", {className: "btn btn-default btn-xs", onClick: function(e)  {this.downloadData(e, item.gd_id)}.bind(this)}, React.createElement("i", {className: "fa fa-download"}, " "), " 下载"), " ", 
                         React.createElement("button", {className: "btn btn-warning btn-xs", onClick: function(e)  {this.deleteData(e, item.gd_id, item.gd_tag)}.bind(this)}, React.createElement("i", {className: "fa fa-trash-o"}, " "))
                     )
                 )
             );
         }.bind(this));
+
         return (
             React.createElement("div", null, 
                 React.createElement("div", null, 
@@ -24110,18 +24261,20 @@ var DataCollectionTable = React.createClass({displayName: "DataCollectionTable",
                         dataItems
                     )
                 ), 
-                React.createElement("div", {"aria-hidden": "true", "aria-labelledby": "gateGateModelDetail", role: "dialog", tabIndex: "-1", id: "diaDetail", className: "modal fade"}, 
-                    React.createElement("div", {className: "modal-dialog"}, 
-                        React.createElement("div", {className: "modal-content"}, 
-                            React.createElement("div", {className: "modal-header"}, 
-                                React.createElement("button", {"aria-hidden": "true", "data-dismiss": "modal", className: "close", type: "button"}, "×"), 
-                                React.createElement("h4", {className: "modal-title"}, "服务")
-                            ), 
-                            React.createElement("div", {className: "modal-body"}
 
+                React.createElement("div", {"aria-hidden": "true", "aria-labelledby": "myModalLabel", role: "dialog", tabIndex: "-1", id: "myModal", className: "modal fade", style: {overflow: 'hidden'}}, 
+                    React.createElement("div", {className: "modal-dialog", style: {width: '750px'}}, 
+                        React.createElement("div", {className: "modal-content"}, 
+                            React.createElement("div", {className: "modal-header", style: {backgroundColor: 'rgba(0,0,0,0)',width: '750px',position: 'absolute',top: 0,left: 0,zIndex: 100}}, 
+                                React.createElement("button", {type: "button", id: "close-modal", className: "close", "data-dismiss": "modal", "aria-hidden": "true", style: {color: '#000'}}, 
+                                    "×"
+                                ), 
+                                React.createElement("h4", {className: "modal-title", id: "myModalLabel", style: {color: '#000'}}, 
+                                    "UDX Visualization"
+                                )
                             ), 
-                            React.createElement("div", {className: "modal-footer"}, 
-                                React.createElement("button", {id: "btn_ok", type: "button", className: "btn btn-default", "data-dismiss": "modal"}, "关闭")
+                            React.createElement("div", {className: "modal-body", style: {padding:0}}, 
+                                React.createElement("div", {id: "map", className: "map", style: {width:'750px',height: '500px'}})
                             )
                         )
                     )
@@ -24138,11 +24291,356 @@ module.exports = DataCollectionTable;
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
+ * Created by Franklin on 2017/4/5.
+ */
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
+
+var DataUpLoader = __webpack_require__(93);
+
+var DataPreparation = React.createClass({displayName: "DataPreparation",
+    getInitialState : function () {
+        return {
+            states : [],
+            allInputData : [],
+            allOutputData : [],
+            loading : true
+        };
+    },
+
+    componentDidMount : function () {
+        Axios.get(this.props.source).then(
+            function(data)  {
+                if(data.data.result == 'suc')
+                {
+                    this.setState({states : data.data.data, loading : false});
+                    this.state.states.map(function(State){
+                        State.Event.map(function(Event){
+                            if(Event.$.type == 'response'){
+                                this.state.allInputData.push({
+                                    StateId : State.$.id,
+                                    Event : Event.$.name,
+                                    DataId : '',
+                                    optional : Event.$.optional
+                                });
+                            }
+                            else if(Event.$.type == 'noresponse'){
+                                this.state.allOutputData.push({
+                                    StateId : State.$.id,
+                                    Event : Event.$.name,
+                                    Tag : ''
+                                });
+                            }
+                        }.bind(this));
+
+                        window.allInputData = this.state.allInputData;
+                        window.allOutputData = this.state.allOutputData;
+                    }.bind(this));
+                }
+            }.bind(this),
+            function(err)  {}
+        );
+    },
+
+    onDataReady : function(stateId, eventName, gdid){
+        for(var i = 0; i < this.state.allInputData.length; i++)
+        {
+            if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName)
+            {
+                this.state.allInputData[i].DataId = gdid;
+                break;
+            }
+        }
+        this.forceUpdate();
+    },
+
+    removeDate : function(e, stateId, eventName){
+        if(confirm("确认移除数据?"))
+        {
+            for(var i = 0; i < this.state.allInputData.length; i++)
+            {
+                if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName)
+                {
+                    this.state.allInputData[i].DataId = '';
+                    this.forceUpdate();
+                    break;
+                }
+            }
+            for(var i = 0; i < window.allInputData.length; i++)
+            {
+                if(window.allInputData[i].StateId == stateId && window.allInputData[i].Event == eventName)
+                {
+                    window.allInputData[i].Ready = true;
+                }
+            }
+        }
+    },
+
+    getDataState : function(stateId, eventName){
+        for(var i = 0; i < this.state.allInputData.length; i++)
+        {
+            if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName && this.state.allInputData[i].DataId != '')
+            {
+                return (
+                    React.createElement("p", {id:  'data_pre_p_' + stateId + '_' + eventName}, 
+                        React.createElement("strong", null, "数据准备情况 : "), React.createElement("span", {className: "label label-success"}, "已准备"), "  ", 
+                         this.state.allInputData[i].DataId, "  ", 
+                        React.createElement("button", {className: "btn btn-danger btn-xs", onClick: function(e)  { this.removeDate(e, stateId, eventName) }.bind(this)}, "移除")
+                    )
+                );
+            }
+        }
+        return (React.createElement("p", {id:  'data_pre_p_' + stateId + '_' + eventName}, React.createElement("strong", null, "数据准备情况 : "), React.createElement("span", {className: "label label-warning"}, "未准备")));
+    },
+
+    render : function(){
+        if(this.state.loading)
+        {
+            return (React.createElement("span", null, "加载中..."));
+        }
+        var states = this.state.states.map(function(State){
+            var mark = true;
+            var EventHead = State.Event.map(function(Event){
+                var tag = '';
+                if(mark)
+                {
+                    tag = 'active';
+                    mark = false;
+                }
+                return (
+                    React.createElement("li", {key: 'head' + State.$.id + '_' + Event.$.name, className: tag}, 
+                        React.createElement("a", {style: { paddingRight : '8px !important'}, href: '#' + State.$.id + '_' + Event.$.name, "data-toggle": "tab"}, 
+                            React.createElement("i", {className: "fa fa-flash"}, " "), Event.$.name, "    "
+                        )
+                    )
+                );
+            });
+
+            mark = true;
+            var EventBody = State.Event.map(function(Event){
+                var tag = '';
+                if(mark){
+                    tag = 'active';
+                    mark = false;
+                }
+                var dataSelect = null;
+                var optional = null;
+                var dataReady = null;
+                if(Event.$.type == 'response'){
+                    dataSelect = (React.createElement(DataUpLoader, {"data-id": State.$.id + '_' + Event.$.name, "data-type": "SELECT", onFinish:  function(gdid)  { this.onDataReady(State.$.id, Event.$.name, gdid) }.bind(this)}));
+                    dataReady = this.getDataState(State.$.id, Event.$.name);
+                    if(Event.$.optional == '1'){
+                        optional = (React.createElement("h4", {style: {color : '#9AD717'}}, React.createElement("strong", null, "可选参数")));
+                    }
+                    else{
+                        optional = (React.createElement("h4", {style: {color : '#9AD717'}}, React.createElement("strong", null, "必选参数")));
+                    }
+                }
+                else if(Event.$.type == 'noresponse'){
+                    optional = (React.createElement("h4", {style: {color : '#9AD717'}}, React.createElement("strong", null, "输出参数")));
+                    dataReady = (React.createElement("p", null, React.createElement("strong", null, "结果数据标签:")));
+                    dataSelect = (React.createElement("input", {id: 'dataTag_' + State.$.id + '_' + Event.$.name, className: "form-control", type: "text"}));
+                }
+                var udxDec = null;
+                if(Event.UDXDeclaration){
+                    udxDec = Event.UDXDeclaration.$.name + ' - ' + Event.UDXDeclaration.$.description;
+                }
+                return (
+                    React.createElement("div", {key: 'body' + State.$.id + '_' + Event.$.name, className:  'tab-pane ' + tag, id: State.$.id + '_' + Event.$.name}, 
+                        optional, 
+                        React.createElement("p", null, React.createElement("strong", null, "类型："), Event.$.type), 
+                        React.createElement("p", null, React.createElement("strong", null, "描述："), Event.$.description), 
+                        React.createElement("p", null, React.createElement("strong", null, "数据参考："), udxDec), 
+                        dataReady, 
+                        dataSelect
+                    )
+                );
+            }.bind(this));
+
+            return(
+            React.createElement("div", {key: State.$.id, className: "panel-body"}, 
+                React.createElement("h4", {style: {color: '#9ad717'}}, React.createElement("strong", null, "状态信息")), 
+                React.createElement("p", null, React.createElement("strong", null, "名称 : "), State.$.name), 
+                React.createElement("p", null, React.createElement("strong", null, "ID : "), State.$.id), 
+                React.createElement("p", null, React.createElement("strong", null, "描述 : "), State.$.description), 
+                React.createElement("p", null, React.createElement("strong", null, "类型 : "), State.$.type), 
+                React.createElement("br", null), 
+                React.createElement("h4", null, React.createElement("strong", null, "事件")), 
+                React.createElement("section", {className: "panel"}, 
+                    React.createElement("header", {className: "panel-heading custom-tab "}, 
+                        React.createElement("ul", {className: "nav nav-tabs"}, 
+                            EventHead
+                        )
+                    ), 
+                    React.createElement("div", {className: "panel-body"}, 
+                        React.createElement("div", {className: "tab-content"}, 
+                            EventBody
+                        )
+                    )
+                )
+            ));
+        }.bind(this));
+        return (
+            React.createElement("div", null, 
+                states
+            )
+        );
+    }
+});
+
+module.exports = DataPreparation;
+
+/***/ }),
+/* 212 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * Created by Franklin on 2017/4/5.
+ */
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
+
+var DataSelectTable = React.createClass({displayName: "DataSelectTable",
+    getInitialState : function () {
+        var id = '';
+        if(this.props['data-id'])
+        {
+            id = this.props['data-id'];
+        }
+        return {
+            id : id,
+            loading : true,
+            err : null,
+            data : null,
+            gdid : ''
+        };
+    },
+
+    componentDidMount : function () {
+        //this.refresh();
+    },
+
+    getSelectedGDID : function(){
+        return $("input[name='rd_GDID']:checked").val();
+    },
+
+    refresh : function () {
+        Axios.get(this.props.source).then(
+            function(data)  {
+                if(data.data.res == 'err')
+                {
+                    this.setState({loading : false, err : data.data.message});
+                }
+                else
+                {
+                    this.setState({loading : false, err : false, data : data.data.data});
+                    if(!this.state.init)
+                    {
+                        $('#dataSelect-table' + this.state.id).dataTable(
+                            {
+                                //数据URL
+                                "data": "/geodata/json/all",
+                                //载入数据的时候是否显示“正在加载中...”
+                                "processing": true,
+                                //是否显示分页
+                                "bPaginate": true,
+                                //每页显示条目数
+                                "bLengthChange": false,
+                                //初始化显示条目数
+                                "iDisplayLength" : 5,
+                                //排序
+                                "bSort": true,
+                                //排序配置
+                                "aaSorting": [[2, "desc"]],
+                                //自适应宽度
+                                "bAutoWidth": true,
+                                //多语言配置
+                                "oLanguage": {
+                                    "sLengthMenu": "每页显示 _MENU_ 条记录",
+                                    "sZeroRecords": "对不起，查询不到任何相关数据",
+                                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+                                    "sInfoEmtpy": "找不到相关数据",
+                                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
+                                    "sProcessing": "正在加载中...",
+                                    "sSearch": "搜索",
+                                    //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
+                                    "sUrl": "",
+                                    "oPaginate": {
+                                        "sFirst":    "第一页",
+                                        "sPrevious": " 上一页 ",
+                                        "sNext":     " 下一页 ",
+                                        "sLast":     " 最后一页 "
+                                    }
+                                }
+                            }
+                        );
+                        this.setState({init : true});
+                    }
+                }
+            }.bind(this),
+            function(err)  {
+                this.setState({loading : false, err : err});
+            }.bind(this)
+        );
+    },
+
+    render : function() {
+        if(this.state.loading)
+        {
+            return (
+                React.createElement("span", null, "加载中...")
+            );
+        }
+        if(this.state.err)
+        {
+            return (
+                React.createElement("span", null, "Error:", JSON.stringify(this.state.err))
+            );
+        }
+        var dataItems = this.state.data.map(function(item){
+
+            return(
+                React.createElement("tr", {key: item.gd_id}, 
+                    React.createElement("td", null, React.createElement("input", {className: "radio ", name: "rd_GDID", type: "radio", value: item.gd_id})), 
+                    React.createElement("td", null, item.gd_id), 
+                    React.createElement("td", null, item.gd_datetime), 
+                    React.createElement("td", null, item.gd_tag)
+                )
+            );
+        }.bind(this));
+        return (
+            React.createElement("div", null, 
+                React.createElement("table", {className: "display table table-bordered table-striped", id: 'dataSelect-table' + this.state.id}, 
+
+                    React.createElement("thead", null, 
+                    React.createElement("tr", null, 
+                        React.createElement("th", null, " "), 
+                        React.createElement("th", null, "数据ID"), 
+                        React.createElement("th", null, "生成时间"), 
+                        React.createElement("th", null, "标签")
+                    )
+                    ), 
+                    React.createElement("tbody", null, 
+                    dataItems
+                    )
+                )
+            )
+        );
+    }
+});
+
+module.exports = DataSelectTable;
+
+/***/ }),
+/* 213 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
  * Created by Franklin on 2017/3/25.
  */
 
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
 var RmtModelSerRunTable = React.createClass({displayName: "RmtModelSerRunTable",
     getInitialState : function () {
@@ -24294,14 +24792,14 @@ var RmtModelSerRunTable = React.createClass({displayName: "RmtModelSerRunTable",
 module.exports = RmtModelSerRunTable;
 
 /***/ }),
-/* 212 */
+/* 214 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by Franklin on 2017/3/30.
  */
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
 var CloudModelSerTable = React.createClass({displayName: "CloudModelSerTable",
     getInitialState : function () {
@@ -24431,15 +24929,15 @@ var CloudModelSerTable = React.createClass({displayName: "CloudModelSerTable",
 module.exports = CloudModelSerTable;
 
 /***/ }),
-/* 213 */
+/* 215 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by Franklin on 2017/3/21.
  */
 
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
 var ModelSerInfo = React.createClass({displayName: "ModelSerInfo",
     getInitialState : function () {
@@ -24538,14 +25036,14 @@ var ModelSerInfo = React.createClass({displayName: "ModelSerInfo",
 module.exports = ModelSerInfo;
 
 /***/ }),
-/* 214 */
+/* 216 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by Franklin on 2017/3/22.
  */
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
 var RmtModelSerTable = React.createClass({displayName: "RmtModelSerTable",
     getInitialState : function () {
@@ -24769,14 +25267,14 @@ var RmtModelSerTable = React.createClass({displayName: "RmtModelSerTable",
 module.exports = RmtModelSerTable;
 
 /***/ }),
-/* 215 */
+/* 217 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by Franklin on 2017/3/27.
  */
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
 var ParentPanel = React.createClass({displayName: "ParentPanel",
     getInitialState : function () {
@@ -24891,15 +25389,15 @@ var ParentPanel = React.createClass({displayName: "ParentPanel",
 module.exports = ParentPanel;
 
 /***/ }),
-/* 216 */
+/* 218 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * Created by Franklin on 2017/3/26.
  */
 
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
+var React = __webpack_require__(10);
+var Axios = __webpack_require__(11);
 
 var SystemSetting = React.createClass({displayName: "SystemSetting",
     getInitialState : function () {
@@ -24964,356 +25462,11 @@ var SystemSetting = React.createClass({displayName: "SystemSetting",
 module.exports = SystemSetting;
 
 /***/ }),
-/* 217 */
+/* 219 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(94);
 
-
-/***/ }),
-/* 218 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by Franklin on 2017/4/5.
- */
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
-
-var DataSelectTable = React.createClass({displayName: "DataSelectTable",
-    getInitialState : function () {
-        var id = '';
-        if(this.props['data-id'])
-        {
-            id = this.props['data-id'];
-        }
-        return {
-            id : id,
-            loading : true,
-            err : null,
-            data : null,
-            gdid : ''
-        };
-    },
-
-    componentDidMount : function () {
-        //this.refresh();
-    },
-
-    getSelectedGDID : function(){
-        return $("input[name='rd_GDID']:checked").val();
-    },
-
-    refresh : function () {
-        Axios.get(this.props.source).then(
-            function(data)  {
-                if(data.data.res == 'err')
-                {
-                    this.setState({loading : false, err : data.data.message});
-                }
-                else
-                {
-                    this.setState({loading : false, err : false, data : data.data.data});
-                    if(!this.state.init)
-                    {
-                        $('#dataSelect-table' + this.state.id).dataTable(
-                            {
-                                //数据URL
-                                "data": "/geodata/json/all",
-                                //载入数据的时候是否显示“正在加载中...”
-                                "processing": true,
-                                //是否显示分页
-                                "bPaginate": true,
-                                //每页显示条目数
-                                "bLengthChange": false,
-                                //初始化显示条目数
-                                "iDisplayLength" : 5,
-                                //排序
-                                "bSort": true,
-                                //排序配置
-                                "aaSorting": [[2, "desc"]],
-                                //自适应宽度
-                                "bAutoWidth": true,
-                                //多语言配置
-                                "oLanguage": {
-                                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                                    "sInfoEmtpy": "找不到相关数据",
-                                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
-                                    "sProcessing": "正在加载中...",
-                                    "sSearch": "搜索",
-                                    //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
-                                    "sUrl": "",
-                                    "oPaginate": {
-                                        "sFirst":    "第一页",
-                                        "sPrevious": " 上一页 ",
-                                        "sNext":     " 下一页 ",
-                                        "sLast":     " 最后一页 "
-                                    }
-                                }
-                            }
-                        );
-                        this.setState({init : true});
-                    }
-                }
-            }.bind(this),
-            function(err)  {
-                this.setState({loading : false, err : err});
-            }.bind(this)
-        );
-    },
-
-    render : function() {
-        if(this.state.loading)
-        {
-            return (
-                React.createElement("span", null, "加载中...")
-            );
-        }
-        if(this.state.err)
-        {
-            return (
-                React.createElement("span", null, "Error:", JSON.stringify(this.state.err))
-            );
-        }
-        var dataItems = this.state.data.map(function(item){
-
-            return(
-                React.createElement("tr", {key: item.gd_id}, 
-                    React.createElement("td", null, React.createElement("input", {className: "radio ", name: "rd_GDID", type: "radio", value: item.gd_id})), 
-                    React.createElement("td", null, item.gd_id), 
-                    React.createElement("td", null, item.gd_datetime), 
-                    React.createElement("td", null, item.gd_tag)
-                )
-            );
-        }.bind(this));
-        return (
-            React.createElement("div", null, 
-                React.createElement("table", {className: "display table table-bordered table-striped", id: 'dataSelect-table' + this.state.id}, 
-
-                    React.createElement("thead", null, 
-                    React.createElement("tr", null, 
-                        React.createElement("th", null, " "), 
-                        React.createElement("th", null, "数据ID"), 
-                        React.createElement("th", null, "生成时间"), 
-                        React.createElement("th", null, "标签")
-                    )
-                    ), 
-                    React.createElement("tbody", null, 
-                    dataItems
-                    )
-                )
-            )
-        );
-    }
-});
-
-module.exports = DataSelectTable;
-
-/***/ }),
-/* 219 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Created by Franklin on 2017/4/5.
- */
-var React = __webpack_require__(13);
-var Axios = __webpack_require__(16);
-
-var DataUpLoader = __webpack_require__(93);
-
-var DataPreparation = React.createClass({displayName: "DataPreparation",
-    getInitialState : function () {
-        return {
-            states : [],
-            allInputData : [],
-            allOutputData : [],
-            loading : true
-        };
-    },
-
-    componentDidMount : function () {
-        Axios.get(this.props.source).then(
-            function(data)  {
-                if(data.data.result == 'suc')
-                {
-                    this.setState({states : data.data.data, loading : false});
-                    this.state.states.map(function(State){
-                        State.Event.map(function(Event){
-                            if(Event.$.type == 'response'){
-                                this.state.allInputData.push({
-                                    StateId : State.$.id,
-                                    Event : Event.$.name,
-                                    DataId : '',
-                                    optional : Event.$.optional
-                                });
-                            }
-                            else if(Event.$.type == 'noresponse'){
-                                this.state.allOutputData.push({
-                                    StateId : State.$.id,
-                                    Event : Event.$.name,
-                                    Tag : ''
-                                });
-                            }
-                        }.bind(this));
-
-                        window.allInputData = this.state.allInputData;
-                        window.allOutputData = this.state.allOutputData;
-                    }.bind(this));
-                }
-            }.bind(this),
-            function(err)  {}
-        );
-    },
-
-    onDataReady : function(stateId, eventName, gdid){
-        for(var i = 0; i < this.state.allInputData.length; i++)
-        {
-            if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName)
-            {
-                this.state.allInputData[i].DataId = gdid;
-                break;
-            }
-        }
-        this.forceUpdate();
-    },
-
-    removeDate : function(e, stateId, eventName){
-        if(confirm("确认移除数据?"))
-        {
-            for(var i = 0; i < this.state.allInputData.length; i++)
-            {
-                if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName)
-                {
-                    this.state.allInputData[i].DataId = '';
-                    this.forceUpdate();
-                    break;
-                }
-            }
-            for(var i = 0; i < window.allInputData.length; i++)
-            {
-                if(window.allInputData[i].StateId == stateId && window.allInputData[i].Event == eventName)
-                {
-                    window.allInputData[i].Ready = true;
-                }
-            }
-        }
-    },
-
-    getDataState : function(stateId, eventName){
-        for(var i = 0; i < this.state.allInputData.length; i++)
-        {
-            if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName && this.state.allInputData[i].DataId != '')
-            {
-                return (
-                    React.createElement("p", {id:  'data_pre_p_' + stateId + '_' + eventName}, 
-                        React.createElement("strong", null, "数据准备情况 : "), React.createElement("span", {className: "label label-success"}, "已准备"), "  ", 
-                         this.state.allInputData[i].DataId, "  ", 
-                        React.createElement("button", {className: "btn btn-danger btn-xs", onClick: function(e)  { this.removeDate(e, stateId, eventName) }.bind(this)}, "移除")
-                    )
-                );
-            }
-        }
-        return (React.createElement("p", {id:  'data_pre_p_' + stateId + '_' + eventName}, React.createElement("strong", null, "数据准备情况 : "), React.createElement("span", {className: "label label-warning"}, "未准备")));
-    },
-
-    render : function(){
-        if(this.state.loading)
-        {
-            return (React.createElement("span", null, "加载中..."));
-        }
-        var states = this.state.states.map(function(State){
-            var mark = true;
-            var EventHead = State.Event.map(function(Event){
-                var tag = '';
-                if(mark)
-                {
-                    tag = 'active';
-                    mark = false;
-                }
-                return (
-                    React.createElement("li", {key: 'head' + State.$.id + '_' + Event.$.name, className: tag}, 
-                        React.createElement("a", {style: { paddingRight : '8px !important'}, href: '#' + State.$.id + '_' + Event.$.name, "data-toggle": "tab"}, 
-                            React.createElement("i", {className: "fa fa-flash"}, " "), Event.$.name, "    "
-                        )
-                    )
-                );
-            });
-
-            mark = true;
-            var EventBody = State.Event.map(function(Event){
-                var tag = '';
-                if(mark){
-                    tag = 'active';
-                    mark = false;
-                }
-                var dataSelect = null;
-                var optional = null;
-                var dataReady = null;
-                if(Event.$.type == 'response'){
-                    dataSelect = (React.createElement(DataUpLoader, {"data-id": State.$.id + '_' + Event.$.name, "data-type": "SELECT", onFinish:  function(gdid)  { this.onDataReady(State.$.id, Event.$.name, gdid) }.bind(this)}));
-                    dataReady = this.getDataState(State.$.id, Event.$.name);
-                    if(Event.$.optional == '1'){
-                        optional = (React.createElement("h4", {style: {color : '#9AD717'}}, React.createElement("strong", null, "可选参数")));
-                    }
-                    else{
-                        optional = (React.createElement("h4", {style: {color : '#9AD717'}}, React.createElement("strong", null, "必选参数")));
-                    }
-                }
-                else if(Event.$.type == 'noresponse'){
-                    optional = (React.createElement("h4", {style: {color : '#9AD717'}}, React.createElement("strong", null, "输出参数")));
-                    dataReady = (React.createElement("p", null, React.createElement("strong", null, "结果数据标签:")));
-                    dataSelect = (React.createElement("input", {id: 'dataTag_' + State.$.id + '_' + Event.$.name, className: "form-control", type: "text"}));
-                }
-                var udxDec = null;
-                if(Event.UDXDeclaration){
-                    udxDec = Event.UDXDeclaration.$.name + ' - ' + Event.UDXDeclaration.$.description;
-                }
-                return (
-                    React.createElement("div", {key: 'body' + State.$.id + '_' + Event.$.name, className:  'tab-pane ' + tag, id: State.$.id + '_' + Event.$.name}, 
-                        optional, 
-                        React.createElement("p", null, React.createElement("strong", null, "类型："), Event.$.type), 
-                        React.createElement("p", null, React.createElement("strong", null, "描述："), Event.$.description), 
-                        React.createElement("p", null, React.createElement("strong", null, "数据参考："), udxDec), 
-                        dataReady, 
-                        dataSelect
-                    )
-                );
-            }.bind(this));
-
-            return(
-            React.createElement("div", {key: State.$.id, className: "panel-body"}, 
-                React.createElement("h4", {style: {color: '#9ad717'}}, React.createElement("strong", null, "状态信息")), 
-                React.createElement("p", null, React.createElement("strong", null, "名称 : "), State.$.name), 
-                React.createElement("p", null, React.createElement("strong", null, "ID : "), State.$.id), 
-                React.createElement("p", null, React.createElement("strong", null, "描述 : "), State.$.description), 
-                React.createElement("p", null, React.createElement("strong", null, "类型 : "), State.$.type), 
-                React.createElement("br", null), 
-                React.createElement("h4", null, React.createElement("strong", null, "事件")), 
-                React.createElement("section", {className: "panel"}, 
-                    React.createElement("header", {className: "panel-heading custom-tab "}, 
-                        React.createElement("ul", {className: "nav nav-tabs"}, 
-                            EventHead
-                        )
-                    ), 
-                    React.createElement("div", {className: "panel-body"}, 
-                        React.createElement("div", {className: "tab-content"}, 
-                            EventBody
-                        )
-                    )
-                )
-            ));
-        }.bind(this));
-        return (
-            React.createElement("div", null, 
-                states
-            )
-        );
-    }
-});
-
-module.exports = DataPreparation;
 
 /***/ })
 /******/ ]);
