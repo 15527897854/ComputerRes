@@ -10,8 +10,8 @@ var GeoDataCtrl = require('../control/geoDataControl');
 var setting = require('../setting');
 var remoteReqCtrl = require('../control/remoteReqControl');
 var request = require('request');
-var ModelSerCtrl = require('../control/modelSerControl');
 var childCtrl = require('../control/childControl');
+var fileOpera = require('../utils/fileOpera');
 
 
 var RouteBase = require('./routeBase');
@@ -205,14 +205,24 @@ module.exports = function (app) {
                 }
                 if(gd.gd_type == 'FILE')
                 {
-                    fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, 'utf8' ,function (err, data) {
-                        if(err)
-                        {
-                            return res.end('error');
+                    fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err){
+                        if(err){
+                             GeoDataCtrl.delete(gdid, function(err, reslut){
+                                 return res.end('Data file do not exist!')
+                             });
                         }
-                        res.send('<xmp>' + data + '</xmp>');
-                        return res.end();
-                    })
+                        else
+                        {
+                            fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, 'utf8' ,function (err, data) {
+                                if(err)
+                                {
+                                    return res.end('error');
+                                }
+                                res.send('<xmp>' + data + '</xmp>');
+                                return res.end();
+                            });
+                        }
+                    });
                 }
                 else if(gd.gd_type == 'STREAM')
                 {
@@ -244,17 +254,26 @@ module.exports = function (app) {
                 var filename = gd.gd_id + '.xml';
                 if(gd.gd_type == 'FILE')
                 {
-                    fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
-                        if(err)
-                        {
-                            return res.end('error');
+                    fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                        if (err) {
+                            GeoDataCtrl.delete(gdid, function (err, reslut) {
+                                return res.end('Data file do not exist!')
+                            });
                         }
-                        res.set({
-                            'Content-Type': 'file/xml',
-                            'Content-Length': data.length });
-                        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                        res.end(data);
-                    })
+                        else {
+                            fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                                if(err)
+                                {
+                                    return res.end('error');
+                                }
+                                res.set({
+                                    'Content-Type': 'file/xml',
+                                    'Content-Length': data.length });
+                                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                                res.end(data);
+                            });
+                        }
+                    });
                 }
                 else if(gd.gd_type == 'STREAM')
                 {
