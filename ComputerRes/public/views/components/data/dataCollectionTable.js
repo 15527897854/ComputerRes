@@ -78,18 +78,15 @@ var DataCollectionTable = React.createClass({
         );
     },
 
-    displayData : function(e, gdid)
-    {
+    displayData : function(e, gdid){
         window.open('/geodata/json/' + gdid);
     },
 
-    downloadData : function(e, gdid)
-    {
+    downloadData : function(e, gdid){
         window.open('/geodata/' + gdid);
     },
 
-    deleteData : function(e, gdid, gdtag)
-    {
+    deleteData : function(e, gdid, gdtag){
         if(confirm('确认删除此数据 - ' + gdid + ' - ' + gdtag))
         {
             Axios.delete('/geodata/' + gdid).then(

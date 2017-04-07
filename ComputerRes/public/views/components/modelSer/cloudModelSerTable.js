@@ -88,7 +88,6 @@ var CloudModelSerTable = React.createClass({
                         <th>版本</th>
                         <th>平台</th>
                         <th>状态</th>
-                        <th>已下载</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -97,8 +96,16 @@ var CloudModelSerTable = React.createClass({
                         <td>计算平方根</td>
                         <td>1</td>
                         <td><span className="label label-info"><i className="fa fa-windows"></i> windows</span></td>
-                        <td>可用</td>
-                        <th>已下载</th>
+                        <td>已下载</td>
+                        <td>
+                            <button className="btn btn-info btn-xs"><i className="fa fa-book"> </i>详情</button>&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>计算坡度</td>
+                        <td>1</td>
+                        <td><span className="label label-info"><i className="fa fa-windows"></i> windows</span></td>
+                        <td>未下载</td>
                         <td>
                             <button className="btn btn-info btn-xs"><i className="fa fa-book"> </i>详情</button>&nbsp;
                             <button className="btn btn-default btn-xs"><i className="fa fa-download"> </i>下载</button>

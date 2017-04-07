@@ -24028,18 +24028,15 @@ var DataCollectionTable = React.createClass({displayName: "DataCollectionTable",
         );
     },
 
-    displayData : function(e, gdid)
-    {
+    displayData : function(e, gdid){
         window.open('/geodata/json/' + gdid);
     },
 
-    downloadData : function(e, gdid)
-    {
+    downloadData : function(e, gdid){
         window.open('/geodata/' + gdid);
     },
 
-    deleteData : function(e, gdid, gdtag)
-    {
+    deleteData : function(e, gdid, gdtag){
         if(confirm('确认删除此数据 - ' + gdid + ' - ' + gdtag))
         {
             Axios.delete('/geodata/' + gdid).then(
@@ -24732,7 +24729,6 @@ var CloudModelSerTable = React.createClass({displayName: "CloudModelSerTable",
                         React.createElement("th", null, "版本"), 
                         React.createElement("th", null, "平台"), 
                         React.createElement("th", null, "状态"), 
-                        React.createElement("th", null, "已下载"), 
                         React.createElement("th", null, "操作")
                     )
                     ), 
@@ -24741,8 +24737,16 @@ var CloudModelSerTable = React.createClass({displayName: "CloudModelSerTable",
                         React.createElement("td", null, "计算平方根"), 
                         React.createElement("td", null, "1"), 
                         React.createElement("td", null, React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-windows"}), " windows")), 
-                        React.createElement("td", null, "可用"), 
-                        React.createElement("th", null, "已下载"), 
+                        React.createElement("td", null, "已下载"), 
+                        React.createElement("td", null, 
+                            React.createElement("button", {className: "btn btn-info btn-xs"}, React.createElement("i", {className: "fa fa-book"}, " "), "详情"), " "
+                        )
+                    ), 
+                    React.createElement("tr", null, 
+                        React.createElement("td", null, "计算坡度"), 
+                        React.createElement("td", null, "1"), 
+                        React.createElement("td", null, React.createElement("span", {className: "label label-info"}, React.createElement("i", {className: "fa fa-windows"}), " windows")), 
+                        React.createElement("td", null, "未下载"), 
                         React.createElement("td", null, 
                             React.createElement("button", {className: "btn btn-info btn-xs"}, React.createElement("i", {className: "fa fa-book"}, " "), "详情"), " ", 
                             React.createElement("button", {className: "btn btn-default btn-xs"}, React.createElement("i", {className: "fa fa-download"}, " "), "下载")
