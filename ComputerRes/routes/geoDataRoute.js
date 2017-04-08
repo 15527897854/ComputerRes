@@ -518,7 +518,7 @@ module.exports = function (app) {
                             });
                         }
                         else if(dataType == 'table'){
-
+                            
                         }
                     });
                 }
