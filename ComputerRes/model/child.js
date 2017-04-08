@@ -29,7 +29,9 @@ module.exports = Child;
 var ChildSchema = new mongoose.Schema({
     host:String,
     port:String,
-    platform:Number
+    platform:Number,
+    accepted:Boolean,
+    access_token :String
 },{collection:'child'});
 var ChildModel = mongoose.model('child',ChildSchema);
 Child.baseModel = ChildModel;
@@ -55,19 +57,25 @@ Child.getAll = function (callback) {
 
 //通过OID查询子节点信息
 Child.getByOID = function (_oid, callback) {
-    ParamCheck.checkParam(callback,_oid);
-    var oid = new ObjectId(_oid);
-    ChildModel.findOne({_id:oid},this.returnFunction(callback, "error in getting by oid in child"));
+    if(ParamCheck.checkParam(callback,_oid))
+    {
+        var oid = new ObjectId(_oid);
+        ChildModel.findOne({_id:oid},this.returnFunction(callback, "error in getting by oid in child"));
+    }
 };
 
 //条件查询
 Child.getByWhere = function (where, callback) {
-    ParamCheck.checkParam(callback, where);
-    this.baseModel.findOne(where, this.returnFunction(callback, 'Error in getting by where in child'));
+    if(ParamCheck.checkParam(callback, where))
+    {
+        this.baseModel.findOne(where, this.returnFunction(callback, 'Error in getting by where in child'));
+    }
 };
 
 //根据host查询
 Child.getByHost = function (host, callback) {
-    ParamCheck.checkParam(callback, host);
-    ChildModel.findOne({host : host},this.returnFunction(callback, "error in getting by oid in child"));
+    if(ParamCheck.checkParam(callback, host))
+    {
+        ChildModel.findOne({host : host},this.returnFunction(callback, "error in getting by oid in child"));
+    }
 };

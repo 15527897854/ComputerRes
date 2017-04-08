@@ -57,7 +57,7 @@ var ParentPanel = React.createClass({
                 }
                 else
                 {
-                    $('#btn_close').attr('disabled', true);
+                    $('#btn_ok').attr('disabled', true);
                 }
             },
             err => {}
@@ -65,7 +65,16 @@ var ParentPanel = React.createClass({
     },
 
     onSubmit : function(e) {
-        alert('lalalalala');
+        Axios.put('/parent?host=' + $('#txtNewParentHost').val() + '&' + 'port=' + $('#txtNewParentPort').val())
+            .then(
+                data => {
+                    if(data.data.result == 'suc')
+                    {
+                        alert('变更成功！')
+                    }
+                },
+                err => {}
+            );
     },
 
     render : function () {
@@ -103,8 +112,8 @@ var ParentPanel = React.createClass({
                                 </form>
                             </div>
                             <div className="modal-footer">
-                                <button id="btn_ok" type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
-                                <button id="btn_close" type="button" className="btn btn-success" disabled="disabled" onClick={ this.onSubmit } >确定</button>
+                                <button id="btn_close" type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
+                                <button id="btn_ok" type="button" className="btn btn-success" onClick={this.onSubmit } >确定</button>
                             </div>
                         </div>
                     </div>

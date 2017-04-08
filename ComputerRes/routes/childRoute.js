@@ -2,8 +2,14 @@
  * Created by Franklin on 2016/9/13.
  */
 var ChildCtrl = require('../control/childControl');
+var RouteBase = require('./routeBase');
 
 module.exports = function (app) {
+    app.route('/child-node')
+        .post(function(req, res, next){
+            
+        });
+
     app.route('/child-node/:cid')
       .get(function (req, res, next) {
           var cid = req.params.cid;

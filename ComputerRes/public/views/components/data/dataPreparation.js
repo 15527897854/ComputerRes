@@ -29,7 +29,7 @@ var DataPreparation = React.createClass({
                                     StateId : State.$.id,
                                     Event : Event.$.name,
                                     DataId : '',
-                                    optional : Event.$.optional
+                                    Optional : Event.$.optional
                                 });
                             }
                             else if(Event.$.type == 'noresponse'){
@@ -62,7 +62,7 @@ var DataPreparation = React.createClass({
         this.forceUpdate();
     },
 
-    removeDate : function(e, stateId, eventName){
+    onRemoveData : function(e, stateId, eventName){
         if(confirm("确认移除数据?"))
         {
             for(var i = 0; i < this.state.allInputData.length; i++)
@@ -72,13 +72,6 @@ var DataPreparation = React.createClass({
                     this.state.allInputData[i].DataId = '';
                     this.forceUpdate();
                     break;
-                }
-            }
-            for(var i = 0; i < window.allInputData.length; i++)
-            {
-                if(window.allInputData[i].StateId == stateId && window.allInputData[i].Event == eventName)
-                {
-                    window.allInputData[i].Ready = true;
                 }
             }
         }
@@ -93,7 +86,7 @@ var DataPreparation = React.createClass({
                     <p id={ 'data_pre_p_' + stateId + '_' + eventName }>
                         <strong>数据准备情况&nbsp;:&nbsp;</strong><span className="label label-success">已准备</span>&nbsp;&nbsp;
                         { this.state.allInputData[i].DataId }&nbsp;&nbsp;
-                        <button className="btn btn-danger btn-xs" onClick={(e) => { this.removeDate(e, stateId, eventName) }} >移除</button>
+                        <button className="btn btn-danger btn-xs" onClick={(e) => { this.onRemoveData(e, stateId, eventName) }} >移除</button>
                     </p>
                 );
             }
