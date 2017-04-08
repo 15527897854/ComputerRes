@@ -135,12 +135,17 @@
     $(document).ready(function(){
         var msid = '<%=modelSer._id %>';
         $('#btn_run').click(function(e){
+            for(var i = 0; i < window.allInputData.length; i++)
+            {
+                if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 )
+                {
+                    return alert('数据未全准备！');
+                }
+            }
             for(var i = 0; i < window.allOutputData.length; i++)
             {
                 window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
             }
-            console.log(window.allInputData);
-            console.log(window.allOutputData);
             $.ajax({
                 url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
                 type:'GET',

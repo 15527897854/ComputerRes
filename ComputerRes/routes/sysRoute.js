@@ -45,7 +45,13 @@ module.exports = function(app)
     app.route('/parent')
         .get(function(req, res, next){
             sysControl.getParent(RouteBase.returnFunction(res, 'error in getting parent'));
+        })
+        .put(function(req, res, next){
+            var host = req.query.host;
+            var port = req.query.port;
+            sysControl.setParent(host + ':' + port, RouteBase.returnFunction(res, 'Error in update parent!'));
         });
+
 
     app.route('/checkserver/:server')
         .get(function(req, res, next){

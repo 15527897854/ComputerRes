@@ -184,8 +184,25 @@ SysControl.getParent = function(callback){
 };
 
 //设置父节点
-SysControl.setParent = function(callback){
+SysControl.setParent = function(newparent, callback){
+    systemSettingModel.getValueByIndex('parent', function(err, parent){
+        if(err)
+        {
+            return callback(err);
+        }
+        parent.ss_value = newparent;
+        systemSettingModel.setValueByIndex(parent, function(err, result){
+            if(err)
+            {
+                return callback(err);
+            }
 
+            //TODO 向父节点提交请求
+
+
+            return callback(null, result);
+        });
+    });
 };
 
 //检查服务器是否可用
