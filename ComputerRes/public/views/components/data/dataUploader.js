@@ -9,11 +9,11 @@ var DataSelectTabel = require('./dataSelectTable');
 var DataUploader = React.createClass({
     getInitialState : function () {
         var fileUrl = '/geodata/file';
-        var streamUrl = 'geodata/stream';
+        var streamUrl = '/geodata/stream';
         var selectUrl = '/geodata/json/all';
         if(this.props['data-rmt'] == '1'){
-            fileUrl = 'geodata/file/' + this.props['data-host'];
-            streamUrl = 'geodata/stream/' + this.props['data-host'];
+            fileUrl = '/geodata/file/' + this.props['data-host'];
+            streamUrl = '/geodata/stream/' + this.props['data-host'];
             selectUrl = '/geodata/rmt/json/all/' + this.props['data-host'];
         }
         var id = '';
