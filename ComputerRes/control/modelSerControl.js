@@ -178,14 +178,17 @@ ModelSerControl.getRmtInputDate = function (host, msid, callback) {
                 {
                     return callback(err);
                 }
-                remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+                }
             }.bind(this));
         }
     }
 };
 
 //运行远程模型
-ModelSerControl.runRmtModelSer = function(host, msid, data, callback){
+ModelSerControl.runRmtModelSer = function(host, msid, inputdata, outputdata, callback){
     if(ParamCheck.checkParam(callback, host))
     {
         if(ParamCheck.checkParam(callback, host))
@@ -197,7 +200,7 @@ ModelSerControl.runRmtModelSer = function(host, msid, data, callback){
                 }
                 if(ParamCheck.checkParam(callback, child))
                 {
-                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + data, function(err, data)
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata, function(err, data)
                     {
                         if(err)
                         {

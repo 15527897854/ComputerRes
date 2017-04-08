@@ -13,7 +13,6 @@ var request = require('request');
 var childCtrl = require('../control/childControl');
 var fileOpera = require('../utils/fileOpera');
 
-
 var RouteBase = require('./routeBase');
 
 var UDXVisualization = require('../model/UDX_Visualization');
@@ -237,7 +236,6 @@ module.exports = function (app) {
             return res.render('dataCollection');
         });
 
-
     //下载数据文件
     app.route('/geodata/:gdid')
         .get(function (req, res, next) {
@@ -339,6 +337,32 @@ module.exports = function (app) {
                         }));
                     }
                     return res.end(body);
+                }));
+            });
+        });
+
+    //获取远程所有数据
+    app.route('/geodata/rmt/json/all/:host')
+        .get(function(req, res, next){
+            var host = req.params.host;
+            GeoDataCtrl.getAllRmtData(host, function (err, data) {
+                if(err)
+                {
+                    return res.end(JSON.stringify({
+                        result : 'err in ',
+                        message : JSON.stringify(err)
+                    }));
+                }
+                if(data.result == 'err')
+                {
+                    return res.end(JSON.stringify({
+                        result : 'err in ',
+                        message : data.message
+                    }));
+                }
+                return res.end(JSON.stringify({
+                    result : 'suc',
+                    data : data.data
                 }));
             });
         });

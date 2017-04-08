@@ -56,6 +56,9 @@ if(document.getElementById('dataCollectionTable') != null) {
 }
 
 if(document.getElementById('DataPreparation') != null) {
-    ReactDOM.render(<DataPreparation source={document.getElementById('DataPreparation').getAttribute('data-source') } />,
+    ReactDOM.render(<DataPreparation
+        data-source={document.getElementById('DataPreparation').getAttribute('data-source') }
+        data-type={ document.getElementById('DataPreparation').getAttribute('data-type') }
+        data-host={ document.getElementById('DataPreparation').getAttribute('data-host') } />,
         document.getElementById('DataPreparation'));
 }
