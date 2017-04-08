@@ -134,7 +134,7 @@
                 <p><strong>当前进度&nbsp;:&nbsp;</strong></p>
                 <div id="bar_pro_div" class="progress progress-striped active progress-sm">
                     <div id="bar_pro" style="width: 0%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
-                        <span class="sr-only">40% 完成</span>
+                        <span class="sr-only">0% 完成</span>
                     </div>
                 </div>
             </div>
@@ -409,6 +409,7 @@
 
     function ProcessFinished() {
         $('#bar_pro').css('width','100%');
+        $('#bar_pro_div').remove();
     }
 
 

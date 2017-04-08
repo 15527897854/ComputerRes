@@ -200,7 +200,7 @@ module.exports = function(app)
     app.route('/modelser/file/:sessionid')
         .get(function (req, res, next) {
             // console.log('sessionId:'+req.sessionID);
-            var sessionId = req.params.sessionId;
+            var sessionId = req.params.sessionid;
             var client = global.fileupload.get(sessionId);
             console.log(JSON.stringify(client));
             if(client.value == 100)
