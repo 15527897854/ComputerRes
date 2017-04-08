@@ -398,7 +398,7 @@ UDXVisualization.GtiffListDataset = function (gdid,srcDataset,factor,callback) {
     getOneGtiff(0);
 };
 
-UDXVisualization.AsciiGridDataset = function (srcDataset, factor, dstPath, callback) {
+UDXVisualization.AsciiGridDataset = function (gdid,srcDataset, factor, callback) {
     var srcRootNode = lib_udx.getDatasetNode(srcDataset);
     var count = lib_udx.getNodeChildCount(srcRootNode);
     if (count < 2) {
@@ -511,18 +511,19 @@ UDXVisualization.AsciiGridDataset = function (srcDataset, factor, dstPath, callb
     ENCorner = proj4('EPSG:3857').inverse(ENCorner);
     var base64Data = dataURL.replace(/^data:image\/\w+;base64,/, "");
     var dataBuffer = new Buffer(base64Data, 'base64');
+    var dstPath = __dirname + '/../public/images/snapshot/' + gdid + '.png';
     fs.writeFile(dstPath, dataBuffer, function(err) {
         if (err) {
             console.log('Error:sava image file err!');
             callback(err);
         } else {
             rst = {
-                image:dataURL,
+                path:'/images/snapshot/' + gdid + '.png',
                 WSCorner:WSCorner,
                 ENCorner:ENCorner
             };
             console.log("ok!");
-            callback(null,rst);
+            callback(null,[rst]);
         }
     });
 };

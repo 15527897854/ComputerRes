@@ -91,6 +91,7 @@ if(settings.debug)
   };
   var modelIns = new ModelIns(mis);
   app.modelInsColl.addIns(modelIns);
+  global.debug = '调试模式';
 }
 
 module.exports = app;

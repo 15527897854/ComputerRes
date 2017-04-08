@@ -6,7 +6,6 @@
     <link href="/css/uploadfile.css" rel="stylesheet" />
     <link href="/css/ol.css" type="text/css"/>
     <link rel="stylesheet" href="/css/ol3-layerswitcher.css" />
-    <!--<link rel="stylesheet" href="/css/layerswitcher.css" />-->
 </head>
 <body id="myBody" class="sticky-header">
 <section >
@@ -157,15 +156,8 @@
                     <div class="modal-body" style="padding: 0;">
                         <div id="map" style="width:750px;height: 500px;" class="map"></div>
                     </div>
-                    <!--<div class="modal-footer">-->
-                    <!--<button type="button" class="btn btn-default" data-dismiss="modal">关闭-->
-                    <!--</button>-->
-                    <!--<button type="button" class="btn btn-primary">-->
-                    <!--提交更改-->
-                    <!--</button>-->
-                    <!--</div>-->
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal -->
+                </div>
+            </div>
         </div>
         <%- include footer.ejs %>
     </div>
@@ -227,6 +219,9 @@
                         ]
                     });
                     map = new ol.Map({
+//                        controls: ol.control.defaults().extend([
+//                            new ol.control.ZoomToExtent({})
+//                        ]),
                         layers: [overlayGroup],
                         target: 'map',
                         view: myView
