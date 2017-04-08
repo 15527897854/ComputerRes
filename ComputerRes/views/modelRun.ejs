@@ -147,7 +147,7 @@
             <div class="modal-dialog" style="width: 750px;">
                 <div class="modal-content">
                     <div class="modal-header" style="background-color: rgba(0,0,0,0);width: 750px;position: absolute;top: 0;left: 0;z-index: 100;">
-                        <button type="button" onclick="colseModal()" id="close-modal" class="close" data-dismiss="modal" aria-hidden="true" style="color: #000;">
+                        <button type="button" id="close-modal" class="close" data-dismiss="modal" aria-hidden="true" style="color: #000;">
                             &times;
                         </button>
                         <h4 class="modal-title" id="myModalLabel" style="color: #000;">
@@ -314,12 +314,12 @@
         })
     };
 
-    //未执行
-    var colseModal = function () {
+    //恢复滚动条
+    $('#myModal').on('hide.bs.modal',function () {
         var nice = $("html").niceScroll();
         nice.opt.enablemousewheel = true;
         nice.opt.mousescrollstep = 40;
-    };
+    });
 </script>
 <script type="text/javascript">
     $(document).ready(function () {

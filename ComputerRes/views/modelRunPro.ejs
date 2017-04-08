@@ -135,6 +135,18 @@
     $(document).ready(function(){
         var msid = '<%=modelSer._id %>';
         $('#btn_run').click(function(e){
+            var isReady = true;
+            for(var i=0;i<window.allInputData.length;i++){
+                if(window.allInputData[i].optional == 0 && window.allInputData[i].DataId == ''){
+                    isReady = false;
+                    break;
+                }
+            }
+            if(!isReady){
+                alert('lack input data!');
+                return;
+            }
+
             for(var i = 0; i < window.allOutputData.length; i++)
             {
                 window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
