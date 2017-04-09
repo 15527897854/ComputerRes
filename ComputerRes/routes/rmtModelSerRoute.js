@@ -38,18 +38,6 @@ module.exports = function(app)
                 }
                 return res.end(data);
             });
-            //childCtrl.getByWhere({host:host},function (error, child) {
-            //    if(error){
-            //        return res.end(JSON.stringify(error));
-            //    }
-            //    var url = 'http://' + host + ':' + child.port + '/modelser/'+ req.sessionID;
-            //    remoteReqCtrl.postRequest(req,url,function (err, data) {
-            //        if(err){
-            //            return res.end(JSON.stringify(err));
-            //        }
-            //        return res.end(data);
-            //    });
-            //});
         })
         .get(function (req, res, next) {
             res.render('modelsers_r',{
@@ -79,7 +67,7 @@ module.exports = function(app)
             var msid = req.params.msid;
             if(req.query.ac == 'run')
             {
-                ModelSerControl.runRmtModelSer(host, msid, req.query.inputdata, function(err, data){
+                ModelSerControl.runRmtModelSer(host, msid, req.query.inputdata, req.query.outputdata, function(err, data){
                     if(err)
                     {
                         return res.end('error in run a rmt model service');
@@ -132,7 +120,7 @@ module.exports = function(app)
                 {
                     return res.end(JSON.stringify({
                         result : 'err',
-                        message : errMessage + JSON.stringify(err)
+                        message : JSON.stringify(err)
                     }));
                 }
                 return res.end(JSON.stringify({

@@ -13,7 +13,6 @@ var request = require('request');
 var childCtrl = require('../control/childControl');
 var fileOpera = require('../utils/fileOpera');
 
-
 var RouteBase = require('./routeBase');
 
 var UDXVisualization = require('../model/UDX_Visualization');
@@ -236,7 +235,6 @@ module.exports = function (app) {
         .get(function (req, res, next) {
             return res.render('dataCollection');
         });
-
 
     //下载数据文件
     app.route('/geodata/:gdid')

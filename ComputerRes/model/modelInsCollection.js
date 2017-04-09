@@ -156,4 +156,4 @@ ModelInsCollection.prototype.changeStateByGUID = function (guid, state) {
         }
     }
     return -1;
-}
+};

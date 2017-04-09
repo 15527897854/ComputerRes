@@ -8,14 +8,24 @@ var DataSelectTabel = require('./dataSelectTable');
 
 var DataUploader = React.createClass({
     getInitialState : function () {
+        var fileUrl = '/geodata/file';
+        var streamUrl = '/geodata/stream';
+        var selectUrl = '/geodata/json/all';
+        if(this.props['data-rmt'] == '1'){
+            fileUrl = '/geodata/file/' + this.props['data-host'];
+            streamUrl = '/geodata/stream/' + this.props['data-host'];
+            selectUrl = '/geodata/rmt/json/all/' + this.props['data-host'];
+        }
         var id = '';
-        if(this.props['data-id'])
-        {
+        if(this.props['data-id']){
             id = this.props['data-id'];
         }
         return {
             id : id,
             gdid : '',
+            fileUrl : fileUrl,
+            streamUrl : streamUrl,
+            selectUrl : selectUrl,
             form : null,
             uploader : null
         };
@@ -24,7 +34,7 @@ var DataUploader = React.createClass({
     componentDidMount : function () {
         this.setState({uploader : $('#fileuploader_' + this.state.id).uploadFile({
             //上传路径
-            url : '/geodata/file/',
+            url : this.state.fileUrl,
             //上传文件名
             fileName :"myfile",
             //是否多个文件
@@ -63,7 +73,7 @@ var DataUploader = React.createClass({
     },
 
     onInputSubmit : function(e){
-        Axios.post('/geodata/stream',{
+        Axios.post(this.state.streamUrl,{
                 gd_tag : $('#dataInputTag_' + this.state.id).val(),
                 data : $('#dataInput_' + this.state.id).val()
             })
@@ -196,7 +206,7 @@ var DataUploader = React.createClass({
                                 <h4 className="modal-title">链接数据</h4>
                             </div>
                             <div className="modal-body">
-                                <DataSelectTabel source="/geodata/json/all" ref="selectedTB" data-id={id} />
+                                <DataSelectTabel source={ this.state.selectUrl } ref="selectedTB" data-id={id} />
                                 <br />
                                 <br />
                                 <br />

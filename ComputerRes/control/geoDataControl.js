@@ -116,6 +116,29 @@ GeoDataCtrl.getRmtData = function(req, host, gdid, callback){
     }
 };
 
+//获取远程数据
+GeoDataCtrl.getAllRmtData = function(host, callback){
+    if(ParamCheck.checkParam(callback, host))
+    {
+        Child.getByHost(host, function(err, child){
+            if(err)
+            {
+                return callback(err);
+            }
+            if(ParamCheck.checkParam(callback, child))
+            {
+                RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/geodata/json/all', function(err, data){
+                    if(err)
+                    {
+                        return callback(err);
+                    }
+                    return callback(null, data);
+                });
+            }
+        });
+    }
+};
+
 //上传远程数据
 GeoDataCtrl.postRmtData = function(req, host, callback){
     if(ParamCheck.checkParam(callback, host))

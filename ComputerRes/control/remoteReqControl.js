@@ -21,7 +21,7 @@ RemoteReqControl.getRequest = function (req, url, callback) {
 };
 
 RemoteReqControl.postRequest = function (req, url, callback) {
-    req.pipe(request.post(url,function (err, response, data) {
+    req.pipe(request.post(url, function (err, response, data) {
         if(err)
         {
             return callback(err);
