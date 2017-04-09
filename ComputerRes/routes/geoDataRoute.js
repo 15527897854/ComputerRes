@@ -383,17 +383,23 @@ module.exports = function (app) {
                     UDXVisualization.getDataType(gdid,function (err, dataType,srcDataset) {
                         if(err || dataType == "Unknown"){
                             console.log(err);
-                            res.end(JSON.stringify({
+                            rst = {
                                 suc:false
-                            }));
+                            };
+                            fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                if(err){
+                                    console.log(err);
+                                }
+                                res.end(JSON.stringify(rst));
+                            });
                         }
                         if(dataType == 'shp'){
                             UDXConvertor.SHPDataset2GEOJSON(gdid,srcDataset,function (err,data) {
                                 if(err){
                                     console.log(err);
-                                    res.end(JSON.stringify({
+                                    rst = {
                                         suc:false
-                                    }));
+                                    };
                                 }
                                 else{
                                     var rst = {
@@ -401,51 +407,46 @@ module.exports = function (app) {
                                         dataType:'shp',
                                         layers:data
                                     };
-                                    fs.writeFile(configPath,JSON.stringify(rst),function (err) {
-                                        if(err){
-                                            console.log(err);
-                                            res.end(JSON.stringify({
-                                                suc:false
-                                            }));
-                                        }
-                                        res.end(JSON.stringify(rst));
-                                    });
                                 }
+                                fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                    if(err){
+                                        console.log(err);
+                                    }
+                                    res.end(JSON.stringify(rst));
+                                });
                             });
                         }
                         else if(dataType == 'grid'){
                             UDXVisualization.GtiffDataset(gdid,srcDataset,1,function (err,data) {
+                                var rst;
                                 if(err){
                                     console.log(err);
-                                    res.end(JSON.stringify({
+                                    rst = {
                                         suc:false
-                                    }));
+                                    };
                                 }
                                 else{
-                                    var rst = {
+                                    rst = {
                                         suc:true,
                                         dataType:'geotiff',
                                         layers:data
                                     };
-                                    fs.writeFile(configPath,JSON.stringify(rst),function (err) {
-                                        if(err){
-                                            console.log(err);
-                                            res.end(JSON.stringify({
-                                                suc:false
-                                            }));
-                                        }
-                                        res.end(JSON.stringify(rst));
-                                    });
                                 }
+                                fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                    if(err){
+                                        console.log(err);
+                                    }
+                                    res.end(JSON.stringify(rst));
+                                });
                             });
                         }
                         else if(dataType == 'ascii grid'){
                             UDXVisualization.AsciiGridDataset(gdid,srcDataset,1,function (err,data) {
                                 if(err){
                                     console.log(err);
-                                    res.end(JSON.stringify({
+                                    rst = {
                                         suc:false
-                                    }));
+                                    };
                                 }
                                 else{
                                     var rst = {
@@ -453,25 +454,22 @@ module.exports = function (app) {
                                         dataType:'geotiff',
                                         layers:data
                                     };
-                                    fs.writeFile(configPath,JSON.stringify(rst),function (err) {
-                                        if(err){
-                                            console.log(err);
-                                            res.end(JSON.stringify({
-                                                suc:false
-                                            }));
-                                        }
-                                        res.end(JSON.stringify(rst));
-                                    });
                                 }
+                                fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                    if(err){
+                                        console.log(err);
+                                    }
+                                    res.end(JSON.stringify(rst));
+                                });
                             });
                         }
                         else if(dataType == 'grid list'){
                             UDXVisualization.GtiffListDataset(gdid,srcDataset,1,function (err,data) {
                                 if(err){
                                     console.log(err);
-                                    res.end(JSON.stringify({
+                                    rst = {
                                         suc:false
-                                    }));
+                                    };
                                 }
                                 else{
                                     var rst = {
@@ -479,25 +477,22 @@ module.exports = function (app) {
                                         dataType:'grid list',
                                         layers:data
                                     };
-                                    fs.writeFile(configPath,JSON.stringify(rst),function (err) {
-                                        if(err){
-                                            console.log(err);
-                                            res.end(JSON.stringify({
-                                                suc:false
-                                            }));
-                                        }
-                                        res.end(JSON.stringify(rst));
-                                    });
                                 }
+                                fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                    if(err){
+                                        console.log(err);
+                                    }
+                                    res.end(JSON.stringify(rst));
+                                });
                             });
                         }
                         else if(dataType == 'shp list'){
                             UDXConvertor.SHPListDataset2GEOJSON(gdid,srcDataset,function (err,data) {
                                 if(err){
                                     console.log(err);
-                                    res.end(JSON.stringify({
+                                    rst = {
                                         suc:false
-                                    }));
+                                    };
                                 }
                                 else{
                                     var rst = {
@@ -505,20 +500,37 @@ module.exports = function (app) {
                                         dataType:'shp list',
                                         layers:data
                                     };
-                                    fs.writeFile(configPath,JSON.stringify(rst),function (err) {
-                                        if(err){
-                                            console.log(err);
-                                            res.end(JSON.stringify({
-                                                suc:false
-                                            }));
-                                        }
-                                        res.end(JSON.stringify(rst));
-                                    });
                                 }
+                                fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                    if(err){
+                                        console.log(err);
+                                    }
+                                    res.end(JSON.stringify(rst));
+                                });
                             });
                         }
                         else if(dataType == 'table'){
-                            
+                            UDXVisualization.TableDataset(gdid,srcDataset,function (err,data) {
+                                if(err){
+                                    console.log(err);
+                                    rst = {
+                                        suc:false
+                                    };
+                                }
+                                else{
+                                    var rst = {
+                                        suc:true,
+                                        dataType:'table',
+                                        series:data
+                                    };
+                                }
+                                fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                    if(err){
+                                        console.log(err);
+                                    }
+                                    res.end(JSON.stringify(rst));
+                                });
+                            });
                         }
                     });
                 }
