@@ -309,10 +309,10 @@ var DataCollectionTable = React.createClass({
                         if (rst.dataType == 'geotiff') {
                             //坐标为平面坐标
                             for (var i = 0; i < rst.layers.length; i++) {
-                                var title = rst.layers[i].path;
+                                var title = rst.layers[i].name;
                                 title = title.substring(title.lastIndexOf('_') + 1, title.indexOf('.'));
                                 title = '[band:' + title + ']';
-                                if (title.length > 10)
+                                if (title.length > 9)
                                     title = '';
                                 overlayGroup.getLayers().push(new ol.layer.Image({
                                     title: 'grid' + title,
@@ -338,14 +338,13 @@ var DataCollectionTable = React.createClass({
                                 params: {'LAYERS': 'show:0'},
                                 title: 'shapefile',
                                 source: new ol.source.Vector({
-                                    url: rst.layers[0].path,     // 地图来源
-                                    format: new ol.format.GeoJSON()    // 解析矢量地图的格式化类
+                                    features:(new ol.format.GeoJSON()).readFeatures(rst.layers[0].path,{ featureProjection:'EPSG:3857'})
                                 })
                             }));
                         }
                         else if (rst.dataType == 'grid list') {
                             for (var i = 0; i < rst.layers.length; i++) {
-                                var title = rst.layers[i].path;
+                                var title = rst.layers[i].name;
                                 var titlePart = title.split('_');
                                 var listIndex = titlePart[titlePart.length - 2];
                                 var bandIndex = titlePart[titlePart.length - 1];
@@ -369,8 +368,7 @@ var DataCollectionTable = React.createClass({
                                     params: {'LAYERS': 'show:0'},
                                     title: 'shapefile',
                                     source: new ol.source.Vector({
-                                        url: rst.layers[i].path,     // 地图来源
-                                        format: new ol.format.GeoJSON()    // 解析矢量地图的格式化类
+                                        features:(new ol.format.GeoJSON()).readFeatures(rst.layers[i].path,{ featureProjection:'EPSG:3857'})
                                     })
                                 }));
                             }

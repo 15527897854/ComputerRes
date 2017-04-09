@@ -223,7 +223,8 @@ UDXVisualization.GtiffDataset = function (gdid,srcDataset, factor, callback) {
             } 
             else {
                 rst = {
-                    path:'/images/snapshot/' + gdid + '_' + band + '.png',
+                    name:gdid + '_' + band + '.png',
+                    path:dataURL,
                     WSCorner:WSCorner,
                     ENCorner:ENCorner
                 };
@@ -376,7 +377,8 @@ UDXVisualization.GtiffListDataset = function (gdid,srcDataset,factor,callback) {
                 }
                 else {
                     rst = {
-                        path:'/images/snapshot/' + gdid + '_' + index + '_' + band + '.png',
+                        name:gdid + '_' + index + '_' + band + '.png',
+                        path:dataURL,
                         WSCorner:WSCorner,
                         ENCorner:ENCorner
                     };

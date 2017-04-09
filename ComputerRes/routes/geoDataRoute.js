@@ -290,82 +290,9 @@ module.exports = function (app) {
             GeoDataCtrl.delete(gdid, RouteBase.returnFunction(res, 'Error in delete a geo-data!'));
         });
 
-    //////////////////////////////////////远程
-
-    //请求转发 上传文件
-    app.route('/geodata/file/:host')
-        .post(function (req, res, next) {
-            var host = req.params.host;
-            childCtrl.getByWhere({host:host},function (error, child) {
-                if(error){
-                    res.end(JSON.stringify({
-                        res:'err',
-                        mess:JSON.stringify(error)
-                    }));
-                }
-                var port = child.port;
-                var url = 'http://' + host + ':' + port + '/geodata/file';
-                remoteReqCtrl.postRequest(req,url,function (err, data) {
-                    if(err){
-                        console.log('---------------------err--------------------\n'+err);
-                        return res.end(JSON.stringify({
-                            res:'err',
-                            mess:JSON.stringify(err)
-                        }));
-                    }
-                    return res.end(data);
-                });
-            });
-        });
-
-    //请求转发 数据流
-    app.route('/geodata/stream/:host')
-        .post(function (req, res, next) {
-            var host = req.params.host;
-            childCtrl.getByWhere({host:host},function (error, child) {
-                if(error){
-                    res.end(JSON.stringify({
-                        res:'err',
-                        mess:JSON.stringify(error)
-                    }));
-                }
-                var port = child.port;
-                req.pipe(request.post('http://' + host + ':' + port +'/geodata/stream',function (err, respose, body) {
-                    if(err){
-                        console.log('---------------------err--------------------\n'+err);
-                        return res.end(JSON.stringify({
-                            res:'err',
-                            mess:JSON.stringify(err)
-                        }));
-                    }
-                    return res.end(body);
-                }));
-            });
-        });
-
-    //远程下载
-    app.route('/geodata/rmt/:host/:gdid')
-        .get(function (req, res, next) {
-            var gdid = req.params.gdid;
-            var host = req.params.host;
-            GeoDataCtrl.getRmtData(req, host, gdid, function(err, data)
-            {
-                if(err)
-                {
-                    return res.end('err');
-                }
-                var filename = gdid + '.xml';
-                res.set({
-                    'Content-Type': 'file/xml',
-                    'Content-Length': data.length });
-                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                return res.end(data);
-            });
-        });
-
     app.route('/geodata/snapshot/:gdid')
         .get(function (req, res, next) {
-            //根据gdid_config.json判断是否生成过配置文件,图像定位信息写在配置文件中
+            //根据gdid_config.json判断是否生成过配置文件,图像定位信息写在配置文件中,图片本身也写在里面
             //configPath用于查找是否已经生成过配置文件
             var gdid = req.params.gdid;
             var configPath = __dirname + '/../public/geojson/' + gdid + '_config.json';
@@ -532,6 +459,122 @@ module.exports = function (app) {
                                 });
                             });
                         }
+                    });
+                }
+            });
+        });
+
+    //////////////////////////////////////远程
+
+    //请求转发 上传文件
+    app.route('/geodata/file/:host')
+        .post(function (req, res, next) {
+            var host = req.params.host;
+            childCtrl.getByWhere({host:host},function (error, child) {
+                if(error){
+                    res.end(JSON.stringify({
+                        res:'err',
+                        mess:JSON.stringify(error)
+                    }));
+                }
+                var port = child.port;
+                var url = 'http://' + host + ':' + port + '/geodata/file';
+                remoteReqCtrl.postRequest(req,url,function (err, data) {
+                    if(err){
+                        console.log('---------------------err--------------------\n'+err);
+                        return res.end(JSON.stringify({
+                            res:'err',
+                            mess:JSON.stringify(err)
+                        }));
+                    }
+                    return res.end(data);
+                });
+            });
+        });
+
+    //请求转发 数据流
+    app.route('/geodata/stream/:host')
+        .post(function (req, res, next) {
+            var host = req.params.host;
+            childCtrl.getByWhere({host:host},function (error, child) {
+                if(error){
+                    res.end(JSON.stringify({
+                        res:'err',
+                        mess:JSON.stringify(error)
+                    }));
+                }
+                var port = child.port;
+                req.pipe(request.post('http://' + host + ':' + port +'/geodata/stream',function (err, respose, body) {
+                    if(err){
+                        console.log('---------------------err--------------------\n'+err);
+                        return res.end(JSON.stringify({
+                            res:'err',
+                            mess:JSON.stringify(err)
+                        }));
+                    }
+                    return res.end(body);
+                }));
+            });
+        });
+
+    //远程下载
+    app.route('/geodata/rmt/:host/:gdid')
+        .get(function (req, res, next) {
+            var gdid = req.params.gdid;
+            var host = req.params.host;
+            GeoDataCtrl.getRmtData(req, host, gdid, function(err, data)
+            {
+                if(err)
+                {
+                    return res.end('err');
+                }
+                var filename = gdid + '.xml';
+                res.set({
+                    'Content-Type': 'file/xml',
+                    'Content-Length': data.length });
+                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                return res.end(data);
+            });
+        });
+    
+    app.route('/geodata/snapshot/rmt/:host/:gdid')
+        .get(function (req, res, next) {
+            var gdid = req.params.gdid;
+            var host = req.params.host;
+            var configPath = __dirname + '/../public/geojson/' + gdid + '_config.json';
+            fs.stat(configPath,function (err, stat) {
+                if(stat){
+                    //已有历史生成过
+                    fs.readFile(configPath,'utf8',function (err,data) {
+                        setTimeout(function () {
+                            res.end(data.toString());
+                        },500);
+                    });
+                }
+                else{
+                    childCtrl.getByWhere({host:host},function (error, child) {
+                        if(error){
+                            res.end(JSON.stringify({
+                                res:'err',
+                                mess:JSON.stringify(error)
+                            }));
+                        }
+                        var port = child.port;
+                        var url = 'http://' + host + ':' + port +'/geodata/snapshot/' + gdid;
+                        remoteReqCtrl.getRequest(req,url,function (err, data) {
+                            if(err){
+                                console.log('---------------------err--------------------\n'+err);
+                                return res.end(JSON.stringify({
+                                    suc:false
+                                }));
+                            }
+                            fs.writeFile(configPath,data,function (err) {
+                                if(err){
+                                    console.log(err);
+                                }
+                                return res.end(data);
+                            });
+                        });
                     });
                 }
             });
