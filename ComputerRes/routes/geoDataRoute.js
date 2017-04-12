@@ -51,7 +51,7 @@ module.exports = function (app) {
                     //读取文件状态
                     if(files.myfile == undefined)
                     {
-                        return res.end("Error : Can not find files ! " )
+                        return res.end("Error : Can not find files ! " );
                     }
                     var gd_tag = '';
                     if(fields.gd_tag)

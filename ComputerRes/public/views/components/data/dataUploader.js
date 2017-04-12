@@ -138,14 +138,14 @@ var DataUploader = React.createClass({
         if(this.props['data-type'] == 'SELECT')
         {
             selectBtn = (
-                <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataLinkModel" + id} ><i className="fa fa-link"></i>选择数据</button>
+                <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataLinkModel" + id} ><i className="fa fa-link"></i> 选择数据</button>
             );
         }
         return (
             <div>
                 <div className="btn-group">
-                    <button className="btn btn-default" type="button" data-toggle="modal" data-target={'#dataInputModel' + id} ><i className="fa fa-pencil"></i>手动输入</button>
-                    <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataFileModel" + id} ><i className="fa fa-file"></i>上传文件</button>
+                    <button className="btn btn-default" type="button" data-toggle="modal" data-target={'#dataInputModel' + id} ><i className="fa fa-pencil"></i> 手动输入</button>
+                    <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataFileModel" + id} ><i className="fa fa-file"></i> 上传文件</button>
                     {selectBtn}
                 </div>
                 <div aria-hidden="true" aria-labelledby="dataInputModel" role="dialog" tabIndex="-1" id={"dataInputModel" + id} className="modal fade">
