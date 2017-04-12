@@ -520,7 +520,8 @@ UDXVisualization.AsciiGridDataset = function (gdid,srcDataset, factor, callback)
             callback(err);
         } else {
             rst = {
-                path:'/images/snapshot/' + gdid + '.png',
+                name:gdid + '.png',
+                path:dataURL,
                 WSCorner:WSCorner,
                 ENCorner:ENCorner
             };
