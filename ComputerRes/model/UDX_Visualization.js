@@ -88,12 +88,12 @@ UDXVisualization.getDataType = function (gdid,callback) {
     });
 };
 
-//将gtiff的所有波段进行可视化，factor为缩放因子，dstPath为存放路径
+//将gtiff的所有波段进行可视化，factor为缩放因子，通过gdid生成dstPath为存放路径
 UDXVisualization.GtiffDataset = function (gdid,srcDataset, factor, callback) {
     var srcRootNode = lib_udx.getDatasetNode(srcDataset);
     var count = lib_udx.getNodeChildCount(srcRootNode);
     if (count < 3) {
-        return console.log('Error:UDX err!');
+        return callback('Error:UDX err!');
     }
     //////////////////////////////////////////////
     // read
@@ -223,7 +223,8 @@ UDXVisualization.GtiffDataset = function (gdid,srcDataset, factor, callback) {
             } 
             else {
                 rst = {
-                    path:'/images/snapshot/' + gdid + '_' + band + '.png',
+                    name:gdid + '_' + band + '.png',
+                    path:dataURL,
                     WSCorner:WSCorner,
                     ENCorner:ENCorner
                 };
@@ -376,7 +377,8 @@ UDXVisualization.GtiffListDataset = function (gdid,srcDataset,factor,callback) {
                 }
                 else {
                     rst = {
-                        path:'/images/snapshot/' + gdid + '_' + index + '_' + band + '.png',
+                        name:gdid + '_' + index + '_' + band + '.png',
+                        path:dataURL,
                         WSCorner:WSCorner,
                         ENCorner:ENCorner
                     };
@@ -518,7 +520,8 @@ UDXVisualization.AsciiGridDataset = function (gdid,srcDataset, factor, callback)
             callback(err);
         } else {
             rst = {
-                path:'/images/snapshot/' + gdid + '.png',
+                name:gdid + '.png',
+                path:dataURL,
                 WSCorner:WSCorner,
                 ENCorner:ENCorner
             };
@@ -528,7 +531,45 @@ UDXVisualization.AsciiGridDataset = function (gdid,srcDataset, factor, callback)
     });
 };
 
-
+UDXVisualization.TableDataset = function (gdid, srcDataset, callback) {
+    var srcRootNode = lib_udx.getDatasetNode(srcDataset);
+    var count = lib_udx.getNodeChildCount(srcRootNode);
+    if(count == 0){
+        callback('Error:null table!');
+    }
+    else{
+        var tableColumns = [];
+        var tableNode = lib_udx.getChildNode(srcRootNode,0);
+        var colCount = lib_udx.getNodeChildCount(tableNode);
+        for(var i=0;i<colCount;i++){
+            var colNode = lib_udx.getChildNode(tableNode,i);
+            var colLength = lib_udx.getNodeLength(colNode);
+            var columnData = [];
+            var isNum = true;
+            for(var j=0;j<colLength;j++){
+                var td = lib_udx.getNodeStringArrayValue(colNode,j);
+                if(isNum && parseFloat(td) == 'NaN'){
+                    isNum = false;
+                }
+                columnData.push(parseFloat(td));
+            }
+            var colName = lib_udx.getNodeName(colNode);
+            tableColumns.push({
+                name:colName,
+                data:columnData,
+                type:(function () {
+                    if(isNum){
+                        return 'num';
+                    }
+                    else{
+                        return 'string';
+                    }
+                })()
+            });
+        }
+        callback(null,tableColumns);
+    }
+};
 
 
 UDXVisualization.GtiffFile = function (srcPath,dstPath,band,factor, callback) {

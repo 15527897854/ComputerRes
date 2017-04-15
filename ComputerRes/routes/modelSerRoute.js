@@ -497,6 +497,9 @@ module.exports = function(app)
                     {
                         return res.end('Error in get input data : ' + JSON.stringify(err))
                     }
+                    //暂时放到这里，用来生成已经部署过的模型的测试数据
+                    //以后就不用加这一句，生成测试数据实在用户上传模型时就生成了
+                    ModelSerControl.addDefaultTestify(oid.toString());
                     return res.render('modelRunPro',{
                         // user:req.session.user,
                         modelSer:ms,
@@ -535,6 +538,22 @@ module.exports = function(app)
             });
         });
 
+    //get 所有测试数据
+    app.route('/modelser/testify/:msid')
+        .get(function (req, res) {
+            var msid = req.params.msid;
+            ModelSerCrtl.getTestify(msid,function (data) {
+                res.end(data);
+            });      
+        })
+        .delete(function (req, res, next) {
+            var msid = req.params.msid;
+            var path = req.query.path;
+            ModelSerCrtl.delTestify(msid,path,function (data) {
+                res.end(data);
+            });
+        });
+    
     ///////////////////////////////////JSON//////////////////////////
 
 	//获取某个模型服务的输入输出数据声明

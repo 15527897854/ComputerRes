@@ -350,7 +350,8 @@ Convertor.SHPDataset2GEOJSON = function (gdid,srcDataset, callback) {
     }
     geojson["features"] = features;
     rst = {
-        path:'/geojson/' + gdid + '.json',
+        path:JSON.stringify(geojson),
+        name:gdid,
         WSCorner:[minx,miny],
         ENCorner:[maxx,maxy]
     };
@@ -458,7 +459,8 @@ Convertor.SHPListDataset2GEOJSON = function (gdid, srcDataset, callback) {
         }
         geojson["features"] = features;
         rst = {
-            path:'/geojson/' + gdid + '_' + index + '.json',
+            path:JSON.stringify(geojson),
+            name:gdid + '_' + index,
             WSCorner:[minx,miny],
             ENCorner:[maxx,maxy]
         };
