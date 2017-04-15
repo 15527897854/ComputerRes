@@ -71,6 +71,24 @@ module.exports = function (app) {
                 });
             }
         });
+    
+    app.route('/modelserrun/testify/:msrid')
+        .post(function (req, res, next) {
+            var tag = req.body.testifyTag;
+            var detail = req.body.testifyDetail;
+            var msrid= req.params.msrid;
+            var testifyData = {
+                tag:tag,
+                detail:detail,
+                path:msrid
+            };
+            ModelSerControl.addTestify(msrid,testifyData,function (err, data) {
+                if(err){
+                    return res.end(JSON.stringify({suc:false}));
+                }
+                res.end(JSON.stringify(data));
+            });
+        });
 
     ////////////////////////远程节点
 

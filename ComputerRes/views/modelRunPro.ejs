@@ -4,9 +4,13 @@
     <title>模型服务调用</title>
     <%- include headInclude.ejs %>
     <link href="/css/uploadfile.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/js/gritter/css/jquery.gritter.css" />
     <style>
         .closeTag:hover{
             background-color: #dcdcdc;
+        }
+        #gritter-notice-wrapper{
+            top:50px !important;
         }
     </style>
 </head>
@@ -98,14 +102,30 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                数据输入
+
+        <div class="panel panel-info" id="testify-panel">
+            <div class="panel-heading" style="background-color: #46B8DA;border-color: #46B8DA; ">
+                测试数据
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                  </span>
             </div>
-            <div id="DataPreparation" data-source="/modelser/inputdata/json/<%=modelSer._id %>" ></div>
+            <div class="panel-body">
+                <div id="testify-body" class="panel-body" style="padding: 15px;margin-right: 80px">
+
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-info">
+            <div class="panel-heading" style="background-color: #5CB85C;border-color: #5CB85C; ">
+                数据输入
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                </span>
+            </div>
+
+            <div id="DataPreparation" class="panel-body" data-source="/modelser/inputdata/json/<%=modelSer._id %>" ></div>
         </div>
         <div class="panel panel-danger">
             <div class="panel-heading">
@@ -131,6 +151,7 @@
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
 <script type="text/javascript" src="/js/output/bundle.js" ></script>
+<script type="text/javascript" src="/js/gritter/js/jquery.gritter.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
         var msid = '<%=modelSer._id %>';
@@ -161,6 +182,150 @@
         });
     });
 </script>
+<script type="text/javascript">
+    //加载所有测试数据条目
+    $(document).ready(function () {
+        $.ajax({
+            url:'/modelser/testify/<%=modelSer._id%>',
+            method:'get',
+            success:function (msg) {
+                testifies = JSON.parse(msg);
+                if(testifies.status ==1){
+                    var testifies = testifies.testifies;
+                    if(testifies.length == 0)
+                        return;
+                    var child = '<h4 >Tag:</h4>'
+                                +'<select style="margin: 0 50px 0 15px;width: 30%;" id="testifies" class="form-control m-bot15">'
+                                +'</select>'
+                                +'<h4>Detail:</h4>'
+                                +'<p style="margin-left: 15px;" id="testify-detail"></p>'
+                                +'<div style="text-align: center">'
+                                +'<input id="btn_testify_load" type="button" class="btn btn-warning" value="加载测试数据" style="width: 15%;font-family: \'Microsoft YaHei\';margin: 0 10px;">'
+                                +'<input id="btn_testify_del" type="button" class="btn btn-danger" value="删除测试数据" style="width: 15%;font-family: \'Microsoft YaHei\';margin: 0 10px;">'
+                                +'</div>';
+                    $('#testify-body').append($(child));
+                    for(var i=0;i<testifies.length;i++){
+                        var option = $('<option>');
+                        option.append(testifies[i].tag);
+                        $('#testifies').append(option);
+                    }
+                    $('#testifies option:first').attr('selected','selected');
+                    $('#testify-detail').append(testifies[0].detail);
+                    $('#testifies').change(function () {
+                        $('#testify-detail').text(testifies[$('#testifies option:selected')[0].index].detail);
+                    });
 
+                    //加载测试数据
+                    $('#btn_testify_load').click(function () {
+                        var selectedTestify = testifies[$('#testifies option:selected')[0].index];
+                        for(var i=0;i<selectedTestify.inputs.length;i++){
+                            for(var j=0;j<window.allInputData.length;j++){
+                                if(window.allInputData[j].Event == selectedTestify.inputs[i].Event){
+                                    window.allInputData[j].DataId = selectedTestify.inputs[i].DataId;
+                                    //添加数据提示标签
+                                    var dataP = $('#data_pre_p_'+ selectedTestify.inputs[i].StateId + '_' + selectedTestify.inputs[i].Event);
+                                    $(dataP).empty();
+                                    $(dataP).append($('<strong>数据准备情况&nbsp;:&nbsp;</strong>'));
+                                    $(dataP).append($('<span class="label label-warning">未准备</span>'));
+                                    var dataTag = $('#data_pre_p_'+ selectedTestify.inputs[i].StateId + '_' + selectedTestify.inputs[i].Event + ' span')[0];
+                                    $(dataTag).attr('class','label label-success');
+                                    $(dataTag).text('已准备');
+                                    $(dataP).append('&nbsp;&nbsp;' + selectedTestify.inputs[i].DataId + '&nbsp;&nbsp;');
+                                    var parentID = $(dataP).attr('id');
+                                    var removeData = $('<button class="btn btn-danger btn-xs" onclick="rmData('+j+ ',\''+ parentID+'\')">移除</button>');
+                                    $(dataP).append(removeData);
+                                    //移除已经加载的数据函数
+                                    rmData = function (index,parentID) {
+                                        if(confirm("确认移除数据?"))
+                                        {
+                                            window.allInputData[index].DataId = '';
+                                            $('#'+parentID ).empty();
+                                            $('#'+parentID ).append($('<strong>数据准备情况&nbsp;:&nbsp;</strong>'));
+                                            $('#'+parentID ).append($('<span class="label label-warning">未准备</span>'));
+                                        }
+                                    };
+                                }
+                            }
+                        }
+
+                        //悬浮提示框
+                        $.gritter.add({
+                            title: '加载测试数据成功！',
+                            text: '<p><strong style="">Tag:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].tag+'</p><p><strong>Detail:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].detail + '</p>',
+                            sticky: false,
+                            time: 2000
+                        });
+                        return false;
+                    });
+
+                    //删除测试数据
+                    $('#btn_testify_del').click(function () {
+                        //TODO默认测试数据不能删除
+                        if(testifies[$('#testifies option:selected')[0].index].tag == 'default'){
+                            $.gritter.add({
+                                title: '警告：',
+                                text: '不能删除默认测试数据！',
+                                sticky: false,
+                                time: 2000
+                            });
+                            return false;
+                        }
+                        else if(confirm("确认删除测试数据?")) {
+                            var selectedTestify = testifies[$('#testifies option:selected')[0].index];
+                            var path = selectedTestify.path;
+                            $.ajax({
+                                url: '/modelser/testify/<%= modelSer._id %>?path=' + path,
+                                method: 'delete',
+                                success: function (msg) {
+                                    msg = JSON.parse(msg);
+                                    var title;
+                                    if(msg.suc){
+                                        //删除select中的option
+                                        $('#testifies option')[$('#testifies option:selected')[0].index].remove();
+                                        $('#testifies').trigger('change');
+                                        title = '删除测试数据成功！';
+                                    }
+                                    else if(!msg.suc){
+                                        title = '删除测试数据失败！';
+                                    }
+                                    $.gritter.add({
+                                        title: title,
+                                        text: '<p><strong style="">Tag:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].tag+'</p><p><strong>Detail:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].detail + '</p>',
+                                        sticky: false,
+                                        time: 2000
+                                    });
+                                    return false;
+                                }
+                            });
+                        }
+                    });
+                }
+                else if(testifies.status == 0){
+                    $('#testify-body').empty();
+                    $('#testify-body').append('<h4>没有测试数据！</h4>');
+
+                    $.gritter.add({
+                        title: '提示：',
+                        text: '没有测试数据！',
+                        sticky: false,
+                        time: 2000
+                    });
+                    return false;
+                }
+                else if(testifies.status == -1){
+                    $.gritter.add({
+                        title: '警告：',
+                        text: '加载测试数据失败！',
+                        sticky: false,
+                        time: 2000
+                    });
+                    return false;
+                }
+            }
+        });
+
+    });
+
+</script>
 </body>
 </html>
