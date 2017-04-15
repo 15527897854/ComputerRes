@@ -5,9 +5,7 @@
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCtrl = require('../control/modelSerControl');
 var setting = require('../setting');
-var remoteReqCtrl = require('../control/remoteReqControl');
-var childCtrl = require('../control/childControl');
-var ModelSerControl = require('../control/modelSerControl');
+
 var RouteBase = require('./routeBase');
 
 module.exports = function (app) {
@@ -58,13 +56,7 @@ module.exports = function (app) {
             var msrid = req.params.msrid;
             if(msrid == 'all')
             {
-                ModelSerRunCtrl.getAll(function (err, msr) {
-                    if(err)
-                    {
-                        return res.end('Error : ' + err);
-                    }
-                    return res.end(JSON.stringify(msr))
-                });
+                ModelSerRunCtrl.getAll(RouteBase.returnFunction(res, 'Error in getting all model-service running json'));
             }
             else
             {

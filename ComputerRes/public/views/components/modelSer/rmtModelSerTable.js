@@ -10,7 +10,8 @@ var RmtModelSerTable = React.createClass({
             loading : true,
             err : null,
             ms : null,
-            init : true
+            init : true,
+            type : this.props['data-type']
         };
     },
 
@@ -19,7 +20,7 @@ var RmtModelSerTable = React.createClass({
     },
 
     refresh : function () {
-        Axios.get(this.props.source).then(
+        Axios.get(this.props['data-source']).then(
             data => {
                 if(data.data.res == 'err')
                 {
@@ -78,45 +79,82 @@ var RmtModelSerTable = React.createClass({
         );
     },
 
-    startRmtModelSerHandle : function (e, host, msid) {
+    startModelSerHandle : function (e, host, msid) {
         if(confirm('确定开启模型?') == true)
         {
-            Axios.put('/modelser/rmt/' + host + '/' + msid + '?ac=start').then(
-                data => {
-                    this.refresh();
-                }
-            );
+            if(host){
+                Axios.put('/modelser/rmt/' + host + '/' + msid + '?ac=start').then(
+                    data => {
+                        this.refresh();
+                    }
+                );
+            }
+            else{
+                Axios.put('/modelser/' + msid + '?ac=start').then(
+                    data => {
+                        this.refresh();
+                    }
+                );
+            }
         }
     },
 
-    stopRmtModelSerHandle : function (e, host, msid) {
-        if(confirm('确定开启模型?') == true)
+    stopModelSerHandle : function (e, host, msid) {
+        if(confirm('确定关闭模型?') == true)
         {
-            Axios.put('/modelser/rmt/' + host + '/' + msid + '?ac=stop').then(
-                data => {
-                    this.refresh();
-                }
-            );
+            if(host){
+                Axios.put('/modelser/rmt/' + host + '/' + msid + '?ac=stop').then(
+                    data => {
+                        this.refresh();
+                    }
+                );
+            }
+            else {
+                Axios.put('/modelser/' + msid + '?ac=stop').then(
+                    data => {
+                        this.refresh();
+                    }
+                );
+            }
         }
     },
 
-    deleteRmtModelSerHandle : function(e, host, msid) {
+    deleteModelSerHandle : function(e, host, msid) {
         if(confirm('确定删除模型?') == true)
         {
-            Axios.delete('/modelser/rmt/' + host + '/' + msid ).then(
-                data => {
-                    this.refresh();
-                }
-            );
+            if(host){
+                Axios.delete('/modelser/rmt/' + host + '/' + msid ).then(
+                    data => {
+                        this.refresh();
+                    }
+                );
+            }
+            else{
+                Axios.delete('/modelser/' + msid ).then(
+                    data => {
+                        this.refresh();
+                    }
+                );
+            }
         }
     },
 
     openModelSerInfoHandle : function (e, host, msid) {
-        window.location = '/modelser/rmt/' + host + '/' + msid;
+        if(host){
+            window.location = '/modelser/rmt/' + host + '/' + msid;
+        }
+        else{
+            window.location = '/modelser/' + msid;
+        }
     },
 
     openModelSerProHandle : function (e, host, msid) {
-        window.open('/modelser/rmt/preparation/' + host + '/' + msid + '');
+        if(host){
+            window.open('/modelser/rmt/preparation/' + host + '/' + msid + '');
+        }
+        else{
+            window.open('/modelser/preparation/' + msid );
+        }
     },
 
     render : function () {
@@ -132,20 +170,88 @@ var RmtModelSerTable = React.createClass({
                 <span>Error : {JSON.stringify(this.state.err)}</span>
             );
         }
-        var MsItems = this.state.data.map(function(host){
-            if(host.ping == 'err')
-            {
-                return;
-            }
-            var mss = host.ms.map(function (item) {
+        var MsItems = [];
+        if(this.state.type == 'rmt'){
+            MsItems = this.state.data.map(function(host){
+                if(host.ping == 'err'){
+                    return;
+                }
+                var mss = host.ms.map(function (item) {
+                    var platform;
+                    if(item.ms_platform == 1)
+                    {
+                        platform = (<span className="label label-info"><i className="fa fa-windows"> </i>windows</span>);
+                    }
+                    else if(item.ms_platform == 2)
+                    {
+                        platform = (<span className="label label-info"><i className="fa fa-linux"> </i>linux</span>);
+                    }
+                    else
+                    {
+                        platform = (<span className="label label-info">Unknown</span>);
+                    }
+                    var status;
+                    var button;
+                    var button2;
+                    if(item.ms_status == 1)
+                    {
+                        status = (<span className="badge badge-success">可用</span>);
+                        button = (
+                            <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.openModelSerProHandle(e, host.host, item._id) }} >
+                                <i className="fa fa-retweet"> </i>调用
+                            </button>);
+                        button2 = (
+                            <button className="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="停止服务"
+                                    onClick={(e)=>{this.stopModelSerHandle(e, host.host, item._id)}} >
+                                <i className="fa fa-stop"> </i>
+                            </button>
+                        );
+                    }
+                    else
+                    {
+                        status = (<span className="badge badge-defult">不可用</span>);
+                        button = (
+                            <button className="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="启动服务"
+                                    onClick={(e)=>{this.startModelSerHandle(e, host.host, item._id)}} >
+                                <i className="fa fa-play"> </i>
+                            </button>
+                        );
+                        button2 = (
+                            <button className="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="删除服务"
+                                    onClick={(e) => { this.deleteModelSerHandle(e, host.host, item._id) }} >
+                                <i className="fa fa-trash-o"> </i>
+                            </button>
+                        );
+                    }
+                    return (
+                        <tr>
+                            <td>{item.ms_model.m_name}</td>
+                            <td>{item.mv_num}</td>
+                            <td>{platform}</td>
+                            <td>{status}</td>
+                            <td>0/1</td>
+                            <td>{host.host}</td>
+                            <td>
+                                <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
+                            { this.openModelSerInfoHandle(e, host.host, item._id ) } }  ><i className="fa fa-book"> </i>详情</button>&nbsp;
+                                {button}&nbsp;{button2}
+                            </td>
+                        </tr>
+                    );
+                }.bind(this));
+                return mss;
+            }.bind(this));
+        }
+        else{
+            MsItems = this.state.data.map(function (item) {
                 var platform;
                 if(item.ms_platform == 1)
                 {
-                    platform = (<span className="label label-info"><i className="fa fa-windows"></i>windows</span>);
+                    platform = (<span className="label label-info"><i className="fa fa-windows"> </i>windows</span>);
                 }
                 else if(item.ms_platform == 2)
                 {
-                    platform = (<span className="label label-info"><i className="fa fa-linux"></i>linux</span>);
+                    platform = (<span className="label label-info"><i className="fa fa-linux"> </i>linux</span>);
                 }
                 else
                 {
@@ -158,12 +264,12 @@ var RmtModelSerTable = React.createClass({
                 {
                     status = (<span className="badge badge-success">可用</span>);
                     button = (
-                        <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.openModelSerProHandle(e, host.host, item._id) }} >
+                        <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.openModelSerProHandle(e, null, item._id) }} >
                             <i className="fa fa-retweet"> </i>调用
                         </button>);
                     button2 = (
                         <button className="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="停止服务"
-                                onClick={(e)=>{this.stopRmtModelSerHandle(e, host.host, item._id)}} >
+                                onClick={(e)=>{this.stopModelSerHandle(e, null, item._id)}} >
                             <i className="fa fa-stop"> </i>
                         </button>
                     );
@@ -173,35 +279,34 @@ var RmtModelSerTable = React.createClass({
                     status = (<span className="badge badge-defult">不可用</span>);
                     button = (
                         <button className="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="启动服务"
-                                onClick={(e)=>{this.startRmtModelSerHandle(e, host.host, item._id)}} >
+                                onClick={(e)=>{this.startModelSerHandle(e, null, item._id)}} >
                             <i className="fa fa-play"> </i>
                         </button>
                     );
                     button2 = (
                         <button className="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="删除服务"
-                            onClick={(e) => { this.deleteRmtModelSerHandle(e, host.host, item._id) }} >
+                                onClick={(e) => { this.deleteModelSerHandle(e, null, item._id) }} >
                             <i className="fa fa-trash-o"> </i>
                         </button>
                     );
                 }
                 return (
-                    <tr>
+                    <tr key={item._id}>
                         <td>{item.ms_model.m_name}</td>
                         <td>{item.mv_num}</td>
                         <td>{platform}</td>
                         <td>{status}</td>
                         <td>0/1</td>
-                        <td>{host.host}</td>
+                        <td>127.0.0.1</td>
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
-                            { this.openModelSerInfoHandle(e, host.host, item._id ) } }  ><i className="fa fa-book"></i>详情</button>&nbsp;
+                            { this.openModelSerInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"> </i>详情</button>&nbsp;
                             {button}&nbsp;{button2}
                         </td>
                     </tr>
                 );
             }.bind(this));
-            return mss;
-        }.bind(this));
+        }
         return (
             <table className="display table table-bordered table-striped" id="dynamic-table">
                 <thead>
@@ -216,7 +321,7 @@ var RmtModelSerTable = React.createClass({
                 </tr>
                 </thead>
                 <tbody>
-                {MsItems}
+                    {MsItems}
                 </tbody>
             </table>
         );

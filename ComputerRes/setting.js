@@ -8,8 +8,8 @@ var fs = require('fs');
 module.exports =  {
     version : 0.2,
     gate:{
-        host:'127.0.0.1',
-        port:3000
+        host : '222.192.7.74',
+        port : 80
     },
     port:'8060',
     oid:'56f110136dde7f18b4cb2b87',

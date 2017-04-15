@@ -446,6 +446,11 @@ ModelSerControl.run = function (ms_id, guid, callback) {
 
 };
 
+//获取所有门户网站模型服务
+ModelSerControl.getCloudModelsers = function(callback){
+    remoteReqCtrl.getRequestJSON('http://' + setting.gate.host + ':' + setting.gate.port + '/GeoModeling/ModelItemToContainerServlet', this.returnFunction(callback, 'error in get cloud model service'));
+};
+
 //得到初始输入数据
 ModelSerControl.getInputData = function (ms_id, callback) {
     ModelSerModel.getByOID(ms_id, function (err, ms) {

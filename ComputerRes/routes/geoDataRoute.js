@@ -29,7 +29,7 @@ module.exports = function (app) {
             form.keepExtensions = true;                             //保留后缀
             form.maxFieldsSize = 100 * 1024 * 1024;                 //文件大小
 
-            fs.exists(form.uploadDir,function (exists) {
+            fs.exists(form.uploadDir, function (exists) {
                 if(!exists){
                     fs.mkdir(form.uploadDir);
                 }
@@ -218,6 +218,7 @@ module.exports = function (app) {
                                     return res.end('error');
                                 }
                                 res.send('<xmp>' + data + '</xmp>');
+                                //res.send(data);
                                 return res.end();
                             });
                         }
