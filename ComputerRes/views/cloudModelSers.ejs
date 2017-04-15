@@ -6,7 +6,8 @@
     <!--dynamic table-->
     <link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />
     <link href="/js/advanced-datatable/css/demo_table.css" rel="stylesheet" />
-    <link rel="stylesheet" href="/js/data-tables/DT_bootstrap.css" />
+    <link type="text/css" href="/js/fuelux/css/tree-style.css" rel="stylesheet" />
+    <link href="/js/data-tables/DT_bootstrap.css" rel="stylesheet" />
 </head>
 <body class="sticky-header">
 <section>
@@ -15,14 +16,47 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <section class="panel" >
-            <header class="panel-heading">
-                门户云服务
-            </header>
-            <div id="cloudModelSerTable" class="panel-body">
-
+        <div class="wrapper">
+            <div class="row">
+                <div class="col-md-6">
+                    <section class="panel" >
+                        <header class="panel-heading">
+                            门户模型分类
+                        </header>
+                        <div id="catalog_tree" class="tree tree-plus-minus">
+                            <div class = "tree-folder" style="display:none;">
+                                <div class="tree-folder-header">
+                                    <i class="fa fa-folder"></i>
+                                    <div class="tree-folder-name"></div>
+                                </div>
+                                <div class="tree-folder-content"></div>
+                                <div class="tree-loader" style="display:none"></div>
+                            </div>
+                            <div class="tree-item" style="display:none;">
+                                <i class="tree-dot"></i>
+                                <div class="tree-item-name"></div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <div class="col-md-6">
+                    <section class="panel" >
+                        <header class="panel-heading">
+                            门户云服务
+                        </header>
+                        <div class="panel-body" >
+                            <div class="highlight">
+                                <pre>
+                                    <h5>Slope</h5>
+                                    <h5>Admin</h5>
+                                    <p>111111111111111111111111111111111111111111111111111111111111111111111111111</p>
+                                </pre>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
-        </section>
+        </div>
         <%- include footer.ejs %>
     </div>
 </section>
@@ -32,8 +66,52 @@
 <!--dynamic table-->
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+<script src="/js/fuelux/js/tree.min.js"></script>
 <!--dynamic table initialization -->
-<!--<script src="/js/dynamic_table_init.js"></script>-->
 <script src="/js/output/bundle.js" ></script>
+<script >
+    var TreeView = function () {
+        return {
+            //main function to initiate the module
+            init: function () {
+
+                var DataSourceTree = function (options) {
+                    this._data  = options.data;
+                    this._delay = options.delay;
+                };
+
+                DataSourceTree.prototype = {
+                    data: function (options, callback) {
+                        var self = this;
+                        setTimeout(function () {
+                            var data = $.extend(true, [], self._data);
+                            callback({ data: data });
+                        }, this._delay)
+                    }
+                };
+
+                // INITIALIZING TREE
+                var treeDataSource = new DataSourceTree({
+                    data: [
+                        { name: 'Dashboard', type: 'folder', additionalParameters: { id: 'F1' } },
+                        { name: 'Elements', type: 'folder', additionalParameters: { id: 'F2' } },
+                        { name: 'View Category', type: 'item', additionalParameters: { id: 'I1' } },
+                        { name: 'Testing', type: 'item', additionalParameters: { id: 'I2' } }
+                    ],
+                    delay: 10
+                });
+
+                $('#catalog_tree').tree({
+                    dataSource: treeDataSource,
+                    loadingHTML: '<img src="/images/input-spinner.gif"/>',
+                });
+            }
+        };
+    }();
+
+    $(document).ready(function(){
+        TreeView.init();
+    });
+</script>
 </body>
 </html>

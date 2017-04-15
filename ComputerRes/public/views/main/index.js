@@ -16,17 +16,23 @@ var DataPreparation = require('../components/data/dataPreparation');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
-        <RmtModelSerTable source="/modelser/rmt/json/all" />,
+        <RmtModelSerTable
+            data-source={ document.getElementById('rmtModelSerTable').getAttribute('data-source') }
+            data-type={ document.getElementById('rmtModelSerTable').getAttribute('data-type') }
+        />,
         document.getElementById('rmtModelSerTable'));
 }
 
 if(document.getElementById('modelserinfo') != null) {
-    ReactDOM.render(<ModelSerInfo source={ document.getElementById('modelserinfo').getAttribute('data-url') }  />,
+    ReactDOM.render(<ModelSerInfo source={ document.getElementById('modelserinfo').getAttribute('data-source') }  />,
         document.getElementById('modelserinfo'));
 }
 
 if(document.getElementById('rmtModelSerRunTable') != null) {
-    ReactDOM.render(<RmtModelSerRunTable source="/modelserrun/rmt/json/all"/>,
+    ReactDOM.render(<RmtModelSerRunTable
+        data-source={ document.getElementById('rmtModelSerRunTable').getAttribute('data-source') }
+        data-type={ document.getElementById('rmtModelSerRunTable').getAttribute('data-type') }
+    />,
         document.getElementById('rmtModelSerRunTable'));
 }
 
@@ -48,7 +54,7 @@ if(document.getElementById('parentPanel') != null) {
 
 
 if(document.getElementById('cloudModelSerTable') != null) {
-    ReactDOM.render(<CloudModelSerTable source=""/>,
+    ReactDOM.render(<CloudModelSerTable data-source={document.getElementById('cloudModelSerTable').getAttribute('data-source') }/>,
         document.getElementById('cloudModelSerTable'));
 }
 
