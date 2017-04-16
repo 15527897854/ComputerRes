@@ -543,7 +543,7 @@ module.exports = function(app)
                     }
                     //暂时放到这里，用来生成已经部署过的模型的测试数据
                     //以后就不用加这一句，生成测试数据实在用户上传模型时就生成了
-                    ModelSerControl.addDefaultTestify(oid.toString());
+                    ModelSerCrtl.addDefaultTestify(ms._id.toString());
                     return res.render('modelRunPro',{
                         // user:req.session.user,
                         modelSer:ms,
