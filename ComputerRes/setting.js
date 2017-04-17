@@ -37,7 +37,7 @@ module.exports =  {
         port:'6000'
     },
     modelpath: __dirname + '/geo_model/',
-    data_size : 1024,
+    data_size : 1,
     debug : false,
     debugGUID : 'ae3e712c-ccdf-4964-b819-c85770146485'
 };

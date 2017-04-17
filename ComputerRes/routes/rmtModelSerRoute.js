@@ -14,7 +14,7 @@ module.exports = function(app)
     app.route('/modelser/rmt/file/:host')
         .get(function (req, res, next) {
             var host = req.params.host;
-            childCtrl.getByWhere({host:host},function (error, child) {
+            childCtrl.getByWhere({host:host}, function (error, child) {
                 if(error){
                     return res.end(JSON.stringify(error));
                 }
@@ -40,7 +40,7 @@ module.exports = function(app)
             });
         })
         .get(function (req, res, next) {
-            res.render('modelsers_r',{
+            res.render('modelSers_r',{
                 blmodelser_r : true
             })
         });

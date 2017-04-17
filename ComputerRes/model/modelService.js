@@ -118,6 +118,7 @@ ModelService.getByMID = function (_mid, callback) {
     }
 };
 
+
 //启动一个模型服务实例
 ModelService.run = function (ms_id, guid, exeoutcb, callback) {
     if(ParamCheck.checkParam(callback, ms_id)){
@@ -140,8 +141,11 @@ ModelService.run = function (ms_id, guid, exeoutcb, callback) {
                         else if (cfg.type == 'java') {
                             cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
                         }
-                        else if (cfg.type == 'sh') {
+                        else if (cfg.type == 'lnx') {
                             cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        }
+                        else if (cfg.type == 'sh') {
+                            cmd ='sh ' +  setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
                         }
                         else {
                             cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
