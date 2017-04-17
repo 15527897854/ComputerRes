@@ -13,7 +13,12 @@ var DataUploader = React.createClass({
         {
             id = this.props['data-id'];
         }
+        var isCtrl = false;
+        if(this.props['isCtrl']){
+            isCtrl = true;
+        }
         return {
+            isCtrl: isCtrl,
             id : id,
             gdid : '',
             form : null,
@@ -132,8 +137,14 @@ var DataUploader = React.createClass({
         return this.state.gdid;
     },
 
+    onGenerateSubmit : function () {
+
+    },
+    
     render : function(){
         var selectBtn = null;
+        var semiautoBtn = null;
+        var semiautoModal = null;
         var id = this.state.id;
         if(this.props['data-type'] == 'SELECT')
         {
@@ -141,13 +152,82 @@ var DataUploader = React.createClass({
                 <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataLinkModel" + id} ><i className="fa fa-link"></i> 选择数据</button>
             );
         }
+
+        if (this.state.isCtrl) {
+            semiautoBtn = (
+                <button className="btn btn-default" type="button" data-toggle="modal"
+                        data-target={'#dataGenerateModel' + id}><i className="fa fa-cogs"></i> 半自动配置</button>
+            );
+            semiautoModal = (
+                <div aria-hidden="true" aria-labelledby="dataInputModel" role="dialog" tabIndex="-1"
+                     id={"dataGenerateModel" + id} className="modal fade">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×
+                                </button>
+                                <h4 className="modal-title">半自动配置数据</h4>
+                            </div>
+                            <div className="modal-body">
+                                <h4>数据标签</h4>
+                                <input id={'dataGenerateTag_' + this.state.id} type="text" className="form-control"/>
+                                <h4>UDX数据</h4>
+
+                                <div className="adv-table editable-table ">
+                                    <div className="clearfix">
+                                        <div className="btn-group">
+                                            <button id="editable-sample_new" className="btn btn-primary">
+                                                Add New <i className="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="space15"></div>
+                                    <table className="table table-striped table-hover table-bordered" id="editable-sample">
+                                        <thead>
+                                        <tr>
+                                            <th>Node Name</th>
+                                            <th>Node Type</th>
+                                            <th>Node Value</th>
+                                            <th>Edit</th>
+                                            <th>Delete</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr className="">
+                                            <td>Jonathan</td>
+                                            <td>Smith</td>
+                                            <td>3455</td>
+                                            <td><a className="edit" href="javascript:;">Edit</a></td>
+                                            <td><a className="delete" href="javascript:;">Delete</a></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+                            <div className="modal-footer">
+                                <button id={'btn_generate_ok' + id} type="button" className="btn btn-success"
+                                        onClick={this.onGenerateSubmit}>提交
+                                </button>
+                                <button id={'btn_generate_close' + id} type="button" className="btn btn-default"
+                                        data-dismiss="modal">关闭
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div>
                 <div className="btn-group">
+                    {semiautoBtn}
                     <button className="btn btn-default" type="button" data-toggle="modal" data-target={'#dataInputModel' + id} ><i className="fa fa-pencil"></i> 手动输入</button>
                     <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataFileModel" + id} ><i className="fa fa-file"></i> 上传文件</button>
                     {selectBtn}
                 </div>
+                {semiautoModal}
                 <div aria-hidden="true" aria-labelledby="dataInputModel" role="dialog" tabIndex="-1" id={"dataInputModel" + id} className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">

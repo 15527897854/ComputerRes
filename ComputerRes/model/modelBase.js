@@ -31,7 +31,7 @@ ModelBase.getByOID = function(_oid,callback){
 ModelBase.getByWhere = function (where, callback) {
     if(ParamCheck.checkParam(callback, where))
     {
-        this.baseModel.find(where, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by id'));
+        this.baseModel.find(where, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by where'));
     }
 };
 
@@ -39,4 +39,8 @@ ModelBase.update = function (newItem, callback) {
     var where = {'_id':newItem._id},
         toUpdate = newItem;
     this.baseModel.update(where,toUpdate,this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
+};
+
+ModelBase.updateByWhere = function (where, update,options, callback) {
+    this.baseModel.update(where,update,options,this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
 };

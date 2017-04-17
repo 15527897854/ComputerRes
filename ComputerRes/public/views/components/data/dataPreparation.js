@@ -128,7 +128,10 @@ var DataPreparation = React.createClass({
                 var optional = null;
                 var dataReady = null;
                 if(Event.$.type == 'response'){
-                    dataSelect = (<DataUpLoader data-id={State.$.id + '_' + Event.$.name} data-type="SELECT" onFinish={ (gdid) => { this.onDataReady(State.$.id, Event.$.name, gdid) } } />);
+                    var isCtrl = false;
+                    if(Event.$.name == 'Control')
+                        isCtrl = true;
+                    dataSelect = (<DataUpLoader isCtrl={isCtrl} data-id={State.$.id + '_' + Event.$.name} data-type="SELECT" onFinish={ (gdid) => { this.onDataReady(State.$.id, Event.$.name, gdid) } } />);
                     dataReady = this.getDataState(State.$.id, Event.$.name);
                     if(Event.$.optional == '1'){
                         optional = (<h4 style={{color : '#9AD717' }}><strong>可选参数</strong></h4>);

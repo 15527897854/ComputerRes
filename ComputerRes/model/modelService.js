@@ -34,7 +34,7 @@ function ModelService(modelser)
     {
         this._id = new ObjectId();
         this.ms_model = '';
-        this.mv_num = 0;
+        this.mv_num = '';
         this.ms_des = '';
         this.ms_update = '';
         this.ms_path = '';
@@ -47,12 +47,11 @@ function ModelService(modelser)
 }
 
 ModelService.__proto__ = ModelBase;
-
 module.exports = ModelService;
 
 var msSchema = new mongoose.Schema({
     ms_model : mongoose.Schema.Types.Mixed,
-    mv_num : Number,
+    mv_num : String,
     ms_des : String,
     ms_update : String,
     ms_platform : Number,
