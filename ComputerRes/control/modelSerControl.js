@@ -428,17 +428,24 @@ ModelSerControl.run = function (ms_id, guid, callback) {
                 }
                 var mis = global.app.modelInsColl.getByGUID(guid);
                 //没有配置环境，进程无法启动
-                if(mis.state == "MC_READY" && mis.socket == null)
-                {
+                if(mis.state == "MC_READY" && mis.socket == null){
                     global.app.modelInsColl.removeByGUID(guid);
                     item.msr_status = -1;
+                    ModelSerRunModel.update(item, function (err, res) {
+                        if(err)
+                        {
+                            return console.log(JSON.stringify(err2));
+                        }
+                    })
                 }
-                ModelSerRunModel.update(item, function (err, res) {
-                    if(err)
-                    {
-                        return console.log(JSON.stringify(err2));
-                    }
-                })
+                else {
+                    ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
+                        if(err)
+                        {
+                            return console.log(JSON.stringify(err2));
+                        }
+                    });
+                }
             });
         }, function (err, ms) {
             if(err)
