@@ -6,6 +6,7 @@ var os  = require('os');
 var http = require('http');
 var crypto = require('crypto');
 var md5 = crypto.createHash('md5');
+var fs = require('fs');
 
 var setting = require('../setting');
 var systemSettingModel = require('../model/systemSetting');
@@ -216,4 +217,102 @@ SysControl.checkServer = function(server, callback){
 //获取设置信息
 SysControl.getSettings = function(callback){
     return callback(null, setting);
+};
+
+//向门户注册
+SysControl.register = function (callback) {
+    var registerFile = '../register.json';
+    var registerData,registerJSON = {};
+    fs.stat(registerFile,function (stat) {
+        if(err){
+            if(err.code = 'ENOENT'){
+                registerJSON.registered = true;
+            }
+            else{
+                rst = {status:-1};
+                return callback(JSON.stringify(rst));
+            }
+        }
+        else if(stat) {
+            registerData = fs.readFileSync(registerFile).toString();
+            if(registerData == ''){
+                registerData = '{"registered":false}';
+            }
+            registerJSON = JSON.parse(registerData);
+            if(registerJSON.registered == true){
+                //已经注册过了
+                rst = {status:2};
+                return callback(JSON.stringify(rst));
+            }
+            else{
+                //向门户post信息...
+                var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/computer';
+                remoteReqCtrl.postRequest(req, url,function (err, data) {
+                    if (err) {
+                        console.log(err);
+                        rst = {status: -1};
+                        return callback(JSON.stringify(rst));
+                    }
+                    else {
+                        if(data){
+                            //如果post成功
+                            rst = {status:1};
+                            registerJSON.registered = true;
+                            fs.writeFileSync(registerFile,JSON.stringify(registerJSON));
+                            callback(JSON.stringify(rst));
+                        }
+                    }
+                });
+            }
+        }
+    });
+};
+
+//从门户注销
+SysControl.deregister = function (callback) {
+    var registerFile = '../register.json';
+    var registerData,registerJSON = {};
+    fs.stat(registerFile,function (stat) {
+        if (err) {
+            if (err.code = 'ENOENT') {
+                registerJSON.registered = false;
+            }
+            else {
+                rst = {status: -1};
+                return callback(JSON.stringify(rst));
+            }
+        }
+        else if (stat) {
+            registerData = fs.readFileSync(registerFile).toString();
+            if(registerData == ''){
+                registerData = '{"registered":false}';
+            }
+            registerJSON = JSON.parse(registerData);
+            if(registerJSON.registered == false){
+                //已经注销过了
+                rst = {status:2};
+                return callback(JSON.stringify(rst));
+            }
+            else{
+                //向门户post信息...
+                var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/computer';
+                remoteReqCtrl.postRequest(req, url,function (err, data) {
+                    if (err) {
+                        console.log(err);
+                        rst = {status: -1};
+                        return callback(JSON.stringify(rst));
+                    }
+                    else {
+                        if(data){
+                            //如果post成功
+                            rst = {status:1};
+                            registerJSON.registered = false;
+                            fs.writeFileSync(registerFile,JSON.stringify(registerJSON));
+                            callback(JSON.stringify(rst));
+                        }
+                    }
+                });
+            }
+        }
+    });
 };

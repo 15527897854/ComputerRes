@@ -5,8 +5,8 @@
     <li class="new">
         <a href="">
             <span class="task-info">
-                <span class="name">{ms_name}<span onclick="click()" class="badge badge-success">new</span></span>
-                <span class="msg">{notice}</span>
+                <span class="name">{title}<span class="badge badge-success">new</span></span>
+                <!--<span class="msg">{detail}</span>-->
             </span>
         </a>
     </li>
@@ -110,67 +110,50 @@
 <!-- header section end-->
 
 <script type="text/javascript">
-    function Polling() {
-        $.ajax({
-            url:'/notices',
-            type:'GET',
-            data:{latest:true},
-            datatype:'json',
-            success:function (data){
-                if(data.length){
-                    $('#newsNum').html(data.length);
-                    renderNews(data.data);
-                }
-                else {
-                    $('#newsNum').html(null);
-                    renderNews(null);
-                }
-                setTimeout(Polling,30000);
-            }
-        })
-    }
-
-    function click() {
-        if(false)
-        {
+    $(document).ready(function () {
+        window.Polling = function() {
             $.ajax({
-                url: '/notices',
-                type: 'GET',
-                data: {latest: true},
-                datatype: 'json',
-                success: function (data) {
-                    if (data.length) {
-                        $('#newsNum').html(data.length);
+                url:'/notices?noticeFilter=未读',
+                type:'GET',
+                success:function (msg){
+                    var data = JSON.parse(msg);
+                    if(data.status == 1 && data.data.length){
+                        $('#newsNum').html(data.data.length);
                         renderNews(data.data);
                     }
-                    else{
+                    else {
                         $('#newsNum').html(null);
                         renderNews(null);
                     }
+//                setTimeout(Polling,10000);
                 }
-            });
+            })
         }
-    }
 
-    (function () {
+        function renderNews(data) {
+            if(data){
+                $('#nav-news-ul').html('');
+                var i=0;
+                for(var i=0;i<data.length;i++){
+                    if(i>=3){
+                        break;
+                    }
+                    var tmp = $('#nav-news-li').html();
+                    tmp = tmp.replace(/\{(\w+)\}/g, function (source, key) {
+                        return data[i][key];
+                    });
+                    $('#nav-news-ul').append(tmp);
+                }
+                $('#nav-news-ul').append('<li class="new"><a href="/note">查看所有消息</a></li>');
+            }
+            else {
+                $('#nav-news-ul').html('');
+                $('#nav-news-ul').append('<li class="new"><a href="/note">没有未读消息</a></li>');
+            }
+        }
+
         Polling();
-    })();
 
-    function renderNews(data) {
-        if(data){
-            $('#nav-news-ul').html('');
-            data.forEach(function (item) {
-                var tmp = $('#nav-news-li').html();
-                tmp = tmp.replace(/\{(\w+)\}/g, function (source, key) {
-                    return item[key];
-                });
-                $('#nav-news-ul').append(tmp);
-            });
-            $('#nav-news-ul').append('<li class="new"><a href="/note">查看所有消息</a></li>');
-        }
-        else {
-            $('#nav-news-ul').html('');
-            $('#nav-news-ul').append('<li class="new"><a href="/note">没有未读消息</a></li>');
-        }
-    }
+        timer = setInterval(Polling,10000);
+    });
 </script>

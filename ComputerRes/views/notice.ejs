@@ -10,15 +10,17 @@
 
     <title>通知</title>
     <link rel="stylesheet" href="/css/jqpagination.css" />
+    <link rel="stylesheet" type="text/css" href="/js/gritter/css/jquery.gritter.css" />
     <%- include headInclude.ejs %>
     <script id="template" type="text/html">
         <li class="list-group-item ">
 
             <a class="" href="#">
                 <small class="pull-right text-muted" style="width: 110px;">{time}</small>
-                <strong>{ms_name}</strong>
-                <span>{notice}</span>
+                <strong>{title}</strong>
+                <span>{detail}</span>
                 <span class="item-type" style="display: none;">{type}</span>
+            </a>
     </script>
     <script id="get-pager" type="text/html">
         <div id="pager" class="pull-right" style="margin: 0!important;height:30px;">
@@ -43,14 +45,14 @@
                     <header class="header"> <h4>消息列表</h4> </header>
                     <div class="mail-nav-body">
                         <div class="text-center">
-                            <a class="btn btn-compose" href="#" onclick="showPartTag('all')" onmouseover="this.innerHTML = '查看全部'" onmouseout="this.innerHTML = '分类查看'">
+                            <a class="btn btn-compose" id="getbyclass" href="#" onmouseover="this.innerHTML = '查看全部'" onmouseout="this.innerHTML = '分类查看'">
                                 分类查看
                             </a>
                         </div>
                         <ul id="infoType" class="nav nav-pills nav-stacked mail-navigation">
-                            <li><a href="#" onclick="showPartTag('startRun')"> <i class="fa fa-play"></i> 开始运行  <span id="startRun" class="label label-info pull-right inbox-notification"></span></a></li>
-                            <li><a href="#" onclick="showPartTag('stopRun')"> <i class="fa fa-stop"></i> 停止运行 <span id="stopRun" class="label label-info pull-right inbox-notification"></span></a></li>
-                            <li><a href="#" onclick="showPartTag('delServer')"> <i class="fa fa-trash-o"></i> 删除服务 <span id="delServer" class="label label-danger pull-right inbox-notification"></span></a></li>
+                            <li><a href="#" id="type-start-run"> <i class="fa fa-play"></i> 开始运行  <span id="startRun" class="label label-info pull-right inbox-notification"></span></a></li>
+                            <li><a href="#" id="type-stop-run"> <i class="fa fa-stop"></i> 停止运行 <span id="stopRun" class="label label-info pull-right inbox-notification"></span></a></li>
+                            <li><a href="#" id="type-del-ms"> <i class="fa fa-trash-o"></i> 删除服务 <span id="delServer" class="label label-danger pull-right inbox-notification"></span></a></li>
                         </ul>
                     </div>
                 </aside>
@@ -66,11 +68,23 @@
 
                         <div class="btn-toolbar">
                             <div class="btn-group">
-                                <button id="btn-refresh" onclick="refresh()" class="btn btn-sm btn-primary"><i class="fa fa-refresh"></i></button>
+                                <button id="btn-refresh" class="btn btn-sm btn-primary"><i class="fa fa-refresh"></i></button>
                             </div>
-                            <div style="margin-left: 80px;">
-                                <button id="btn-HasReaded" onclick="markAll(0)" class="btn btn-sm btn-primary"><i class="fa fa-check"></i>&nbsp&nbsp全部标为已读</button>
-                                <!--<button id="btn-NoReaded" onclick="markAllNotRead()" class="btn btn-sm btn-primary"><i class="fa fa-comment"></i>&nbsp&nbsp全部标为未读</button>-->
+
+                            <div class="btn-group select">
+                                <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">
+                                    <span id="selectedType" style="width: 70px;" class="dropdown-label">所有</span>
+                                    <span class="caret"></span>
+                                </button>
+                                <ul id="typeUL" class="dropdown-menu text-left text-sm">
+                                    <li><a href="#">所有</a></li>
+                                    <li><a href="#">未读</a></li>
+                                    <li><a href="#">已读</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="btn-group">
+                                <button id="btn-HasReaded" class="btn btn-sm btn-primary"><i class="fa fa-check"></i>&nbsp&nbsp全部标为已读</button>
                             </div>
                         </div>
 
@@ -90,10 +104,8 @@
 <%- include footerInclude.ejs %>
 
 <script src="/js/jquery.jqpagination.js"></script>
-<script type="text/javascript" src="/js/geomodel/notice.js"></script>
-<script type="text/javascript">
-
-</script>
+<script type="text/javascript" src="/js/gritter/js/jquery.gritter.js"></script>
+<script src="/js/geomodel/notice.js"></script>
 
 </body>
 </html>

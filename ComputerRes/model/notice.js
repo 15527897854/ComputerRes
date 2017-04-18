@@ -19,8 +19,8 @@ function Notice(notice)
             this._id = new ObjectId();
         }
         this.time = notice.time;
-        this.ms_name = notice.ms_name;
-        this.notice = notice.notice;
+        this.title = notice.title;
+        this.detail = notice.detail;
         this.type = notice.type;
         this.hasRead = notice.hasRead;
     }
@@ -28,10 +28,10 @@ function Notice(notice)
     {
         this._id = new ObjectId();
         this.time = '';
-        this.ms_name = '';
-        this.notice = '';
+        this.title = '';
+        this.detail = '';
         this.type = '';
-        this.hasRead = 0;
+        this.hasRead = false;
     }
     return this;
 }
@@ -39,16 +39,17 @@ Notice.__proto__ = ModelBase;
 module.exports = Notice;
 
 var noteSchema = new mongoose.Schema({
-    time : {type:Date, index: { unique: true, expires: '3600*24*14' }},
-    ms_name : String,
-    notice : String,
+    // time : {type:Date, index: { unique: true, expires: '3600*24*14' }},
+    time : {type:Date, index: { unique: true,type:-1}},
+    title : String,
+    detail : String,
     type : String,
-    hasRead : Number
+    hasRead : Boolean
 },{collection:'notice'});
 
 var Note = mongoose.model('notice',noteSchema);
 Notice.baseModel = Note;
-Notice.modelName = 'model';
+Notice.modelName = 'notice';
 
 //新增模型服务信息
 Notice.save = function(notice,callback) {
@@ -63,20 +64,20 @@ Notice.save = function(notice,callback) {
     });
 };
 
-Notice.delByOID = function (_oid, callback) {
-    ParamCheck.checkParam(callback,_oid);
-    var oid = new ObjectId(_oid);
-    Note.remove({'_id':oid},this.returnFunction(callback, 'Error in delete by oid in notice'));
-};
-
-Notice.getWhere = function(where, callback) {
-    ParamCheck.checkParam(callback, where);
-    Note.find(where,this.returnFunction(callback, 'Error in getting where in notice'));
-};
-
-Notice.getByOID = function(_oid, callback) {
-    ParamCheck.checkParam(callback, _oid);
-    var oid = new ObjectId(_oid);
-    Note.findOne({'_id':oid},this.returnFunction(callback, 'Error in getting by oid in notice'));
-};
+// Notice.delByOID = function (_oid, callback) {
+//     ParamCheck.checkParam(callback,_oid);
+//     var oid = new ObjectId(_oid);
+//     Note.remove({'_id':oid},this.returnFunction(callback, 'Error in delete by oid in notice'));
+// };
+//
+// Notice.getWhere = function(where, callback) {
+//     ParamCheck.checkParam(callback, where);
+//     Note.find(where,this.returnFunction(callback, 'Error in getting where in notice'));
+// };
+//
+// Notice.getByOID = function(_oid, callback) {
+//     ParamCheck.checkParam(callback, _oid);
+//     var oid = new ObjectId(_oid);
+//     Note.findOne({'_id':oid},this.returnFunction(callback, 'Error in getting by oid in notice'));
+// };
 

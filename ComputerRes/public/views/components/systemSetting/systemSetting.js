@@ -38,11 +38,11 @@ var SystemSetting = React.createClass({
         var platform = (<span className="label label-info">Unknown</span>);
         if(this.state.data.platform == 1)
         {
-            platform = (<span className="label label-info"><i className="fa fa-windows"></i>windows</span>);
+            platform = (<span className="label label-info"><i className="fa fa-windows"></i> windows</span>);
         }
         else if(this.state.data.platform == 2)
         {
-            platform = (<span className="label label-info"><i className="fa fa-linux"></i>linux</span>);
+            platform = (<span className="label label-info"><i className="fa fa-linux"></i> linux</span>);
         }
         var debug = '否';
         if(this.state.data.debug)
