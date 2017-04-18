@@ -26,7 +26,14 @@ var ParentPanel = React.createClass({
                 }
                 else
                 {
-                    this.setState({loading : false, err : false, parent : data.data.data.ss_value});
+                    if(data.data.data)
+                    {
+                        this.setState({loading : false, err : false, parent : data.data.data.ss_value});
+                    }
+                    else
+                    {
+                        this.setState({loading : false, err : false, parent : null});
+                    }
                 }
             },
             err => {

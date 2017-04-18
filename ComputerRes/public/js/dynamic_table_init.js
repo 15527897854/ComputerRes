@@ -12,8 +12,10 @@ $(document).ready(function() {
             "bLengthChange": true,
             //排序
             "bSort": true,
+            //初始化显示条目数
+            "iDisplayLength" : 10,
             //排序配置
-            "aaSorting": [[3, "dsc"]],
+            "aaSorting": [[3, "desc"]],
             //自适应宽度
             "bAutoWidth": true,
             //多语言配置

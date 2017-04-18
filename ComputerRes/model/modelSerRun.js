@@ -111,3 +111,20 @@ ModelSerRun.getByGUID = function(guid, callback)
     MSR.findOne({msr_guid : guid},this.returnFunction(callback, "error in getting by GUID model service runs"));
 };
 
+
+//
+ModelSerRun.updateDes = function (_oid, msr_des, callback) {
+    if(CheckParam.checkParam(callback, _oid))
+    {
+        if(CheckParam.checkParam(callback, msr_des))
+        {
+            var oid = new ObjectId(_oid);
+            var where = {'_id' : oid};
+            var update = {
+                msr_des : msr_des
+            };
+            MSR.update(where, update, this.returnFunction(callback, 'Error in updating msr_des a ' + this.modelName + ' by where'));
+        }
+    }
+};
+

@@ -119,7 +119,7 @@ var ChildrenTable = React.createClass({
                 status = (<span className="badge badge-defult">不可用</span>);
             }
             return (
-                <tr>
+                <tr key={child.host}>
                     <td>{child.host}</td>
                     <td>{child.port}</td>
                     <td>{platform}</td>

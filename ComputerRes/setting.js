@@ -8,8 +8,8 @@ var fs = require('fs');
 module.exports =  {
     version : 0.2,
     gate:{
-        host:'127.0.0.1',
-        port:3000
+        host : '222.192.7.74',
+        port : 80
     },
     port:'8060',
     oid:'56f110136dde7f18b4cb2b87',
@@ -42,7 +42,7 @@ module.exports =  {
         port:'80'
     },
     modelpath: __dirname + '/geo_model/',
-    data_size : 1024,
+    data_size : 1,
     debug : false,
     debugGUID : 'ae3e712c-ccdf-4964-b819-c85770146485'
 };

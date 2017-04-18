@@ -179,14 +179,17 @@ ModelSerControl.getRmtInputDate = function (host, msid, callback) {
                 {
                     return callback(err);
                 }
-                remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+                }
             }.bind(this));
         }
     }
 };
 
 //运行远程模型
-ModelSerControl.runRmtModelSer = function(host, msid, data, callback){
+ModelSerControl.runRmtModelSer = function(host, msid, inputdata, outputdata, callback){
     if(ParamCheck.checkParam(callback, host))
     {
         if(ParamCheck.checkParam(callback, host))
@@ -198,7 +201,7 @@ ModelSerControl.runRmtModelSer = function(host, msid, data, callback){
                 }
                 if(ParamCheck.checkParam(callback, child))
                 {
-                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + data, function(err, data)
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata, function(err, data)
                     {
                         if(err)
                         {
@@ -525,12 +528,26 @@ ModelSerControl.run = function (ms_id, guid, callback) {
                 if(stderr){
                     item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
                 }
-                ModelSerRunModel.update(item, function (err, res) {
-                    if(err)
-                    {
-                        return console.log(JSON.stringify(err2));
-                    }
-                })
+                var mis = global.app.modelInsColl.getByGUID(guid);
+                //没有配置环境，进程无法启动
+                if(mis.state == "MC_READY" && mis.socket == null){
+                    global.app.modelInsColl.removeByGUID(guid);
+                    item.msr_status = -1;
+                    ModelSerRunModel.update(item, function (err, res) {
+                        if(err)
+                        {
+                            return console.log(JSON.stringify(err2));
+                        }
+                    })
+                }
+                else {
+                    ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
+                        if(err)
+                        {
+                            return console.log(JSON.stringify(err2));
+                        }
+                    });
+                }
             });
         }, function (err, ms) {
             if(err)
@@ -541,6 +558,11 @@ ModelSerControl.run = function (ms_id, guid, callback) {
         });
     });
 
+};
+
+//获取所有门户网站模型服务
+ModelSerControl.getCloudModelsers = function(callback){
+    remoteReqCtrl.getRequestJSON('http://' + setting.gate.host + ':' + setting.gate.port + '/GeoModeling/ModelItemToContainerServlet', this.returnFunction(callback, 'error in get cloud model service'));
 };
 
 //得到初始输入数据

@@ -64,9 +64,8 @@ function SocketTrans(app)
             {
                 mi = app.modelInsColl.getBySocekt(socket);
                 ModelSerRunCtrl.getByGUID(mi.guid, function (err,msr) {
-                    var mis = app.modelInsColl.getBySocekt(socket);
                     var finished = false;
-                    if(mis.state == 'MC_EXIT' || mis.state == 'MC_RESPONSE')
+                    if(mi.state == 'MC_EXIT' || mi.state == 'MC_RESPONSE')
                     {
                         finished = true;
                     }

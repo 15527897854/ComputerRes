@@ -38,7 +38,7 @@ FileOpera.rmdir = function (path) {
     }
     else if(stat.isDirectory())
     {
-        path += '\\';
+        path += '/';
         var files = fs.readdirSync(path);
         for(var i = 0; i < files.length; i++)
         {

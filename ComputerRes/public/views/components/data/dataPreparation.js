@@ -8,7 +8,16 @@ var DataUpLoader = require('./dataUploader');
 
 var DataPreparation = React.createClass({
     getInitialState : function () {
+        var rmt = 0;
+        var host = '';
+        if(this.props['data-type'] == 'rmt'){
+            rmt = 1;
+            host = this.props['data-host'];
+        }
+
         return {
+            rmt : rmt,
+            host : host,
             states : [],
             allInputData : [],
             allOutputData : [],
@@ -17,7 +26,7 @@ var DataPreparation = React.createClass({
     },
 
     componentDidMount : function () {
-        Axios.get(this.props.source).then(
+        Axios.get(this.props['data-source']).then(
             data => {
                 if(data.data.result == 'suc')
                 {
@@ -128,10 +137,11 @@ var DataPreparation = React.createClass({
                 var optional = null;
                 var dataReady = null;
                 if(Event.$.type == 'response'){
-                    var isCtrl = false;
-                    if(Event.$.name == 'Control')
-                        isCtrl = true;
-                    dataSelect = (<DataUpLoader isCtrl={isCtrl} data-id={State.$.id + '_' + Event.$.name} data-type="SELECT" onFinish={ (gdid) => { this.onDataReady(State.$.id, Event.$.name, gdid) } } />);
+                    dataSelect = (<DataUpLoader data-id={State.$.id + '_' + Event.$.name}
+                                                data-type="SELECT"
+                                                data-rmt={this.state.rmt}
+                                                data-host={this.state.host}
+                                                onFinish={ (gdid) => { this.onDataReady(State.$.id, Event.$.name, gdid) } } />);
                     dataReady = this.getDataState(State.$.id, Event.$.name);
                     if(Event.$.optional == '1'){
                         optional = (<h4 style={{color : '#9AD717' }}><strong>可选参数</strong></h4>);

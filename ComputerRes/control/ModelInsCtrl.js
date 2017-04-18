@@ -21,6 +21,10 @@ ModelInsCtrl.enter = function (app, cmds, socket) {
         console.log(cmds[0] + ' -- enter');
         app.modelInsColl.changeStateBySocket(socket, 'MC_ENTER');
     }
+    else
+    {
+        socket.write('kill');
+    }
 };
 
 ModelInsCtrl.request = function (app, cmds, socket) {

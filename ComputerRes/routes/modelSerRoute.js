@@ -10,7 +10,6 @@ var formidable = require('formidable');
 var uuid = require('node-uuid');
 var unzip = require('unzip');
 var setting = require('../setting');
-var ObjectId = require('mongodb').ObjectID;
 
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCrtl = require('../control/modelSerControl');
@@ -193,7 +192,7 @@ module.exports = function(app)
     app.route('/modelser/file/:sessionid')
         .get(function (req, res, next) {
             // console.log('sessionId:'+req.sessionID);
-            var sessionId = req.params.sessionId;
+            var sessionId = req.params.sessionid;
             var client = global.fileupload.get(sessionId);
             console.log(JSON.stringify(client));
             if(client.value == 100)
@@ -208,6 +207,11 @@ module.exports = function(app)
     app.route('/modelser/cloud')
         .get(function(req, res, next){
             res.render('cloudModelSers');
+        });
+
+    app.route('/modelser/cloud/modelsers')
+        .get(function(req, res, next){
+            ModelSerCrtl.getCloudModelsers(RouteBase.returnFunction(res, 'error in getting cloud modelsers!'));
         });
 
     //展示某个模型服务
@@ -252,82 +256,122 @@ module.exports = function(app)
                 {
                     //读取输入文件参数
                     var inputData = JSON.parse(req.query.inputdata);
-                    var outputData = JSON.parse(req.query.outputdata);
+                    var outputData = req.query.outputdata;
 
-                    //指定输出文件参数
-                    for(var k = 0; k < outputData.length; k++)
-                    {
-                        var dataid = 'gd_' + uuid.v1();
-                        outputData[k]['DataId'] = dataid;
-                        outputData[k]['Ready'] = false;
-                    }
+                    function next(){
+                        //生成唯一字符串GUID
+                        var guid = uuid.v4();
 
-                    //生成唯一字符串GUID
-                    var guid = uuid.v4();
-
-                    //向内存中添加模型运行记录条目
-                    var date = new Date();
-                    var mis = {
-                        guid : guid,
-                        socket : null,
-                        ms : null,
-                        start : date.toLocaleString(),
-                        state : 'MC_READY'
-                    };
-                    var modelIns = new ModelIns(mis);
-                    app.modelInsColl.addIns(modelIns);
-
-                    ModelSerCrtl.getByOID(msid, function(err, ms){
-                        //添加纪录
-                        var msr = {
-                            ms_id : ms._id,
-                            msr_ms : ms,
-                            msr_date : date.toLocaleString(),
-                            msr_time : 0,
-                            msr_user : {
-                                u_name : 'Admin',
-                                u_type : 0
-                            },
-                            msr_guid : guid,
-                            msr_input : inputData,
-                            msr_output : outputData,
-                            msr_status : 0,
-                            msr_des : ''
+                        //向内存中添加模型运行记录条目
+                        var date = new Date();
+                        var mis = {
+                            guid : guid,
+                            socket : null,
+                            ms : null,
+                            start : date.toLocaleString(),
+                            state : 'MC_READY'
                         };
-                        ModelSerRunCtrl.addItem(msr ,function (err, msr) {
-                            res.end(JSON.stringify({
-                                res : 'suc',
-                                msr_id : msr._id
-                            }));
+                        var modelIns = new ModelIns(mis);
+                        app.modelInsColl.addIns(modelIns);
 
-                            //开始运行模型实例
-                            ModelSerCrtl.run(msid, guid, function (err, ms) {
+                        ModelSerCrtl.getByOID(msid, function(err, ms){
+                            //添加纪录
+                            var msr = {
+                                ms_id : ms._id,
+                                msr_ms : ms,
+                                msr_date : date.toLocaleString(),
+                                msr_time : 0,
+                                msr_user : {
+                                    u_name : 'Admin',
+                                    u_type : 0
+                                },
+                                msr_guid : guid,
+                                msr_input : inputData,
+                                msr_output : outputData,
+                                msr_status : 0,
+                                msr_des : ''
+                            };
+                            ModelSerRunCtrl.addItem(msr ,function (err, msr) {
                                 if(err)
                                 {
                                     return res.end('Error : ' + err);
                                 }
 
-                                //绑定内存实例的ms属性
-                                app.modelInsColl.bindMs(guid, ms);
+                                //开始运行模型实例
+                                ModelSerCrtl.run(msid, guid, function (err, ms) {
+                                    if(err)
+                                    {
+                                        return res.end('Error : ' + err);
+                                    }
 
-                                //存储通知消息
-                                var notice = {
-                                    time:new Date(),
+                                    //绑定内存实例的ms属性
+                                    app.modelInsColl.bindMs(guid, ms);
+
+                                    res.end(JSON.stringify({
+                                        res : 'suc',
+                                        msr_id : msr._id
+                                    }));
+
+                                    //存储通知消息
+                                    var notice = {
+                                        time:new Date(),
                                     title:ms.ms_model.m_name + '开始运行！',
                                     detail:'',
                                     type:'start-run',
                                     hasRead:false
-                                };
-                                NoticeCtrl.addNotice(notice, function (err, data) {
-                                    if(err)
-                                    {
-                                        console.log(JSON.stringify(err));
-                                    }
+                                    };
+                                    NoticeCtrl.addNotice(notice, function (err, data) {
+                                        if(err)
+                                        {
+                                            console.log(JSON.stringify(err));
+                                        }
+                                    });
                                 });
-
                             });
                         });
-                    });
+
+                    }
+
+                    if(outputData == undefined || outputData == null) {
+                        ModelSerCrtl.getInputData(msid, function(err, data){
+                            if(err)
+                            {
+                                return res.end(JSON.stringify(err));
+                            }
+                            //指定输出文件参数
+                            outputData = [];
+                            for(var k = 0; k < data.length; k++) {
+                                for(var i = 0; i < data[k].Event.length; i++)
+                                {
+                                    if(data[k].Event[i].$.type == 'noresponse')
+                                    {
+                                        var dataid = 'gd_' + uuid.v1();
+                                        var item = {
+                                            StateId : data[k].$.id,
+                                            Tag : 'OUTPUT',
+                                            Event : data[k].Event[i].$.name,
+                                            DataId : dataid,
+                                            Ready : false
+                                        };
+                                        outputData.push(item);
+                                    }
+                                }
+                            }
+                            next();
+                        });
+                    }
+                    else
+                    {
+                        outputData = JSON.parse(outputData);
+                        //指定输出文件参数
+                        for(var k = 0; k < outputData.length; k++) {
+                            var dataid = 'gd_' + uuid.v1();
+                            outputData[k]['DataId'] = dataid;
+                            outputData[k]['Ready'] = false;
+                        }
+
+                        next();
+                    }
                 }
                 //单个模型的详情页面
                 else
@@ -535,8 +579,8 @@ module.exports = function(app)
             //暂时放到这里，用来生成已经部署过的模型的测试数据
             //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
             ModelSerCrtl.addDefaultTestify(msid.toString(),function () {
-                ModelSerCrtl.getTestify(msid,function (data) {
-                    res.end(data);
+            ModelSerCrtl.getTestify(msid,function (data) {
+                res.end(data);
                 });
             });
         })
@@ -563,17 +607,7 @@ module.exports = function(app)
             var msid = req.params.msid;
             if(msid == 'all')
             {
-                ModelSerCrtl.getLocalModelSer(function (err, data) {
-                    if(err)
-                    {
-                        return res.end(JSON.stringify(err));
-                    }
-                    return res.end(JSON.stringify(data));
-                });
-            }
-            else if(msid == 'rmtall')
-            {
-                next();
+                ModelSerCrtl.getLocalModelSer(RouteBase.returnFunction(res, 'Error in getting all local model services'));
             }
             else
             {

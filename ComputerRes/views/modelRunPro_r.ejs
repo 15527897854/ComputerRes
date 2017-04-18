@@ -93,9 +93,7 @@
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                  </span>
             </div>
-            <div id="inputdata">
-            </div>
-            <div id="data-panel" ></div>
+            <div id="DataPreparation" data-source="/modelser/rmt/inputdata/<%=host%>/<%=modelSer._id %>" data-type="rmt" data-host="<%=host %>" ></div>
         </div>
         <div class="panel panel-danger">
             <div class="panel-heading">
@@ -116,318 +114,39 @@
 <%- include footerInclude.ejs %>
 <script type="text/javascript" src="/js/jquery.uploadfile.min.js" ></script>
 <script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
+<script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+<script type="text/javascript" src="/js/output/bundle.js" ></script>
 <script type="text/javascript" >
-    var closeTag = (function (e){
-        var li = $($(e).parent()).parent();
-        var ul = $(li).parent();
-        $(li).html("");
-
-    });
-
-    //异步加载数据
-    var ms_data = [];
-    var msid = '<%=modelSer._id %>';
-    var host = '<%=host%>';
-    $(document).ready(function () {
-        $.ajax({
-            url : '/modelser/rmt/inputdata/<%=host %>/' + msid,
-            method : 'GET',
-            success : function (data) {
-                var myJson = JSON.parse(data);
-                if (myJson.result != 'suc') {
-                    return;
-                }
-                if (typeof myJson.data == 'object')
+    $(document).ready(function(){
+        var msid = '<%=modelSer._id %>';
+        var host = '<%=host %>';
+        $('#btn_run').click(function(e){
+            for(var i = 0; i < window.allInputData.length; i++)
+            {
+                if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 )
                 {
-                    myJson = myJson.data;
+                    return alert('数据未全准备！');
                 }
-                else if(typeof myJson.data == 'string')
-                {
-                    myJson = JSON.parse(myJson.data);
-                }
-                for(var i = 0; i < myJson.length; i++)
-                {
-                    var eventhead = '';
-                    var eventbody = '';
-                    var datapara = '';
-                    var tag = '';
-                    for(var j = 0; j < myJson[i].Event.length; j++)
-                    {
-                        if(j == 0)
-                        {
-                            tag = "active";
-                        }
-                        else
-                        {
-                            tag = "";
-                        }
-                        eventhead = eventhead + '<li class="' + tag + '">' +
-                                '<a style="padding-right: 8px !important;" href="#' + myJson[i].$.id + '_' + myJson[i].Event[j].$.name + '" data-toggle="tab">' +
-                                '<i class="fa fa-flash"></i>' +
-                                myJson[i].Event[j].$.name +'&nbsp&nbsp&nbsp&nbsp'+
-                                //'<i onclick="closeTag(this)" class="fa fa-times closeTag" style="margin:3px 10px 0 10px;color:#666;float: right;"></i> '+
-                                '</a>' +
-                                '</li>';
-
-                        if(myJson[i].Event[j].$.type == 'response')
-                        {
-                            var id = myJson[i].$.id + '_' + myJson[i].Event[j].$.name;
-                            ms_data.push({
-                                id : id,
-                                stateid : myJson[i].$.id,
-                                eventname : myJson[i].Event[j].$.name,
-                                upload : null,
-                                gd_id : '',
-                                optional :myJson[i].Event[j].$.optional
-                            });
-                            var datasetRefer = '';
-                            if(myJson[i].Event[j].$.name == 'Control'){
-                                datasetRefer = myJson[i].Event[j].ControlParameter.$.datasetReference;
-                            }else {
-                                datasetRefer = myJson[i].Event[j].ResponseParameter.$.datasetReference;
-                            }
-                            datapara = '<p><strong>数据参考：</strong>' + datasetRefer + '</p>' +
-                                    '<p id="data_pre_p_' + id + '"><strong>数据准备情况：</strong><span class="label label-warning">未准备</span></p>' +
-                                    '<input id="data_' + id + '" type="hidden" value="" />' +
-                                    '<div class="btn-group btn-group-justified" style="width: 60%">' +
-                                    '<a href="#modal_datainput_' + id + '" data-toggle="modal" class="btn btn-default"  >' +
-                                        '<i class="fa fa-pencil"></i>手动输入' +
-                                    '</a>' +
-                                    '<a href="#modal_fileinput_' + id + '" data-toggle="modal" class="btn btn-default"  >' +
-                                        '<i class="fa fa-file-text"></i>上传文件' +
-                                    '</a>' +
-                                    '</div>' +
-                                    '<!-- 手动输入数据窗口 -->' +
-                                    '<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1"' +
-                                    'id="modal_datainput_' + id + '" class="modal fade" style="display: none;">' +
-                                    '<div class="modal-dialog">' +
-                                    '<div class="modal-content">' +
-                                    '<div class="modal-header">' +
-                                    '<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>' +
-                                    '<h4 class="modal-title">手动输入数据</h4>' +
-                                    '</div>' +
-                                    '<div class="modal-body">' +
-                                    '<h4>UDX数据</h4>' +
-                                    '<textarea id="ta_inputdata_' + id + '" class=" form-control" style="height: 200px" ></textarea>' +
-                                    '</div>' +
-                                    '<div class="modal-footer">' +
-                                    '<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>' +
-                                    '<button type="button" class="btn btn-success" id="btn_stream_' + id + '">确认</button>' +
-                                    '</div>' +
-                                    '</div>' +
-                                    '</div>' +
-                                    '</div>' +
-                                    '<!-- 上传数据文件窗口 -->' +
-                                    '<div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1"' +
-                                    'id="modal_fileinput_' + id + '" class="modal fade" style="display: none;">' +
-                                    '<div class="modal-dialog">' +
-                                    '<div class="modal-content">' +
-                                    '<div class="modal-header">' +
-                                    '<button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>' +
-                                    '<h4 class="modal-title">上传数据文件</h4>' +
-                                    '</div>' +
-                                    '<div class="modal-body">' +
-                                    '<h4>UDX文件</h4>' +
-                                    '<div id="fileuploader_' + id + '">Upload</div>' +
-                                    '</div>' +
-                                    '<div class="modal-footer">' +
-                                    '<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>' +
-                                    '<button type="button" class="btn btn-success" id="btn_upload_' + id + '">确认</button>' +
-                                    '</div>' +
-                                    '</div>' +
-                                    '</div>' +
-                                    '</div>';
-                        }
-                        else if(myJson[i].Event[j].$.type == 'noresponse')
-                        {
-                            datapara = '<p><strong>数据参考：</strong>' + myJson[i].Event[j].DispatchParameter.$.datasetReference + '</p>';
-                        }
-                        var strOpt = '';
-                        if(myJson[i].Event[j].$.optional == "1"){
-                            strOpt = "<p><h4 style='color:#9AD717'><strong>可选参数</strong></h4></p>"
-                        }else{
-                            strOpt = "<p><h4 style='color:#9AD717'><strong>必选参数</strong></h4></p>"
-                        }
-                        eventbody = eventbody + '<div class="tab-pane ' + tag + '" id="' + myJson[i].$.id + '_' + myJson[i].Event[j].$.name + '">' +
-                                strOpt +
-                                '<p><strong>类型：</strong>' + myJson[i].Event[j].$.name + '</p>' +
-                                '<p><strong>描述：</strong>' + myJson[i].Event[j].$.description + '</p>' +
-                                datapara +
-                                '</div>';
-                    }
-                    $('#inputdata').append('<div  class="panel-body">' +
-                            '<h4 style="color: #9ad717;"><strong>状态信息</strong></h4>' +
-                            '<p><strong>名称&nbsp;:&nbsp;</strong>' + myJson[i].$.name + '</p>' +
-                            '<p><strong>描述&nbsp;:&nbsp;</strong>' + myJson[i].$.description + '</p>' +
-                            '<br />' +
-                            '<h4><strong>事件</strong></h4>' +
-                            '<section class="panel">' +
-                                '<header class="panel-heading custom-tab ">' +
-                                    '<ul class="nav nav-tabs">' +
-                                    eventhead +
-                                    '</ul>' +
-                                '</header>' +
-                                '<div class="panel-body">' +
-                                    '<div class="tab-content">' +
-                                        eventbody +
-                                    '</div>' +
-                                '</div>' +
-                            '</section>' +
-                            '<div>' +
-                            '<br />');
-
-                }
-
-                for(var i = 0; i < ms_data.length; i++)
-                {
-                    var uploadcb = (function (index) {
-                        return function(files, data, xhr, pd)
-                        {
-                            var resJSON = JSON.parse(data);
-                            if(resJSON.res == 'suc')
-                            {
-                                //添加数据ID并显示数据加载完成
-                                $('#data_' + ms_data[index].stateid + '_' + ms_data[index].eventname).val(resJSON.gd_id);
-                                ms_data[index].gd_id = resJSON.gd_id;
-                                $('#data_pre_p_' + ms_data[index].stateid + '_' + ms_data[index].eventname).html('<strong>数据准备情况：</strong>' +
-                                        '<span class="label label-success">已准备</span>' +
-                                        '数据ID : ' + resJSON.gd_id);
-                                //隐藏
-                                $('#modal_fileinput_' + ms_data[index].stateid + '_' + ms_data[index].eventname).modal('hide');
-                                //弹出提示条
-                                $('#data-panel').append('<div class="alert alert-success fade in">' +
-                                        '<button type="button" class="close close-sm" data-dismiss="alert">' +
-                                        '<i class="fa fa-times"></i>' +
-                                        '</button>' +
-                                        '<strong>数据上传成功!</strong><br /> ' +
-                                        ms_data[index].eventname + ' 事件数据准备成功！数据ID:' + resJSON.gd_id + '</div>');
-                                //上传控件清空
-                                ms_data[index].upload.reset();
-                            }
-                        }
-                    });
-                    ms_data[i].upload = $('#fileuploader_' + ms_data[i].id).uploadFile({
-                        //上传路径
-                        url:"/geodata/file/<%=host %>",
-                        //上传文件名
-                        fileName:"myfile",
-                        //是否多个文件
-                        multiple:false,
-                        //是否拖拽上传
-                        dragDrop:true,
-                        //最大文件数
-                        maxFileCount:1,
-                        //规定上传文件格式
-                        acceptFiles:"*/*",
-                        //最大文件大小
-                        maxFileSize:100*1024*1024,
-                        //表单数据
-                        formData:
-                        {
-                            stateid : ms_data[i].stateid,
-                            eventname : ms_data[i].eventname
-                        },
-                        //上传文件按钮文本
-                        uploadStr:"上传文件",
-                        //取消上传按钮文本
-                        cancelStr:"取消文件",
-                        //拖拽上传提示文本（带HTML）
-                        dragDropStr:"<span><b>拖拽上传</b></span>",
-                        //完成上传提示文本
-                        doneStr:"完成上传",
-                        //是否自动传
-                        autoSubmit:false,
-                        //是否显示已上传文件
-                        showDownload:false,
-                        //上传完成回调
-                        onSuccess : uploadcb(i)
-                    });
-
-                    var streamcb = (function (index) {
-                       return  function () {
-                           var stream = $('#ta_inputdata_' + ms_data[index].id).val();
-                           $.ajax({
-                               url : "/geodata/stream/<%=host %>",
-                               type : 'POST',
-                               data : {
-                                   stateid : ms_data[index].stateid,
-                                   eventname : ms_data[index].eventname,
-                                   data : stream
-                               },
-                               success : function (data)
-                               {
-                                   var resJSON = JSON.parse(data);
-                                   if(resJSON.res == 'suc') {
-                                       //添加数据ID并显示数据加载完成
-                                       $('#data_' + ms_data[index].id).val(resJSON.gd_id);
-                                       ms_data[index].gd_id = resJSON.gd_id;
-                                       $('#data_pre_p_' + ms_data[index].id).html('<strong>数据准备情况：</strong>' +
-                                               '<span class="label label-success">已准备</span>' +
-                                               '数据ID : ' + resJSON.gd_id);
-                                       //隐藏
-                                       $('#modal_datainput_' + ms_data[index].id).modal('hide');
-                                       //弹出提示条
-                                       $('#data-panel').append('<div class="alert alert-success fade in">' +
-                                               '<button type="button" class="close close-sm" data-dismiss="alert">' +
-                                               '<i class="fa fa-times"></i>' +
-                                               '</button>' +
-                                               '<strong>数据上传成功!</strong><br /> ' +
-                                               ms_data[index].eventname +
-                                               ' 事件数据准备成功！数据ID:' + resJSON.gd_id + '</div>');
-                                   }
-                               }
-                           });
-                       }
-                    });
-
-                    //手动上传数据
-                    $('#btn_stream_' + ms_data[i].id).click(streamcb(i));
-
-                    //开始长传闭包
-                    var clickcb = (function (index) {
-                        return function () {
-                            ms_data[index].upload.startUpload();
-                        }
-                    });
-
-                    $('#btn_upload_' + ms_data[i].id).click(clickcb(i));
-                }
-
-                var dataInput = [];
-                //开始运行按钮
-                $('#btn_run').click(function () {
-                    //准备Form数据
-                    for(var i = 0; i < ms_data.length; i++)
-                    {
-                        if($('#data_' + ms_data[i].id).val() == '' && ms_data[i].optional == "false")
-                        {
-                            return alert('数据未完全准备！');
-                        }
-                        var item = {
-                            'StateId' : ms_data[i].stateid,
-                            'Event' : ms_data[i].eventname,
-                            'DataId' : ms_data[i].gd_id
-                        }
-                        dataInput.push(item);
-                    }
-
-                    //异步请求
-                    $.ajax({
-                        url: '/modelser/rmt/<%=host %>/<%=modelSer._id %>?ac=run',
-                        type:'GET',
-                        data:'inputdata=' + JSON.stringify(dataInput),
-                        success:function (data) {
-                            var resJson = JSON.parse(data);
-                            if(resJson.res = 'suc')
-                            {
-                                window.location.href = '/modelserrun/rmt/<%=host %>/' + resJson.msr_id;
-                            }
-                        }
-                    });
-                });
             }
+            for(var i = 0; i < window.allOutputData.length; i++)
+            {
+                window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
+            }
+            $.ajax({
+                url : '/modelser/rmt/' + host + '/' + msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
+                type:'GET',
+                success : function(data){
+                    var resJson = JSON.parse(data);
+                    if(resJson.res = 'suc')
+                    {
+                        window.location.href = '/modelserrun/rmt/' + host + '/' + resJson.msr_id;
+                    }
+                }
+            });
         });
     });
 </script>
+
 </body>
 </html>

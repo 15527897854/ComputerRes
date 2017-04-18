@@ -11,7 +11,8 @@ var RmtModelSerRunTable = React.createClass({
             loading : true,
             err : null,
             msr : null,
-            init : true
+            init : true,
+            type : this.props['data-type']
         };
     },
     componentDidMount : function () {
@@ -19,7 +20,7 @@ var RmtModelSerRunTable = React.createClass({
     },
 
     refresh : function () {
-        Axios.get(this.props.source).then(
+        Axios.get(this.props['data-source']).then(
             data => {
                 if(data.data.res == 'err')
                 {
@@ -39,12 +40,14 @@ var RmtModelSerRunTable = React.createClass({
                                 "processing": true,
                                 //是否显示分页
                                 "bPaginate": true,
+                                //初始化显示条目数
+                                "iDisplayLength" : 10,
                                 //每页显示条目数
                                 "bLengthChange": true,
                                 //排序
                                 "bSort": true,
                                 //排序配置
-                                "aaSorting": [[4, "dsc"]],
+                                "aaSorting": [[3, "desc"]],
                                 //自适应宽度
                                 "bAutoWidth": true,
                                 //多语言配置
@@ -79,7 +82,12 @@ var RmtModelSerRunTable = React.createClass({
     },
 
     openModelSerRunInfoHandle : function (e, host, msid) {
-        window.location = '/modelserrun/rmt/' + host + '/' + msid;
+        if(host) {
+            window.location = '/modelserrun/rmt/' + host + '/' + msid;
+        }
+        else{
+            window.location = '/modelserrun/' + msid;
+        }
     },
 
     render : function () {
@@ -95,12 +103,46 @@ var RmtModelSerRunTable = React.createClass({
                 <span>Error : {JSON.stringify(this.state.err)}</span>
             );
         }
-        var MrsItems = this.state.data.map(function(host){
-            if(host.ping == 'err')
-            {
-                return;
-            }
-            var msrs = host.msr.map(function (item) {
+        var MsrItems = [];
+        if(this.state.type == 'rmt'){
+            MsrItems = this.state.data.map(function(host){
+                if(host.ping == 'err')
+                {
+                    return;
+                }
+                var msrs = host.msr.map(function (item) {
+                    var status = '';
+                    if(item.msr_status == 0)
+                    {
+                        status = '未完成';
+                    }
+                    if(item.msr_status == -1)
+                    {
+                        status = '出现异常';
+                    }
+                    if(item.msr_status == 1)
+                    {
+                        status = '已完成';
+                    }
+                    return (
+                        <tr key={host.host + item._id}>
+                            <td>{host.host}</td>
+                            <td>{item.msr_ms.ms_model.m_name}</td>
+                            <td>{item.msr_guid}</td>
+                            <td>{item.msr_date}</td>
+                            <td>{status}</td>
+                            <td>
+                                <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
+                            { this.openModelSerRunInfoHandle(e, host.host, item._id ) } }  ><i className="fa fa-book"></i>详情</button>&nbsp;
+                            </td>
+                        </tr>
+                    );
+                }.bind(this));
+                return msrs;
+            }.bind(this));
+        }
+        else{
+            MsrItems = this.state.data.map(function (item) {
                 var status = '';
                 if(item.msr_status == 0)
                 {
@@ -115,28 +157,25 @@ var RmtModelSerRunTable = React.createClass({
                     status = '已完成';
                 }
                 return (
-                    <tr>
-                        <td>{host.host}</td>
-                        <td>{item._id}</td>
+                    <tr key={item._id}>
+                        <td>127.0.0.1</td>
                         <td>{item.msr_ms.ms_model.m_name}</td>
                         <td>{item.msr_guid}</td>
                         <td>{item.msr_date}</td>
                         <td>{status}</td>
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
-                            { this.openModelSerRunInfoHandle(e, host.host, item._id ) } }  ><i className="fa fa-book"></i>详情</button>&nbsp;
+                            { this.openModelSerRunInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"></i>详情</button>&nbsp;
                         </td>
                     </tr>
                 );
             }.bind(this));
-            return msrs;
-        }.bind(this));
+        }
         return (
             <table className="display table table-bordered table-striped" id="dynamic-table">
                 <thead>
                 <tr>
                     <th>地址</th>
-                    <th>记录ID</th>
                     <th>名称</th>
                     <th>GUID</th>
                     <th>调用时间</th>
@@ -145,7 +184,7 @@ var RmtModelSerRunTable = React.createClass({
                 </tr>
                 </thead>
                 <tbody>
-                {MrsItems}
+                {MsrItems}
                 </tbody>
             </table>
         );
