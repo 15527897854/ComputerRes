@@ -3,9 +3,9 @@
  */
 var fs = require('fs');
 var path = require('path');
+const exec = require('child_process').exec;
 
-var FileOpera = function()
-{
+var FileOpera = function() {
 };
 
 module.exports = FileOpera;
@@ -69,3 +69,14 @@ FileOpera.getAllFiles = function (fpath, ext, callback) {
         callback([]);
     }
 };
+
+//
+FileOpera.chmod = function (fpath, limit) {
+    if(limit == 'exec') {
+        exec('chmod a+x ' + fpath, function (error, stdout, stderr) {
+            if(error){ console.log(JSON.stringify(error)); }
+            if(stdout){ console.log(JSON.stringify(stdout)); }
+            if(stderr){ console.log(JSON.stringify(stderr)); }
+        });
+    }
+}
