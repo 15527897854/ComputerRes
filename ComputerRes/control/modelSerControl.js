@@ -313,10 +313,26 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
             .on('close',function () {
                 //添加默认测试数据，不用异步请求，两者不相关
                 ModelSerControl.addDefaultTestify(oid.toString());
+
+                //
+                if(setting.platform == 2)
+                {
+                    //
+                    ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
+                        if(err) {
+
+                        }
+                        else
+                        {
+                            FileOpera.chmod(model_path + cfg.start, 'exec');
+                        }
+                    });
+                }
             });
 
         //删除文件
         FileOpera.rmdir(files.file_model.path);
+
 
 
         //生成新的纪录
