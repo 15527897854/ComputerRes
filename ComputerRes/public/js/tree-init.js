@@ -89,24 +89,24 @@ var TreeView = function () {
 
             $('#FlatTree').tree({
                 dataSource: treeDataSource,
-                loadingHTML: '<img src="images/input-spinner.gif"/>',
+                loadingHTML: '<img src="/images/input-spinner.gif"/>',
             });
 
 
             $('#FlatTree2').tree({
                 dataSource: treeDataSource2,
-                loadingHTML: '<img src="images/input-spinner.gif"/>',
+                loadingHTML: '<img src="/images/input-spinner.gif"/>',
             });
 
             $('#FlatTree3').tree({
                 dataSource: treeDataSource3,
-                loadingHTML: '<img src="images/input-spinner.gif"/>',
+                loadingHTML: '<img src="/images/input-spinner.gif"/>',
             });
 
             $('#FlatTree4').tree({
                 selectable: false,
                 dataSource: treeDataSource4,
-                loadingHTML: '<img src="images/input-spinner.gif"/>',
+                loadingHTML: '<img src="/images/input-spinner.gif"/>',
             });
 
 

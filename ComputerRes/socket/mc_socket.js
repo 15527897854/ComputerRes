@@ -104,10 +104,10 @@ function SocketTrans(app)
                             //通知消息数据
                             var noticeData = {
                                 time:new Date(),
-                                ms_name:msr.msr_ms.m_name,
-                                notice:'模型服务停止运行！',
-                                type:'stopRun',
-                                hasRead:0
+                                title:msr.msr_ms.m_name + '停止运行！',
+                                detail:'',
+                                type:'stop-run',
+                                hasRead:false
                             };
                             NoticeCtrl.addNotice(noticeData,function (err, data) {
                                 if(err){

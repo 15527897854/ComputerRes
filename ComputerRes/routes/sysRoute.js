@@ -60,4 +60,19 @@ module.exports = function(app)
                 return res.end(JSON.stringify(reslut));
             });
         });
+    
+    app.route('/system/register')
+        .get(function (req, res, next) {
+            var ac = req.query.ac;
+            if(ac == 'register'){
+                sysControl.register(function (rst) {
+                    return res.end(rst)
+                })
+            }
+            else if(ac == 'deregister'){
+                sysControl.deregister(function (rst) {
+                    return res.end(rst)
+                })
+            }
+        });
 };

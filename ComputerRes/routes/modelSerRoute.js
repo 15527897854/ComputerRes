@@ -25,15 +25,8 @@ module.exports = function(app)
     //新增模型服务
     app.route('/modelser')
         .post(function(req, res, next) {
-            ModelSerMid.NewModelSer(req, function (err, item) {
-                if(err)
-                {
-                    return res.end("Error : " + JSON.stringify(err));
-                }
-                res.end(JSON.stringify({
-                    res : 'suc',
-                    oid : item._id.toString()
-                }));
+            ModelSerMid.NewModelSer(req, function (err, rst) {
+                res.end(JSON.stringify(rst));
             });
         });
 
@@ -322,10 +315,10 @@ module.exports = function(app)
                                     //存储通知消息
                                     var notice = {
                                         time:new Date(),
-                                        ms_name:ms.ms_model.m_name,
-                                        notice:'模型服务开始运行！',
-                                        type:'startRun',
-                                        hasRead:0
+                                    title:ms.ms_model.m_name + '开始运行！',
+                                    detail:'',
+                                    type:'start-run',
+                                    hasRead:false
                                     };
                                     NoticeCtrl.addNotice(notice, function (err, data) {
                                         if(err)
@@ -502,10 +495,10 @@ module.exports = function(app)
                 // 存储通知消息
                 var noticeData = {
                     time:new Date(),
-                    ms_name:item.ms_model.m_name,
-                    notice:'模型服务已删除！',
-                    type:'delServer',
-                    hasRead:0
+                    title:item.ms_model.m_name + '已删除！',
+                    detail:'',
+                    type:'del-ms',
+                    hasRead:false
                 };
                 NoticeCtrl.addNotice(noticeData,function (err, data) {
                     if(err)
@@ -541,9 +534,6 @@ module.exports = function(app)
                     {
                         return res.end('Error in get input data : ' + JSON.stringify(err))
                     }
-                    //暂时放到这里，用来生成已经部署过的模型的测试数据
-                    //以后就不用加这一句，生成测试数据实在用户上传模型时就生成了
-                    ModelSerCrtl.addDefaultTestify(ms._id.toString());
                     return res.render('modelRunPro',{
                         // user:req.session.user,
                         modelSer:ms,
@@ -586,9 +576,13 @@ module.exports = function(app)
     app.route('/modelser/testify/:msid')
         .get(function (req, res) {
             var msid = req.params.msid;
+            //暂时放到这里，用来生成已经部署过的模型的测试数据
+            //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
+            ModelSerCrtl.addDefaultTestify(msid.toString(),function () {
             ModelSerCrtl.getTestify(msid,function (data) {
                 res.end(data);
-            });      
+                });
+            });
         })
         .delete(function (req, res, next) {
             var msid = req.params.msid;
@@ -707,10 +701,10 @@ module.exports = function(app)
                                 //存储通知消息
                                 var notice = {
                                     time:new Date(),
-                                    ms_name:ms.ms_model.m_name,
-                                    notice:'模型服务开始运行！',
-                                    type:'startRun',
-                                    hasRead:0
+                                    title:ms.ms_model.m_name + '开始运行！',
+                                    detail:'',
+                                    type:'start-run',
+                                    hasRead:false
                                 };
                                 NoticeCtrl.addNotice(notice,function (err, data) {
                                     if(err)

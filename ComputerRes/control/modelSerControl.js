@@ -271,25 +271,110 @@ ModelSerControl.getLocalModelSer = function(callback){
     ModelSerModel.getAll('AVAI', this.returnFunction(callback, 'error in getting all model services'));
 };
 
+//模型压缩包文件结构验证
+//成功返回 isValidate = true，失败返回 错误信息
+ModelSerControl.validate = function (modelPath, callback) {
+    var configPath = modelPath + 'package.config';
+    var rst = {
+        status:1,
+        isValidate:true,
+        cfgfile:true,
+        cfg:[],
+        mdl:true,
+        start:true
+    };
+    fs.stat(configPath,function (err,stat) {
+        if(err && err.code == 'ENOENT'){
+            rst.cfgfile = false;
+            rst.isValidate = false;
+            callback(rst);
+        }
+        else if(err){
+            callback({status:0});
+        }
+        else if(stat){
+            ModelSerControl.readCfgBypath(configPath,function (err, cfg) {
+                if(err){
+                    callback({status:0});
+                }
+                else{
+                    //验证config
+                    {
+                        if(!cfg.host){
+                            rst.isValidate = false;
+                            rst.cfg.push('host');
+                        }
+                        else if(!cfg.port){
+                            rst.isValidate = false;
+                            rst.cfg.push('port');
+                        }
+                        else if(!cfg.start){
+                            rst.isValidate = false;
+                            rst.cfg.push('start');
+                        }
+                        else if(!cfg.type){
+                            rst.isValidate = false;
+                            rst.cfg.push('type');
+                        }
+                        else if(!cfg.mdl){
+                            rst.isValidate = false;
+                            rst.cfg.push('mdl');
+                        }
+                        if(!rst.isValidate){
+                            callback(rst);
+                        }
+                    }
+                    //验证 模型启动文件、mdl
+                    var startPath = modelPath + cfg.start;
+                    var mdlPath = modelPath + cfg.mdl;
+                    fs.stat(startPath,function (err,stat) {
+                        if(err && err.code == 'ENOENT'){
+                            rst.start = false;
+                            rst.isValidate = false;
+                            fs.stat(mdlPath,function (err, stat2) {
+                                if(err && err.code == 'ENOENT'){
+                                    rst.mdl = false;
+                                    rst.isValidate = false;
+                                    callback(rst);
+                                }
+                                else if(err){
+                                    callback({status:0});
+                                }
+                                else if(stat2){
+                                    callback(rst);
+                                }
+            });
+        }
+                        else if(err){
+                            callback({status:0});
+                        }
+                        else if(stat){
+                            fs.stat(mdlPath,function (err, stat2) {
+                                if(err && err.code == 'ENOENT'){
+                                    rst.mdl = false;
+                                    rst.isValidate = false;
+                                    callback(rst);
+                                }
+                                else if(err){
+                                    callback({status:0});
+                                }
+                                else if(stat2){
+                                    callback(rst);
+                                }
+            });
+        }
+                    });
+                }
+            });
+        }
+        
+    });
+    
+};
+
 //新增模型服务
+//先解压到以_oid命名的文件夹中，验证成功在添加记录，失败不添加记录并删除该文件夹
 ModelSerControl.addNewModelSer = function(fields, files, callback){
-    ModelSerControl.parseConfig(files.file_model.path, function (config, fileStruct) {
-        if( !config.host || !config.port || !config.start || !config.mdl){
-            return callback({
-                message : '长传的压缩包不包含config文件或config文件结构不正确！',
-                code : -101
-            });
-        }
-        else if(!fileStruct.model || !fileStruct.mdl || !fileStruct.start){
-            //文件结构不对
-            //删除文件
-            fs.unlinkSync(files.file_model.path);
-            return callback({
-                message : '上传文件结构不正确！',
-                code : -102
-            });
-        }
-        //通过验证
         var date = new Date();
         var img = null;
         if(files.ms_img.size != 0)
@@ -311,9 +396,17 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
         //解压
         fs.createReadStream(files.file_model.path).pipe(unzip.Extract({path: model_path}))
             .on('close',function () {
+                //文件验证
+                ModelSerControl.validate(model_path,function (rst){
+                    if(!rst.status || !rst.isValidate){
+                        //删除文件和文件夹
+                        FileOpera.rmdir(files.file_model.path);
+                        FileOpera.rmdir(model_path);
+                        callback(null,rst);
+                    }
+                    else{
                 //添加默认测试数据，不用异步请求，两者不相关
                 ModelSerControl.addDefaultTestify(oid.toString());
-
                 //
                 if(setting.platform == 2)
                 {
@@ -328,11 +421,8 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                         }
                     });
                 }
-            });
-
         //删除文件
         FileOpera.rmdir(files.file_model.path);
-
 
 
         //生成新的纪录
@@ -359,9 +449,19 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
         };
 
         var ms = new ModelSerModel(newmodelser);
-        ms.save(this.returnFunction(callback, 'error in inserting a model service'));
-    }.bind(this));
-
+                        ms.save(function (err, data) {
+                            if(err){
+                                console.log(err);
+                                callback(null,{status:0});
+                            }
+                            else{
+                                rst.data = data;
+                                callback(null,rst);
+                            }
+                        });
+                    }
+                });
+            });
 };
 
 //将记录放置在回收站
@@ -638,85 +738,6 @@ ModelSerControl.readCfgBypath = function (path, callback) {
     });
 };
 
-ModelSerControl.parseConfig = function (path, callback) {
-    var config = {
-        host : "",
-        port : "",
-        start : "",
-        type : "",
-        mdl : "",
-        testdata : "",
-        engine : ""
-    };
-    fs.createReadStream(path)
-        .pipe(unzip.Parse())
-        .on('entry', function (entry) {
-            var fileName = entry.path.split('/');
-            if (fileName[fileName.length - 1] === 'package.config') {
-                fs.exists(__dirname + '/../public/tmp/',function (exists) {
-                    if (!exists) {
-                        fs.mkdir(__dirname + '/../public/tmp/');
-                    }
-                    var path = __dirname + '/../public/tmp/' + Date.parse(new Date())+'.config';
-                    entry.pipe(fs.createWriteStream(path));
-                    ModelSerControl.readCfgBypath(path,function (err, cfg) {
-                        config = cfg;
-                        console.log('--------------------------------------------\n'+JSON.stringify(config));
-                        fs.exists(path, function (exist) {
-                            if(exist){
-                                fs.unlink(path);
-                            }
-                        });
-                    });
-                });
-            }
-            else {
-                entry.autodrain();
-            }
-        })
-        .on('close',function () {
-            if( config.host && config.port && config.start && config.mdl){
-                ModelSerControl.parseUploadFile(path,config,callback);
-            }
-            else if(config){
-                fs.unlinkSync(path);
-                callback(config,null);
-            }
-        });
-};
-
-ModelSerControl.parseUploadFile = function(path,config,callback){
-    var fileStruct = {
-        model : 0,
-        testify : 0,
-        start : 0,
-        mdl : 0,
-        config : 0
-    };
-    fs.createReadStream(path)
-        .pipe(unzip.Parse())
-        .on('entry', function (entry) {
-            var fileName = entry.path;
-            if(fileName == 'model/' ){
-                fileStruct.model = 1;
-            }
-            else if(fileName == 'testify/'){
-                fileStruct.testify = 1;
-            }
-            else if(fileName == config.start){
-                fileStruct.start = 1;
-            }
-            else if(fileName == config.mdl){
-                fileStruct.mdl = 1;
-            }
-            entry.autodrain();
-        })
-        .on('close',function () {
-            fileStruct.config = 1;
-            callback(config, fileStruct);
-        });
-};
-
 ModelSerControl.getRmtPreparationData = function(host, msid, callback){
     if(ParamCheck.checkParam(callback, host))
     {
@@ -745,7 +766,11 @@ ModelSerControl.getRmtPreparationData = function(host, msid, callback){
 };
 
 //将testify文件夹下的测试数据添加到config.json中，同时将测试数据记录在redis中，将数据复制到geo_data中
-ModelSerControl.addDefaultTestify = function (msid) {
+//callback完全是为了同步和异步而设
+ModelSerControl.addDefaultTestify = function (msid,callback) {
+    if(!callback){
+        callback = function () {};
+    }
     var testifyRoot = __dirname + '/../geo_model/' + msid + '/testify';
     var configPath = __dirname + '/../geo_model/' + msid + '/testify/config.json';
     var configData;
@@ -755,7 +780,7 @@ ModelSerControl.addDefaultTestify = function (msid) {
                 configData = '[]';
             }
             else{
-                return
+                return callback()
             }
         }
         else if(stat){
@@ -765,14 +790,14 @@ ModelSerControl.addDefaultTestify = function (msid) {
         for(var i=0;i<configJSON.length;i++){
             if(configJSON[i].tag == 'default'){
                 //已经生成过默认测试数据
-                return
+                return callback()
             }
         }
         //得到testify一级目录下的所有xml
         FileOpera.getAllFiles(testifyRoot,'.xml',function (files) {
             ModelSerControl.getInputData(msid,function (err, states) {
                 if(err){
-                    return;
+                    return callback();
                 }
                 var newTestify = {
                     tag:'default',
@@ -781,6 +806,52 @@ ModelSerControl.addDefaultTestify = function (msid) {
                     inputs:[]
                 };
                 var geodataList = [];
+                if(states.length == 1 && states[0].$.name=='RUNSTATE'){
+                    var stateID = states[0].$.id;
+                    var events = states[0].Event;
+                    for(var i=0;i<events.length;i++){
+                        if(events[i].$.name == 'LOADDATASET' && events[i].$.type == 'response'){
+                            for(var j=0;j<files.length;j++){
+                                if(files[j] == 'input.xml'){
+                                    //复制文件
+                                    var gdid = 'gd_' + uuid.v1();
+                                    var fname = gdid + '.xml';
+                                    var geo_data_Path = __dirname + '/../geo_data/' + fname;
+                                    var gd_value = fs.readFileSync(testifyRoot + '/input.xml').toString();
+                                    fs.writeFileSync(geo_data_Path, gd_value);
+                                    //向config.json中添加记录
+                                    newTestify.inputs.push({
+                                        DataId:gdid,
+                                        Event:events[i].$.name,
+                                        Optional:events[i].$.optional,
+                                        StateId:stateID
+                                    });
+
+                                    var stat = fs.statSync(geo_data_Path);
+                                    var geodata;
+                                    if(stat.size - 16>setting.data_size){
+                                        geodata = {
+                                            gd_id:gdid,
+                                            gd_tag:'',
+                                            gd_type:'FILE',
+                                            gd_value:fname
+                                        };
+                                    }
+                                    else{
+                                        geodata = {
+                                            gd_id:gdid,
+                                            gd_tag:'',
+                                            gd_type:'STREAM',
+                                            gd_value:gd_value
+                                        }
+                                    }
+                                    geodataList.push(geodata);
+                                }
+                            }
+                        }
+                    }
+                }
+                else{
                 for(var i=0;i<states.length;i++){
                     var stateID = states[i].$.id;
                     var events = states[i].Event;
@@ -825,18 +896,25 @@ ModelSerControl.addDefaultTestify = function (msid) {
                         }
                     }
                 }
+                }
                 var addFile = function (i) {
                     //向redis中添加记录
                     GeoDataCtrl.addData(geodataList[i],function (err, rst) {
-                        if(err){return}
+                        if(err){return callback()}
                         else{
-                            if(i == geodataList.length-1){
+                            if(i < geodataList.length-1){
+                                addFile(i+1);
+                            }
+                            else{
+                                if(geodataList.length == 0){
+                                    fs.writeFileSync(configPath,'[]');
+                                }
+                                else{
                                 //没有出错在向config.json中添加记录
                                 configJSON.push(newTestify);
                                 fs.writeFileSync(configPath,JSON.stringify(configJSON));
                             }
-                            else{
-                                addFile(i+1);
+                                return callback();
                             }
                         }
                     });

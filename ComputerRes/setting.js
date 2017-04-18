@@ -36,6 +36,11 @@ module.exports =  {
         host:'127.0.0.1',
         port:'6000'
     },
+    portal:
+    {
+        host:'222.192.7.74',
+        port:'80'
+    },
     modelpath: __dirname + '/geo_model/',
     data_size : 1,
     debug : false,
