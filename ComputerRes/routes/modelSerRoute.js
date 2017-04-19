@@ -40,7 +40,7 @@ module.exports = function(app)
                 }
                 res.end(JSON.stringify({
                     res : 'suc',
-                    oid : item._id.toString()
+                    oid : item.data._id.toString()
                 }));
             });
             //var sessionID = req.params.sessionID;
