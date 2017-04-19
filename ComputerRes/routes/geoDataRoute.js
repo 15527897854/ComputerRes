@@ -516,6 +516,27 @@ module.exports = function (app) {
             });
         });
 
+    //某一计算节点的数据
+    app.route('/geodata/rmt/json/all/:host')
+        .get(function (req, res, next) {
+            var host = req.params.host;
+            GeoDataCtrl.getAllRmtData(host, function (err, data) {
+                if(err)
+                {
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : JSON.stringify(err)
+                    }));
+                }
+                if(data.result == 'suc'){
+                    return res.end(JSON.stringify({
+                        result : 'suc',
+                        data : data.data
+                    }));
+                }
+            });
+        });
+
     //远程下载
     app.route('/geodata/rmt/:host/:gdid')
         .get(function (req, res, next) {

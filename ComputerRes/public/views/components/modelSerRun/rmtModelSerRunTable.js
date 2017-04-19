@@ -110,7 +110,7 @@ var RmtModelSerRunTable = React.createClass({
                 {
                     return;
                 }
-                var msrs = host.msr.map(function (item) {
+                var msrs = host.msr.data.map(function (item) {
                     var status = '';
                     if(item.msr_status == 0)
                     {
