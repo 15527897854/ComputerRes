@@ -31,7 +31,7 @@ var DataSelectTable = React.createClass({
     refresh : function () {
         Axios.get(this.props.source).then(
             data => {
-                if(data.data.res == 'err')
+                if(data.data.result == 'err')
                 {
                     this.setState({loading : false, err : data.data.message});
                 }

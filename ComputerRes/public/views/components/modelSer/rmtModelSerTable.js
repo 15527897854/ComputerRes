@@ -176,7 +176,7 @@ var RmtModelSerTable = React.createClass({
                 if(host.ping == 'err'){
                     return;
                 }
-                var mss = host.ms.map(function (item) {
+                var mss = host.ms.data.map(function (item) {
                     var platform;
                     if(item.ms_platform == 1)
                     {
