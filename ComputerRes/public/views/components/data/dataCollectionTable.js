@@ -381,7 +381,7 @@ var DataCollectionTable = React.createClass({
                     }
                 }
                 else{
-                    alert('udx data err!');
+                    alert('数据出错或不支持可视化该类型数据!');
                     $('#close-modal').trigger("click");
                 }
             }.bind(this)

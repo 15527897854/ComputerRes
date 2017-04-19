@@ -82,7 +82,7 @@ module.exports = function (app) {
                 detail:detail,
                 path:msrid
             };
-            ModelSerControl.addTestify(msrid,testifyData,function (err, data) {
+            ModelSerCtrl.addTestify(msrid,testifyData,function (err, data) {
                 if(err){
                     return res.end(JSON.stringify({suc:false}));
                 }
