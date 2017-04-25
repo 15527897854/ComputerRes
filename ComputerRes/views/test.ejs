@@ -17,7 +17,7 @@
                 <h4>测试界面</h4>
             </header>
             <div class="panel-default" >
-                <div id="DataPreparation" data-source="/modelser/rmt/inputdata/222.192.7.74/58da8c5ede4849540d303ef1" data-type="rmt" data-host="222.192.7.74" ></div>
+                <button id="btn_test" class="btn btn-default" >TEST</button>
             </div>
         </section>
 
@@ -30,5 +30,17 @@
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
 <script type="text/javascript" src="/js/output/bundle.js" ></script>
+<script >
+    $(document).ready(function(){
+        $.gritter.add({
+            // (string | mandatory) the heading of the notification
+            title: "123",
+            // (string | mandatory) the text inside the notification
+            text: "222"
+        });
+
+        return false;
+    });
+</script>
 </body>
 </html>

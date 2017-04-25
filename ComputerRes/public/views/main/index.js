@@ -51,8 +51,6 @@ if(document.getElementById('parentPanel') != null) {
         document.getElementById('parentPanel'));
 }
 
-
-
 if(document.getElementById('cloudModelSerTable') != null) {
     ReactDOM.render(<CloudModelSerTable data-source={document.getElementById('cloudModelSerTable').getAttribute('data-source') }/>,
         document.getElementById('cloudModelSerTable'));

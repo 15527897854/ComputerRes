@@ -204,6 +204,8 @@ module.exports = function(app)
             }));
         });
 
+    ///////////云服务
+
     app.route('/modelser/cloud')
         .get(function(req, res, next){
             res.render('cloudModelSers');
@@ -212,6 +214,33 @@ module.exports = function(app)
     app.route('/modelser/cloud/modelsers')
         .get(function(req, res, next){
             ModelSerCrtl.getCloudModelsers(RouteBase.returnFunction(res, 'error in getting cloud modelsers!'));
+        });
+
+    app.route('/modelser/cloud/json/modelsers')
+        .get(function(req, res, next){
+            var cid = req.query.cid;
+            ModelSerCrtl.getCloudModelByCategoryId(cid, RouteBase.returnFunction(res, 'error in getting cloud modelsers!'));
+        });
+
+    app.route('/modelser/cloud/category')
+        .get(function(req, res, next){
+            ModelSerCrtl.getCloudModelserCategory(RouteBase.returnFunction(res, 'error in getting cloud modelser category!'));
+        });
+
+    app.route('/modelser/cloud/json/packages')
+        .get(function(req, res, next){
+            var mid = req.query.mid;
+            ModelSerCrtl.getCloudModelPackageByMid(mid, RouteBase.returnFunction(res, 'error in getting cloud modelser package!'));
+        });
+
+    app.route('/modelser/cloud/package/:pid')
+        .get(function(req, res, next){
+            var ac = req.query.ac;
+            var fields = req.query.fields;
+            var pid = req.params.pid;
+            if(ac == 'download'){
+                return ModelSerMid.getCloudPackage(fields, pid, RouteBase.returnFunction(res, 'error in down a model service!'));
+            }
         });
 
     //展示某个模型服务
@@ -314,11 +343,11 @@ module.exports = function(app)
 
                                     //存储通知消息
                                     var notice = {
-                                        time:new Date(),
-                                    title:ms.ms_model.m_name + '开始运行！',
-                                    detail:'',
-                                    type:'start-run',
-                                    hasRead:false
+                                        time : new Date(),
+                                        title : ms.ms_model.m_name + '开始运行！',
+                                        detail : '',
+                                        type : 'start-run',
+                                        hasRead : false
                                     };
                                     NoticeCtrl.addNotice(notice, function (err, data) {
                                         if(err)
