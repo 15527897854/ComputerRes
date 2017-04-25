@@ -1,6 +1,8 @@
 /**
  * Created by Franklin on 2017/4/5.
  */
+const exec = require('child_process').exec;
+
 function CommonMethod(){}
 
 CommonMethod.getDateTimeNow = function()
@@ -20,6 +22,12 @@ CommonMethod.getDateTimeNow = function()
         + " " + date.getHours() + seperator2 + date.getMinutes()
         + seperator2 + date.getSeconds();
     return currentdate;
+};
+
+CommonMethod.Uncompress = function(file, path, callback){
+    exec('unzip ' + file + ' -d ' + path, function(err, stdout, stdout){
+        return callback();
+    });
 };
 
 module .exports = CommonMethod;

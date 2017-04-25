@@ -5,6 +5,7 @@
 var http = require('http');
 var fs = require('fs');
 var request = require('request');
+var setting = require('../setting');
 
 function RemoteReqControl() {}
 
@@ -33,6 +34,22 @@ RemoteReqControl.postRequest = function (req, url, callback) {
 
 RemoteReqControl.getRequestJSON = function (url, callback) {
     request.get(url,function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.postRequestJSON = function (url, callback) {
+    request.post(url,function (err, response, data) {
         if (err) {
             return callback(err);
         }
@@ -81,6 +98,14 @@ RemoteReqControl.deleteRequestJSON = function (url, callback) {
 
 RemoteReqControl.getRequestPipe = function (res, url) {
     request.get(url).pipe(res);
+};
+
+RemoteReqControl.postDownload = function(url, form, path, callback){
+    request.post(url,
+        {form : form }
+    ).pipe(fs.createWriteStream(path)).on('close', function(){
+        return callback();
+    });
 };
 
 RemoteReqControl.ping = function(target, callback){
