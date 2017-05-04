@@ -9,7 +9,7 @@ namespace ComputerResourceConsole.lib
 {
     public interface IComponentControl
     {
-        string status { get; }
+        string Status { get; set; }
 
         int start(CommonMethod.CommonEvent exit);
 

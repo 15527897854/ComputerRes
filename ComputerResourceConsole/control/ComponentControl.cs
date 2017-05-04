@@ -15,6 +15,14 @@ namespace ComputerResourceConsole.control
 
         protected IProcessAccess _pProcAccess = null;
 
+        protected string _status = "Stopped";
+
+        public string Status
+        {
+            get { return this._status; }
+            set { this._status = value; }
+        }
+
         public ComponentControl()
         {
             this._pConfig = ComponentOperaFactory.createConfig();
