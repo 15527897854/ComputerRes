@@ -31,19 +31,16 @@
             this.gb_mongodb = new System.Windows.Forms.GroupBox();
             this.l_mg_status = new System.Windows.Forms.Label();
             this.l_mg_status_tag = new System.Windows.Forms.Label();
-            this.bt_mg_restart = new System.Windows.Forms.Button();
             this.bt_mg_stop = new System.Windows.Forms.Button();
             this.bt_mg_start = new System.Windows.Forms.Button();
             this.gb_redis = new System.Windows.Forms.GroupBox();
             this.l_rds_status = new System.Windows.Forms.Label();
             this.l_rds_status_tag = new System.Windows.Forms.Label();
-            this.bt_rds_restart = new System.Windows.Forms.Button();
             this.bt_rds_stop = new System.Windows.Forms.Button();
             this.bt_rds_start = new System.Windows.Forms.Button();
             this.gb_container = new System.Windows.Forms.GroupBox();
             this.l_ctn_status = new System.Windows.Forms.Label();
             this.l_ctn_status_tag = new System.Windows.Forms.Label();
-            this.bt_ctn_restart = new System.Windows.Forms.Button();
             this.bt_ctn_stop = new System.Windows.Forms.Button();
             this.bt_ctn_start = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -59,12 +56,11 @@
             // 
             this.gb_mongodb.Controls.Add(this.l_mg_status);
             this.gb_mongodb.Controls.Add(this.l_mg_status_tag);
-            this.gb_mongodb.Controls.Add(this.bt_mg_restart);
             this.gb_mongodb.Controls.Add(this.bt_mg_stop);
             this.gb_mongodb.Controls.Add(this.bt_mg_start);
             this.gb_mongodb.Location = new System.Drawing.Point(3, 30);
             this.gb_mongodb.Name = "gb_mongodb";
-            this.gb_mongodb.Size = new System.Drawing.Size(300, 90);
+            this.gb_mongodb.Size = new System.Drawing.Size(237, 90);
             this.gb_mongodb.TabIndex = 0;
             this.gb_mongodb.TabStop = false;
             this.gb_mongodb.Text = "模型信息库(mongodb)";
@@ -86,19 +82,9 @@
             this.l_mg_status_tag.TabIndex = 1;
             this.l_mg_status_tag.Text = "数据库状态：";
             // 
-            // bt_mg_restart
-            // 
-            this.bt_mg_restart.Location = new System.Drawing.Point(198, 55);
-            this.bt_mg_restart.Name = "bt_mg_restart";
-            this.bt_mg_restart.Size = new System.Drawing.Size(87, 23);
-            this.bt_mg_restart.TabIndex = 0;
-            this.bt_mg_restart.Text = "重启";
-            this.bt_mg_restart.UseVisualStyleBackColor = true;
-            this.bt_mg_restart.Click += new System.EventHandler(this.bt_mg_restart_Click);
-            // 
             // bt_mg_stop
             // 
-            this.bt_mg_stop.Location = new System.Drawing.Point(105, 55);
+            this.bt_mg_stop.Location = new System.Drawing.Point(124, 55);
             this.bt_mg_stop.Name = "bt_mg_stop";
             this.bt_mg_stop.Size = new System.Drawing.Size(87, 23);
             this.bt_mg_stop.TabIndex = 0;
@@ -120,12 +106,11 @@
             // 
             this.gb_redis.Controls.Add(this.l_rds_status);
             this.gb_redis.Controls.Add(this.l_rds_status_tag);
-            this.gb_redis.Controls.Add(this.bt_rds_restart);
             this.gb_redis.Controls.Add(this.bt_rds_stop);
             this.gb_redis.Controls.Add(this.bt_rds_start);
             this.gb_redis.Location = new System.Drawing.Point(3, 126);
             this.gb_redis.Name = "gb_redis";
-            this.gb_redis.Size = new System.Drawing.Size(300, 90);
+            this.gb_redis.Size = new System.Drawing.Size(237, 90);
             this.gb_redis.TabIndex = 0;
             this.gb_redis.TabStop = false;
             this.gb_redis.Text = "模型数据库(redis)";
@@ -147,19 +132,9 @@
             this.l_rds_status_tag.TabIndex = 1;
             this.l_rds_status_tag.Text = "数据库状态：";
             // 
-            // bt_rds_restart
-            // 
-            this.bt_rds_restart.Location = new System.Drawing.Point(198, 55);
-            this.bt_rds_restart.Name = "bt_rds_restart";
-            this.bt_rds_restart.Size = new System.Drawing.Size(87, 23);
-            this.bt_rds_restart.TabIndex = 0;
-            this.bt_rds_restart.Text = "重启";
-            this.bt_rds_restart.UseVisualStyleBackColor = true;
-            this.bt_rds_restart.Click += new System.EventHandler(this.bt_rds_restart_Click);
-            // 
             // bt_rds_stop
             // 
-            this.bt_rds_stop.Location = new System.Drawing.Point(105, 55);
+            this.bt_rds_stop.Location = new System.Drawing.Point(124, 55);
             this.bt_rds_stop.Name = "bt_rds_stop";
             this.bt_rds_stop.Size = new System.Drawing.Size(87, 23);
             this.bt_rds_stop.TabIndex = 0;
@@ -181,12 +156,11 @@
             // 
             this.gb_container.Controls.Add(this.l_ctn_status);
             this.gb_container.Controls.Add(this.l_ctn_status_tag);
-            this.gb_container.Controls.Add(this.bt_ctn_restart);
             this.gb_container.Controls.Add(this.bt_ctn_stop);
             this.gb_container.Controls.Add(this.bt_ctn_start);
             this.gb_container.Location = new System.Drawing.Point(3, 222);
             this.gb_container.Name = "gb_container";
-            this.gb_container.Size = new System.Drawing.Size(300, 90);
+            this.gb_container.Size = new System.Drawing.Size(237, 90);
             this.gb_container.TabIndex = 0;
             this.gb_container.TabStop = false;
             this.gb_container.Text = "模型服务容器";
@@ -208,19 +182,9 @@
             this.l_ctn_status_tag.TabIndex = 1;
             this.l_ctn_status_tag.Text = "模型服务容器状态：";
             // 
-            // bt_ctn_restart
-            // 
-            this.bt_ctn_restart.Location = new System.Drawing.Point(198, 55);
-            this.bt_ctn_restart.Name = "bt_ctn_restart";
-            this.bt_ctn_restart.Size = new System.Drawing.Size(87, 23);
-            this.bt_ctn_restart.TabIndex = 0;
-            this.bt_ctn_restart.Text = "重启";
-            this.bt_ctn_restart.UseVisualStyleBackColor = true;
-            this.bt_ctn_restart.Click += new System.EventHandler(this.bt_ctn_restart_Click);
-            // 
             // bt_ctn_stop
             // 
-            this.bt_ctn_stop.Location = new System.Drawing.Point(105, 55);
+            this.bt_ctn_stop.Location = new System.Drawing.Point(124, 55);
             this.bt_ctn_stop.Name = "bt_ctn_stop";
             this.bt_ctn_stop.Size = new System.Drawing.Size(87, 23);
             this.bt_ctn_stop.TabIndex = 0;
@@ -245,7 +209,7 @@
             this.infoToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(307, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(252, 25);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -265,12 +229,13 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(307, 310);
+            this.ClientSize = new System.Drawing.Size(252, 310);
             this.Controls.Add(this.gb_container);
             this.Controls.Add(this.gb_redis);
             this.Controls.Add(this.gb_mongodb);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
+            this.MaximizeBox = false;
             this.Name = "frm_console";
             this.Text = "模型服务容器控制台";
             this.gb_mongodb.ResumeLayout(false);
@@ -292,18 +257,15 @@
         private System.Windows.Forms.Button bt_mg_start;
         private System.Windows.Forms.Label l_mg_status;
         private System.Windows.Forms.Label l_mg_status_tag;
-        private System.Windows.Forms.Button bt_mg_restart;
         private System.Windows.Forms.Button bt_mg_stop;
         private System.Windows.Forms.GroupBox gb_redis;
         private System.Windows.Forms.Label l_rds_status;
         private System.Windows.Forms.Label l_rds_status_tag;
-        private System.Windows.Forms.Button bt_rds_restart;
         private System.Windows.Forms.Button bt_rds_stop;
         private System.Windows.Forms.Button bt_rds_start;
         private System.Windows.Forms.GroupBox gb_container;
         private System.Windows.Forms.Label l_ctn_status;
         private System.Windows.Forms.Label l_ctn_status_tag;
-        private System.Windows.Forms.Button bt_ctn_restart;
         private System.Windows.Forms.Button bt_ctn_stop;
         private System.Windows.Forms.Button bt_ctn_start;
         private System.Windows.Forms.MenuStrip menuStrip1;

@@ -21,8 +21,18 @@ namespace ComputerResourceConsole.model
 
         private string _strContainerPath;
 
+        private string _strMongoDBLogPath;
+
+        private string _strRedisLogPath;
+
+        private string _strContainerLogPath;
+
         public int loadConfig()
         {
+            if (!File.Exists(CommonMethod.getAppDirection() + "CRC.config"))
+            {
+                return -1;
+            }
             FileStream fs = new FileStream(CommonMethod.getAppDirection() + "CRC.config", FileMode.Open);
             StreamReader sr = new StreamReader(fs);
             string strLine = sr.ReadLine();
@@ -56,6 +66,21 @@ namespace ComputerResourceConsole.model
                         case "ContainerPath":
                             {
                                 this._strContainerPath = strInfo[1];
+                                break;
+                            }
+                        case "MongoDBlog":
+                            {
+                                this._strMongoDBLogPath = strInfo[1];
+                                break;
+                            }
+                        case "Redislog":
+                            {
+                                this._strRedisLogPath = strInfo[1];
+                                break;
+                            }
+                        case "Containerlog":
+                            {
+                                this._strContainerLogPath = strInfo[1];
                                 break;
                             }
                     }
@@ -95,6 +120,22 @@ namespace ComputerResourceConsole.model
         public string ContainerPath
         {
             get { return this._strContainerPath; }
+        }
+
+
+        public string MongoDBLogPath
+        {
+            get { return this._strMongoDBLogPath; }
+        }
+
+        public string RedisLogPath
+        {
+            get { return this._strRedisLogPath; }
+        }
+
+        public string ContainerLogPath
+        {
+            get { return this._strContainerLogPath; }
         }
     }
 }
