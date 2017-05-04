@@ -4,7 +4,9 @@
  */
 var http = require('http');
 var fs = require('fs');
-var request = require('request');
+var j = require('request').jar();
+var request = require('request').defaults({jar : j});
+
 var setting = require('../setting');
 
 function RemoteReqControl() {}
@@ -50,6 +52,38 @@ RemoteReqControl.getRequestJSON = function (url, callback) {
 
 RemoteReqControl.postRequestJSON = function (url, callback) {
     request.post(url,function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.postRequestJSONWithFormData = function (url, form, callback) {
+    request.post( { url : url, formData : form, jar : j}, function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.postRequestJSONWithForm = function (url, form, callback) {
+    request.post( { url : url, form : form, jar : j}, function (err, response, data) {
         if (err) {
             return callback(err);
         }

@@ -95,7 +95,7 @@ ModelSerMid.NewRmtModelSer = function (req, callback) {
 //下载门户模型包
 ModelSerMid.getCloudPackage = function(fields, pid, callback){
     var fileName = Setting.modelpath + 'tmp/' + pid + '.zip';
-    RemoteReqControl.postDownload('http://' + Setting.gate.host + ':' + Setting.gate.port + '/GeoModeling/GetDeployPackageServlet',
+    RemoteReqControl.postDownload('http://' + Setting.portal.host + ':' + Setting.portal.port + '/GeoModeling/GetDeployPackageServlet',
         {
             uid : pid
         }, fileName,

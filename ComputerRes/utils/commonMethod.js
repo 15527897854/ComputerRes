@@ -2,6 +2,8 @@
  * Created by Franklin on 2017/4/5.
  */
 const exec = require('child_process').exec;
+const fs = require('fs');
+var zipper = require("zip-local");
 
 function CommonMethod(){}
 
@@ -30,4 +32,8 @@ CommonMethod.Uncompress = function(file, path, callback){
     });
 };
 
-module .exports = CommonMethod;
+CommonMethod.compress = function(file, path){
+    zipper.sync.zip(path).compress().save(file);
+};
+
+module.exports = CommonMethod;
