@@ -9,8 +9,8 @@ var crypto = require('crypto');
 var formidable = require('formidable');
 var uuid = require('node-uuid');
 var unzip = require('unzip');
-var setting = require('../setting');
 
+var setting = require('../setting');
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCrtl = require('../control/modelSerControl');
 var NoticeCtrl = require('../control/noticeCtrl');
@@ -230,10 +230,10 @@ module.exports = function(app)
     app.route('/modelser/cloud/json/packages')
         .get(function(req, res, next){
             var mid = req.query.mid;
-            ModelSerCrtl.getCloudModelPackageByMid(mid, RouteBase.returnFunction(res, 'error in getting cloud modelser package!'));
+            ModelSerCrtl.getCloudModelPackageByMid(mid, RouteBase.returnFunction(res, 'error in getting cloud modelser packages!'));
         });
 
-    app.route('/modelser/cloud/package/:pid')
+    app.route('/modelser/cloud/packages/:pid')
         .get(function(req, res, next){
             var ac = req.query.ac;
             var fields = req.query.fields;
@@ -241,6 +241,14 @@ module.exports = function(app)
             if(ac == 'download'){
                 return ModelSerMid.getCloudPackage(fields, pid, RouteBase.returnFunction(res, 'error in down a model service!'));
             }
+        });
+
+    app.route('/modelser/uploader/:msid')
+        .get(function(req, res, next){
+            var msid = req.params.msid;
+            return res.render('modelSerUploader', {
+                msid : msid
+            });
         });
 
     //展示某个模型服务
@@ -281,7 +289,7 @@ module.exports = function(app)
             else
             {
                 //点击运行操作
-                if(req.query.ac == "run")
+                if(req.query.ac == 'run')
                 {
                     //读取输入文件参数
                     var inputData = JSON.parse(req.query.inputdata);
@@ -402,6 +410,15 @@ module.exports = function(app)
                         next();
                     }
                 }
+                //上传模型服务
+                else if(req.query.ac == 'upload')
+                {
+                    var mid = req.query.mid;
+                    var pkg_name = req.query.pkg_name;
+                    var pkg_version = req.query.pkg_version;
+                    var pkg_des = req.query.pkg_des;
+                    ModelSerCrtl.uploadPackage(msid, mid, pkg_name, pkg_version, pkg_des, null, null, RouteBase.returnFunction(res, 'err in upload model package'));
+                }
                 //单个模型的详情页面
                 else
                 {
@@ -446,14 +463,14 @@ module.exports = function(app)
                 ModelSerCrtl.getByOID(msid,function (err, ms) {
                     if(err)
                     {
-                        return res.send(JSON.stringify({
+                        return res.end(JSON.stringify({
                             "res":"Error",
-                            "mess":"Error in get object"
+                            "mess":JSON.stringify(err)
                         }));
                     }
                     if(ms.ms_status == 0)
                     {
-                        return res.send(JSON.stringify({
+                        return res.end(JSON.stringify({
                             "res":"Stopped"
                         }));
                     }
@@ -462,12 +479,12 @@ module.exports = function(app)
                         ms.ms_status = 0;
                         ModelSerCrtl.update(ms, function (err, data){
                             if(err) {
-                                return res.send(JSON.stringify({
+                                return res.end(JSON.stringify({
                                     "res":"Error",
-                                    "mess":"Error in update object"
+                                    "mess":JSON.stringify(err)
                                 }));
                             }
-                            return res.send(JSON.stringify({
+                            return res.end(JSON.stringify({
                                 "res":"Success"
                             }));
                         })
@@ -480,14 +497,14 @@ module.exports = function(app)
                 ModelSerCrtl.getByOID(msid,function (err, ms) {
                     if(err)
                     {
-                        return res.send(JSON.stringify({
+                        return res.end(JSON.stringify({
                             "res":"Error",
-                            "mess":"Error in get object"
+                            "mess": JSON.stringify(err)
                         }));
                     }
                     if(ms.ms_status == 1)
                     {
-                        return res.send(JSON.stringify({
+                        return res.end(JSON.stringify({
                             "res":"Started"
                         }));
                     }
@@ -496,12 +513,12 @@ module.exports = function(app)
                         ms.ms_status = 1;
                         ModelSerCrtl.update(ms, function (err, data) {
                             if(err) {
-                                return res.send(JSON.stringify({
+                                return res.end(JSON.stringify({
                                     "res":"Error",
-                                    "mess":"Error in update object"
+                                    "mess":JSON.stringify(err)
                                 }));
                             }
-                            return res.send(JSON.stringify({
+                            return res.end(JSON.stringify({
                                 "res":"Success"
                             }));
                         })
@@ -640,142 +657,30 @@ module.exports = function(app)
             }
             else
             {
-                if(req.query.ac == "run")
+                ModelSerCrtl.getByOID(msid, function(err, ms)
                 {
-                    //读取输入文件参数
-                    var inputData = JSON.parse(req.query.inputdata);
-                    ModelSerCrtl.getInputData(msid, function (err, data) {
-                        if(err)
-                        {
-                            return res.end(JSON.stringify(err));
-                        }
-                        //指定输出文件参数
-                        var outputData = [];
-                        for(var k = 0; k < data.length; k++)
-                        {
-                            for(var i = 0; i < data[k].Event.length; i++)
-                            {
-                                if(data[k].Event[i].$.type == 'noresponse')
-                                {
-                                    var dataid = 'gd_' + uuid.v1();
-                                    var item = {
-                                        'StateId' : data[k].$.id,
-                                        'Event' : data[k].Event[i].$.name,
-                                        'DataId' : dataid
-                                    };
-                                    outputData.push(item);
-                                }
-                            }
-                        }
-
-                        //判断此模型服务状态
-
-
-                        //生成唯一字符串GUID
-                        var guid = uuid.v4();
-                        //向内存中添加模型运行记录条目
-                        var date = new Date();
-                        var mis = {
-                            guid : guid,
-                            socket : null,
-                            ms : null,
-                            start : date.toLocaleString(),
-                            state : 'MC_READY'
-                        };
-                        var modelIns = new ModelIns(mis);
-                        app.modelInsColl.addIns(modelIns);
-
-                        //解析表格数据并添加纪录
-                        var form = new formidable.IncomingForm();
-                        form.encoding = 'utf-8';
-                        form.parse(req, function (err, field, files) {
-                            if(err)
-                            {
-                                console.log(err);
-                                return res.end(JSON.stringify(
-                                    {
-                                        res:'err',
-                                        mess:JSON.stringify(err)
-                                    }));
-                            }
-
-                            //开始运行模型实例
-                            ModelSerCrtl.run(msid, guid, function (err, ms) {
-                                if(err)
-                                {
-                                    return res.end('Error : ' + err);
-                                }
-
-                                //绑定内存实例的ms属性
-                                app.modelInsColl.bindMs(guid, ms);
-
-                                //添加纪录
-                                var msr = {
-                                    ms_id : ms._id,
-                                    msr_ms : {
-                                        m_name : ms.ms_model.m_name,
-                                        mv_num : ms.mv_num
-                                    },
-                                    msr_date : date.toLocaleString(),
-                                    msr_time : 0,
-                                    msr_user : {
-                                        u_name : 'Admin',
-                                        u_type : 0
-                                    },
-                                    msr_guid : guid,
-                                    msr_input : inputData,
-                                    msr_output : outputData,
-                                    msr_des : ''
-                                };
-                                //存储通知消息
-                                var notice = {
-                                    time:new Date(),
-                                    title:ms.ms_model.m_name + '开始运行！',
-                                    detail:'',
-                                    type:'start-run',
-                                    hasRead:false
-                                };
-                                NoticeCtrl.addNotice(notice,function (err, data) {
-                                    if(err)
-                                    {
-                                        return res.end('Error!');
-                                    }
-                                    ModelSerRunCtrl.addItem(msr ,function (err, msr) {
-                                        res.end(JSON.stringify({
-                                            res : 'suc',
-                                            msr_id : msr._id
-                                        }));
-                                    });
-                                });
-                            });
-                        });
-                    });
-                }
-                else{
-                    ModelSerCrtl.getByOID(msid, function(err, ms)
+                    if(err)
                     {
+                        return res.end(JSON.stringify({
+                            "res":"Error",
+                            "mess":"Error in get modelSer"
+                        }));
+                    }
+                    ModelSerRunCtrl.getByMSID(msid, function (err, msrs) {
                         if(err)
                         {
                             return res.end(JSON.stringify({
                                 "res":"Error",
-                                "mess":"Error in get modelSer"
+                                "mess":"Error in get modelSerRun"
                             }));
                         }
-                        ModelSerRunCtrl.getByMSID(msid, function (err, msrs) {
-                            if(err)
-                            {
-                                return res.end(JSON.stringify({
-                                    "res":"Error",
-                                    "mess":"Error in get modelSerRun"
-                                }));
-                            }
-                            return res.end(JSON.stringify({
-                                modelSer : ms,
-                                msrs : msrs
-                            }));
-                        });
+                        return res.end(JSON.stringify({
+                            'res' : 'suc',
+                            modelSer : ms,
+                            msrs : msrs
+                        }));
                     });
-                }
+                });
             }
         });
 

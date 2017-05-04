@@ -7,10 +7,6 @@ var fs = require('fs');
 
 module.exports =  {
     version : 0.2,
-    gate:{
-        host : '222.192.7.74',
-        port : 80
-    },
     port:'8060',
     oid:'56f110136dde7f18b4cb2b87',
     platform:(function () {
@@ -38,8 +34,8 @@ module.exports =  {
     },
     portal:
     {
-        host:'222.192.7.74',
-        port:'80'
+        host:'223.2.46.254',
+        port:'8080'
     },
     modelpath: __dirname + '/geo_model/',
     data_size : 1024,

@@ -5,6 +5,7 @@
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
+
 var rimraf = require('rimraf');
 var unzip = require('unzip');
 var ObjectId = require('mongodb').ObjectID;
@@ -20,6 +21,7 @@ var ControlBase = require('./controlBase');
 var ParamCheck = require('../utils/paramCheck');
 var GeoDataCtrl = require('../control/geoDataControl');
 var CommonMethod = require('../utils/commonMethod');
+var SystemCtrl = require('./sysControl');
 
 var ModelSerControl = function () {};
 ModelSerControl.__proto__ = ControlBase;
@@ -345,8 +347,8 @@ ModelSerControl.validate = function (modelPath, callback) {
                                 else if(stat2){
                                     callback(rst);
                                 }
-            });
-        }
+                            });
+                        }
                         else if(err){
                             callback({status:0});
                         }
@@ -363,8 +365,8 @@ ModelSerControl.validate = function (modelPath, callback) {
                                 else if(stat2){
                                     callback(rst);
                                 }
-            });
-        }
+                            });
+                        }
                     });
                 }
             });
@@ -379,14 +381,17 @@ ModelSerControl.validate = function (modelPath, callback) {
 ModelSerControl.addNewModelSer = function(fields, files, callback){
     var date = new Date();
     var img = null;
-    if(files.ms_img.size != 0)
+    if(files.ms_img)
     {
-        img = uuid.v1() + path.extname(files.ms_img.path);
-        fs.renameSync(files.ms_img.path, setting.modelpath + '../public/images/modelImg/' + img);
-    }
-    else
-    {
-        FileOpera.rmdir(files.ms_img.path);
+        if(files.ms_img.size != 0)
+        {
+            img = uuid.v1() + path.extname(files.ms_img.path);
+            fs.renameSync(files.ms_img.path, setting.modelpath + '../public/images/modelImg/' + img);
+        }
+        else
+        {
+            FileOpera.rmdir(files.ms_img.path);
+        }
     }
 
     //产生新的OID
@@ -422,8 +427,15 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                         }
                     });
                 }
-                //删除文件
-                FileOpera.rmdir(files.file_model.path);
+                ////删除文件
+                //FileOpera.rmdir(files.file_model.path);
+
+                //转移模型包
+                fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
+                    if(err){
+                        console.log('err in moving package!');
+                    }
+                });
 
 
                 //生成新的纪录
@@ -483,6 +495,7 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
 //将记录放置在回收站
 //并删除文件
 ModelSerControl.deleteToTrush = function (_oid, callback) {
+    var oid = _oid;
     ModelSerModel.getByOID(_oid, function (err, item) {
         if(err)
         {
@@ -496,6 +509,8 @@ ModelSerControl.deleteToTrush = function (_oid, callback) {
             }
             //删除文件
             FileOpera.rmdir(setting.modelpath + item.ms_path);
+            //删除模型包
+            FileOpera.rmdir(setting.modelpath + 'packages/' + oid + '.zip');
             return callback(null, item);
         });
     });
@@ -593,12 +608,12 @@ ModelSerControl.run = function (ms_id, guid, callback) {
 
 //获取所有门户网站模型服务
 ModelSerControl.getCloudModelsers = function(callback){
-    remoteReqCtrl.getRequestJSON('http://' + setting.gate.host + ':' + setting.gate.port + '/GeoModeling/ModelItemToContainerServlet', this.returnFunction(callback, 'error in get cloud model service'));
+    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/ModelItemToContainerServlet', this.returnFunction(callback, 'error in get cloud model service'));
 };
 
 //获取模型门户所有类别
 ModelSerControl.getCloudModelserCategory = function(callback){
-    remoteReqCtrl.getRequestJSON('http://' + setting.gate.host + ':' + setting.gate.port + '/GeoModeling/GetClassServlet', function(err, categories){
+    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetClassServlet', function(err, categories){
         if(err){
             return callback(err);
         }
@@ -642,7 +657,7 @@ ModelSerControl.getCategoryById = function(array, id){
 
 //获取某一类别下的所有模型部署包
 ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
-    remoteReqCtrl.getRequestJSON('http://' + setting.gate.host + ':' + setting.gate.port + '/GeoModeling/GetDeployPackageServlet?modelItemId=' + mid, function(err, packages){
+    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetDeployPackageServlet?modelItemId=' + mid, function(err, packages){
         if(err){
             return callback(err);
         }
@@ -675,7 +690,7 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
 
 //获取某一类别下的所有模型
 ModelSerControl.getCloudModelByCategoryId = function(id, callback){
-    remoteReqCtrl.postRequestJSON('http://' + setting.gate.host + ':' + setting.gate.port + '/GeoModeling/ModelItemServlet?nameId=' + id, function(err, items){
+    remoteReqCtrl.postRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/ModelItemServlet?nameId=' + id, function(err, items){
         if(err){
             return callback(err);
         }
@@ -703,6 +718,92 @@ ModelSerControl.getCloudModelByCategoryId = function(id, callback){
             ModelSerModel.getByMID(items[i].model_id, pending(i));
         }
     });
+};
+
+//上传模型部署包
+ModelSerControl.uploadPackage = function(msid, mid, pkg_name, pkg_version, pkg_des, portal_uname, portal_pwd, callback){
+    var pending = function(){
+        SystemCtrl.loginPortal(portal_uname, portal_pwd, function(err, result){
+            if(err){
+                return callback(err);
+            }
+            if(result){
+                var pending2 = function(){
+                    remoteReqCtrl.postRequestJSONWithFormData('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/UploadPackageZipServlet', {
+                        id : mid,
+                        file : fs.createReadStream(setting.modelpath + 'packages/' + msid + '.zip')
+                    }, function(err, data){
+                        if(err){
+                            return callback(err);
+                        }
+                        if(data == null){
+                            return callback(new Error('portal result in null!'));
+                        }
+                        if(data.result == 'no'){
+                            return callback(new Error('Error in login portal!'));
+                        }
+                        var resJson = data;
+                        var url = 'http://' + setting.portal.host + ':' + setting.portal.port +
+                            '/GeoModeling/DeploymentPackageHandleServlet';
+                           // '?calcName=' + pkg_name + '&calcDesc=' + pkg_des + '&calcPlatform=1&modelItemId=' + mid + '&calcFcId=' + resJson.fcId + '&calcFileName=' + resJson.result;
+                        url = encodeURI(url);
+                        remoteReqCtrl.postRequestJSONWithForm(url,{
+                            calcName : pkg_name,
+                            calcDesc : pkg_des,
+                            calcPlatform: 1,
+                            modelItemId: mid,
+                            calcFcId: resJson.fcId,
+                            calcFileName : resJson.result
+                        }, function(err, data){
+                            if(err){
+                                return callback(err);
+                            }
+                            if(data.result == 'no'){
+                                return callback(new Error('Link fail in portal !'));
+                            }
+                            ModelSerModel.getByOID(msid, function(err, item){
+                                if(err){
+                                    return callback(err);
+                                }
+                                item.ms_model.m_id = mid;
+                                item.ms_model.p_id = data.result;
+                                ModelSerModel.update(item, function(err, result){
+                                    if(err){
+                                        return callback(err);
+                                    }
+                                    return callback(null, {
+                                        fcid : resJson.fcId,
+                                        p_id : data
+                                    });
+                                })
+                            });
+                        });
+                    });
+                };
+                if(!fs.existsSync(setting.modelpath + 'packages/' + msid + '.zip')){
+                    CommonMethod.compress(setting.modelpath + 'packages/' + msid + '.zip', setting.modelpath + msid);
+                }
+                pending2();
+            }
+            else{
+                return callback(new Error('Login fail!', -1));
+            }
+        });
+    };
+
+    if(!portal_uname){
+        SystemCtrl.getPortalToken(function(err, token){
+            if(err){
+                return callback(err);
+            }
+            portal_uname = token['portal_uname'];
+            portal_pwd = token['portal_pwd'];
+            pending();
+        });
+    }
+    else{
+        pending();
+    }
 };
 
 //得到初始输入数据
@@ -835,7 +936,6 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                     var arr = [state];
                     return callback(null, arr);
                 }
-                return callback(null, state);
             }
             catch (newerr)
             {

@@ -104,3 +104,16 @@ ChildCtrl.AddNewChild = function(child, callback) {
         return callback(null, item);
     });
 };
+
+//接受子节点
+ChildCtrl.Accept = function(oid, callback){
+    Child.getByOID(oid, function(err, item){
+        item.accepted = 1;
+        Child.update(item, function(err, result){
+            if(err){
+                return callback(err);
+            }
+            return callback(null, result);
+        });
+    });
+};
