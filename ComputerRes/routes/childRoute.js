@@ -11,19 +11,21 @@ module.exports = function (app) {
             var host = req.connection.remoteAddress;
             host = host.substr(host.lastIndexOf(':') + 1);
 
-            var form = new formidable.IncomingForm();
-            //解析请求
-            form.parse(req, function (err, fields, files) {
-                var port = fields.port;
-                var platform = fields.platform;
-                ChildCtrl.AddNewChild({
-                    host : host,
-                    port : port,
-                    platform : platform,
-                    accepted : false,
-                    access_token : ''
-                },RouteBase.returnFunction(res, 'error in adding new child!'));
-            });
+            if(req.body.platform == undefined || req.body.port == undefined){
+                return res.end(JSON.stringify({
+                    result : 'err',
+                    message : 'platform, port or both are undefined!'
+                }));
+            }
+            var port = req.body.port;
+            var platform = req.body.platform;
+            ChildCtrl.AddNewChild({
+                host : host,
+                port : port,
+                platform : platform,
+                accepted : false,
+                access_token : ''
+            },RouteBase.returnFunction(res, 'error in adding new child!'));
         });
 
     app.route('/child-node/:cid')
@@ -62,6 +64,10 @@ module.exports = function (app) {
             if(req.query.ac == 'accept'){
                 ChildCtrl.Accept(cid, RouteBase.returnFunction(res, 'error in accepting a child request'));
             }
+        })
+        .delete(function(req, res, next){
+            var cid = req.params.cid;
+            ChildCtrl.remove(cid, RouteBase.returnFunction(res, 'Error in removing a child node'));
         });
 
     /////////////////////////////////JSON

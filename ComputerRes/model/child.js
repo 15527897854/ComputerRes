@@ -52,7 +52,11 @@ Child.prototype.save = function (callback) {
     };
     cld = new ChildModel(cld);
     cld.save(function (err, res) {
-        callback(err,res);
+        if(err){
+            return callback(err);
+        }
+        res = JSON.parse(JSON.stringify(res));
+        return callback(null, res);
     });
 };
 

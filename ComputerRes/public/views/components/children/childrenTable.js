@@ -101,6 +101,20 @@ var ChildrenTable = React.createClass({
         }
     },
 
+    removeChild : function(e, cid, host){
+        if(confirm('确认删除子节点: ' + host)){
+            Axios.delete('/child-node/' + cid).then(
+                data => {
+                    if(data.data.result == 'suc'){
+                        NoteDialog.openNoteDia('删除成功!','子节点 ' + host + ' 删除成功！');
+                        this.refresh();
+                    }
+                },
+                err => {}
+            );
+        }
+    },
+
     render : function () {
         if(this.state.loading)
         {
@@ -158,8 +172,9 @@ var ChildrenTable = React.createClass({
                     <td>{platform}</td>
                     <td>{status}</td>
                     <td>
-                        <button className="btn btn-info btn-xs" type="button"  ><i className="fa fa-book"></i>详情</button>&nbsp;
-                        {button}
+                        <button className="btn btn-info btn-xs" type="button"  ><i className="fa fa-book"> </i>详情</button>&nbsp;
+                        {button}&nbsp;
+                        <button className="btn btn-danger btn-xs" type="button" onClick={(e) => { this.removeChild(e, child._id, child.host) }} ><i className="fa fa-trash-o"> </i></button>
                     </td>
                 </tr>
             );

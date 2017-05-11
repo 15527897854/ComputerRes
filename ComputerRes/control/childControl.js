@@ -95,13 +95,23 @@ ChildCtrl.getByHost = function (host, callback) {
 
 //新增子节点
 ChildCtrl.AddNewChild = function(child, callback) {
-    var cld = new Child(child);
-    cld.save(function (err, item) {
-        if(err)
-        {
+    Child.getByHost(child.host, function(err, item){
+        if(err){
             return callback(err);
         }
-        return callback(null, item);
+        if(item == null){
+            var cld = new Child(child);
+            cld.save(function (err, item) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                return callback(null, item);
+            });
+        }
+        else{
+            return callback(null, item);
+        }
     });
 };
 
@@ -115,5 +125,14 @@ ChildCtrl.Accept = function(oid, callback){
             }
             return callback(null, result);
         });
+    });
+};
+
+ChildCtrl.remove = function(oid, callback){
+    Child.delete(oid, function(err, result){
+        if(err){
+            return callback(err);
+        }
+        return callback(null, result);
     });
 };

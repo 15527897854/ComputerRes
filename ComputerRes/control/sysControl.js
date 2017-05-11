@@ -348,3 +348,27 @@ SysControl.deregister = function (callback) {
         }
     });
 };
+
+//如果字段不存在，自动建立字段
+SysControl.buildField = function (field, defaultValue, callback){
+    systemSettingModel.getValueByIndex(field, function(err, item){
+        if(err){
+            return callback(err);
+        }
+        if(item == null){
+            var ss = new systemSettingModel({
+                ss_index : field,
+                ss_value : defaultValue
+            });
+            ss.save(function(err, result){
+                if(err){
+                    return callback(err);
+                }
+                return callback(null, result);
+            });
+        }
+        else{
+            return callback(null, true);
+        }
+    });
+};

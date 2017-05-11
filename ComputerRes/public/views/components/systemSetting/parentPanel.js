@@ -4,17 +4,26 @@
 var React = require('react');
 var Axios = require('axios');
 
+var NoteDialog = require('../../action/utils/noteDialog');
+
 var ParentPanel = React.createClass({
     getInitialState : function () {
         return {
             loading : true,
             err : null,
-            parent : null
+            parent : null,
+            proParentHost : '',
+            proParentPort : '',
+            btn : false
         };
     },
 
     componentDidMount : function () {
         this.refresh();
+    },
+
+    disableBtn : function(){
+        this.setState({btn : false});
     },
 
     refresh : function () {
@@ -48,23 +57,20 @@ var ParentPanel = React.createClass({
 
     checkServer : function() {
         var port = '8060';
-        if($('#txtNewParentHost').val().trim() == '')
-        {
+        if($('#txtNewParentHost').val().trim() == ''){
             return;
         }
-        if($('#txtNewParentPort').val().trim() != '')
-        {
+        if($('#txtNewParentPort').val().trim() != ''){
             port = $('#txtNewParentPort').val();
         }
         Axios.get('/checkserver/' + $('#txtNewParentHost').val() + ':' + port).then(
             data => {
-                if(data.data.result == 'OK')
-                {
-                    $('#btn_ok').attr('disabled', false);
+                if(data.data.result == 'OK'){
+                    this.setState({proParentHost : $('#txtNewParentHost').val(), proParentPort : port});
+                    this.setState({btn : true});
                 }
-                else
-                {
-                    $('#btn_ok').attr('disabled', true);
+                else{
+                    this.setState({btn : false});
                 }
             },
             err => {}
@@ -72,12 +78,12 @@ var ParentPanel = React.createClass({
     },
 
     onSubmit : function(e) {
-        Axios.put('/parent?host=' + $('#txtNewParentHost').val() + '&' + 'port=' + $('#txtNewParentPort').val())
+        Axios.put('/parent?host=' + this.state.proParentHost + '&' + 'port=' + this.state.proParentPort)
             .then(
                 data => {
                     if(data.data.result == 'suc')
                     {
-                        alert('变更成功！')
+                        NoteDialog.openNoteDia('父节点变更成功！', '父节点变更成功: ' + this.state.proParentHost);
                     }
                 },
                 err => {}
@@ -85,17 +91,19 @@ var ParentPanel = React.createClass({
     },
 
     render : function () {
-        if(this.state.loading)
-        {
+        if(this.state.loading){
             return (
                 <span>加载中...</span>
             );
         }
-        if(this.state.err)
-        {
+        if(this.state.err){
             return (
                 <span>Error : { JSON.stringify(this.state.err) }</span>
             );
+        }
+        var btn = (<button id="btn_ok" type="button" className="btn btn-success" disabled="disabled" onClick={this.onSubmit } >确定</button>);
+        if(this.state.btn){
+            btn = (<button id="btn_ok" type="button" className="btn btn-success" onClick={this.onSubmit } >确定</button>);
         }
         return (
             <div>
@@ -113,14 +121,14 @@ var ParentPanel = React.createClass({
                                     <strong>当前父节点</strong>&nbsp;:&nbsp;{this.state.parent}<br />
                                     <label>更变父节点</label><br />
                                     <label htmlFor="txtNewParentHost" >服务器</label>
-                                    <input id="txtNewParentHost" placeholder="127.0.0.1" type="text" className="form-control" onBlur={this.checkServer} />
+                                    <input id="txtNewParentHost" placeholder="127.0.0.1" type="text" className="form-control" onBlur={this.checkServer} onFocus={this.disableBtn} />
                                     <label htmlFor="txtNewParentPort" >端口</label>
-                                    <input id="txtNewParentPort" placeholder="8060" type="text" className="form-control" onBlur={this.checkServer} />
+                                    <input id="txtNewParentPort" placeholder="8060" type="text" className="form-control" onBlur={this.checkServer} onFocus={this.disableBtn} />
                                 </form>
                             </div>
                             <div className="modal-footer">
                                 <button id="btn_close" type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
-                                <button id="btn_ok" type="button" className="btn btn-success" onClick={this.onSubmit } >确定</button>
+                                {btn}
                             </div>
                         </div>
                     </div>

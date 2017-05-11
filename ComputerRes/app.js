@@ -9,12 +9,16 @@ var bodyParser = require('body-parser');
 var ModelIns = require('./model/modelInstance');
 var ModelInsCollection = require('./model/modelInsCollection');
 var FileUploadRecord = require('./model/fileUpload');
+var init = require('./init');
 var settings = require('./setting');
 
 var routes = require('./routes/index');
 
 var app = express();
 global.app = app;
+
+//init setting
+init();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
