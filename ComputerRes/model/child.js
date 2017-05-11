@@ -65,6 +65,11 @@ Child.getAll = function (callback) {
     ChildModel.find({},this.returnFunction(callback, 'Error in getting all child'));
 };
 
+//得到全部子节点
+Child.getAllAvai = function (callback) {
+    ChildModel.find({ accepted : true },this.returnFunction(callback, 'Error in getting all child'));
+};
+
 //通过OID查询子节点信息
 Child.getByOID = function (_oid, callback) {
     if(ParamCheck.checkParam(callback,_oid))

@@ -128,6 +128,7 @@ ChildCtrl.Accept = function(oid, callback){
     });
 };
 
+//删除节点
 ChildCtrl.remove = function(oid, callback){
     Child.delete(oid, function(err, result){
         if(err){

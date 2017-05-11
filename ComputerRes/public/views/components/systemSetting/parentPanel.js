@@ -84,6 +84,7 @@ var ParentPanel = React.createClass({
                     if(data.data.result == 'suc')
                     {
                         NoteDialog.openNoteDia('父节点变更成功！', '父节点变更成功: ' + this.state.proParentHost);
+                        $('#diaParent').modal('hide');
                     }
                 },
                 err => {}
