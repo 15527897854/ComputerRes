@@ -3,7 +3,6 @@
  */
 var ChildCtrl = require('../control/childControl');
 var RouteBase = require('./routeBase');
-var formidable = require('formidable');
 
 module.exports = function (app) {
     app.route('/child-node')

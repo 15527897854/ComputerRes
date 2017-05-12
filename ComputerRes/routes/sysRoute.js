@@ -47,9 +47,17 @@ module.exports = function(app)
             sysControl.getParent(RouteBase.returnFunction(res, 'error in getting parent'));
         })
         .put(function(req, res, next){
+            var ac = req.query.ac;
             var host = req.query.host;
             var port = req.query.port;
-            sysControl.setParent(host + ':' + port, RouteBase.returnFunction(res, 'Error in update parent!'));
+            if(ac == 'reset'){
+                host = req.connection.remoteAddress;
+                host = host.substr(host.lastIndexOf(':') + 1);
+                sysControl.resetParent(host, RouteBase.returnFunction(res, 'Error in resetting parent!'));
+            }
+            else{
+                sysControl.setParent(host + ':' + port, RouteBase.returnFunction(res, 'Error in updating parent!'));
+            }
         });
 
 

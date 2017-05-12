@@ -130,10 +130,16 @@ ChildCtrl.Accept = function(oid, callback){
 
 //删除节点
 ChildCtrl.remove = function(oid, callback){
-    Child.delete(oid, function(err, result){
+    Child.getByOID(oid, function(err, child){
         if(err){
             return callback(err);
         }
-        return callback(null, result);
+        RemoteRequestControl.putRequestJSON('http://' + child.host + ':' + child.port + '/parent?ac=reset', function(){});
+        Child.delete(oid, function(err, result){
+            if(err){
+                return callback(err);
+            }
+            return callback(null, result);
+        });
     });
 };
