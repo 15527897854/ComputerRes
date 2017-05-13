@@ -135,7 +135,7 @@ $(document).ready(function () {
     
     refresh();
 
-//        setInterval(refresh,5000);
+    setInterval(refresh,600000);
 
     //改变查询类型
     {

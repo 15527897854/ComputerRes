@@ -1,0 +1,35 @@
+/**
+ * Created by Administrator on 4.19.
+ */
+
+var mongoose = require('./mongooseModel');
+
+var mongodb = require('./mongoDB');
+var ObjectId = require('mongodb').ObjectID;
+var ModelBase = require('./modelBase');
+var ParamCheck = require('../utils/paramCheck');
+
+function HardwareEnviro(swe){
+    if(swe){
+        this._id = swe._id;
+        this.name = swe.name;
+        this.value = swe.value;
+    }
+    else{
+        this._id = new ObjectId();
+        this.name = '';
+        this.value = '';
+    }
+}
+
+HardwareEnviro.__proto__ = ModelBase;
+module.exports = HardwareEnviro;
+
+var HWESchema = new mongoose.Schema({
+    name : String,
+    value:String
+},{collection:'hardwareEnviro'});
+
+var HWE = mongoose.model('hardwareEnviro',HWESchema);
+HardwareEnviro.baseModel = HWE;
+HardwareEnviro.modelName = 'hardwareEnviro';

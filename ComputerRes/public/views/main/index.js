@@ -13,6 +13,8 @@ var ParentPanel = require('../components/systemSetting/parentPanel');
 var CloudModelSerTable = require('../components/modelSer/cloudModelSerTable');
 var DataCollectionTable = require('../components/data/dataCollectionTable');
 var DataPreparation = require('../components/data/dataPreparation');
+var EnviroPanel = require('../components/systemSetting/enviroPanel');
+var EnviroTable = require('../components/systemSetting/enviroTable');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -51,8 +53,6 @@ if(document.getElementById('parentPanel') != null) {
         document.getElementById('parentPanel'));
 }
 
-
-
 if(document.getElementById('cloudModelSerTable') != null) {
     ReactDOM.render(<CloudModelSerTable data-source={document.getElementById('cloudModelSerTable').getAttribute('data-source') }/>,
         document.getElementById('cloudModelSerTable'));
@@ -69,4 +69,54 @@ if(document.getElementById('DataPreparation') != null) {
         data-type={ document.getElementById('DataPreparation').getAttribute('data-type') }
         data-host={ document.getElementById('DataPreparation').getAttribute('data-host') } />,
         document.getElementById('DataPreparation'));
+}
+
+if(document.getElementById('enviro-section') != null){
+    var width = $('#swe').width() - 60;
+    var tabletree = {
+        editable:true,
+        checkbox:false,
+        operate:true,
+        autowidth:true,
+        css:{
+            width:{
+                tabletree:width,
+                title:(width-140)/2,
+                value:(width-140)/2
+            }
+        }
+    };
+    var fields = [{
+        title:'name',
+        type:'string'
+    },{
+        title:'version',
+        type:'string'
+    },{
+        title:'description',
+        type:'string'
+    },{
+        title:'alias',
+        type:'Array'
+    }];
+    ReactDOM.render(<EnviroPanel
+        tableID='swe-table'
+        type="software"
+        tabletree={tabletree}
+        fields={fields}
+    />, document.getElementById('swe'));
+
+    fields = [{
+        title:'name',
+        type:'string'
+    },{
+        title:'value',
+        type:'string'
+    }];
+    ReactDOM.render(<EnviroPanel
+        tableID='hwe-table'
+        type="hardware"
+        tabletree={tabletree}
+        fields={fields}
+    />, document.getElementById('hwe'));
 }

@@ -4,12 +4,13 @@
  */
 var http = require('http');
 var fs = require('fs');
-var request = require('request');
+var request = require('request-promise');
 
 function RemoteReqControl() {}
 
 module.exports = RemoteReqControl;
 
+//使用request模块，以get方式请求url中的内容
 RemoteReqControl.getRequest = function (req, url, callback) {
     req.pipe(request.get(url, function (err, response, data) {
         if(err)
@@ -20,6 +21,7 @@ RemoteReqControl.getRequest = function (req, url, callback) {
     }));
 };
 
+//使用request模块，以post方式请求url中的内容，post的表单在req中
 RemoteReqControl.postRequest = function (req, url, callback) {
     req.pipe(request.post(url, function (err, response, data) {
         if(err)
@@ -30,6 +32,46 @@ RemoteReqControl.postRequest = function (req, url, callback) {
     }));
 };
 
+//使用request模块，以post方式请求url，表单在form中
+RemoteReqControl.postByServer = function (url, form, callback) {
+    var options;
+    if(form){
+        options = {
+            uri:url,
+            method:'POST',
+            formData:form
+        };
+    }
+    else{
+        options = {
+            uri:url,
+            method:'POST'
+        };
+    }
+    request(options)
+        .then(function (res) {
+            return callback(null,res);
+        })
+        .catch(function (err) {
+            return callback(err);
+        });
+};
+
+//使用request模块，以get方式请求url，表单在form中
+RemoteReqControl.getByServer = function (url, form, callback) {
+    var options = {
+        url:url,
+        method:'GET',
+        qs:form
+    };
+    request(options)
+        .then(function (res) {
+            return callback(null,res);
+        })
+        .catch(function (err) {
+            return callback(err);
+        });
+};
 
 RemoteReqControl.getRequestJSON = function (url, callback) {
     request.get(url,function (err, response, data) {

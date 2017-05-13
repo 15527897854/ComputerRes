@@ -291,9 +291,8 @@ module.exports = function(app)
                                 msr_status : 0,
                                 msr_des : ''
                             };
-                            ModelSerRunCtrl.addItem(msr ,function (err, msr) {
-                                if(err)
-                                {
+                            ModelSerRunCtrl.save(msr ,function (err, msr) {
+                                if(err) {
                                     return res.end('Error : ' + err);
                                 }
 
@@ -320,7 +319,7 @@ module.exports = function(app)
                                     type:'start-run',
                                     hasRead:false
                                     };
-                                    NoticeCtrl.addNotice(notice, function (err, data) {
+                                    NoticeCtrl.save(notice, function (err, data) {
                                         if(err)
                                         {
                                             console.log(JSON.stringify(err));
@@ -500,7 +499,7 @@ module.exports = function(app)
                     type:'del-ms',
                     hasRead:false
                 };
-                NoticeCtrl.addNotice(noticeData,function (err, data) {
+                NoticeCtrl.save(noticeData,function (err, data) {
                     if(err)
                     {
                         return res.end(JSON.stringify({

@@ -7,11 +7,15 @@ var http = require('http');
 var crypto = require('crypto');
 var md5 = crypto.createHash('md5');
 var fs = require('fs');
+var ObjectId = require('mongodb').ObjectID;
+var exec = require('child_process').exec;
+var iconv = require('iconv-lite');
 
 var setting = require('../setting');
 var systemSettingModel = require('../model/systemSetting');
 var ControlBase = require('./controlBase');
 var RemoteControl = require('./remoteReqControl');
+var registerCtrl = require('./registerCtrl');
 
 var SysControl = function() {};
 SysControl.__proto__ = ControlBase;
@@ -32,7 +36,6 @@ SysControl.getState = function(callback) {
         'cpus':os.cpus(),
         'disk': ''
     };
-    var exec = require('child_process').exec;
     //windows disk
     if(setting.platform == 1)
     {
@@ -119,6 +122,59 @@ SysControl.getState = function(callback) {
             return callback(null, sysinfo);
         });
     }
+};
+
+SysControl.getIP = function (callback) {
+    var exec = require('child_process').exec;
+    //windows disk
+    if(setting.platform == 1)
+    {
+        var interfaces = os.networkInterfaces();
+        var IPv4 = '127.0.0.1';
+        for (var key in interfaces) {
+            var alias = 0;
+            interfaces[key].forEach(function(details){
+                if (details.family == 'IPv4') {
+                    if(details.address != '127.0.0.1')
+                        IPv4 = details.address;
+                }
+            });
+        }
+        callback(null,IPv4);
+    }
+    else if(setting.platform == 2)
+    {
+        //TODO get ip of linux
+    }
+};
+
+SysControl.getRegisterInfo = function (callback) {
+    SysControl.getState(function (err, sysInfo) {
+        if(err){
+            console.log('err in get sys info!');
+            callback(err);
+        }
+        else{
+            SysControl.getIP(function (err, ip) {
+                if(err){
+                    console.log('err in get ip!');
+                    return callback(err);
+                }
+                //初始化注册信息，其他信息由用户自己来填
+                var registerInfo = {
+                    _id:new ObjectId(),
+                    hostname: sysInfo.hostname,
+                    des: '',
+                    host : ip,
+                    port : setting.port,
+                    software:[],
+                    hardware:[],
+                    registered:false
+                };
+                return callback(null,registerInfo);
+            });
+        }
+    });
 };
 
 SysControl.getInfo = function(headers,callback) {
@@ -216,103 +272,108 @@ SysControl.checkServer = function(server, callback){
 
 //获取设置信息
 SysControl.getSettings = function(callback){
-    return callback(null, setting);
-};
-
-//向门户注册
-SysControl.register = function (callback) {
-    var registerFile = '../register.json';
-    var registerData,registerJSON = {};
-    fs.stat(registerFile,function (stat) {
-        if(err){
-            if(err.code = 'ENOENT'){
-                registerJSON.registered = true;
-            }
-            else{
-                rst = {status:-1};
-                return callback(JSON.stringify(rst));
-            }
-        }
-        else if(stat) {
-            registerData = fs.readFileSync(registerFile).toString();
-            if(registerData == ''){
-                registerData = '{"registered":false}';
-            }
-            registerJSON = JSON.parse(registerData);
-            if(registerJSON.registered == true){
-                //已经注册过了
-                rst = {status:2};
-                return callback(JSON.stringify(rst));
-            }
-            else{
-                //向门户post信息...
-                var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/computer';
-                remoteReqCtrl.postRequest(req, url,function (err, data) {
-                    if (err) {
-                        console.log(err);
-                        rst = {status: -1};
-                        return callback(JSON.stringify(rst));
-                    }
-                    else {
-                        if(data){
-                            //如果post成功
-                            rst = {status:1};
-                            registerJSON.registered = true;
-                            fs.writeFileSync(registerFile,JSON.stringify(registerJSON));
-                            callback(JSON.stringify(rst));
-                        }
-                    }
-                });
-            }
-        }
+    registerCtrl.getState(function (state) {
+        setting.registered = state;
+        return callback(null, setting);
     });
 };
 
-//从门户注销
-SysControl.deregister = function (callback) {
-    var registerFile = '../register.json';
-    var registerData,registerJSON = {};
-    fs.stat(registerFile,function (stat) {
-        if (err) {
-            if (err.code = 'ENOENT') {
-                registerJSON.registered = false;
+SysControl.autoDetectSW = function (callback) {
+    var exePath = __dirname + '/../helper/getSoftwareInfo.exe';
+    if(setting.platform == 1) {
+        exec(exePath,function (err, stdout, stderr) {
+            if(err){
+                console.log(err);
+                return callback(err);
             }
-            else {
-                rst = {status: -1};
-                return callback(JSON.stringify(rst));
+            else if(stderr){
+                console.log(stderr);
+                return callback(stderr);
             }
-        }
-        else if (stat) {
-            registerData = fs.readFileSync(registerFile).toString();
-            if(registerData == ''){
-                registerData = '{"registered":false}';
-            }
-            registerJSON = JSON.parse(registerData);
-            if(registerJSON.registered == false){
-                //已经注销过了
-                rst = {status:2};
-                return callback(JSON.stringify(rst));
-            }
-            else{
-                //向门户post信息...
-                var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/computer';
-                remoteReqCtrl.postRequest(req, url,function (err, data) {
-                    if (err) {
-                        console.log(err);
-                        rst = {status: -1};
-                        return callback(JSON.stringify(rst));
-                    }
-                    else {
-                        if(data){
-                            //如果post成功
-                            rst = {status:1};
-                            registerJSON.registered = false;
-                            fs.writeFileSync(registerFile,JSON.stringify(registerJSON));
-                            callback(JSON.stringify(rst));
+            else if(stdout){
+                console.log(stdout);
+                if(stdout == 'Error!'){
+                    return callback(stdout);
+                }
+                else if(stdout == 'Success!'){
+                    var softEnPath = __dirname + '/../helper/softwareEnviro.txt';
+                    fs.readFile(softEnPath,function (err, data) {
+                        if(err){
+                            return callback('read file err!');
                         }
-                    }
-                });
+                        //将文件组织为json
+                        data = iconv.decode(data,'gbk');
+                        var strswlist = data.split('[\t\t\t]');
+                        var swlist = [];
+                        for(var i=0;i<strswlist.length;i++){
+                            var swItemKV = strswlist[i].split('[\t\t]');
+                            var strheader = 'OPERATE SYSTEM:';
+                            var index = swItemKV[1].indexOf(strheader);
+                            if(index!=-1){
+                                swlist.push({
+                                    _id:swItemKV[0],
+                                    name:swItemKV[1].substr(strheader.length),
+                                    version:os.release(),
+                                    publisher:'',
+                                    type:'OS'
+                                });
+                            }
+                            else{
+                                swlist.push({
+                                    _id:swItemKV[0],
+                                    name:swItemKV[1],
+                                    version:swItemKV[2],
+                                    publisher:swItemKV[3],
+                                    type:swItemKV[4]
+                                });
+                            }
+                        }
+                        
+                        callback(null,swlist);
+                    })
+                }
             }
-        }
-    });
+        })
+    }
+    else if(setting.platform == 2){
+        
+    }
+};
+
+SysControl.autoDetectHW = function (callback) {
+    var exePath = __dirname + '/../helper/getHardwareInfo.exe';
+    if(setting.platform == 1) {
+        exec(exePath,function (err, stdout, stderr) {
+            if(err){
+                console.log(err);
+                return callback(err);
+            }
+            else if(stderr){
+                console.log(stderr);
+                return callback(stderr);
+            }
+            else if(stdout){
+                console.log(stdout);
+                if(stdout == 'Error!'){
+                    return callback(stdout);
+                }
+                else if(stdout == 'Success!'){
+                    var softEnPath = __dirname + '/../helper/hardwareEnviro.txt';
+                    fs.readFile(softEnPath,function (err, data) {
+                        if(err){
+                            return callback('read file err!');
+                        }
+                        //将文件组织为json
+                        data = iconv.decode(data,'gbk');
+                        data = JSON.parse(data);
+                        data.memory = os.totalmem()/1024/1024/1024;
+                        callback(null,data);
+                    })
+                }
+            }
+        })
+    }
+    else if(setting.platform == 2){
+
+    }
 };

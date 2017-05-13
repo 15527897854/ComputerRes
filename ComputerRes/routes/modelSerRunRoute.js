@@ -57,6 +57,14 @@ module.exports = function (app) {
             if(msrid == 'all')
             {
                 ModelSerRunCtrl.getAll(RouteBase.returnFunction(res, 'Error in getting all model-service running json'));
+                // ModelSerRunCtrl.all2TableTree(function (err, data) {
+                //     if(err){
+                //         return res.end(JSON.stringify({status:0}))
+                //     }
+                //     else{
+                //         return res.end(JSON.stringify({status:1,enviro:data}));
+                //     }
+                // })
             }
             else
             {

@@ -37,7 +37,11 @@
             <li><a href="/index"><i class="fa fa-home"></i> <span>主页</span></a></li>
             <li><a href="/status"><i class="fa fa-laptop"></i> <span>服务器状态</span></a></li>
             <li><a href="/note"><i class="fa fa-envelope"></i> <span>通知</span></a></li>
-            <li class="menu-list <% if(typeof blmodelser !== 'undefined'){%>nav-active<%} %>"><a href="/modelSer/all"><i class="fa fa-tasks"></i> <span>本地模型服务</span></a>
+            <li class="menu-list
+            <% if(typeof blmodelser !== 'undefined'){%>
+            nav-active
+            <%} %>
+            "><a href="/modelSer/all"><i class="fa fa-tasks"></i> <span>本地模型服务</span></a>
                 <ul class="sub-menu-list">
                     <li><a href="/modelser/all">查看模型服务</a></li>
                     <li><a href="/modelins/all">查看运行实例</a></li>
@@ -55,7 +59,12 @@
             </li>
             <li><a href="/modelser/cloud"><i class="fa fa-cloud-download"></i> <span>门户云模型</span></a></li>
             <li><a href="/geodata/all"><i class="fa fa-folder"></i> <span>数据中心</span></a></li>
-            <li><a href="/setting"><i class="fa fa-cogs"></i> <span>设置</span></a></li>
+            <li class="menu-list"><a><i class="fa fa-tasks"></i> <span>设置</span></a>
+                <ul class="sub-menu-list">
+                    <li><a href="/setting">常规</a></li>
+                    <li><a href="/setting/enviroment">环境字典</a></li>
+                </ul>
+            </li>
         </ul>
         <!--sidebar nav end-->
     </div>

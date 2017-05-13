@@ -51,33 +51,3 @@ var Note = mongoose.model('notice',noteSchema);
 Notice.baseModel = Note;
 Notice.modelName = 'notice';
 
-//新增模型服务信息
-Notice.save = function(notice,callback) {
-    notice = new Note(notice);
-    notice.save(function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in save!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
-};
-
-// Notice.delByOID = function (_oid, callback) {
-//     ParamCheck.checkParam(callback,_oid);
-//     var oid = new ObjectId(_oid);
-//     Note.remove({'_id':oid},this.returnFunction(callback, 'Error in delete by oid in notice'));
-// };
-//
-// Notice.getWhere = function(where, callback) {
-//     ParamCheck.checkParam(callback, where);
-//     Note.find(where,this.returnFunction(callback, 'Error in getting where in notice'));
-// };
-//
-// Notice.getByOID = function(_oid, callback) {
-//     ParamCheck.checkParam(callback, _oid);
-//     var oid = new ObjectId(_oid);
-//     Note.findOne({'_id':oid},this.returnFunction(callback, 'Error in getting by oid in notice'));
-// };
-

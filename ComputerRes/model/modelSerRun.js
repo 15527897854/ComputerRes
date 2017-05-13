@@ -63,33 +63,6 @@ var MSR = mongoose.model('modelserrun',MSRSchema);
 
 ModelSerRun.baseModel = MSR;
 
-//新增模型服务运行信息
-ModelSerRun.prototype.save = function(callback)
-{
-    //ModelSerRun
-    var modelserRun = {
-        ms_id:this.ms_id,
-        msr_ms:this.msr_ms,
-        msr_date:this.msr_date,
-        msr_time:this.msr_time,
-        msr_user:this.msr_user,
-        msr_guid:this.msr_guid,
-        msr_input:this.msr_input,
-        msr_output:this.msr_output,
-        msr_status:this.msr_status,
-        msr_des:this.msr_des
-    };
-    modelserRun = new MSR(modelserRun);
-    modelserRun.save(function (err, res) {
-        if(err)
-        {
-            console.log('mongoDB err in save!');
-            return callback(err);
-        }
-        callback(err,res);
-    });
-};
-
 //获取模型运行服务
 ModelSerRun.getAll = function(callback)
 {

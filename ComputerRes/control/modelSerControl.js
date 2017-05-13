@@ -421,35 +421,35 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                         }
                     });
                 }
-        //删除文件
-        FileOpera.rmdir(files.file_model.path);
-
-
-        //生成新的纪录
-        var newmodelser = {
-            _id : oid,
-            ms_model : {
-                m_name:fields.m_name,
-                m_type:fields.m_type,
-                m_url:fields.m_url
-            },
-            ms_limited:fields.ms_limited,
-            mv_num:fields.mv_num,
-            ms_des:fields.ms_des,
-            ms_update:date.toLocaleString(),
-            ms_platform:setting.platform,
-            ms_path:oid.toString() + '/',
-            ms_img:img,
-            ms_xml:fields.ms_xml,
-            ms_status:0,
-            ms_user:{
-                u_name:fields.u_name,
-                u_email:fields.u_email
-            }
-        };
-
-        var ms = new ModelSerModel(newmodelser);
-                        ms.save(function (err, data) {
+                //删除文件
+                FileOpera.rmdir(files.file_model.path);
+        
+        
+                //生成新的纪录
+                var newmodelser = {
+                    _id : oid,
+                    ms_model : {
+                        m_name:fields.m_name,
+                        m_type:fields.m_type,
+                        m_url:fields.m_url
+                    },
+                    ms_limited:fields.ms_limited,
+                    mv_num:fields.mv_num,
+                    ms_des:fields.ms_des,
+                    ms_update:date.toLocaleString(),
+                    ms_platform:setting.platform,
+                    ms_path:oid.toString() + '/',
+                    ms_img:img,
+                    ms_xml:fields.ms_xml,
+                    ms_status:0,
+                    ms_user:{
+                        u_name:fields.u_name,
+                        u_email:fields.u_email
+                    }
+                };
+        
+                var ms = new ModelSerModel(newmodelser);
+                        ModelSerModel.save(ms,function (err, data) {
                             if(err){
                                 console.log(err);
                                 callback(null,{status:0});
@@ -806,6 +806,7 @@ ModelSerControl.addDefaultTestify = function (msid,callback) {
                     inputs:[]
                 };
                 var geodataList = [];
+                //针对博文的所有测试数据都是input的情况
                 if(states.length == 1 && states[0].$.name=='RUNSTATE'){
                     var stateID = states[0].$.id;
                     var events = states[0].Event;
@@ -852,50 +853,49 @@ ModelSerControl.addDefaultTestify = function (msid,callback) {
                     }
                 }
                 else{
-                for(var i=0;i<states.length;i++){
-                    var stateID = states[i].$.id;
-                    var events = states[i].Event;
-                    for(var j=0;j<events.length;j++){
-                        for(var k=0;k<files.length;k++){
-                            //TODO 针对博文的所有测试数据都是input的情况
-                            if(events[j].$.name + '.xml' == files[k] && events[j].$.type == 'response'){
-                                //复制文件
-                                var gdid = 'gd_' + uuid.v1();
-                                var fname = gdid + '.xml';
-                                var geo_data_Path = __dirname + '/../geo_data/' + fname;
-                                var gd_value = fs.readFileSync(testifyRoot + '/' + files[i]).toString();
-                                fs.writeFileSync(geo_data_Path, gd_value);
-                                //向config.json中添加记录
-                                newTestify.inputs.push({
-                                    DataId:gdid,
-                                    Event:events[j].$.name,
-                                    Optional:events[j].$.optional,
-                                    StateId:stateID
-                                });
+                    for(var i=0;i<states.length;i++){
+                        var stateID = states[i].$.id;
+                        var events = states[i].Event;
+                        for(var j=0;j<events.length;j++){
+                            for(var k=0;k<files.length;k++){
+                                if(events[j].$.name + '.xml' == files[k] && events[j].$.type == 'response'){
+                                    //复制文件
+                                    var gdid = 'gd_' + uuid.v1();
+                                    var fname = gdid + '.xml';
+                                    var geo_data_Path = __dirname + '/../geo_data/' + fname;
+                                    var gd_value = fs.readFileSync(testifyRoot + '/' + files[i]).toString();
+                                    fs.writeFileSync(geo_data_Path, gd_value);
+                                    //向config.json中添加记录
+                                    newTestify.inputs.push({
+                                        DataId:gdid,
+                                        Event:events[j].$.name,
+                                        Optional:events[j].$.optional,
+                                        StateId:stateID
+                                    });
 
-                                var stat = fs.statSync(geo_data_Path);
-                                var geodata;
-                                if(stat.size - 16>setting.data_size){
-                                    geodata = {
-                                        gd_id:gdid,
-                                        gd_tag:'',
-                                        gd_type:'FILE',
-                                        gd_value:fname
-                                    };
-                                }
-                                else{
-                                    geodata = {
-                                        gd_id:gdid,
-                                        gd_tag:'',
-                                        gd_type:'STREAM',
-                                        gd_value:gd_value
+                                    var stat = fs.statSync(geo_data_Path);
+                                    var geodata;
+                                    if(stat.size - 16>setting.data_size){
+                                        geodata = {
+                                            gd_id:gdid,
+                                            gd_tag:'',
+                                            gd_type:'FILE',
+                                            gd_value:fname
+                                        };
                                     }
+                                    else{
+                                        geodata = {
+                                            gd_id:gdid,
+                                            gd_tag:'',
+                                            gd_type:'STREAM',
+                                            gd_value:gd_value
+                                        }
+                                    }
+                                    geodataList.push(geodata);
                                 }
-                                geodataList.push(geodata);
                             }
                         }
                     }
-                }
                 }
                 var addFile = function (i) {
                     //向redis中添加记录
@@ -919,7 +919,10 @@ ModelSerControl.addDefaultTestify = function (msid,callback) {
                         }
                     });
                 };
-                addFile(0);
+                if(geodataList.length)
+                    addFile(0);
+                else 
+                    callback();
             });
         });
     });

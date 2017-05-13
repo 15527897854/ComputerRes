@@ -38,8 +38,10 @@ module.exports =  {
     },
     portal:
     {
-        host:'222.192.7.74',
-        port:'80'
+        host:'223.2.33.230',
+        port:'8080',
+        UserId:'',
+        accessToken:''
     },
     modelpath: __dirname + '/geo_model/',
     data_size : 1,
