@@ -238,6 +238,26 @@ SysControl.setParent = function(newparent, callback){
     }.bind(this));
 };
 
+//重置父节点
+SysControl.resetParent = function (host, callback) {
+    systemSettingModel.getValueByIndex('parent', function (err, ss) {
+        if(err){
+            return callback(err);
+        }
+        var parent = ss.ss_value;
+        if(parent.substr(0, parent.indexOf(':')) == host){
+            systemSettingModel.getValueByIndex('parent', function(err, parent){
+                if(err)
+                {
+                    return callback(err);
+                }
+                parent.ss_value = '127.0.0.1:8060';
+                systemSettingModel.setValueByIndex(parent, this.returnFunction(callback, 'error in post child'));
+            }.bind(this));
+        }
+    }.bind(this));
+};
+
 //检查服务器是否可用
 SysControl.checkServer = function(server, callback){
     RemoteControl.ping(server + '/ping', function(result)
@@ -345,6 +365,30 @@ SysControl.deregister = function (callback) {
                     }
                 });
             }
+        }
+    });
+};
+
+//如果字段不存在，自动建立字段
+SysControl.buildField = function (field, defaultValue, callback){
+    systemSettingModel.getValueByIndex(field, function(err, item){
+        if(err){
+            return callback(err);
+        }
+        if(item == null){
+            var ss = new systemSettingModel({
+                ss_index : field,
+                ss_value : defaultValue
+            });
+            ss.save(function(err, result){
+                if(err){
+                    return callback(err);
+                }
+                return callback(null, result);
+            });
+        }
+        else{
+            return callback(null, true);
         }
     });
 };

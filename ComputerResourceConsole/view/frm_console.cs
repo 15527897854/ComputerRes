@@ -74,7 +74,6 @@ namespace ComputerResourceConsole
         {
             this.bt_mg_start.Enabled = startenable;
             this.bt_mg_stop.Enabled = stopenable;
-            this.bt_mg_restart.Enabled = restartenabel;
             this.l_mg_status.Text = status;
             this.l_mg_status.ForeColor = txtColor;
         }
@@ -84,7 +83,6 @@ namespace ComputerResourceConsole
         {
             this.bt_rds_start.Enabled = startenable;
             this.bt_rds_stop.Enabled = stopenable;
-            this.bt_rds_restart.Enabled = restartenabel;
             this.l_rds_status.Text = status;
             this.l_rds_status.ForeColor = txtColor;
         }
@@ -94,7 +92,6 @@ namespace ComputerResourceConsole
         {
             this.bt_ctn_start.Enabled = startenable;
             this.bt_ctn_stop.Enabled = stopenable;
-            this.bt_ctn_restart.Enabled = restartenabel;
             this.l_ctn_status.Text = status;
             this.l_ctn_status.ForeColor = txtColor;
         }

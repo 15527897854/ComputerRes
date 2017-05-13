@@ -95,13 +95,23 @@ ChildCtrl.getByHost = function (host, callback) {
 
 //新增子节点
 ChildCtrl.AddNewChild = function(child, callback) {
-    var cld = new Child(child);
-    cld.save(function (err, item) {
-        if(err)
-        {
+    Child.getByHost(child.host, function(err, item){
+        if(err){
             return callback(err);
         }
-        return callback(null, item);
+        if(item == null){
+            var cld = new Child(child);
+            cld.save(function (err, item) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                return callback(null, item);
+            });
+        }
+        else{
+            return callback(null, item);
+        }
     });
 };
 
@@ -110,6 +120,22 @@ ChildCtrl.Accept = function(oid, callback){
     Child.getByOID(oid, function(err, item){
         item.accepted = 1;
         Child.update(item, function(err, result){
+            if(err){
+                return callback(err);
+            }
+            return callback(null, result);
+        });
+    });
+};
+
+//删除节点
+ChildCtrl.remove = function(oid, callback){
+    Child.getByOID(oid, function(err, child){
+        if(err){
+            return callback(err);
+        }
+        RemoteRequestControl.putRequestJSON('http://' + child.host + ':' + child.port + '/parent?ac=reset', function(){});
+        Child.delete(oid, function(err, result){
             if(err){
                 return callback(err);
             }

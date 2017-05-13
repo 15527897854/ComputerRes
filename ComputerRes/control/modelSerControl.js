@@ -32,7 +32,7 @@ module.exports = ModelSerControl;
 
 //搜索子节点模型服务信息信息
 ModelSerControl.getChildModelSer = function(callback){
-    Child.getAll(function (err, childMs) {
+    Child.getAllAvai(function (err, childMs) {
         if(err){
             return callback(err);
         }

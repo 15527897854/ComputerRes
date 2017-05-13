@@ -52,13 +52,22 @@ Child.prototype.save = function (callback) {
     };
     cld = new ChildModel(cld);
     cld.save(function (err, res) {
-        callback(err,res);
+        if(err){
+            return callback(err);
+        }
+        res = JSON.parse(JSON.stringify(res));
+        return callback(null, res);
     });
 };
 
 //得到全部子节点
 Child.getAll = function (callback) {
     ChildModel.find({},this.returnFunction(callback, 'Error in getting all child'));
+};
+
+//得到全部子节点
+Child.getAllAvai = function (callback) {
+    ChildModel.find({ accepted : true },this.returnFunction(callback, 'Error in getting all child'));
 };
 
 //通过OID查询子节点信息
