@@ -46,6 +46,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.operationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFirewallPortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gb_mongodb.SuspendLayout();
             this.gb_redis.SuspendLayout();
             this.gb_container.SuspendLayout();
@@ -215,6 +216,8 @@
             // 
             // operationToolStripMenuItem
             // 
+            this.operationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openFirewallPortToolStripMenuItem});
             this.operationToolStripMenuItem.Name = "operationToolStripMenuItem";
             this.operationToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.operationToolStripMenuItem.Text = "操作";
@@ -224,6 +227,13 @@
             this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
             this.infoToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.infoToolStripMenuItem.Text = "信息";
+            // 
+            // openFirewallPortToolStripMenuItem
+            // 
+            this.openFirewallPortToolStripMenuItem.Name = "openFirewallPortToolStripMenuItem";
+            this.openFirewallPortToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.openFirewallPortToolStripMenuItem.Text = "打开防火墙端口";
+            this.openFirewallPortToolStripMenuItem.Click += new System.EventHandler(this.openFirewallPortToolStripMenuItem_Click);
             // 
             // frm_console
             // 
@@ -271,6 +281,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem operationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem infoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openFirewallPortToolStripMenuItem;
     }
 }
 

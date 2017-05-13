@@ -18,6 +18,7 @@ namespace ComputerResourceConsole
         private IMongoDBControl _pMgCtrl = null;
         private IRedisControl _pRdsCtrl = null;
         private ComputerResourceConsole.lib.IContainerControl _pCtnCtrl = null;
+        private ISysControl _pSysCtrl = null;
 
         public frm_console()
         {
@@ -25,6 +26,7 @@ namespace ComputerResourceConsole
             this._pMgCtrl = ComponentControlFactory.createMongoDBControl();
             this._pRdsCtrl = ComponentControlFactory.createRedisControl();
             this._pCtnCtrl = ComponentControlFactory.createContainerControl();
+            this._pSysCtrl = ComponentControlFactory.createSysControl();
 
             int mgmark = _pMgCtrl.init(onMongoExit);
             if (mgmark == 1)
@@ -208,6 +210,11 @@ namespace ComputerResourceConsole
         private void bt_ctn_restart_Click(object sender, EventArgs e)
         {
             this._pCtnCtrl.restart(onContainerExit);
+        }
+
+        private void openFirewallPortToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _pSysCtrl.AddNetFwPort("ComputerRes", 8060, crcNetProtocol.TCP);
         }
     }
 }
