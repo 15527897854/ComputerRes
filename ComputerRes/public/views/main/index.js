@@ -14,6 +14,7 @@ var CloudModelSerTable = require('../components/modelSer/cloudModelSerTable');
 var DataCollectionTable = require('../components/data/dataCollectionTable');
 var DataPreparation = require('../components/data/dataPreparation');
 var ModelSerUploader = require('../components/modelSer/modelSerUploader');
+var UserInfo = require('../components/systemSetting/userInfo');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -60,6 +61,11 @@ if(document.getElementById('cloudModelSerTable') != null) {
 if(document.getElementById('dataCollectionTable') != null) {
     ReactDOM.render(<DataCollectionTable source="/geodata/json/all"/>,
         document.getElementById('dataCollectionTable'));
+}
+
+if(document.getElementById('userInfo') != null) {
+    ReactDOM.render(<UserInfo />,
+        document.getElementById('userInfo'));
 }
 
 if(document.getElementById('modelSerUploader') != null) {

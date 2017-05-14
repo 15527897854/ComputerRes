@@ -2,7 +2,7 @@
  * Created by Franklin on 16-3-23.
  * Route for Sys
  */
-var sysControl = require('../control/sysControl');
+var SysControl = require('../control/sysControl');
 var RouteBase = require('./routeBase');
 
 module.exports = function(app)
@@ -18,7 +18,7 @@ module.exports = function(app)
     app.route('/json/status')
         .get(function(req, res, next)
         {
-            sysControl.getState(function(err,sysinfo)
+            SysControl.getState(function(err,sysinfo)
             {
                 res.end(JSON.stringify(sysinfo));
             });
@@ -27,7 +27,7 @@ module.exports = function(app)
     app.route('/info')
         .get(function(req,res,next)
         {
-            sysControl.getInfo(req.headers, function(err,data)
+            SysControl.getInfo(req.headers, function(err,data)
             {
                 if(err)
                 {
@@ -39,12 +39,12 @@ module.exports = function(app)
 
     app.route('/settings')
         .get(function(req, res, next){
-            sysControl.getSettings(RouteBase.returnFunction(res, 'error in getting setting'));
+            SysControl.getSettings(RouteBase.returnFunction(res, 'error in getting setting'));
         });
 
     app.route('/parent')
         .get(function(req, res, next){
-            sysControl.getParent(RouteBase.returnFunction(res, 'error in getting parent'));
+            SysControl.getParent(RouteBase.returnFunction(res, 'error in getting parent'));
         })
         .put(function(req, res, next){
             var ac = req.query.ac;
@@ -53,10 +53,10 @@ module.exports = function(app)
             if(ac == 'reset'){
                 host = req.connection.remoteAddress;
                 host = host.substr(host.lastIndexOf(':') + 1);
-                sysControl.resetParent(host, RouteBase.returnFunction(res, 'Error in resetting parent!'));
+                SysControl.resetParent(host, RouteBase.returnFunction(res, 'Error in resetting parent!'));
             }
             else{
-                sysControl.setParent(host + ':' + port, RouteBase.returnFunction(res, 'Error in updating parent!'));
+                SysControl.setParent(host + ':' + port, RouteBase.returnFunction(res, 'Error in updating parent!'));
             }
         });
 
@@ -64,7 +64,7 @@ module.exports = function(app)
     app.route('/checkserver/:server')
         .get(function(req, res, next){
             var server = req.params.server;
-            sysControl.checkServer(server, function(reslut){
+            SysControl.checkServer(server, function(reslut){
                 return res.end(JSON.stringify(reslut));
             });
         });
@@ -73,14 +73,29 @@ module.exports = function(app)
         .get(function (req, res, next) {
             var ac = req.query.ac;
             if(ac == 'register'){
-                sysControl.register(function (rst) {
+                SysControl.register(function (rst) {
                     return res.end(rst)
                 })
             }
             else if(ac == 'deregister'){
-                sysControl.deregister(function (rst) {
+                SysControl.deregister(function (rst) {
                     return res.end(rst)
                 })
             }
+        });
+
+    //管理员信息
+    app.route('/admininfo')
+        .get(function(req, res, next){
+            SysControl.getAdminInfo(RouteBase.returnFunction(res, 'Error in getting admin info!', 'ss_value'));
+        })
+        .put(function(req, res, next){
+            SysControl.alterNameAndPwdWithAuth(req.query.adminName, req.query.pwd, req.query.newAdminName, req.query.newAdminPwd, RouteBase.returnFunction(res, 'Error in alter admin info!'));
+        });
+
+    //管理员登录
+    app.route('/login')
+        .post(function(req, res, next){
+            SysControl.adminLogin(req.body.adminnam, req.body.adminpwd, RouteBase.returnFunction(res, 'Error in admin login!'));
         });
 };

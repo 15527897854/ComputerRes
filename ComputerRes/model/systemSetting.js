@@ -25,6 +25,8 @@ var SystemSettingSchema = new mongoose.Schema({
     ss_value : String
 },{collection:'systemsetting'});
 var SystemSettingModel = mongoose.model('systemsetting',SystemSettingSchema);
+SystemSetting.baseModel = SystemSettingModel;
+SystemSetting.modelName = "SystemSetting";
 
 SystemSetting.prototype.save = function(callback){
     var ss = {

@@ -60,7 +60,11 @@ var CloudModelSerTable = React.createClass({
                 btn = (<button className="btn btn-success btn-sm" onClick={ (e) => { window.location.href='/modelser/' + item.ms_id } }><i className="fa fa-eye"> </i>查看</button>);
             }
             else{
-                btn = (<button className="btn btn-info btn-sm" onClick={ (e) => { this.downCloudModelPackage(e, item.id); } } ><i className="fa fa-download"> </i>拉取</button>);
+                var disabled = null;
+                if(this.state.processBar){
+                    disabled = 'disable';
+                }
+                btn = (<button className="btn btn-info btn-sm" onClick={ (e) => { this.downCloudModelPackage(e, item.id); } } disabled={disabled} ><i className="fa fa-download"> </i>拉取</button>);
             }
             return (
                 <tr>

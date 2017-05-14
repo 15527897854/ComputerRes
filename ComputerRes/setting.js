@@ -16,6 +16,10 @@ module.exports =  {
         }
         return platform;
     })(),
+    crypto:{
+        algorithm : 'aes-256-cbc',
+        key : 'ae3e712c-ccdf-4964-b819-c85770146485'
+    },
     mongodb:{
         name:'ComputerRes',
         host:'127.0.0.1',

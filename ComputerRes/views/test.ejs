@@ -12,15 +12,7 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <section class="panel" >
-            <header class="panel-heading" >
-                <h4>测试界面</h4>
-            </header>
-            <div class="panel-default" >
-                <button id="btn_test" class="btn btn-default" >TEST</button>
-            </div>
-        </section>
-
+        <div id="userInfo" ></div>
         <%- include footer.ejs %>
     </div>
 </section>
@@ -30,17 +22,5 @@
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
 <script type="text/javascript" src="/js/output/bundle.js" ></script>
-<script >
-    $(document).ready(function(){
-        $.gritter.add({
-            // (string | mandatory) the heading of the notification
-            title: "123",
-            // (string | mandatory) the text inside the notification
-            text: "222"
-        });
-
-        return false;
-    });
-</script>
 </body>
 </html>

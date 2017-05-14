@@ -12,6 +12,8 @@ var setting = require('../setting');
 var systemSettingModel = require('../model/systemSetting');
 var ControlBase = require('./controlBase');
 var RemoteControl = require('./remoteReqControl');
+var ParamCheck = require('../utils/paramCheck');
+var CommonMethod = require('../utils/commonMethod');
 
 var SysControl = function() {};
 SysControl.__proto__ = ControlBase;
@@ -129,44 +131,6 @@ SysControl.getInfo = function(headers,callback) {
             return callback(err);
         }
         return callback(null, data);
-    });
-};
-
-//登陆
-SysControl.login = function (l_uname, l_pwd, callback) {
-    systemSettingModel.getValueByIndex('username', function (err, uname) {
-        if(err)
-        {
-            return callback(err);
-        }
-        if(l_uname == uname.ss_value)
-        {
-            systemSettingModel.getValueByIndex('pwd', function (err, pwd) {
-                if(err)
-                {
-                    return callback(err);
-                }
-                // var pwd_md5 = md5.update(l_pwd).digest('hex');
-                if(l_pwd == pwd.ss_value)
-                {
-                    return callback(null, {
-                        status:1
-                    });
-                }
-                else
-                {
-                    return callback(null, {
-                        status:2
-                    });
-                }
-            });
-        }
-        else
-        {
-            return callback(null, {
-                status:3
-            });
-        }
     });
 };
 
@@ -391,4 +355,87 @@ SysControl.buildField = function (field, defaultValue, callback){
             return callback(null, true);
         }
     });
+};
+
+//得到管理员信息
+SysControl.getAdminInfo = function(callback){
+    systemSettingModel.getValueByIndex('adminName', this.returnFunction(callback, 'error in getting administrator info'));
+};
+
+//用户登录
+SysControl.adminLogin = function(adminName, pwd, callback){
+    if(ParamCheck.checkParam(callback, adminName)){
+        if(ParamCheck.checkParam(callback, pwd)){
+            systemSettingModel.getValueByIndex('adminName', function(err, ss){
+                if(err){
+                    return callback(err);
+                }
+                if(ss.ss_value != adminName){
+                    return callback(null, false);
+                }
+                systemSettingModel.getValueByIndex('adminPwd', function(err, ss){
+                    if(err){
+                        return callback(err);
+                    }
+                    pwd = CommonMethod.decrypto(pwd);
+                    var pwd_md5 = crypto.createHash('md5').update(pwd).digest('hex');
+                    if(pwd_md5 == ss.ss_value){
+                        return callback(null, true)
+                    }
+                    return callback(null, false);
+                });
+            });
+        }
+    }
+};
+
+//更改用户名密码 有验证
+SysControl.alterNameAndPwdWithAuth = function(adminName, pwd, newAdminName, newPwd, callback){
+    if(ParamCheck.checkParam(callback, newPwd)){
+        if(ParamCheck.checkParam(callback, newAdminName)){
+            SysControl.adminLogin(adminName, pwd, function(err, result){
+                if(err){
+                    return callback(err);
+                }
+                if(result){
+                    systemSettingModel.getValueByIndex('adminPwd', function(err, ss){
+                        if(err){
+                            return callback(err);
+                        }
+                        newPwd = CommonMethod.decrypto(newPwd);
+                        ss.ss_value = crypto.createHash('md5').update(newPwd).digest('hex');
+                        systemSettingModel.update(ss, function(err, pwdAlterResult){
+                            if(err){
+                                return callback(err);
+                            }
+                            if(pwdAlterResult.n == 1){
+                                systemSettingModel.getValueByIndex('adminName', function(err, ss){
+                                    if(err){
+                                        return callback(err);
+                                    }
+                                    ss.ss_value = newAdminName;
+                                    systemSettingModel.update(ss, function(err, nameAlterResult){
+                                        if(err){
+                                            return callback(err);
+                                        }
+                                        if(nameAlterResult.n == 1){
+                                            return callback(null, {
+                                                result : 1
+                                            });
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    }.bind(this));
+                }
+                else{
+                    return callback(null, {
+                        result : -1,
+                        message : 'Auth fails'
+                    })
+                }
+            });
+        }
+    }
 };
