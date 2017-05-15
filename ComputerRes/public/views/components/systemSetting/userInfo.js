@@ -4,6 +4,8 @@
 
 var React = require('react');
 var Axios = require('axios');
+
+var PortalInfo = require('./portalInfo');
 var Crypto = require('../../action/utils/crypto');
 var NoteDialog = require('../../action/utils/noteDialog');
 
@@ -126,14 +128,14 @@ var UserInfo = React.createClass({
             </header>
             <div className="panel-body">
                 <p>本机管理员用户名&nbsp;:&nbsp;{this.state.data} &nbsp;&nbsp;&nbsp;<button className="btn btn-sm btn-info" data-toggle="modal"
-                        data-target="#adminPwdChange" >更改密码</button></p>
-                <p>门户用户名: </p>
+                        data-target="#adminPwdChange" >更改信息</button></p>
+                <PortalInfo />
                 <div aria-hidden="true" aria-labelledby="adminPwdChange" role="dialog" tabIndex="-1" id="adminPwdChange" className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">更改密码</h4>
+                                <h4 className="modal-title">更改信息</h4>
                             </div>
                             <div className="modal-body">
                                 <label htmlFor="txtAdminName" className="control-label">请输入新管理员用户名: </label>

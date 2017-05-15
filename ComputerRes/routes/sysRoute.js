@@ -98,4 +98,10 @@ module.exports = function(app)
         .post(function(req, res, next){
             SysControl.adminLogin(req.body.adminnam, req.body.adminpwd, RouteBase.returnFunction(res, 'Error in admin login!'));
         });
+
+    //获取门户用户名信息
+    app.route('/portalinfo')
+        .get(function(req, res, next){
+            SysControl.getPortalUName(RouteBase.returnFunction(res, 'Error in getting portal name!', 'ss_value'));
+        });
 };

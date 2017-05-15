@@ -143,6 +143,7 @@ SysControl.getValueByIndex = function (ss_index, callback) {
     })
 };
 
+///////////////////////////////////门户
 //登陆门户
 SysControl.loginPortal = function(uname, pwd, callback){
     RemoteControl.postRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/LoginServlet?username=' + uname + '&password=' + pwd, function(err, data){
@@ -176,6 +177,13 @@ SysControl.getPortalToken = function(callback){
     });
 };
 
+//获取门户账号名
+SysControl.getPortalUName = function(callback){
+    var portalToken = {};
+    systemSettingModel.getValueByIndex('portal_uname', this.returnFunction(callback, 'Error in getting portal user name'));
+};
+
+//////////////////////////////////分布式网络
 //获取父节点
 SysControl.getParent = function(callback){
     systemSettingModel.getValueByIndex('parent', this.returnFunction(callback, 'error in get parent'));
@@ -357,6 +365,7 @@ SysControl.buildField = function (field, defaultValue, callback){
     });
 };
 
+/////////////////////////////////管理员
 //得到管理员信息
 SysControl.getAdminInfo = function(callback){
     systemSettingModel.getValueByIndex('adminName', this.returnFunction(callback, 'error in getting administrator info'));
