@@ -16,34 +16,6 @@
         </div>
     </section>
         <%- include footerInclude.ejs %>
-        <!--加载动画-->
-        <script src="/js/jquery.isotope.js"></script>
-        <script type="text/javascript">
-            $(function() {
-                var $container = $('#gallery');
-                $container.isotope({
-                    itemSelector: '.item',
-                    animationOptions: {
-                        duration: 750,
-                        easing: 'linear',
-                        queue: false
-                    }
-                });
-            });
-        </script>
-        <script type="text/javascript">
-            var width = ($("#panel-body").width() - 25*4)/3;
-            var height = 254/339*width;
-            width += "px";
-            height += "px";
-            $(".item").css({
-                "width":width,
-                "height":height
-            });
-            $(".item img").css({
-                "width":"100%",
-                "height":"100%"
-            });
-        </script>
+        <script type="text/javascript" src="/js/output/bundle.js" ></script>
     </body>
 </html>

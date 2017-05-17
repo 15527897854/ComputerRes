@@ -111,6 +111,12 @@
     <Compile Include="model\MongoDBOpera.cs" />
     <Compile Include="model\ProcessAccess.cs" />
     <Compile Include="model\RedisOpera.cs" />
+    <Compile Include="view\frm_about.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="view\frm_about.Designer.cs">
+      <DependentUpon>frm_about.cs</DependentUpon>
+    </Compile>
     <Compile Include="view\frm_console.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -120,6 +126,9 @@
     <Compile Include="lib\IMongoDBOpera.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="view\frm_about.resx">
+      <DependentUpon>frm_about.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="view\frm_console.resx">
       <DependentUpon>frm_console.cs</DependentUpon>
     </EmbeddedResource>

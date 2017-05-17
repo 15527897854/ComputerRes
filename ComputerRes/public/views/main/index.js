@@ -15,6 +15,7 @@ var DataCollectionTable = require('../components/data/dataCollectionTable');
 var DataPreparation = require('../components/data/dataPreparation');
 var ModelSerUploader = require('../components/modelSer/modelSerUploader');
 var UserInfo = require('../components/systemSetting/userInfo');
+var LoginPanel = require('../components/systemSetting/loginPanel');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -66,6 +67,11 @@ if(document.getElementById('dataCollectionTable') != null) {
 if(document.getElementById('userInfo') != null) {
     ReactDOM.render(<UserInfo />,
         document.getElementById('userInfo'));
+}
+
+if(document.getElementById('loginPanel') != null) {
+    ReactDOM.render(<LoginPanel />,
+        document.getElementById('loginPanel'));
 }
 
 if(document.getElementById('modelSerUploader') != null) {

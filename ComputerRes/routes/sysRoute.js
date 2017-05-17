@@ -85,23 +85,32 @@ module.exports = function(app)
         });
 
     //管理员信息
-    app.route('/admininfo')
+    app.route('/json/admininfo')
         .get(function(req, res, next){
             SysControl.getAdminInfo(RouteBase.returnFunction(res, 'Error in getting admin info!', 'ss_value'));
         })
         .put(function(req, res, next){
             SysControl.alterNameAndPwdWithAuth(req.query.adminName, req.query.pwd, req.query.newAdminName, req.query.newAdminPwd, RouteBase.returnFunction(res, 'Error in alter admin info!'));
         });
-
     //管理员登录
     app.route('/login')
+        .get(function(req, res, next){
+            res.render('login')
+        })
         .post(function(req, res, next){
-            SysControl.adminLogin(req.body.adminnam, req.body.adminpwd, RouteBase.returnFunction(res, 'Error in admin login!'));
+            SysControl.adminLogin(req.body.adminname, req.body.adminpwd, RouteBase.returnFunction(res, 'Error in admin login!'));
         });
 
     //获取门户用户名信息
-    app.route('/portalinfo')
+    app.route('/json/portalinfo')
         .get(function(req, res, next){
             SysControl.getPortalUName(RouteBase.returnFunction(res, 'Error in getting portal name!', 'ss_value'));
         });
+    //管理员页面渲染
+    app.route('/admininfo')
+        .get(function(req, res, next){
+            res.render('userinfo');
+        });
+
+    
 };

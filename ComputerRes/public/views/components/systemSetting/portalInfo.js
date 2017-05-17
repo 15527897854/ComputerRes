@@ -22,7 +22,7 @@ var PortalInfo = React.createClass({
     },
 
     refresh : function(){
-        Axios.get('/portalinfo').then(
+        Axios.get('/json/portalinfo').then(
             data => {
                 if(data.data.result == 'suc'){
                     this.setState({loading : false, data : data.data.data});
@@ -66,10 +66,10 @@ var PortalInfo = React.createClass({
                                 <h4 className="modal-title">更改信息</h4>
                             </div>
                             <div className="modal-body">
-                                <label htmlFor="txtAdminName" className="control-label">请输入用户名: </label>
-                                <input id="txtAdminName" name="txtAdminName" type="text" placeholder="管理员用户名" className="form-control"/>
-                                <label htmlFor="txtPwdNow" className="control-label">请输入密码: </label>
-                                <input id="txtPwdNow" name="txtPwdNow" type="password" className="form-control"/>
+                                <label htmlFor="txtPortalName" className="control-label">请输入门户网站用户名: </label>
+                                <input id="txtPortalName" name="txtPortalName" type="text" placeholder="门户网站用户名" className="form-control"/>
+                                <label htmlFor="txtPortalPwdNew" className="control-label">请输入密码: </label>
+                                <input id="txtPortalPwdNew" name="txtPortalPwdNew" type="password" className="form-control"/>
                                 <br />
                                 {warning}
                             </div>

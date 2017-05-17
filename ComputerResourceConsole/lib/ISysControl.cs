@@ -15,8 +15,14 @@ namespace ComputerResourceConsole.lib
 
     public interface ISysControl
     {
-        INetFwOpenPort getInboundRule(string name);
+        bool setInboundRulePort(string name, int port, crcNetProtocol protocol);
 
-        bool AddNetFwPort(string name, int port, crcNetProtocol protocol);
+        bool IsInboundRulePortExist();
+
+        bool AddInboundRulePort();
+
+        void OpenHelpPage();
+
+        void ApplicationExit();
     }
 }

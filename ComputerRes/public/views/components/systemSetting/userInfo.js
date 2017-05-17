@@ -25,7 +25,7 @@ var UserInfo = React.createClass({
     },
 
     refresh : function(){
-        Axios.get('/admininfo').then(
+        Axios.get('/json/admininfo').then(
             data => {
                 if(data.data.result == 'suc'){
                     this.setState({loading : false, data : data.data.data});
@@ -53,21 +53,25 @@ var UserInfo = React.createClass({
     onSubmit : function(){
         if($('#txtAdminName').val().trim() == ''){
             this.setState({warning : '请输入用户名!'});
+            return;
         }
         if($('#txtPwdNow').val().trim() == ''){
             this.setState({warning : '请输入当前密码!'});
+            return;
         }
         if($('#txtPwdNew').val().trim() == ''){
             this.setState({warning : '请输入新密码!'});
+            return;
         }
         if($('#txtPwdNew').val().trim() != $('#txtPwdNew_r').val().trim()){
             this.setState({warning : '两次密码不同!'});
+            return;
         }
         var adminName = this.state.data;
         var pwd = Crypto.crypto($('#txtPwdNow').val());
         var newAdminName = $('#txtAdminName').val();
         var newAdminPwd = Crypto.crypto($('#txtPwdNew').val());
-        Axios.put('/admininfo?adminName=' + adminName + '&pwd=' + pwd + '&newAdminName=' + newAdminName + '&newAdminPwd=' + newAdminPwd).then(
+        Axios.put('/json/admininfo?adminName=' + adminName + '&pwd=' + pwd + '&newAdminName=' + newAdminName + '&newAdminPwd=' + newAdminPwd).then(
             data => {
                 if(data.data.result == 'suc'){
                     if(data.data.data.result == 1){

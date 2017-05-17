@@ -295,7 +295,7 @@ module.exports = function(app)
                     var inputData = JSON.parse(req.query.inputdata);
                     var outputData = req.query.outputdata;
 
-                    function next(){
+                    function run_next(){
                         //生成唯一字符串GUID
                         var guid = uuid.v4();
 
@@ -394,7 +394,7 @@ module.exports = function(app)
                                     }
                                 }
                             }
-                            next();
+                            run_next();
                         });
                     }
                     else
@@ -407,7 +407,7 @@ module.exports = function(app)
                             outputData[k]['Ready'] = false;
                         }
 
-                        next();
+                        run_next();
                     }
                 }
                 //上传模型服务
