@@ -8,12 +8,45 @@ var softwareEnCtrl = require('./softwareEnCtrl');
 var hardwareEnCtrl = require('./hardwareEnCtrl');
 var msrCtrl = require('./modelSerRunControl');
 var request = require('request-promise');
+var verCtrl = require('./versionCtrl');
 
-softwareEnCtrl.getByWhere({},function (err, data) {
-    softwareEnCtrl.toTableTree(data,function () {
-        
-    })
+sysCtrl.autoDetectHW(function (err,data) {
+    
 });
+
+// verCtrl.satisfies('324.345.2345','((([0,345])))||((2345.22.23,infinite))&&(2345.22.23,3454.345.8)||324.x||*&&~1.2.3.4');
+
+// var rst = verCtrl.baseMatch('1.2.235346',' 1.2.3');
+// console.log(rst);
+
+// console.log(verCtrl.match('2.234sad','eq','2.234sadf'));
+
+// fs.readFile(__dirname + '/../helper/softwareEnviro.txt',function (err, data) {
+//     data = data.toString();
+//     var strswlist = data.split('[\t\t\t]');
+//     var swlist = [];
+//     var strVer = '';
+//     for(var i=0;i<strswlist.length;i++){
+//         var swItemKV = strswlist[i].split('[\t\t]');
+//         swlist.push({
+//             _id:swItemKV[0],
+//             name:swItemKV[1],
+//             version:swItemKV[2],
+//             publisher:swItemKV[3],
+//             type:swItemKV[4]
+//         });
+//         strVer += swItemKV[2] + '\n';
+//     }
+//     fs.writeFile(__dirname + '/../helper/softwareVersion.txt',strVer,function (err) {
+//
+//     })
+// });
+
+// softwareEnCtrl.getByWhere({},function (err, data) {
+//     softwareEnCtrl.toTableTree(data,function () {
+//
+//     })
+// });
 
 // softwareEnCtrl.getByWhere({},function (err, data) {
 //     softwareEnCtrl.toTableTree(data,function (err, rst) {

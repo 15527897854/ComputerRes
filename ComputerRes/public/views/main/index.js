@@ -96,6 +96,9 @@ if(document.getElementById('enviro-section') != null){
         title:'description',
         type:'string'
     },{
+        title:'type',
+        type:'string'
+    },{
         title:'alias',
         type:'Array'
     }];

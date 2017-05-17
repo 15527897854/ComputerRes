@@ -44,7 +44,13 @@ var EnviroTableTree = React.createClass({
     setUpdateState:function () {
         this.setState({update:true});
     },
-    
+
+    componentWillReceiveProps:function (nextProps) {
+        if(nextProps.refresh == true){
+            this.refreshTree();
+        }
+    },
+
     componentDidUpdate:function (){
         var tabletreeJSON = this.state.tabletreeJSON;
         var self = this;
@@ -71,8 +77,8 @@ var EnviroTableTree = React.createClass({
                     template = '{common.treetable()} #title#';
                 }
                 var columns = [
-                    {id:'title',header:['Key',{content:'textFilter'}],template:template,width:self.props.tabletree.css.width.title,sort:'string'},
-                    {id:'value',header:['Value',{content:'textFilter'}],editor:'text',width:self.props.tabletree.css.width.value,sort:'string'}
+                    {id:'title',header:['Key',{content:'textFilter'}],template:template,width:self.props.tabletree.css.width.title},
+                    {id:'value',header:['Value',{content:'textFilter'}],editor:'text',width:self.props.tabletree.css.width.value}
                 ];
                 if(self.props.tabletree.operate){
                     columns.push({id:'type',header:'Type',width:70});
@@ -133,16 +139,16 @@ var EnviroTableTree = React.createClass({
                     if(this.getItem(cell.row).title == 'New Enviroment'){
                         return;
                     }
-                    var rootID = cell.row;
-                    while(this.getItem(rootID).$parent!=0){
-                        rootID = this.getItem(rootID).$parent;
+                    {
+                        var rootID = cell.row;
+                        while(this.getItem(rootID).$parent!=0){
+                            rootID = this.getItem(rootID).$parent;
+                        }
+                        var rootName = this.getItem(rootID).title;
                     }
-                    var rootName = this.getItem(rootID).title;
 
-                    if(rootName == 'New Enviroment'){
+                    if(rootName == 'New Enviroment')
                         return true;
-                    }
-
                     if(cell.column == 'Operate')
                         return true;
                     var record = this.getItem(cell.row);
@@ -154,21 +160,24 @@ var EnviroTableTree = React.createClass({
 
                 //校验edit后的值是否合理，不合适时恢复原始值
                 tabletree.attachEvent('onBeforeEditStop',function (state, editor, trg) {
-                    var rootID = editor.row;
-                    while(this.getItem(rootID).$parent!=0){
-                        rootID = this.getItem(rootID).$parent;
+                    {
+                        var rootID = editor.row;
+                        while(this.getItem(rootID).$parent!=0){
+                            rootID = this.getItem(rootID).$parent;
+                        }
+                        var rootName = this.getItem(rootID).title;
                     }
-                    var rootName = this.getItem(rootID).title;
 
+                    if(window.delFlag == 0)
+                        return true;
                     if(state.value == ''){
                         var title = this.getItem(editor.row).title;
-                        if(title == 'name' || title == 'version'){
+                        //这三个字段必填
+                        if(title == 'name' || title == 'version'|| title == 'value'){
                             if(rootName == 'New Enviroment'){
-                                if(window.delFlag == 0)
-                                    return true;
-                                else
-                                    return false;
+                                return window.delFlag == 0;
                             }
+                            //必填字段的提示与重置
                             alert('该字段必填！');
                             var oldValue;
                             if(state.old)
@@ -178,8 +187,39 @@ var EnviroTableTree = React.createClass({
                             editor.setValue(oldValue);
                             return false;
                         }
+                        else if(rootName=='New Enviroment'){
+                            var closeFlag = 0;
+                            var childID = this.getFirstChildId(rootID);
+                            while(childID){
+                                if(this.getItem(childID).title == 'name' || this.getItem(childID).title == 'version' || this.getItem(childID).title == 'value'){
+                                    var value = this.getItem(childID).value;
+                                    if(value) {
+                                        value = value.replace(/\s+/g,' ');
+                                        value = value.trim();
+                                    }
+                                    if(value == '' || value == undefined)
+                                        return false;
+                                    else
+                                        closeFlag ++;
+                                }
+                                childID = this.getNextSiblingId(childID);
+                            }
+                            if(closeFlag == 2)
+                                return true;
+                            else
+                                return false;
+                        }
                     }
                 });
+
+                tabletree.editNode = function (id) {
+                    var childID = this.getFirstChildId(id);
+                    while(childID){
+                        if(this.getItem(childID).title != 'alias')
+                            this.editCell(childID,'value');
+                        childID = this.getNextSiblingId(childID);
+                    }
+                };
 
                 //更新逻辑：向后台数据库请求更新
                 tabletree.attachEvent('onAfterEditStop',function (state,editor,ignoreUpdate){
@@ -191,77 +231,33 @@ var EnviroTableTree = React.createClass({
                         rootID = this.getItem(rootID).$parent;
                     }
                     var rootName = this.getItem(rootID).title;
+                    var url = self.props.source + '&ac=new';
+                    var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
 
-                    //新增item
-                    if(rootName == 'New Enviroment'){
-                        if(this.getItem(editor.row).title == 'name' || this.getItem(editor.row).title == 'version'){
-                            if(this.getItem(editor.row).value == '' || this.getItem(editor.row).value == undefined){
-                                return false;
+                    var postNewItem = function (rootID) {
+                        var openNum = 0;
+                        //所有字段编辑都关闭后，将节点组织为json 并post到后台保存
+                        var childID = ptabletree.getFirstChildId(rootID);
+                        var newItem = {};
+                        while(childID){
+                            if(ptabletree.getItem(childID).value == undefined){
+                                openNum ++;
+                            }
+                            if(ptabletree.getItem(childID).title == 'alias'){
+                                newItem[ptabletree.getItem(childID).title] = [];
                             }
                             else{
-                                //将节点组织为json 并post到后台保存
-                                var childID = this.getFirstChildId(rootID);
-                                var newItem = {};
-                                newItem[this.getItem(childID).title] = this.getItem(childID).value==undefined?'':this.getItem(childID).value;
-                                childID = this.getNextSiblingId(childID);
-                                while(childID){
-                                    if(this.getItem(childID).title == 'alias'){
-                                        newItem[this.getItem(childID).title] = [];
-                                    }
-                                    else{
-                                        newItem[this.getItem(childID).title] = this.getItem(childID).value==undefined?'':this.getItem(childID).value;
-                                    }
-                                    childID = this.getNextSiblingId(childID);
-                                }
-                                if(newItem.name && newItem.version){
-                                    var url = self.props.source + '&ac=new';
-                                    var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
-                                    Axios.post(url,newItem).then(
-                                        data => {
-                                            var status = data.data.status;
-                                            if(status == 0){
-                                                $.gritter.add({
-                                                    title: '警告：',
-                                                    text: '新增'+type+'环境失败，请稍后重试！',
-                                                    sticky: false,
-                                                    time: 2000
-                                                });
-                                            }
-                                            else if(status == 1){
-                                                var newTitle;
-                                                var childID = ptabletree.getFirstChildId(rootID);
-                                                while(childID){
-                                                    if(ptabletree.getItem(childID).title == 'name'){
-                                                        newTitle = ptabletree.getItem(childID).value;
-                                                        break;
-                                                    }
-                                                }
-                                                var rootNode = ptabletree.getItem(rootID);
-                                                rootNode.title = newTitle;
-                                                if(data.data._id)
-                                                    rootNode.id = data.data._id;
-                                                ptabletree.refresh();
-                                                ptabletree.updateItem(rootID,rootNode);
-
-                                                $.gritter.add({
-                                                    title: '提示：',
-                                                    text: '新增'+type+'环境成功！',
-                                                    sticky: false,
-                                                    time: 2000
-                                                });
-                                            }
-                                            else if(status == 2){
-                                                var id = data.data._id;
-                                                var item = ptabletree.getItem(id);
-                                                ptabletree.open(id);
-                                                for(var i=0;i<self.props.fields.length;i++){
-                                                    if(self.props.fields[i].type != 'Array'){
-                                                        ptabletree.editCell(item.children[i].id,'value');
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        err => {
+                                newItem[ptabletree.getItem(childID).title] = ptabletree.getItem(childID).value==undefined?'':ptabletree.getItem(childID).value;
+                            }
+                            childID = ptabletree.getNextSiblingId(childID);
+                        }
+                        if(openNum == 1){
+                            if((url.indexOf('software') != -1 && newItem.name && newItem.version) ||
+                                (url.indexOf('software') == -1 && newItem.name && newItem.value)){
+                                Axios.post(url,newItem).then(
+                                    data => {
+                                        var status = data.data.status;
+                                        if(status == 0){
                                             $.gritter.add({
                                                 title: '警告：',
                                                 text: '新增'+type+'环境失败，请稍后重试！',
@@ -269,13 +265,84 @@ var EnviroTableTree = React.createClass({
                                                 time: 2000
                                             });
                                         }
-                                    )
-                                }
+                                        else if(status == 1){
+                                            var newTitle;
+                                            var childID = ptabletree.getFirstChildId(rootID);
+                                            while(childID){
+                                                if(ptabletree.getItem(childID).title == 'name'){
+                                                    newTitle = ptabletree.getItem(childID).value;
+                                                    break;
+                                                }
+                                            }
+                                            var rootNode = ptabletree.getItem(rootID);
+                                            rootNode.title = newTitle;
+                                            if(data.data._id)
+                                                rootNode.id = data.data._id;
+                                            ptabletree.refresh();
+                                            ptabletree.updateItem(rootID,rootNode);
+
+                                            $.gritter.add({
+                                                title: '提示：',
+                                                text: '新增'+type+'环境成功！',
+                                                sticky: false,
+                                                time: 2000
+                                            });
+                                        }
+                                        else if(status == 2){
+                                            ptabletree.remove(rootID);
+                                            var id = data.data._id;
+                                            var item = ptabletree.getItem(id);
+                                            ptabletree.open(id);
+                                            ptabletree.editNode(id);
+
+                                            $.gritter.add({
+                                                title: '提示：',
+                                                text: '已经添加过该' + type + '环境，请进行编辑！',
+                                                sticky: false,
+                                                time: 2000
+                                            });
+                                        }
+                                    },
+                                    err => {
+                                        $.gritter.add({
+                                            title: '警告：',
+                                            text: '新增'+type+'环境失败，请稍后重试！',
+                                            sticky: false,
+                                            time: 2000
+                                        });
+                                    }
+                                )
+                            }
+                        }
+                    };
+
+                    if(rootName == 'New Enviroment'){
+                        // if((url.indexOf('software') != -1 && (this.getItem(editor.row).title == 'name' || this.getItem(editor.row).title == 'version'))
+                        // ||(url.indexOf('software') == -1 && (this.getItem(editor.row).title == 'name' || this.getItem(editor.row).title == 'value'))){
+                        if(this.getItem(editor.row).title == 'name' || this.getItem(editor.row).title == 'version' || this.getItem(editor.row).title == 'value'){
+                            if(this.getItem(editor.row).value == '' || this.getItem(editor.row).value == undefined){
                                 return false;
+                            }
+                            else{
+                                postNewItem(rootID);
+                                return true;
                             }
                         }
                         else{
-                            return true;
+                            //其他字段只有在 必选字段 关闭后才能关闭
+                            var nullFlag = false;
+                            var childID = this.getFirstChildId(rootID);
+                            while(childID){
+                                if(this.getItem(childID).title == 'name' || this.getItem(childID).title == 'version' || this.getItem(childID).title == 'value'){
+                                    if(this.getItem(childID).value == '' || this.getItem(childID).value == undefined){
+                                        nullFlag = true;
+                                        break;
+                                    }
+                                }
+                                childID = this.getNextSiblingId(childID);
+                            }
+                            postNewItem(rootID);
+                            return !nullFlag;
                         }
                     }
 
@@ -467,12 +534,21 @@ var EnviroTableTree = React.createClass({
                     window.delFlag = 1;
                     var rootID = this.add({title: 'New Enviroment', type: 'Object'},0);
                     for(var i=0;i<self.props.fields.length;i++){
-                        var field = this.add(self.props.fields[i],-1,rootID);
+                        var newItem = {
+                            title:self.props.fields[i].title,
+                            type:self.props.fields[i].type
+                        };
+                        var field = this.add(newItem,-1,rootID);
                         if(self.props.fields[i].type != 'Array'){
+                            //bug
                             this.open(rootID);
                             this.editCell(this.getItem(field).id,'value');
                         }
                     }
+                };
+
+                tabletree.addItem = function (item) {
+
                 };
             })
         }

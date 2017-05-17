@@ -13,24 +13,6 @@ softwareEnCtrl.__proto__ = ControlBase;
 module.exports = softwareEnCtrl;
 softwareEnCtrl.model = sweModel;
 
-softwareEnCtrl.autoDetect = function (callback) {
-    sysCtrl.autoDetectSW(function (err, data) {
-        if(err){
-            return callback(JSON.stringify({status:0})) ;
-        }
-        else{
-            sweModel.items2TableTree(data,function (err, data) {
-                if(err){
-                    return callback(JSON.stringify({status:0})) ;
-                }
-                else{
-                    return callback(JSON.stringify({status:1,enviro:data}));
-                }
-            });
-        }
-    })
-};
-
 softwareEnCtrl.getAll = function (callback) {
     sweModel.all2TableTree(function (err, data) {
         if(err){
@@ -42,7 +24,19 @@ softwareEnCtrl.getAll = function (callback) {
     });
 };
 
-softwareEnCtrl.updateField = function (item,callback) {
+softwareEnCtrl.deleteItem = function (id,callback) {
+    softwareEnCtrl.delete(id,function (err, data) {
+        if(err){
+            return callback(JSON.stringify({status:0}));
+        }
+        else{
+            return callback(JSON.stringify({status:1}))
+        }
+    })
+};
+
+//更新前也做 查重 检测？
+softwareEnCtrl.updateItem = function (item,callback) {
     sweModel.getByOID(item._id,function (err, swe) {
         if(err){
             callback(JSON.stringify({status:0}));
@@ -61,18 +55,65 @@ softwareEnCtrl.updateField = function (item,callback) {
             }
             sweModel.update(swe,function (err, data) {
                 if(err){
-                    callback(err);
+                    callback(JSON.stringify({status:0}));
                 }
                 else{
-                    callback(null,data);
+                    callback(JSON.stringify({status:1,_id:swe._id}));
                 }
             })
         }
     })
 };
 
+softwareEnCtrl.addItem = function (item, callback) {
+    var name = item.name.trim();
+    item.name = name.replace(/\s+/g,' ');
+    //添加时别名只能为空，添加完item才能编辑别名
+    item.alias = [];
+    softwareEnCtrl.hasInserted(item,function (err, rst) {
+        if(err){
+            return callback(JSON.stringify({status:0}));
+        }
+        else{
+            if(rst.hasInserted){
+                return callback(JSON.stringify({status:2,_id:rst._id}));
+            }
+            else{
+                softwareEnCtrl.save(item,function (err, data) {
+                    if(err){
+                        return callback(JSON.stringify({status:0}));
+                    }
+                    else{
+                        return callback(JSON.stringify({status:1,_id:data._doc._id}));
+                    }
+                })
+            }
+        }
+    });
+    
+};
+
+softwareEnCtrl.autoDetect = function (callback) {
+    sysCtrl.autoDetectSW(function (err, data) {
+        if(err){
+            return callback(JSON.stringify({status:0})) ;
+        }
+        else{
+            sweModel.items2TableTree(data,function (err, data) {
+                if(err){
+                    return callback(JSON.stringify({status:0})) ;
+                }
+                else{
+                    return callback(JSON.stringify({status:1,enviro:data}));
+                }
+            });
+        }
+    })
+};
+
+//返回添加成功和已经存在的id
 softwareEnCtrl.addByAuto = function (itemsID,callback) {
-    sysCtrl.autoDetectSW(function (err, items) {
+    sysCtrl.readAllSW(function (err, items) {
         if(err){
             return callback(JSON.stringify({status:0}));
         }
@@ -84,18 +125,17 @@ softwareEnCtrl.addByAuto = function (itemsID,callback) {
                         var item = items[j];
                         var name = item.name.trim();
                         item.name = name.replace(/\s+/g,' ');
-                        for(var i=0;i<item.alias.length;i++){
-                            var name = item.alias[i].trim();
-                            item.alias[i] = name.replace(/\s+/g,' ');
-                        }
+                        item.alias = [];
                         items2add.push(item);
                         break;
                     }
                 }
             }
+            var ids = [];
+            
             var addByRecursion = function (index) {
                 delete items2add[index]._id;
-                softwareEnCtrl.hasInserted(function (err,rst) {
+                softwareEnCtrl.hasInserted(items2add[index],function (err,rst) {
                     if(err){
                         return callback(JSON.stringify({status:0}));
                     }
@@ -106,34 +146,23 @@ softwareEnCtrl.addByAuto = function (itemsID,callback) {
                                     callback(JSON.stringify({status:0}));
                                 }
                                 else{
+                                    ids.push(data._doc._id);
                                     if(index<items2add.length-1){
                                         addByRecursion(index+1);
                                     }
                                     else{
-                                        return callback(JSON.stringify({status:1}));
+                                        return callback(JSON.stringify({status:1,ids:ids}));
                                     }
                                 }
                             })
                         }
                         else{
-                            // softwareEnCtrl.updateItem(rst.swe,items2add[index],function (err, data) {
-                            //     if(err){
-                            //         callback(JSON.stringify({status:0}));
-                            //     }
-                            //     else{
-                            //         if(index<items2add.length-1){
-                            //             addByRecursion(index+1);
-                            //         }
-                            //         else{
-                            //             return callback(JSON.stringify({status:1}));
-                            //         }
-                            //     }
-                            // })
                             if(index<items2add.length-1){
                                 addByRecursion(index+1);
                             }
                             else{
-                                return callback(JSON.stringify({status:1}));
+                                ids.push(rst._id);
+                                return callback(JSON.stringify({status:1,ids:ids}));
                             }
                         }
                     }
@@ -142,41 +171,13 @@ softwareEnCtrl.addByAuto = function (itemsID,callback) {
             if(items2add.length!=0)
                 addByRecursion(0);
             else
-                return callback(JSON.stringify({status:1}));
+                return callback(JSON.stringify({status:1,ids:[]}));
         }
     })
 };
 
-softwareEnCtrl.addItem = function (item, callback) {
-    var name = item.name.trim();
-    item.name = name.replace(/\s+/g,' ');
-    for(var i=0;i<item.alias.length;i++){
-        var name = item.alias[i].trim();
-        item.alias[i] = name.replace(/\s+/g,' ');
-    }
-    softwareEnCtrl.hasInserted(item,function (err, rst) {
-        if(err){
-            return callback(err);
-        }
-        else{
-            if(rst.hasInserted){
-                return callback(null,rst);
-            }
-            else{
-                softwareEnCtrl.save(item,function (err, data) {
-                    if(err){
-                        return callback(err);
-                    }
-                    else{
-                        return callback(null,data._doc);
-                    }
-                })
-            }
-        }
-    });
-};
-
 //根据name和version匹配
+//回调函数第二个参数：{ hasInserted:Bool;_id:String}
 softwareEnCtrl.hasInserted = function (item, callback) {
     sweModel.getByWhere({},function (err,swes) {
         if (err) {
@@ -186,67 +187,69 @@ softwareEnCtrl.hasInserted = function (item, callback) {
             var index = -1;
             var insertName = item.name;
             for (var i = 0; i < swes.length; i++) {
+                index = -1;
                 if (insertName.toLowerCase() == swes[i].name.toLowerCase()) {
                     index = i;
-                    break;
                 }
-                for (var j = 0; j < swes[i].alias.length; j++) {
-                    if (insertName.toLowerCase() == swes[i].alias[j].toLowerCase()) {
-                        index = i;
-                        break;
+                else{
+                    for (var j = 0; j < swes[i].alias.length; j++) {
+                        if (insertName.toLowerCase() == swes[i].alias[j].toLowerCase()) {
+                            index = i;
+                            break;
+                        }
                     }
                 }
-                if (index!=-1)
-                    break;
-            }
-
-            if(index!=-1){
-                var versionEQ = versionCtrl.cmp(item.version,'eq',swes[index].version);
-                if(versionEQ == true){
-                    return callback(null,{hasInserted:true,_id:swes[index]._id});
-                }
-                else if(versionEQ == false){
-                    return callback(null,{hasInserted:false});
+                if (index!=-1){
+                    var versionEQ = versionCtrl.match(item.version,'eq',swes[index].version);
+                    if(versionEQ == true){
+                        return callback(null,{hasInserted:true,_id:swes[index]._id});
+                    }
                 }
             }
-            else{
-                return callback(null,{hasInserted:false});
-            }
+            return callback(null,{hasInserted:false});
         }
     })
 };
 
-softwareEnCtrl.updateItem = function (srcItem, newItem, callback) {
-    // var hasAlias = false;
-    // for(var i=0;i<newItem.alias.length;i++){
-    //     for(var j=0;j<srcItem.alias.length;i++){
-    //         if(srcItem.alias[j] == newItem.alias[i]){
-    //             hasAlias = true;
-    //             break;
-    //         }
-    //     }
-    //     if(srcItem.name == newItem.alias[i])
-    //         hasAlias = true;
-    //     if(!hasAlias)
-    //         srcItem.alias.push(newItem.alias[i]);
-    // }
-    // hasAlias = false;
-    // for(var k=0;k<srcItem.alias.length;k++){
-    //     if(newItem.name == srcItem.alias[k]){
-    //         hasAlias = true;
-    //         break;
-    //     }
-    // }
-    // if(newItem.name == srcItem.name)
-    //     hasAlias = true;
-    // if(!hasAlias)
-    //     srcItem.alias.push(newItem.name);
-    sweModel.update(srcItem,function (err, data) {
+//判断环境是否匹配
+//返回 status unSatisfiedList
+softwareEnCtrl.isSatisfied = function (ranges,callback) {
+    sweModel.getByWhere({},function (err, swes) {
         if(err){
-            callback(err);
+            return callback(JSON.stringify({status:0}));
         }
-        else{
-            callback(null,data);
+        else {
+            var unSatisfiedList = [];
+            for(var i=0;i<ranges.length;i++){
+                var name = ranges[i].name.trim();
+                name = name.replace(/\s+/g,' ');
+                var isSatisfied = false;
+                for(var j=0;j<swes.length;j++){
+                    var index = -1;
+                    if(swes[j].name.toLowerCase() == name){
+                        index = j;
+                    }
+                    else{
+                        for(var k=0;k<swes[j].alias.length;k++){
+                            if(swes[j].alias[k].toLowerCase() == name){
+                                index = j;
+                                break;
+                            }
+                        }
+                    }
+                    if(index != -1){
+                        //判断版本
+                        if(versionCtrl.satisfied(swes[j].version, ranges[i].version)){
+                            isSatisfied = true;
+                            break;
+                        }
+                    }
+                }
+                if(!isSatisfied){
+                    unSatisfiedList.push(ranges);
+                }
+            }
+            return callback(JSON.stringify({status:1,unSatisfiedList:unSatisfiedList}));
         }
     })
 };
@@ -255,41 +258,37 @@ softwareEnCtrl.addBySelect = function (itemsID, callback) {
 
 };
 
-//判断环境是否匹配
-softwareEnCtrl.isSatisfied = function (ranges,callback) {
-    sweModel.getByWhere({},function (err, swes) {
-        if(err){
-            return callback(JSON.stringify({status:0}));
-        }
-        else {
-            var rst = [];
-            for(var i=0;i<ranges.length;i++){
-                for(var j=0;j<swes.length;j++){
-                    //判断名称
-                    // var nameSentence = swes[j].alias.join('[//t]');
-                    // nameSentence += '//t' + swes[j].name;
-                    // nameSentence = nameSentence.toLowerCase();
-                    var nameMatched = false;
-                    for(var k=0;k<swes[j].alias.length;k++){
-                        var name = ranges[i].name.trim();
-                        name = name.replace(/\s+/g,' ');
-                        if(swes[j].alias[k].toLowerCase() == name){
-                            nameMatched = true;
-                            break;
-                        }
-                    }
-                    if(nameMatched){
-                        rst[i].name = true;
-                        //判断版本
-                        rst[i].version = versionCtrl.satisfies(swes[j].version, ranges[i].version);
-                        break;
-                    }
-                    else{
-                        rst[i].name = false;
-                    }
-                }
-            }
-            return callback(JSON.stringify({status:1,detail:rst}));
-        }
-    })
-};
+// softwareEnCtrl.updateItem = function (srcItem, newItem, callback) {
+//     // var hasAlias = false;
+//     // for(var i=0;i<newItem.alias.length;i++){
+//     //     for(var j=0;j<srcItem.alias.length;i++){
+//     //         if(srcItem.alias[j] == newItem.alias[i]){
+//     //             hasAlias = true;
+//     //             break;
+//     //         }
+//     //     }
+//     //     if(srcItem.name == newItem.alias[i])
+//     //         hasAlias = true;
+//     //     if(!hasAlias)
+//     //         srcItem.alias.push(newItem.alias[i]);
+//     // }
+//     // hasAlias = false;
+//     // for(var k=0;k<srcItem.alias.length;k++){
+//     //     if(newItem.name == srcItem.alias[k]){
+//     //         hasAlias = true;
+//     //         break;
+//     //     }
+//     // }
+//     // if(newItem.name == srcItem.name)
+//     //     hasAlias = true;
+//     // if(!hasAlias)
+//     //     srcItem.alias.push(newItem.name);
+//     sweModel.update(srcItem,function (err, data) {
+//         if(err){
+//             callback(err);
+//         }
+//         else{
+//             callback(null,data);
+//         }
+//     })
+// };

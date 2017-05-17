@@ -12,6 +12,7 @@ var EnviroTableTree = require('./enviroTableTree');
 var EnviroPanel = React.createClass({
     getInitialState : function () {
         return {
+            refreshChild:false
         };
     },
 
@@ -42,8 +43,12 @@ var EnviroPanel = React.createClass({
         var url = '/setting/enviro?method=' + method + '&type=' + type;
         Axios.post(url,addData).then(
             data => {
+                //TODO 局部刷新tabletree，并打开新添加的节点
                 $('#' + this.props.tableID + '-' + method + '-modal').trigger("click");
+                
                 this.refs[this.props.tableID + '-ref'].refreshTree();
+                // this.setState({refreshChild:true});
+                
                 $.gritter.add({
                     title: '提示：',
                     text: '添加'+(type=='software'?'软件':'硬件')+'环境成功！',
@@ -152,6 +157,7 @@ var EnviroPanel = React.createClass({
                                         source={url + '&method=get'}
                                         ref={this.props.tableID + '-ref'}
                                         fields={this.props.fields}
+                                        refresh={this.state.refreshChild}
                                     />
                                 </div>
                             </div>

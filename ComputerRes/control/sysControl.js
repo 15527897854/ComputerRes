@@ -341,39 +341,189 @@ SysControl.autoDetectSW = function (callback) {
 };
 
 SysControl.autoDetectHW = function (callback) {
-    var exePath = __dirname + '/../helper/getHardwareInfo.exe';
-    if(setting.platform == 1) {
-        exec(exePath,function (err, stdout, stderr) {
-            if(err){
+    // var exePath = __dirname + '/../helper/getHardwareInfo.exe';
+    // if(setting.platform == 1) {
+    //     exec(exePath,function (err, stdout, stderr) {
+    //         if(err){
+    //             console.log(err);
+    //             return callback(err);
+    //         }
+    //         else if(stderr){
+    //             console.log(stderr);
+    //             return callback(stderr);
+    //         }
+    //         else if(stdout){
+    //             console.log(stdout);
+    //             if(stdout == 'Error!'){
+    //                 return callback(stdout);
+    //             }
+    //             else if(stdout == 'Success!'){
+    //                 var softEnPath = __dirname + '/../helper/hardwareEnviro.txt';
+    //                 fs.readFile(softEnPath,function (err, data) {
+    //                     if(err){
+    //                         return callback('read file err!');
+    //                     }
+    //                     //将文件组织为json
+    //                     data = iconv.decode(data,'gbk');
+    //                     data = JSON.parse(data);
+    //                     data.memory = os.totalmem()/1024/1024/1024;
+    //                     callback(null,data);
+    //                 })
+    //             }
+    //         }
+    //     })
+    // }
+    // else if(setting.platform == 2){
+    //
+    // }
+    // var getDisplayCardInfo = function () {
+    //     exec(__dirname + '/../helper/dxdiag.exe ' + __dirname + '/../helper/hardwareEnviro.txt', function(err, stdout, stderr){
+    //         if(err){
+    //
+    //         }
+    //         else if(stderr){
+    //
+    //         }
+    //         else{
+    //
+    //         }
+    //     })
+    // };
+
+    var hweList = [];
+    hweList.push({
+        _id:new ObjectId(),
+        name:'memory size',
+        value:Math.floor(os.totalmem()/1024/1024)+' MB'
+    });
+    var cpuInfo = os.cpus();
+    hweList.push({
+        _id:new ObjectId(),
+        name:'cpu core numble',
+        value:cpuInfo.length
+    });
+    hweList.push({
+        _id:new ObjectId(),
+        name:'cpu frequency',
+        value:cpuInfo[0].speed/1000 + ' GHz'
+    });
+    hweList.push({
+        _id:new ObjectId(),
+        name:'cpu model',
+        value:cpuInfo[0].model
+    });
+    if(setting.platform == 1)
+    {
+        exec('wmic logicaldisk get caption,size,freespace', function(err, stdout, stderr)
+        {
+            if(err)
+            {
                 console.log(err);
                 return callback(err);
             }
-            else if(stderr){
-                console.log(stderr);
-                return callback(stderr);
-            }
-            else if(stdout){
-                console.log(stdout);
-                if(stdout == 'Error!'){
-                    return callback(stdout);
+            var array = stdout.split("\r\r\n");
+            array.pop();
+            array.pop();
+            array.shift();
+            var i,j,totle = 0;
+            for(i=0;i<array.length;i++){
+                var space = array[i].split(" ");
+                var ele = [];
+                for(j=0;j<space.length;j++){
+                    if (+space[j]){
+                        ele.push(+space[j]);
+                    }
                 }
-                else if(stdout == 'Success!'){
-                    var softEnPath = __dirname + '/../helper/hardwareEnviro.txt';
-                    fs.readFile(softEnPath,function (err, data) {
-                        if(err){
-                            return callback('read file err!');
-                        }
-                        //将文件组织为json
-                        data = iconv.decode(data,'gbk');
-                        data = JSON.parse(data);
-                        data.memory = os.totalmem()/1024/1024/1024;
-                        callback(null,data);
-                    })
-                }
+                if(ele[1])
+                    totle += ele[1];
             }
-        })
+            hweList.push({
+                _id:new ObjectId(),
+                name:'hardware size',
+                value:Math.floor(totle/1024/1024/1024) + 'GB'
+            });
+            fs.writeFile(__dirname + '/../helper/hardwareEnviro.txt',JSON.stringify(hweList),function (err) {
+                if(err){
+                    console.log(err);
+                    return callback(err);
+                }
+                else{
+                    callback(null,hweList);
+                }
+            })
+        });
     }
-    else if(setting.platform == 2){
+    else if(setting.platform == 2)
+    {
+        var spawn = require('child_process').spawn,
+            free  = spawn('df');
 
+        // 捕获标准输出并将其打印到控制台
+        free.stdout.on('data', function (data) {
+            // console.log('标准输出：\n' + data);
+            // console.log(data.toString());
+            var diskInfo = data.toString().split('\n');
+            var i;
+            for (i=0;i<diskInfo.length;i++){
+                if(diskInfo[i][diskInfo[i].length-1] == '/'){
+                    var percent = diskInfo[i].split(/\s+/);
+                    percent = percent[percent.length-2];
+                    percent = percent.split('%')[0];
+                    sysinfo.disk = [+percent,'磁'];
+                    // console.log(sysinfo.disk);
+                    break;
+                }
+            }
+            return callback(null, sysinfo);
+        });
     }
+};
+
+SysControl.readAllHW = function (callback) {
+    var hardEnPath = __dirname + '/../helper/hardwareEnviro.txt';
+    fs.readFile(hardEnPath,function (err, data) {
+        if(err){
+            return callback('read file err!');
+        }
+        //将文件组织为json
+        data = iconv.decode(data,'gbk');
+        callback(null,JSON.parse(data));
+    })
+};
+
+SysControl.readAllSW = function (callback) {
+    var softEnPath = __dirname + '/../helper/softwareEnviro.txt';
+    fs.readFile(softEnPath,function (err, data) {
+        if(err){
+            return callback('read file err!');
+        }
+        //将文件组织为json
+        data = iconv.decode(data,'gbk');
+        var strswlist = data.split('[\t\t\t]');
+        var swlist = [];
+        for(var i=0;i<strswlist.length;i++){
+            var swItemKV = strswlist[i].split('[\t\t]');
+            var strheader = 'OPERATE SYSTEM:';
+            var index = swItemKV[1].indexOf(strheader);
+            if(index!=-1){
+                swlist.push({
+                    _id:swItemKV[0],
+                    name:swItemKV[1].substr(strheader.length),
+                    version:os.release(),
+                    publisher:'',
+                    type:'OS'
+                });
+            }
+            else{
+                swlist.push({
+                    _id:swItemKV[0],
+                    name:swItemKV[1],
+                    version:swItemKV[2],
+                    publisher:swItemKV[3],
+                    type:swItemKV[4]
+                });
+            }
+        }
+        callback(null,swlist);
+    })
 };
