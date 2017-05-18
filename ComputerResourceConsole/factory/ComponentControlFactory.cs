@@ -24,5 +24,10 @@ namespace ComputerResourceConsole.factory
         {
             return new ContainerControl();
         }
+
+        public static ISysControl createSysControl() 
+        {
+            return new SystemControl();
+        }
     }
 }

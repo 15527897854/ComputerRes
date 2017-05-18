@@ -10,6 +10,10 @@ namespace ComputerResourceConsole.model
 {
     public class RedisOpera : ComponentOperaBase, IRedisOpera
     {
-        
+        public RedisOpera()
+            : base()
+        {
+            this._showWindow = false;
+        }
     }
 }

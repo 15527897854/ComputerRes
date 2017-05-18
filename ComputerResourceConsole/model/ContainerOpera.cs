@@ -14,7 +14,7 @@ namespace ComputerResourceConsole.model
 
         public ContainerOpera() : base()
         {
-
+            this._showWindow = true;
         }
 
         public override string Arguments

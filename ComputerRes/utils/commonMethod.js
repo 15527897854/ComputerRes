@@ -4,6 +4,8 @@
 const exec = require('child_process').exec;
 const fs = require('fs');
 var zipper = require("zip-local");
+var crypto = require('crypto');
+var settings = require('../setting');
 
 function CommonMethod(){}
 
@@ -35,5 +37,23 @@ CommonMethod.Uncompress = function(file, path, callback){
 CommonMethod.compress = function(file, path){
     zipper.sync.zip(path).compress().save(file);
 };
+
+//加密
+CommonMethod.crypto = function(buffer){
+    var encrypted = "";
+    var cip = crypto.createCipher(settings.crypto.algorithm, settings.crypto.key);
+    encrypted += cip.update(buffer, 'binary', 'hex');
+    encrypted += cip.final('hex');
+    return encrypted;
+}
+
+//解密
+CommonMethod.decrypto = function(buffer){
+    var decrypted = "";
+    var decipher = crypto.createDecipher(settings.crypto.algorithm, settings.crypto.key);
+    decrypted += decipher.update(buffer, 'hex', 'binary');
+    decrypted += decipher.final('binary');
+    return decrypted;
+}
 
 module.exports = CommonMethod;

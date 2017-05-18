@@ -32,8 +32,14 @@ namespace ComputerResourceConsole.model
         {
             get
             {
-                return " --dbpath " + CommonMethod.getAppDirection() + "MongoDB/data"; ;
+                return " --dbpath " + CommonMethod.getAppDirection() + "MongoDB/data --logpath " + CommonMethod.getAppDirection() + "Log/mongo.log";
             }
+        }
+
+        public MongoDBOpera()
+            : base()
+        {
+            this._showWindow = false;
         }
     }
 }

@@ -16,6 +16,10 @@ module.exports =  {
         }
         return platform;
     })(),
+    crypto:{
+        algorithm : 'aes-256-cbc',
+        key : 'ae3e712c-ccdf-4964-b819-c85770146485'
+    },
     mongodb:{
         name:'ComputerRes',
         host:'127.0.0.1',
@@ -34,9 +38,12 @@ module.exports =  {
     },
     portal:
     {
+        host:'222.192.7.74',
+        port:'80'
     },
     modelpath: __dirname + '/geo_model/',
     data_size : 1024,
+    auth : false,
     debug : false,
     debugGUID : 'ae3e712c-ccdf-4964-b819-c85770146485'
 };

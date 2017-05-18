@@ -20,6 +20,21 @@ module.exports = function(app)
             res.end('OK');
         });
 
+    app.route('*')
+        .get(function(req, res, next){
+            if(setting.auth){
+                if(req.originalUrl == '/login'){
+                    next();
+                }
+                else{
+                    return res.redirect('/login');
+                }
+            }
+            else{
+                next();
+            }
+        });
+
     // // 未登录只能访问登录和注册页面,已登录不能访问这两个页面
     // app.route('*')
     //     .get(function checkLoginStatus(req, res, next) {

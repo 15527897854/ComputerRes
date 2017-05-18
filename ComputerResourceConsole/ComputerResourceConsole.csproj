@@ -90,6 +90,7 @@
     <Compile Include="control\ComponentControl.cs" />
     <Compile Include="control\ContainerControl.cs" />
     <Compile Include="control\RedisControl.cs" />
+    <Compile Include="control\SystemControl.cs" />
     <Compile Include="factory\ComponentControlFactory.cs" />
     <Compile Include="factory\ComponentOperaFactory.cs" />
     <Compile Include="lib\IComponentOpera.cs" />
@@ -103,12 +104,19 @@
     <Compile Include="lib\IContainerControl.cs" />
     <Compile Include="common\CommonMethod.cs" />
     <Compile Include="control\MongoDBControl.cs" />
+    <Compile Include="lib\ISysControl.cs" />
     <Compile Include="model\ComponentOperaBase.cs" />
     <Compile Include="model\ConfigModel.cs" />
     <Compile Include="model\ContainerOpera.cs" />
     <Compile Include="model\MongoDBOpera.cs" />
     <Compile Include="model\ProcessAccess.cs" />
     <Compile Include="model\RedisOpera.cs" />
+    <Compile Include="view\frm_about.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="view\frm_about.Designer.cs">
+      <DependentUpon>frm_about.cs</DependentUpon>
+    </Compile>
     <Compile Include="view\frm_console.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -118,6 +126,9 @@
     <Compile Include="lib\IMongoDBOpera.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="view\frm_about.resx">
+      <DependentUpon>frm_about.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="view\frm_console.resx">
       <DependentUpon>frm_console.cs</DependentUpon>
     </EmbeddedResource>
@@ -143,7 +154,17 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="NetFwTypeLib">
+      <Guid>{58FBCF7C-E7A9-467C-80B3-FC65E8FCCA08}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

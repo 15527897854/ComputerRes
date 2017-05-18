@@ -184,83 +184,66 @@
                 $('#div_upload').css('display','block');
                 var formdata = new FormData($('#stepy_form')[0]);
                 $.ajax({
-                    url:(function () {
-                        if('<%=host %>' == 'localhost'){
-                            return '/modelser';
-                        }
-                        else{
-                            return '/modelser/rmt/<%=host %>';
-                        }
-                    })(),
+                    url:'/modelser',
                     method:'POST',
                     data: formdata,
                     processData: false,
                     contentType: false,
                     success: function (msg) {
-                        var msg = JSON.parse(msg);
-                        if(msg.status == 0)
-                        {
-                            //系统出错
-                            alert('系统出错，请稍后重试！');
-                            window.location.href = '/modelser/new';
+                        msg = JSON.parse(msg);
+                        if(msg.result == 'suc'){
+                            oid = msg.data._id;
+                            recordFinish = true;
+                            if(fileFinish == true)
+                            {
+                                window.location.href = '/modelser/' + oid;
+                            }
                         }
-                        else if(msg.status == 1)
-                        {
-                            if(msg.isValidate){
-                                oid = msg.data._id;
-                                recordFinish = true;
-                                if(fileFinish == true)
-                                {
-                                    var newUrl;
-                                    if('<%=host %>' == 'localhost'){
-                                        newUrl = '/modelser/' + oid;
+                        else if(msg.result == 'err'){
+                            msg = msg.message;
+                            if(msg.status == 0)
+                            {
+                                //系统出错
+                                alert('系统出错，请稍后重试！');
+                            }
+                            else if(msg.status == 1)
+                            {
+                                msg = msg.rst;
+                                if(msg.isValidate){
+                                }
+                                else{
+                                    //上传文件结构出错
+                                    if(!msg.cfgfile){
+                                        alert('模型不合法，缺少config文件！');
+                                    }
+                                    if(msg.cfg.length){
+                                        var cfgerr = '';
+                                        for(var i=0;i<msg.cfg.length;i++){
+                                            cfgerr += msg.cfg[i];
+                                            if(i != msg.cfg.length-1)
+                                                cfgerr += ' ';
+                                        }
+                                        alert('config文件出错，可能与以下信息相关：\n'+ cfgerr);
                                     }
                                     else{
-                                        if($("#ms_limited").val() == 1){
-                                            newUrl = '/modelser/rmt/all';
+                                        if(!msg.mdl){
+                                            alert('缺少mdl！');
                                         }
-                                        newUrl = '/modelser/rmt/<%=host %>/' + oid;
+                                        else if(!msg.start){
+                                            alert('缺少模型入口程序！');
+                                        }
                                     }
-                                    window.location.href = newUrl;
                                 }
                             }
                             else{
-                                //上传文件结构出错
-                                if(!msg.cfgfile){
-                                    alert('模型不合法，缺少config文件！');
-                                }
-                                if(msg.cfg.length){
-                                    var cfgerr = '';
-                                    for(var i=0;i<msg.cfg.length;i++){
-                                        cfgerr += msg.cfg[i];
-                                        if(i != msg.cfg.length-1)
-                                            cfgerr += ' ';
-                                    }
-                                    alert('config文件出错，可能与以下信息相关：\n'+ cfgerr);
-                                }
-                                else{
-                                    if(!msg.mdl){
-                                        alert('缺少mdl！');
-                                    }
-                                    else if(!msg.start){
-                                        alert('缺少模型入口程序！');
-                                    }
-                                }
-                                window.location.href = '/modelser/new';
+                                alert('未知错误!' + JSON.stringify(msg));
                             }
                         }
                     }
                 });
                 var fileInsterval = setInterval(function () {
                     $.ajax({
-                        url:(function () {
-                            if('<%=host %>' == 'localhost'){
-                                return '/modelser/file';
-                            }
-                            else{
-                                return '/modelser/rmt/file/<%=host %>';
-                            }
-                        })(),
+                        url:'/modelser/file',
                         method:'GET',
                         success:function (data) {
                             var resJson = JSON.parse(data);
@@ -271,17 +254,7 @@
                                 clearInterval(fileInsterval);
                                 if(recordFinish == true)
                                 {
-                                    var newUrl;
-                                    if('<%=host %>' == 'localhost'){
-                                        newUrl = '/modelser/' + oid;
-                                    }
-                                    else{
-                                        if($("#ms_limited").val() == 1){
-                                            newUrl = '/modelser/rmt/all';
-                                        }
-                                        newUrl = '/modelser/rmt/<%=host %>/' + oid;
-                                    }
-                                    window.location.href = newUrl;
+                                    window.location.href = '/modelser/' + oid;
                                 }
                             }
                         }

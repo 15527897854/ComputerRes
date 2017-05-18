@@ -11,12 +11,13 @@ var NoteDialog = require('../../action/utils/noteDialog');
 var ModelSerUploader = React.createClass({
     getInitialState : function () {
         return {
-            processBar : false
+            processBar : false,
+            stepy : null
         };
     },
 
     componentDidMount : function(){
-        $('#stepy_form').stepy({
+        var stepy = $('#stepy_form').stepy({
             backLabel: '上一步',
             nextLabel: '下一步',
             errorImage: true,
@@ -35,13 +36,20 @@ var ModelSerUploader = React.createClass({
                         if(data.data.result == 'suc'){
                             NoteDialog.openNoteDia('模型上传成功！','模型包 ' + $('#pkg_name').val() + ' 上传成功！');
                         }
+                        else{
+                            NoteDialog.openNoteDia('模型上传失败！','模型包 ' + $('#pkg_name').val() + ' 上传失败！Message : ' + JSON.stringify(data.data.message));
+                        }
                         this.setState({ processBar : false });
                     },
-                    err => {}
+                    err => {
+                            NoteDialog.openNoteDia('模型上传失败！','模型包 ' + $('#pkg_name').val() + ' 上传失败！Message : ' + JSON.stringify(err));
+                    }
                 );
                 return false;
             }.bind(this)
         });
+
+        this.setState({stepy : stepy});
 
         Axios.get('/modelSer/json/' + this.props['data-msid']).then(
             data => {
@@ -57,10 +65,27 @@ var ModelSerUploader = React.createClass({
 
     onSelectedModelItem : function(e, item){
         $('#mid').val(item.model_id);
+        $('#stepy_form').validate({
+            errorPlacement: function(error, element) {
+                error.css(''
+                );
+                $('#stepy_form div.stepy-error').append(error);
+            },
+            rules: {
+                pkg_name: 'required'
+            },
+            messages: {
+                u_name: {
+                    pkg_name: '请填写部署包名称!'
+                }
+            }
+        });
+        $('#stepy_form-title-1').click();
     },
 
     render : function(){
         var procBar = null;
+        var btnDisabled = null;
         if(this.state.processBar){
             procBar = (
                 <div className="progress progress-striped active progress-sm">
@@ -69,6 +94,7 @@ var ModelSerUploader = React.createClass({
                     </div>
                 </div>
             );
+            btnDisabled = 'disabled';
         }
         return (
             <div className="box-widget">
@@ -88,29 +114,29 @@ var ModelSerUploader = React.createClass({
                                     <div className="form-group">
                                         <label className="col-md-2 col-sm-2 control-label">部署包名称</label>
                                         <div className="col-md-6 col-sm-6">
-                                            <input name="pkg_name" className="form-control" placeholder="name" id="pkg_name" type="text"/>
+                                            <input name="pkg_name" className="form-control" placeholder="模型部署包名称" id="pkg_name" type="text"/>
                                         </div>
                                     </div>
                                     <div className="form-group">
                                         <label className="col-md-2 col-sm-2 control-label">模型条目</label>
                                         <div className="col-md-6 col-sm-6">
-                                            <input name="mid" className="form-control" placeholder="item" id="mid" readOnly="readOnly" type="text"/>
+                                            <input name="mid" className="form-control" placeholder="模型条目ID" id="mid" readOnly="readOnly" type="text" value='' />
                                         </div>
                                     </div>
                                     <div className="form-group">
                                         <label className="col-md-2 col-sm-2 control-label">版本</label>
                                         <div className="col-md-6 col-sm-6">
-                                            <input name="pkg_version" className="form-control" placeholder="1.0" id="pkg_version" type="text"/>
+                                            <input name="pkg_version" className="form-control" placeholder="模型版本号" id="pkg_version" type="text"/>
                                         </div>
                                     </div>
                                     <div className="form-group">
                                         <label className="col-md-2 col-sm-2 control-label">描述</label>
                                         <div className="col-md-6 col-sm-6">
-                                            <textarea name="pkg_des" className="form-control" id="pkg_des" rows="5" />
+                                            <textarea name="pkg_des" placeholder="模型部署包描述" className="form-control" id="pkg_des" rows="5" />
                                         </div>
                                     </div>
                                 </fieldset>
-                                <button id="btn_ok" name="btn_upload" type="button" className="finish btn btn-info btn-extend" >提交</button>
+                                <button id="btn_ok" name="btn_upload" type="button" disabled={btnDisabled} className="finish btn btn-info btn-extend" >提交</button>
                             </form>
                         </div>
                     </div>

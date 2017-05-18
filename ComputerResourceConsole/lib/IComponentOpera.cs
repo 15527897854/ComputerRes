@@ -16,6 +16,8 @@ namespace ComputerResourceConsole.lib
 
         string LogPath { get; set; }
 
+        bool ShowWindow { get; set; }
+
         int start(CommonMethod.CommonEvent exit);
 
         int stop();
