@@ -15,8 +15,10 @@ var setting = require('../setting');
 var systemSettingModel = require('../model/systemSetting');
 var ControlBase = require('./controlBase');
 var RemoteControl = require('./remoteReqControl');
-var registerCtrl = require('./registerCtrl');
 
+var ParamCheck = require('../utils/paramCheck');
+var CommonMethod = require('../utils/commonMethod');
+var registerCtrl = require('./registerCtrl');
 var SysControl = function() {};
 SysControl.__proto__ = ControlBase;
 
@@ -188,44 +190,6 @@ SysControl.getInfo = function(headers,callback) {
     });
 };
 
-//登陆
-SysControl.login = function (l_uname, l_pwd, callback) {
-    systemSettingModel.getValueByIndex('username', function (err, uname) {
-        if(err)
-        {
-            return callback(err);
-        }
-        if(l_uname == uname.ss_value)
-        {
-            systemSettingModel.getValueByIndex('pwd', function (err, pwd) {
-                if(err)
-                {
-                    return callback(err);
-                }
-                // var pwd_md5 = md5.update(l_pwd).digest('hex');
-                if(l_pwd == pwd.ss_value)
-                {
-                    return callback(null, {
-                        status:1
-                    });
-                }
-                else
-                {
-                    return callback(null, {
-                        status:2
-                    });
-                }
-            });
-        }
-        else
-        {
-            return callback(null, {
-                status:3
-            });
-        }
-    });
-};
-
 SysControl.getValueByIndex = function (ss_index, callback) {
     systemSettingModel.getValueByIndex(ss_index,function (err, data) {
         if(err){
@@ -235,6 +199,7 @@ SysControl.getValueByIndex = function (ss_index, callback) {
     })
 };
 
+///////////////////////////////////门户
 //登陆门户
 SysControl.loginPortal = function(uname, pwd, callback){
     RemoteControl.postRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/LoginServlet?username=' + uname + '&password=' + pwd, function(err, data){
@@ -268,6 +233,13 @@ SysControl.getPortalToken = function(callback){
     });
 };
 
+//获取门户账号名
+SysControl.getPortalUName = function(callback){
+    var portalToken = {};
+    systemSettingModel.getValueByIndex('portal_uname', this.returnFunction(callback, 'Error in getting portal user name'));
+};
+
+//////////////////////////////////分布式网络
 //获取父节点
 SysControl.getParent = function(callback){
     systemSettingModel.getValueByIndex('parent', this.returnFunction(callback, 'error in get parent'));
@@ -291,6 +263,26 @@ SysControl.setParent = function(newparent, callback){
                 platform : setting.platform
             }, this.returnFunction(callback, 'error in post child'));
         }.bind(this));
+    }.bind(this));
+};
+
+//重置父节点
+SysControl.resetParent = function (host, callback) {
+    systemSettingModel.getValueByIndex('parent', function (err, ss) {
+        if(err){
+            return callback(err);
+        }
+        var parent = ss.ss_value;
+        if(parent.substr(0, parent.indexOf(':')) == host){
+            systemSettingModel.getValueByIndex('parent', function(err, parent){
+                if(err)
+                {
+                    return callback(err);
+                }
+                parent.ss_value = '127.0.0.1:8060';
+                systemSettingModel.setValueByIndex(parent, this.returnFunction(callback, 'error in post child'));
+            }.bind(this));
+        }
     }.bind(this));
 };
 
@@ -558,4 +550,112 @@ SysControl.readAllSW = function (callback) {
         }
         callback(null,swlist);
     })
+};
+
+//如果字段不存在，自动建立字段
+SysControl.buildField = function (field, defaultValue, callback){
+    systemSettingModel.getValueByIndex(field, function(err, item){
+        if(err){
+            return callback(err);
+        }
+        if(item == null){
+            var ss = new systemSettingModel({
+                ss_index : field,
+                ss_value : defaultValue
+            });
+            ss.save(function(err, result){
+                if(err){
+                    return callback(err);
+                }
+                return callback(null, result);
+            });
+        }
+        else{
+            return callback(null, true);
+        }
+    });
+};
+
+/////////////////////////////////管理员
+//得到管理员信息
+SysControl.getAdminInfo = function(callback){
+    systemSettingModel.getValueByIndex('adminName', this.returnFunction(callback, 'error in getting administrator info'));
+};
+
+//用户登录
+SysControl.adminLogin = function(adminName, pwd, callback){
+    if(ParamCheck.checkParam(callback, adminName)){
+        if(ParamCheck.checkParam(callback, pwd)){
+            systemSettingModel.getValueByIndex('adminName', function(err, ss){
+                if(err){
+                    return callback(err);
+                }
+                if(ss.ss_value != adminName){
+                    return callback(null, false);
+                }
+                systemSettingModel.getValueByIndex('adminPwd', function(err, ss){
+                    if(err){
+                        return callback(err);
+                    }
+                    pwd = CommonMethod.decrypto(pwd);
+                    var pwd_md5 = crypto.createHash('md5').update(pwd).digest('hex');
+                    if(pwd_md5 == ss.ss_value){
+                        return callback(null, true)
+                    }
+                    return callback(null, false);
+                });
+            });
+        }
+    }
+};
+
+//更改用户名密码 有验证
+SysControl.alterNameAndPwdWithAuth = function(adminName, pwd, newAdminName, newPwd, callback){
+    if(ParamCheck.checkParam(callback, newPwd)){
+        if(ParamCheck.checkParam(callback, newAdminName)){
+            SysControl.adminLogin(adminName, pwd, function(err, result){
+                if(err){
+                    return callback(err);
+                }
+                if(result){
+                    systemSettingModel.getValueByIndex('adminPwd', function(err, ss){
+                        if(err){
+                            return callback(err);
+                        }
+                        newPwd = CommonMethod.decrypto(newPwd);
+                        ss.ss_value = crypto.createHash('md5').update(newPwd).digest('hex');
+                        systemSettingModel.update(ss, function(err, pwdAlterResult){
+                            if(err){
+                                return callback(err);
+                            }
+                            if(pwdAlterResult.n == 1){
+                                systemSettingModel.getValueByIndex('adminName', function(err, ss){
+                                    if(err){
+                                        return callback(err);
+                                    }
+                                    ss.ss_value = newAdminName;
+                                    systemSettingModel.update(ss, function(err, nameAlterResult){
+                                        if(err){
+                                            return callback(err);
+                                        }
+                                        if(nameAlterResult.n == 1){
+                                            return callback(null, {
+                                                result : 1
+                                            });
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    }.bind(this));
+                }
+                else{
+                    return callback(null, {
+                        result : -1,
+                        message : 'Auth fails'
+                    })
+                }
+            });
+        }
+    }
 };

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using ComputerResourceConsole.factory;
 using ComputerResourceConsole.lib;
 using ComputerResourceConsole.common;
+using ComputerResourceConsole.view;
 
 namespace ComputerResourceConsole
 {
@@ -18,6 +19,8 @@ namespace ComputerResourceConsole
         private IMongoDBControl _pMgCtrl = null;
         private IRedisControl _pRdsCtrl = null;
         private ComputerResourceConsole.lib.IContainerControl _pCtnCtrl = null;
+        private ISysControl _pSysCtrl = null;
+        private frm_about _frm_about = null;
 
         public frm_console()
         {
@@ -25,6 +28,7 @@ namespace ComputerResourceConsole
             this._pMgCtrl = ComponentControlFactory.createMongoDBControl();
             this._pRdsCtrl = ComponentControlFactory.createRedisControl();
             this._pCtnCtrl = ComponentControlFactory.createContainerControl();
+            this._pSysCtrl = ComponentControlFactory.createSysControl();
 
             int mgmark = _pMgCtrl.init(onMongoExit);
             if (mgmark == 1)
@@ -67,6 +71,14 @@ namespace ComputerResourceConsole
             {
                 this.setContainerView(true, false, false, "未启动", Color.Red);
             }
+
+            this._pSysCtrl.setInboundRulePort("ComputerRes", 8060, crcNetProtocol.TCP);
+            if (this._pSysCtrl.IsInboundRulePortExist())
+            {
+                this.openFirewallPortToolStripMenuItem.Checked = true;
+            }
+
+            this._frm_about = new frm_about();
         }
 
         //设置MongoDB的界面
@@ -74,7 +86,6 @@ namespace ComputerResourceConsole
         {
             this.bt_mg_start.Enabled = startenable;
             this.bt_mg_stop.Enabled = stopenable;
-            this.bt_mg_restart.Enabled = restartenabel;
             this.l_mg_status.Text = status;
             this.l_mg_status.ForeColor = txtColor;
         }
@@ -84,7 +95,6 @@ namespace ComputerResourceConsole
         {
             this.bt_rds_start.Enabled = startenable;
             this.bt_rds_stop.Enabled = stopenable;
-            this.bt_rds_restart.Enabled = restartenabel;
             this.l_rds_status.Text = status;
             this.l_rds_status.ForeColor = txtColor;
         }
@@ -94,7 +104,6 @@ namespace ComputerResourceConsole
         {
             this.bt_ctn_start.Enabled = startenable;
             this.bt_ctn_stop.Enabled = stopenable;
-            this.bt_ctn_restart.Enabled = restartenabel;
             this.l_ctn_status.Text = status;
             this.l_ctn_status.ForeColor = txtColor;
         }
@@ -154,7 +163,7 @@ namespace ComputerResourceConsole
             }
             else
             {
-                if (_pCtnCtrl.Status == "Stopped")
+                if (this._pCtnCtrl.Status == "Stopped")
                 {
                     this.setContainerView(true, false, false, "未启动", Color.Red);
                 }
@@ -176,11 +185,6 @@ namespace ComputerResourceConsole
             this._pMgCtrl.stop();
         }
 
-        private void bt_mg_restart_Click(object sender, EventArgs e)
-        {
-            this._pMgCtrl.restart(onMongoExit);
-        }
-
         private void bt_rds_start_Click(object sender, EventArgs e)
         {
             this._pRdsCtrl.start(onRedisExit);
@@ -190,11 +194,6 @@ namespace ComputerResourceConsole
         private void bt_rds_stop_Click(object sender, EventArgs e)
         {
             this._pRdsCtrl.stop();
-        }
-
-        private void bt_rds_restart_Click(object sender, EventArgs e)
-        {
-            this._pRdsCtrl.restart(onRedisExit);
         }
 
         private void bt_ctn_start_Click(object sender, EventArgs e)
@@ -208,9 +207,42 @@ namespace ComputerResourceConsole
             this._pCtnCtrl.stop();
         }
 
-        private void bt_ctn_restart_Click(object sender, EventArgs e)
+        private void openFirewallPortToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this._pCtnCtrl.restart(onContainerExit);
+            this._pSysCtrl.AddInboundRulePort();
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this._pSysCtrl.OpenHelpPage();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this._frm_about.ShowDialog();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.notifyIcon1.Visible = false;
+            this._pSysCtrl.ApplicationExit();
+        }
+
+        private void openDiaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+        }
+
+        private void frm_console_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true; 
+                this.WindowState = FormWindowState.Minimized; 
+                this.Hide();
+                return;
+            }
         }
     }
 }

@@ -5,7 +5,16 @@
 var mongoose = require('./mongooseModel');
 var ModelBase = require('./modelBase');
 
-function SystemSetting(ss) {}
+function SystemSetting(ss) {
+    if(ss){
+        this.ss_index = ss.ss_index;
+        this.ss_value = ss.ss_value;
+    }
+    else{
+        this.ss_index = '';
+        this.ss_value = '';
+    }
+}
 SystemSetting.__proto__ = ModelBase;
 SystemSetting.ModelName = 'system setting';
 
@@ -16,6 +25,22 @@ var SystemSettingSchema = new mongoose.Schema({
     ss_value : String
 },{collection:'systemsetting'});
 var SystemSettingModel = mongoose.model('systemsetting',SystemSettingSchema);
+SystemSetting.baseModel = SystemSettingModel;
+SystemSetting.modelName = "SystemSetting";
+
+SystemSetting.prototype.save = function(callback){
+    var ss = {
+        ss_index : this.ss_index,
+        ss_value : this.ss_value
+    };
+    ss = new SystemSettingModel(ss);
+    ss.save(function(err, result){
+        if(err){
+            return callback(err);
+        }
+        return callback(null, result)
+    });
+};
 
 SystemSetting.getValueByIndex = function(ss_index, callback) {
     SystemSettingModel.findOne({'ss_index':ss_index},function (err, data) {

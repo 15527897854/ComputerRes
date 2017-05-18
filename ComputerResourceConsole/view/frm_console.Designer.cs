@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_console));
             this.gb_mongodb = new System.Windows.Forms.GroupBox();
             this.l_mg_status = new System.Windows.Forms.Label();
             this.l_mg_status_tag = new System.Windows.Forms.Label();
@@ -45,11 +47,20 @@
             this.bt_ctn_start = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.operationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFirewallPortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.openDiaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.gb_mongodb.SuspendLayout();
             this.gb_redis.SuspendLayout();
             this.gb_container.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // gb_mongodb
@@ -60,7 +71,7 @@
             this.gb_mongodb.Controls.Add(this.bt_mg_start);
             this.gb_mongodb.Location = new System.Drawing.Point(3, 30);
             this.gb_mongodb.Name = "gb_mongodb";
-            this.gb_mongodb.Size = new System.Drawing.Size(237, 90);
+            this.gb_mongodb.Size = new System.Drawing.Size(230, 90);
             this.gb_mongodb.TabIndex = 0;
             this.gb_mongodb.TabStop = false;
             this.gb_mongodb.Text = "模型信息库(mongodb)";
@@ -110,7 +121,7 @@
             this.gb_redis.Controls.Add(this.bt_rds_start);
             this.gb_redis.Location = new System.Drawing.Point(3, 126);
             this.gb_redis.Name = "gb_redis";
-            this.gb_redis.Size = new System.Drawing.Size(237, 90);
+            this.gb_redis.Size = new System.Drawing.Size(230, 90);
             this.gb_redis.TabIndex = 0;
             this.gb_redis.TabStop = false;
             this.gb_redis.Text = "模型数据库(redis)";
@@ -160,7 +171,7 @@
             this.gb_container.Controls.Add(this.bt_ctn_start);
             this.gb_container.Location = new System.Drawing.Point(3, 222);
             this.gb_container.Name = "gb_container";
-            this.gb_container.Size = new System.Drawing.Size(237, 90);
+            this.gb_container.Size = new System.Drawing.Size(230, 90);
             this.gb_container.TabIndex = 0;
             this.gb_container.TabStop = false;
             this.gb_container.Text = "模型服务容器";
@@ -209,35 +220,100 @@
             this.infoToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(252, 25);
+            this.menuStrip1.Size = new System.Drawing.Size(245, 25);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // operationToolStripMenuItem
             // 
+            this.operationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openFirewallPortToolStripMenuItem,
+            this.exitToolStripMenuItem1});
             this.operationToolStripMenuItem.Name = "operationToolStripMenuItem";
             this.operationToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.operationToolStripMenuItem.Text = "操作";
             // 
+            // openFirewallPortToolStripMenuItem
+            // 
+            this.openFirewallPortToolStripMenuItem.Name = "openFirewallPortToolStripMenuItem";
+            this.openFirewallPortToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.openFirewallPortToolStripMenuItem.Text = "打开防火墙端口";
+            this.openFirewallPortToolStripMenuItem.Click += new System.EventHandler(this.openFirewallPortToolStripMenuItem_Click);
+            // 
             // infoToolStripMenuItem
             // 
+            this.infoToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.helpToolStripMenuItem,
+            this.aboutToolStripMenuItem});
             this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
             this.infoToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.infoToolStripMenuItem.Text = "信息";
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.helpToolStripMenuItem.Text = "帮助...";
+            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Text = "关于...";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // notifyIcon1
+            // 
+            this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
+            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
+            this.notifyIcon1.Text = "模型服务容器控制台";
+            this.notifyIcon1.Visible = true;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openDiaToolStripMenuItem,
+            this.exitToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 48);
+            // 
+            // openDiaToolStripMenuItem
+            // 
+            this.openDiaToolStripMenuItem.Name = "openDiaToolStripMenuItem";
+            this.openDiaToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.openDiaToolStripMenuItem.Text = "打开窗口";
+            this.openDiaToolStripMenuItem.Click += new System.EventHandler(this.openDiaToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.exitToolStripMenuItem.Text = "退出";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem1
+            // 
+            this.exitToolStripMenuItem1.Name = "exitToolStripMenuItem1";
+            this.exitToolStripMenuItem1.Size = new System.Drawing.Size(160, 22);
+            this.exitToolStripMenuItem1.Text = "退出";
+            this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // frm_console
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(252, 310);
+            this.ClientSize = new System.Drawing.Size(245, 310);
             this.Controls.Add(this.gb_container);
             this.Controls.Add(this.gb_redis);
             this.Controls.Add(this.gb_mongodb);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.Name = "frm_console";
             this.Text = "模型服务容器控制台";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frm_console_FormClosing);
             this.gb_mongodb.ResumeLayout(false);
             this.gb_mongodb.PerformLayout();
             this.gb_redis.ResumeLayout(false);
@@ -246,6 +322,7 @@
             this.gb_container.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -271,6 +348,14 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem operationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem infoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openFirewallPortToolStripMenuItem;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem openDiaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
     }
 }
 

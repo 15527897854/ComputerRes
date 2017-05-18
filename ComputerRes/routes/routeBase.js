@@ -3,7 +3,7 @@
  */
 var RouteBase = function () {};
 
-RouteBase.returnFunction = function (res, errMessage) {
+RouteBase.returnFunction = function (res, errMessage, field) {
     return function (err, data) {
         if(err)
         {
@@ -11,6 +11,9 @@ RouteBase.returnFunction = function (res, errMessage) {
                 result : 'err',
                 message : errMessage + JSON.stringify(err)
             }));
+        }
+        if(field != null && field != undefined && typeof field == 'string'){
+            data = data[field];
         }
         return res.end(JSON.stringify({
             result : 'suc',

@@ -18,6 +18,8 @@ namespace ComputerResourceConsole.model
 
         protected string _logPath = "";
 
+        protected bool _showWindow = true;
+
         public virtual string FilePath
         {
             get
@@ -38,6 +40,20 @@ namespace ComputerResourceConsole.model
             }
         }
 
+
+
+        public virtual bool ShowWindow
+        {
+            get
+            {
+                return _showWindow;
+            }
+            set
+            {
+                _showWindow = value;
+            }
+        }
+
         public virtual int start(CommonMethod.CommonEvent exit)
         {
             //一些判断
@@ -49,9 +65,12 @@ namespace ComputerResourceConsole.model
             ProcessStartInfo process = new ProcessStartInfo();
             process.FileName = CommonMethod.getAppDirection() + this._strFilePath;
             process.Arguments = this.Arguments;
-            //process.CreateNoWindow = true;
+            if (!this.ShowWindow)
+            {
+                process.CreateNoWindow = true;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            }
             process.UseShellExecute = false;
-            //process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
             this._proc = Process.Start(process);
             if (this._proc == null)
             {
@@ -59,8 +78,6 @@ namespace ComputerResourceConsole.model
             }
             this._proc.EnableRaisingEvents = true;
             this._proc.Exited += new EventHandler(exit);
-            this._proc.OutputDataReceived += new DataReceivedEventHandler(this.onReceiveOutData);
-            this._proc.ErrorDataReceived += new DataReceivedEventHandler(this.onReceiveErrData);
 
             return 1;
         }
