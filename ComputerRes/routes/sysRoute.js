@@ -76,13 +76,15 @@ module.exports = function(app)
             var ac = req.query.ac;
             if(ac == 'register'){
                 sysControl.register(function (rst) {
-                registerCtrl.register(function (rst) {
-                    return res.end(rst)
-                })
+                    registerCtrl.register(function (rst) {
+                        return res.end(rst)
+                    })
+                });
             }
             else if(ac == 'deregister'){
-                sysControl.deregister(function (rst) {                    return res.end(rst)
-                })
+                sysControl.deregister(function (rst) {
+                    return res.end(rst)
+                });
             }
         });
 	app.route('/setting/enviroment')
