@@ -81,11 +81,20 @@ ModelService.getAll = function(flag, callback){
     }
 };
 
-//通过MID查询
-ModelService.getByMID = function (_mid, callback) {
-    if(ParamCheck.checkParam(callback, _mid))
+//通过PID查询
+ModelService.getByPid = function (pid, callback) {
+    if(ParamCheck.checkParam(callback, pid))
     {
-        var where = {'ms_model':{'m_id': _mid}};
+        var where = { "ms_model.p_id" : pid, "ms_status" : {$ne:-1}};
+        this.getByWhere(where, callback);
+    }
+};
+
+//通过MID查询
+ModelService.getByMID = function (mid, callback) {
+    if(ParamCheck.checkParam(callback, mid))
+    {
+        var where = { "ms_model.m_id" : mid, "ms_status" : {$ne:-1}};
         this.getByWhere(where, callback);
     }
 };

@@ -148,6 +148,15 @@ var RmtModelSerTable = React.createClass({
         }
     },
 
+    uploadModelSer : function(e, host, msid){
+        if(host){
+
+        }
+        else{
+            window.open('/modelser/uploader/' + msid);
+        }
+    },
+
     openModelSerProHandle : function (e, host, msid) {
         if(host){
             window.open('/modelser/rmt/preparation/' + host + '/' + msid + '');
@@ -260,6 +269,13 @@ var RmtModelSerTable = React.createClass({
                 var status;
                 var button;
                 var button2;
+                var button3 = null;
+                if(!item.ms_model.p_id){
+                    button3 = (
+                        <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.uploadModelSer(e, null, item._id) }} >
+                            <i className="fa fa-cloud-upload"> </i>上传门户
+                        </button>);
+                }
                 if(item.ms_status == 1)
                 {
                     status = (<span className="badge badge-success">可用</span>);
@@ -301,7 +317,7 @@ var RmtModelSerTable = React.createClass({
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
                             { this.openModelSerInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"> </i>详情</button>&nbsp;
-                            {button}&nbsp;{button2}
+                            {button}&nbsp;{button2}&nbsp;{button3}
                         </td>
                     </tr>
                 );

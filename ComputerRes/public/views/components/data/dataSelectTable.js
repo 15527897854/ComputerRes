@@ -115,7 +115,6 @@ var DataSelectTable = React.createClass({
         return (
             <div>
                 <table className="display table table-bordered table-striped" id={'dataSelect-table' + this.state.id}>
-
                     <thead>
                     <tr>
                         <th> </th>

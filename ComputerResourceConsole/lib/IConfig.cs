@@ -18,5 +18,11 @@ namespace ComputerResourceConsole.lib
         string NodejsPath { get; }
 
         string ContainerPath { get; }
+
+        string MongoDBLogPath { get; }
+
+        string RedisLogPath { get; }
+
+        string ContainerLogPath { get; }
     }
 }

@@ -13,12 +13,16 @@ function Child(cld) {
         this.host = cld.host;
         this.port = cld.port;
         this.platform = cld.platform;
+        this.accepted = cld.accepted;
+        this.access_token = cld.access_token;
     }
     else
     {
         this.host = '';
         this.port = 0;
         this.platform = 0;
+        this.accepted = 0;
+        this.access_token = '';
     }
 }
 
@@ -42,7 +46,9 @@ Child.prototype.save = function (callback) {
     var cld = {
         host : this.host,
         port : this.port,
-        platform : this.platform
+        platform : this.platform,
+        accepted : this.accepted,
+        access_token : this.access_token
     };
     cld = new ChildModel(cld);
     cld.save(function (err, res) {

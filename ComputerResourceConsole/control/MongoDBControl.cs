@@ -21,20 +21,18 @@ namespace ComputerResourceConsole.control
 
             this._pMongoOpera.FilePath = _pConfig.MongoDBPath;
             this._pMongoOpera.DBPath = _pConfig.MongoDBData;
-        }
-
-        public string status
-        {
-            get { return ""; }
+            this._pMongoOpera.LogPath = _pConfig.MongoDBLogPath;
         }
 
         public int start(CommonMethod.CommonEvent exit)
         {
+            this._status = "Started";
             return this._pMongoOpera.start(exit);
         }
 
         public int stop()
         {
+            this._status = "Stopped";
             return this._pMongoOpera.stop();
         }
 

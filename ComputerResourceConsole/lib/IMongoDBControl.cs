@@ -5,7 +5,6 @@ using System.Text;
 
 namespace ComputerResourceConsole.lib
 {
-    public interface IMongoDBControl : IComponentControl
-    {
+    public interface IMongoDBControl : IComponentControl{
     }
 }
