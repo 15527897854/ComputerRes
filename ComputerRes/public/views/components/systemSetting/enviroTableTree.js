@@ -212,14 +212,19 @@ var EnviroTableTree = React.createClass({
                     }
                     var rootName = this.getItem(rootID).title;
                     var url = self.props.source + '&ac=new';
-                    // var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
 
                     var postNewItem = function (rootID) {
                         var openNum = 0;
                         //所有字段编辑都关闭后，将节点组织为json 并post到后台保存
                         var childID = ptabletree.getFirstChildId(rootID);
                         var newItem = {};
+                        var mastKey = 0;
                         while(childID){
+                            if(ptabletree.getItem(childID).title == 'name' || ptabletree.getItem(childID).title == 'version' || ptabletree.getItem(childID).title == 'value'){
+                                if(ptabletree.getItem(childID).value != undefined && ptabletree.getItem(childID).value != ''){
+                                    mastKey ++;
+                                }
+                            }
                             if(ptabletree.getItem(childID).value == undefined){
                                 openNum ++;
                             }
@@ -231,7 +236,7 @@ var EnviroTableTree = React.createClass({
                             }
                             childID = ptabletree.getNextSiblingId(childID);
                         }
-                        if(openNum == 1){
+                        if(mastKey == 2 && (openNum == 0 || openNum == 1)){
                             if((url.indexOf('software') != -1 && newItem.name && newItem.version) ||
                                 (url.indexOf('software') == -1 && newItem.name && newItem.value)){
                                 Axios.post(url,newItem).then(
