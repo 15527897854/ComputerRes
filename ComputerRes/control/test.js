@@ -7,14 +7,18 @@ var RemoteReqControl = require('./remoteReqControl');
 var softwareEnCtrl = require('./softwareEnCtrl');
 var hardwareEnCtrl = require('./hardwareEnCtrl');
 var msrCtrl = require('./modelSerRunControl');
-var request = require('request-promise');
 var verCtrl = require('./versionCtrl');
 
-sysCtrl.autoDetectHW(function (err,data) {
-    
-});
+var request = require('request-promise');
+var convert = require('convert-units');
 
-// verCtrl.satisfies('324.345.2345','((([0,345])))||((2345.22.23,infinite))&&(2345.22.23,3454.345.8)||324.x||*&&~1.2.3.4');
+
+
+
+var a = verCtrl.rangeMatch('324.345.2345','((([0,345])))||((2345.22.23,infinite))&&(2345.22.23,3454.345.8)||324.x||*&&!1.2.3.4');
+var b = hardwareEnCtrl.rangeMatch(' 401    GHz ','( 400  GHz , infinite ] && [200MHz,500GHZ] || !401MHz');
+console.log(a,b);
+
 
 // var rst = verCtrl.baseMatch('1.2.235346',' 1.2.3');
 // console.log(rst);

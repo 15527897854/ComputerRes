@@ -30,30 +30,10 @@ var EnviroTableTree = React.createClass({
         );
     },
 
-    refreshTree : function () {
-        Axios.get(this.props.source).then(
-            data => {
-                this.setState({ loading : false, err : null, tabletreeJSON : data.data.enviro});
-            },
-            err => {
-                this.setState({ loading : false, err : err, tabletreeJSON : null});
-            }
-        );
-    },
-
-    setUpdateState:function () {
-        this.setState({update:true});
-    },
-
-    componentWillReceiveProps:function (nextProps) {
-        if(nextProps.refresh == true){
-            this.refreshTree();
-        }
-    },
-
     componentDidUpdate:function (){
         var tabletreeJSON = this.state.tabletreeJSON;
         var self = this;
+        var type = (self.props.source.indexOf('software') == -1) ? '硬件' : '软件';
         if(tabletreeJSON){
             webix.ready(function (){
                 var pagerID = "pager_"+self.props.tableID;
@@ -232,7 +212,7 @@ var EnviroTableTree = React.createClass({
                     }
                     var rootName = this.getItem(rootID).title;
                     var url = self.props.source + '&ac=new';
-                    var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
+                    // var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
 
                     var postNewItem = function (rootID) {
                         var openNum = 0;
@@ -366,7 +346,7 @@ var EnviroTableTree = React.createClass({
                         value:state.value,
                         type:'field'
                     };
-                    var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
+                    // var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
                     Axios.post(url,msg).then(
                         data => {
                             var status = data.data.status;
@@ -440,7 +420,7 @@ var EnviroTableTree = React.createClass({
                             aliasId:aliasId,
                             type:'array'
                         };
-                        var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
+                        // var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
                         Axios.post(url,msg).then(
                             data => {
                                 var status = data.data.status;
@@ -484,7 +464,6 @@ var EnviroTableTree = React.createClass({
                         var msg = {
                             _id:self.state.tabletree.getItem(rowId).id
                         };
-                        var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
                         Axios.post(url,msg).then(
                             data => {
                                 var status = data.data.status;
@@ -547,9 +526,42 @@ var EnviroTableTree = React.createClass({
                     }
                 };
 
-                tabletree.addItem = function (item) {
-
+                tabletree.addItems = function (items) {
+                    var addByRecursion = function (items,fatherID,ptabletree) {
+                        for(var i=0;i<items.length;i++){
+                            var newKey = {};
+                            for(key in items[i]){
+                                if(key != 'children'){
+                                    newKey[key] = items[i][key];
+                                }
+                            }
+                            var id;
+                            if(fatherID == null){
+                                id = ptabletree.add(newKey,0);
+                            }
+                            else
+                                id = ptabletree.add(newKey,0,fatherID);
+                            if(items[i]['children'] != null)
+                                addByRecursion(items[i]['children'],id,ptabletree);
+                            if(fatherID == null)
+                                ptabletree.open(id);
+                        }
+                        if(fatherID == null)
+                            $.gritter.add({
+                                title: '提示：',
+                                text: '添加所选'+type+'环境成功，请及时对其进行编辑！',
+                                sticky: false,
+                                time: 2000
+                            });
+                    };
+                    addByRecursion(items,null,this);
                 };
+                
+                tabletree.openItems = function (itemsID) {
+                    for(var i=0;i<itemsID.length;i++){
+                        this.open(itemsID[i]);
+                    }
+                }
             })
         }
     },
@@ -560,6 +572,14 @@ var EnviroTableTree = React.createClass({
 
     getChecked:function () {
         return this.state.tabletree.getChecked();
+    },
+    
+    addItems:function (items) {
+        this.state.tabletree.addItems(items);
+    },
+    
+    openItems:function (itemsID) {
+        this.state.tabletree.openItems(itemsID);
     },
 
     render : function()
@@ -574,9 +594,7 @@ var EnviroTableTree = React.createClass({
                 return (<span>Server err: {JSON.stringify(this.state.err)}</span>);
             }
         }
-
-
-
+        
         return (
             <div ref={this.props.tableID}>
                 <div id={'pager_'+this.props.tableID}></div>

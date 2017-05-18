@@ -159,14 +159,16 @@ module.exports = function(app)
     app.route('/setting/enviro/matching')
         .get(function (req, res, next) {
             var type=req.query.type;
-            var enviroments = req.query.enviroments;
+            var demands = JSON.parse(req.query.demands);
+            var enviro;
             if(type == 'hardware'){
-                
+                enviro = hweCtrl;
             }
             else if(type == 'software'){
-                sweCtrl.isSatisfied(enviroments,function (data) {
-                    res.end(data);
-                })
+                enviro = sweCtrl;
             }
+            enviro.ensMatched(demands,function (data) {
+                return res.end(data);
+            })
         })
 };

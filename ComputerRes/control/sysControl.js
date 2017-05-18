@@ -440,7 +440,7 @@ SysControl.autoDetectHW = function (callback) {
             hweList.push({
                 _id:new ObjectId(),
                 name:'hardware size',
-                value:Math.floor(totle/1024/1024/1024) + 'GB'
+                value:Math.floor(totle/1024/1024/1024) + ' GB'
             });
             fs.writeFile(__dirname + '/../helper/hardwareEnviro.txt',JSON.stringify(hweList),function (err) {
                 if(err){

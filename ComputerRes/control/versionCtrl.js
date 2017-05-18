@@ -12,21 +12,23 @@ var versionCtrl = function () {
 
 module.exports = versionCtrl;
 
-versionCtrl.valid = function (v) {
+versionCtrl.versionValid = function (v) {
     return true;
 };
 
 //comparision
 //comparator:gt gte lt lte eq ne x
 //return true false
-versionCtrl.match = function (v1, comparator, v2) {
+versionCtrl.versionMatch = function (v1, comparator, v2) {
     //特殊情况 0 和 infinite
-    if(v1 == '0')
+    if(v1 == '0'){
         if(comparator == 'lt' || comparator == 'lte')
             return true;
-    else if(v1 == 'infinite')
+    }
+    else if(v1 == 'infinite'){
         if(comparator == 'gt' || comparator == 'gte')
             return true;
+    }
     
     var vecV1 = v1.split('.');
     var vecV2 = v2.split('.');
@@ -125,7 +127,7 @@ versionCtrl.match = function (v1, comparator, v2) {
 };
 
 //return gt eq lt unknown
-versionCtrl.compare = function (v1, v2) {
+versionCtrl.versionCompare = function (v1, v2) {
     if(versionCtrl.match(v1,'eq',v2))
         return 'eq';
     else if(versionCtrl.match(v1,'gt',v2))
@@ -144,47 +146,42 @@ versionCtrl.compare = function (v1, v2) {
 //      *
 
 //检查range的合理性，并解析结构
-versionCtrl.validRange = function (range) {
+versionCtrl.rangeValid = function (range) {
     var rst = {
         isValid : false,
         childRanges : []
     };
     var childRanges = [];
-    if(range.indexOf('||')!=-1 || range.indexOf('&&')!=-1){
-        // range = range.replace(/\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/g,true);
-        var regObj = new RegExp(/\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*!((\w+\.?)+)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/g);
-        var group = [];
-        while (group = regObj.exec(range)){
-            childRanges.push(group[0]);
-        }
-        for(var i=0;i<childRanges.length;i++){
-            range = range.replace(childRanges[i],true);
-        }
-        try {
-            range = eval(range);
-            rst.isValid = true;
-            rst.childRanges = childRanges;
-        }
-        catch(e){
-            rst.isValid = false;
-        }
+    
+    // range = range.replace(/\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/g,true);
+    var regObj = new RegExp(/\s*(\w+\.?)+\s*|\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*!\s*((\w+\.?)+)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/g);
+    var group = [];
+    while (group = regObj.exec(range)){
+        childRanges.push(group[0]);
     }
-    else{
+    for(var i=0;i<childRanges.length;i++){
+        range = range.replace(childRanges[i],true);
+    }
+    try {
+        range = eval(range);
         rst.isValid = true;
-        rst.childRanges = [range];
+        rst.childRanges = childRanges;
+    }
+    catch(e){
+        rst.isValid = false;
     }
     return rst;
 };
 
 //判断是否满足环境需求
 //返回值 isValidRange  isSatisfied
-versionCtrl.satisfied = function (version, range) {
+versionCtrl.rangeMatch = function (version, range) {
     var satisfiesRst = {};
-    var validRst = versionCtrl.validRange(range);
+    var validRst = versionCtrl.rangeValid(range);
     if(validRst.isValid){
         satisfiesRst.isValidRange = true;
         for(var i=0;i<validRst.childRanges.length;i++){
-            var partRst = versionCtrl.baseMatch(version,validRst.childRanges[i]);
+            var partRst = versionCtrl.rangeMatchBase(version,validRst.childRanges[i]);
             range = range.replace(validRst.childRanges[i],partRst);
         }
         // 将逻辑表达式的str转换为逻辑表达式
@@ -205,36 +202,41 @@ versionCtrl.satisfied = function (version, range) {
 };
 
 //比较版本的原子操作，range是最简单的一个范围，只能是四种情况中的一种
-versionCtrl.baseMatch = function (version,range) {
+versionCtrl.rangeMatchBase = function (version,range) {
     var group = [];
-    if(range == '*')
+    if(range.trim() == '*')
         return true;
+    else if(group = range.match(/\s*((\w+\.?)+)\.x|X\s*/)){
+        return versionCtrl.versionMatch(group[0],'x',version);
+    }
+    else if(group = range.match(/\s*!\s*((\w+\.?)+)\s*/)){
+        return versionCtrl.versionMatch(group[2],'ne',version);
+    }
     else if(group = range.match(/\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*/)){
         var min = group[1];
         var max = group[3];
-        return versionCtrl.match(min,'lt',version) && versionCtrl.match(max,'gt',version)
+        return versionCtrl.versionMatch(min,'lt',version) && versionCtrl.versionMatch(max,'gt',version)
     }
     else if(group = range.match(/\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/)){
         var min = group[1];
         var max = group[3];
-        return versionCtrl.match(min,'lte',version) && versionCtrl.match(max,'gte',version)
+        return versionCtrl.versionMatch(min,'lte',version) && versionCtrl.versionMatch(max,'gte',version)
     }
     else if(group = range.match(/\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*/)){
         var min = group[1];
         var max = group[3];
-        return versionCtrl.match(min,'lte',version) && versionCtrl.match(max,'gt',version)
+        return versionCtrl.versionMatch(min,'lte',version) && versionCtrl.versionMatch(max,'gt',version)
     }
     else if(group = range.match(/\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/)){
         var min = group[1];
         var max = group[3];
-        return versionCtrl.match(min,'lt',version) && versionCtrl.match(max,'gte',version)
+        return versionCtrl.versionMatch(min,'lt',version) && versionCtrl.versionMatch(max,'gte',version)
     }
-    else if(group = range.match(/\s*((\w+\.?)+)\.x|X\s*/)){
-        return versionCtrl.match(group[0],'x',version);
+    else if(group = range.match(/\s*(\w+\.?)+\s*/)){    //只能放在最后面
+        return versionCtrl.versionMatch(group[0],'eq',version);
     }
-    else if(group = range.match(/\s*!\s*((\w+\.?)+)\s*/)){
-        return versionCtrl.match(group[2],'ne',version);
-    }
+    else 
+        return false;
     // else if(group = range.match(/\s*>\s*((\w+\.?)+)\s*/)){
     //     return versionCtrl.match(group[1],'lt',version);
     // }
@@ -252,10 +254,10 @@ versionCtrl.baseMatch = function (version,range) {
     // }
 };
 
-// versionCtrl.gtr = function (version, range) {
-//
-// };
-//
-// versionCtrl.ltr = function (version, range) {
-//
-// };
+versionCtrl.gtr = function (version, range) {
+
+};
+
+versionCtrl.ltr = function (version, range) {
+
+};

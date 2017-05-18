@@ -11,9 +11,7 @@ var EnviroTableTree = require('./enviroTableTree');
 
 var EnviroPanel = React.createClass({
     getInitialState : function () {
-        return {
-            refreshChild:false
-        };
+        return {};
     },
 
     componentDidMount : function () {
@@ -35,7 +33,6 @@ var EnviroPanel = React.createClass({
                 sticky: false,
                 time: 2000
             });
-            // return $('#' + this.props.tableID + '-' + method + '-modal').trigger("click");
         }
         var addData = {
             itemsID:checkedItems
@@ -43,18 +40,30 @@ var EnviroPanel = React.createClass({
         var url = '/setting/enviro?method=' + method + '&type=' + type;
         Axios.post(url,addData).then(
             data => {
-                //TODO 局部刷新tabletree，并打开新添加的节点
-                $('#' + this.props.tableID + '-' + method + '-modal').trigger("click");
-                
-                this.refs[this.props.tableID + '-ref'].refreshTree();
-                // this.setState({refreshChild:true});
-                
-                $.gritter.add({
-                    title: '提示：',
-                    text: '添加'+(type=='software'?'软件':'硬件')+'环境成功！',
-                    sticky: false,
-                    time: 2000
-                });
+                if(data.data.status == 1){
+                    $('#' + this.props.tableID + '-' + method + '-modal').trigger("click");
+                    //局部刷新tabletree，并打开新添加的节点
+                    if(data.data.newInsertedItems　&& data.data.newInsertedItems.length != 0) {
+                        this.refs[this.props.tableID + '-ref'].addItems(data.data.newInsertedItems);
+                    }
+                    if(data.data.hasInsertedItems &&　data.data.hasInsertedItems.length != 0){
+                        this.refs[this.props.tableID + '-ref'].openItems(data.data.hasInsertedItems);
+                        $.gritter.add({
+                            title: '提示：',
+                            text: '部分'+type=='software'?'软件':'硬件'+'环境已经存在，请进行编辑！',
+                            sticky: false,
+                            time: 2000
+                        });
+                    }
+                }
+                else{
+                    $.gritter.add({
+                        title: '提示：',
+                        text: '添加'+(type=='software'?'软件':'硬件')+'环境失败，请稍后重试！',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
             },
             err => {
                 $.gritter.add({
@@ -157,7 +166,6 @@ var EnviroPanel = React.createClass({
                                         source={url + '&method=get'}
                                         ref={this.props.tableID + '-ref'}
                                         fields={this.props.fields}
-                                        refresh={this.state.refreshChild}
                                     />
                                 </div>
                             </div>

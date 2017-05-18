@@ -76,7 +76,7 @@ softwareEnCtrl.addItem = function (item, callback) {
         }
         else{
             if(rst.hasInserted){
-                return callback(JSON.stringify({status:2,_id:rst._id}));
+                return callback(JSON.stringify({status:2,_id:rst.insertedItem._id}));
             }
             else{
                 softwareEnCtrl.save(item,function (err, data) {
@@ -131,8 +131,9 @@ softwareEnCtrl.addByAuto = function (itemsID,callback) {
                     }
                 }
             }
-            var ids = [];
             
+            var newInsertedItems = [];
+            var hasInsertedItems = [];
             var addByRecursion = function (index) {
                 delete items2add[index]._id;
                 softwareEnCtrl.hasInserted(items2add[index],function (err,rst) {
@@ -140,30 +141,44 @@ softwareEnCtrl.addByAuto = function (itemsID,callback) {
                         return callback(JSON.stringify({status:0}));
                     }
                     else{
-                        if(!rst.hasInserted){
+                        if(rst.hasInserted){
+                            hasInsertedItems.push(rst.insertedItem._id);
+                            if(index<items2add.length-1){
+                                addByRecursion(index+1);
+                            }
+                            else{
+                                sweModel.items2TableTree(newInsertedItems,function (err, newInsertedItems) {
+                                    if(err){
+                                        callback(JSON.stringify({status:0}));
+                                    }
+                                    else{
+                                        return callback(JSON.stringify({status:1,newInsertedItems:newInsertedItems,hasInsertedItems:hasInsertedItems}));
+                                    }
+                                });
+                            }
+                        }
+                        else{
                             sweModel.save(items2add[index],function (err, data) {
                                 if(err){
                                     callback(JSON.stringify({status:0}));
                                 }
                                 else{
-                                    ids.push(data._doc._id);
+                                    newInsertedItems.push(data._doc);
                                     if(index<items2add.length-1){
                                         addByRecursion(index+1);
                                     }
                                     else{
-                                        return callback(JSON.stringify({status:1,ids:ids}));
+                                        sweModel.items2TableTree(newInsertedItems,function (err, newInsertedItems) {
+                                            if(err){
+                                                callback(JSON.stringify({status:0}));
+                                            }
+                                            else{
+                                                return callback(JSON.stringify({status:1,newInsertedItems:newInsertedItems,hasInsertedItems:hasInsertedItems}));
+                                            }
+                                        });
                                     }
                                 }
                             })
-                        }
-                        else{
-                            if(index<items2add.length-1){
-                                addByRecursion(index+1);
-                            }
-                            else{
-                                ids.push(rst._id);
-                                return callback(JSON.stringify({status:1,ids:ids}));
-                            }
                         }
                     }
                 });
@@ -171,7 +186,7 @@ softwareEnCtrl.addByAuto = function (itemsID,callback) {
             if(items2add.length!=0)
                 addByRecursion(0);
             else
-                return callback(JSON.stringify({status:1,ids:[]}));
+                return callback(JSON.stringify({status:1,insertedItems:[]}));
         }
     })
 };
@@ -200,9 +215,9 @@ softwareEnCtrl.hasInserted = function (item, callback) {
                     }
                 }
                 if (index!=-1){
-                    var versionEQ = versionCtrl.match(item.version,'eq',swes[index].version);
+                    var versionEQ = versionCtrl.versionMatch(item.version,'eq',swes[index].version);
                     if(versionEQ == true){
-                        return callback(null,{hasInserted:true,_id:swes[index]._id});
+                        return callback(null,{hasInserted:true,insertedItem:swes[index]});
                     }
                 }
             }
@@ -213,15 +228,15 @@ softwareEnCtrl.hasInserted = function (item, callback) {
 
 //判断环境是否匹配
 //返回 status unSatisfiedList
-softwareEnCtrl.isSatisfied = function (ranges,callback) {
+softwareEnCtrl.ensMatched = function (demands,callback) {
     sweModel.getByWhere({},function (err, swes) {
         if(err){
             return callback(JSON.stringify({status:0}));
         }
         else {
             var unSatisfiedList = [];
-            for(var i=0;i<ranges.length;i++){
-                var name = ranges[i].name.trim();
+            for(var i=0;i<demands.length;i++){
+                var name = demands[i].name.trim();
                 name = name.replace(/\s+/g,' ');
                 var isSatisfied = false;
                 for(var j=0;j<swes.length;j++){
@@ -239,14 +254,14 @@ softwareEnCtrl.isSatisfied = function (ranges,callback) {
                     }
                     if(index != -1){
                         //判断版本
-                        if(versionCtrl.satisfied(swes[j].version, ranges[i].version)){
+                        if(versionCtrl.rangeMatch(swes[j].version, demands[i].version)){
                             isSatisfied = true;
                             break;
                         }
                     }
                 }
                 if(!isSatisfied){
-                    unSatisfiedList.push(ranges);
+                    unSatisfiedList.push(demands);
                 }
             }
             return callback(JSON.stringify({status:1,unSatisfiedList:unSatisfiedList}));
