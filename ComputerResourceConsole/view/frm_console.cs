@@ -31,15 +31,23 @@ namespace ComputerResourceConsole
             {
                 this.setMongoView(false, true, true, "已启动", Color.Green);
             }
+            else if (mgmark == -1)
+            {
+                this.setMongoView(false, false, false, "已启动（无法修改）", Color.Orange);
+            }
             else
             {
                 this.setMongoView(true, false, false, "未启动", Color.Red);
             }
 
             int rdsmark = _pRdsCtrl.init(onRedisExit);
-            if (mgmark == 1)
+            if (rdsmark == 1)
             {
                 this.setRedisView(false, true, true, "已启动", Color.Green);
+            }
+            else if (rdsmark == -1)
+            {
+                this.setRedisView(false, false, false, "已启动（无法修改）", Color.Orange);
             }
             else
             {
@@ -47,9 +55,13 @@ namespace ComputerResourceConsole
             }
 
             int ctnmark = _pCtnCtrl.init(onContainerExit);
-            if (mgmark == 1)
+            if (ctnmark == 1)
             {
                 this.setContainerView(false, true, true, "已启动", Color.Green);
+            }
+            else if (ctnmark == -1)
+            {
+                this.setContainerView(false, false, false, "已启动（无法修改）", Color.Orange);
             }
             else
             {
@@ -92,12 +104,20 @@ namespace ComputerResourceConsole
         {
             if (this.bt_mg_start.InvokeRequired)
             {
+                this._pMgCtrl.Status = "Stopped";
                 CommonMethod.CommonEvent stcb = new CommonMethod.CommonEvent(onMongoExit);
                 this.Invoke(stcb, new object[] { sender, e });
             }
             else
             {
-                this.setMongoView(true, false, false, "未启动", Color.Red);
+                if (_pMgCtrl.Status == "Stopped")
+                {
+                    this.setMongoView(true, false, false, "未启动", Color.Red);
+                }
+                else
+                {
+                    this.setMongoView(false, true, true, "已启动", Color.Green);
+                }
             }
         }
 
@@ -106,12 +126,20 @@ namespace ComputerResourceConsole
         {
             if (this.bt_rds_start.InvokeRequired)
             {
+                this._pRdsCtrl.Status = "Stopped";
                 CommonMethod.CommonEvent stcb = new CommonMethod.CommonEvent(onRedisExit);
                 this.Invoke(stcb, new object[] { sender, e });
             }
             else
             {
-                this.setRedisView(true, false, false, "未启动", Color.Red);
+                if (_pRdsCtrl.Status == "Stopped")
+                {
+                    this.setRedisView(true, false, false, "未启动", Color.Red);
+                }
+                else
+                {
+                    this.setRedisView(false, true, true, "已启动", Color.Green);
+                }
             }
         }
 
@@ -120,12 +148,20 @@ namespace ComputerResourceConsole
         {
             if (this.bt_ctn_start.InvokeRequired)
             {
+                this._pCtnCtrl.Status = "Stopped";
                 CommonMethod.CommonEvent stcb = new CommonMethod.CommonEvent(onContainerExit);
                 this.Invoke(stcb, new object[] { sender, e });
             }
             else
             {
-                this.setContainerView(true, false, false, "未启动", Color.Red);
+                if (_pCtnCtrl.Status == "Stopped")
+                {
+                    this.setContainerView(true, false, false, "未启动", Color.Red);
+                }
+                else
+                {
+                    this.setContainerView(false, true, true, "已启动", Color.Green);
+                }
             }
         }
 

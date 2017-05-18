@@ -4,13 +4,17 @@
  */
 var http = require('http');
 var fs = require('fs');
-var request = require('request-promise');
+var requestPromise = require('request-promise');
+var j = require('request').jar();
+var request = require('request').defaults({jar : j});
+
+var setting = require('../setting');
 
 function RemoteReqControl() {}
 
 module.exports = RemoteReqControl;
 
-//ä½¿ç”¨requestæ¨¡å—ï¼Œä»¥getæ–¹å¼è¯·æ±‚urlä¸­çš„å†…å®¹
+//Ê¹ÓÃrequestÄ£¿é£¬ÒÔget·½Ê½ÇëÇóurlÖĞµÄÄÚÈİ
 RemoteReqControl.getRequest = function (req, url, callback) {
     req.pipe(request.get(url, function (err, response, data) {
         if(err)
@@ -21,7 +25,7 @@ RemoteReqControl.getRequest = function (req, url, callback) {
     }));
 };
 
-//ä½¿ç”¨requestæ¨¡å—ï¼Œä»¥postæ–¹å¼è¯·æ±‚urlä¸­çš„å†…å®¹ï¼Œpostçš„è¡¨å•åœ¨reqä¸­
+//Ê¹ÓÃrequestÄ£¿é£¬ÒÔpost·½Ê½ÇëÇóurlÖĞµÄÄÚÈİ£¬postµÄ±íµ¥ÔÚreqÖĞ
 RemoteReqControl.postRequest = function (req, url, callback) {
     req.pipe(request.post(url, function (err, response, data) {
         if(err)
@@ -32,7 +36,7 @@ RemoteReqControl.postRequest = function (req, url, callback) {
     }));
 };
 
-//ä½¿ç”¨requestæ¨¡å—ï¼Œä»¥postæ–¹å¼è¯·æ±‚urlï¼Œè¡¨å•åœ¨formä¸­
+//Ê¹ÓÃrequestÄ£¿é£¬ÒÔpost·½Ê½ÇëÇóurl£¬±íµ¥ÔÚformÖĞ
 RemoteReqControl.postByServer = function (url, form, callback) {
     var options;
     if(form){
@@ -48,7 +52,7 @@ RemoteReqControl.postByServer = function (url, form, callback) {
             method:'POST'
         };
     }
-    request(options)
+    requestPromise(options)
         .then(function (res) {
             return callback(null,res);
         })
@@ -57,14 +61,14 @@ RemoteReqControl.postByServer = function (url, form, callback) {
         });
 };
 
-//ä½¿ç”¨requestæ¨¡å—ï¼Œä»¥getæ–¹å¼è¯·æ±‚urlï¼Œè¡¨å•åœ¨formä¸­
+//Ê¹ÓÃrequestÄ£¿é£¬ÒÔget·½Ê½ÇëÇóurl£¬±íµ¥ÔÚformÖĞ
 RemoteReqControl.getByServer = function (url, form, callback) {
     var options = {
         url:url,
         method:'GET',
         qs:form
     };
-    request(options)
+    requestPromise(options)
         .then(function (res) {
             return callback(null,res);
         })
@@ -75,6 +79,54 @@ RemoteReqControl.getByServer = function (url, form, callback) {
 
 RemoteReqControl.getRequestJSON = function (url, callback) {
     request.get(url,function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.postRequestJSON = function (url, callback) {
+    request.post(url,function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.postRequestJSONWithFormData = function (url, form, callback) {
+    request.post( { url : url, formData : form, jar : j}, function (err, response, data) {
+        if (err) {
+            return callback(err);
+        }
+        try {
+            var obj = eval('(' + data + ')');
+        }
+        catch (ex) {
+            return callback(ex, null);
+        }
+        data = JSON.parse(data);
+        return callback(null, data);
+    });
+};
+
+RemoteReqControl.postRequestJSONWithForm = function (url, form, callback) {
+    request.post( { url : url, form : form, jar : j}, function (err, response, data) {
         if (err) {
             return callback(err);
         }
@@ -123,6 +175,14 @@ RemoteReqControl.deleteRequestJSON = function (url, callback) {
 
 RemoteReqControl.getRequestPipe = function (res, url) {
     request.get(url).pipe(res);
+};
+
+RemoteReqControl.postDownload = function(url, form, path, callback){
+    request.post(url,
+        {form : form }
+    ).pipe(fs.createWriteStream(path)).on('close', function(){
+        return callback();
+    });
 };
 
 RemoteReqControl.ping = function(target, callback){

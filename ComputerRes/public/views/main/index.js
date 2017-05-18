@@ -13,9 +13,8 @@ var ParentPanel = require('../components/systemSetting/parentPanel');
 var CloudModelSerTable = require('../components/modelSer/cloudModelSerTable');
 var DataCollectionTable = require('../components/data/dataCollectionTable');
 var DataPreparation = require('../components/data/dataPreparation');
+var ModelSerUploader = require('../components/modelSer/modelSerUploader');
 var EnviroPanel = require('../components/systemSetting/enviroPanel');
-var EnviroTable = require('../components/systemSetting/enviroTable');
-
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
         <RmtModelSerTable
@@ -61,6 +60,13 @@ if(document.getElementById('cloudModelSerTable') != null) {
 if(document.getElementById('dataCollectionTable') != null) {
     ReactDOM.render(<DataCollectionTable source="/geodata/json/all"/>,
         document.getElementById('dataCollectionTable'));
+}
+
+if(document.getElementById('modelSerUploader') != null) {
+    ReactDOM.render(<ModelSerUploader 
+    data-source-category="/modelser/cloud/category"
+    data-msid={document.getElementById('modelSerUploader').getAttribute('data-msid')}/> ,
+        document.getElementById('modelSerUploader'));
 }
 
 if(document.getElementById('DataPreparation') != null) {

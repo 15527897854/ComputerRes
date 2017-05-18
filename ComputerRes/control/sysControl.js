@@ -235,6 +235,39 @@ SysControl.getValueByIndex = function (ss_index, callback) {
     })
 };
 
+//登陆门户
+SysControl.loginPortal = function(uname, pwd, callback){
+    RemoteControl.postRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/LoginServlet?username=' + uname + '&password=' + pwd, function(err, data){
+        if(err){
+            return callback(err);
+        }
+        if(data == '1'){
+            return callback(null, true);
+        }
+        else{
+            return callback(null, true);
+        }
+    });
+};
+
+//获取门户账号密码
+SysControl.getPortalToken = function(callback){
+    var portalToken = {};
+    systemSettingModel.getValueByIndex('portal_uname', function(err, value){
+        if(err){
+            return callback(err);
+        }
+        portalToken['portal_uname'] = value.ss_value;
+        systemSettingModel.getValueByIndex('portal_pwd', function(err, value){
+            if(err){
+                return callback(err);
+            }
+            portalToken['portal_pwd'] = value.ss_value;
+            return callback(null, portalToken);
+        });
+    });
+};
+
 //获取父节点
 SysControl.getParent = function(callback){
     systemSettingModel.getValueByIndex('parent', this.returnFunction(callback, 'error in get parent'));
@@ -253,13 +286,12 @@ SysControl.setParent = function(newparent, callback){
             {
                 return callback(err);
             }
-
-            //TODO 向父节点提交请求
-
-
-            return callback(null, result);
-        });
-    });
+            RemoteControl.postRequestJSONWithForm('http://' + parent.ss_value + '/child-node', {
+                port : setting.port,
+                platform : setting.platform
+            }, this.returnFunction(callback, 'error in post child'));
+        }.bind(this));
+    }.bind(this));
 };
 
 //检查服务器是否可用

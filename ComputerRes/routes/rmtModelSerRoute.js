@@ -6,7 +6,6 @@ var remoteReqCtrl = require('../control/remoteReqControl');
 var childCtrl = require('../control/childControl');
 var ModelSerControl = require('../control/modelSerControl');
 var RouteBase = require('./routeBase');
-var ParamCheck = require('../utils/paramCheck');
 
 module.exports = function(app)
 {

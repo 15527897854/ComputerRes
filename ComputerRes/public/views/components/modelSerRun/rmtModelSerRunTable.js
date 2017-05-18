@@ -15,6 +15,7 @@ var RmtModelSerRunTable = React.createClass({
             type : this.props['data-type']
         };
     },
+
     componentDidMount : function () {
         this.refresh();
     },

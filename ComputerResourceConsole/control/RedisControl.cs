@@ -19,20 +19,18 @@ namespace ComputerResourceConsole.control
             this._pRedisOpera = ComponentOperaFactory.createRedisOpera();
 
             this._pRedisOpera.FilePath = this._pConfig.RedisPath;
-        }
-
-        public string status
-        {
-            get { return ""; }
+            this._pRedisOpera.LogPath = _pConfig.RedisLogPath;
         }
 
         public int start(CommonMethod.CommonEvent exit)
         {
+            this._status = "Started";
             return this._pRedisOpera.start(exit);
         }
 
         public int stop()
         {
+            this._status = "Stopped";
             return this._pRedisOpera.stop();
         }
 

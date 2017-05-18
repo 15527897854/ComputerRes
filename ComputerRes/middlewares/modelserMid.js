@@ -2,10 +2,13 @@
  * Created by Franklin on 2017/3/15.
  */
 
+var formidable = require('formidable');
+var uuid = require('node-uuid');
+
 var Setting = require('../setting');
 var FileOpera = require('../utils/fileOpera');
-var formidable = require('formidable');
 var ModelSerControl = require('../control/modelSerControl');
+var RemoteReqControl = require('../control/remoteReqControl');
 var MidBase = require('./midBase');
 
 var ModelSerMid = function () {
@@ -87,4 +90,39 @@ ModelSerMid.NewRmtModelSer = function (req, callback) {
             });
         }.bind(this));
     }.bind(this));
+};
+
+//下载门户模型包
+ModelSerMid.getCloudPackage = function(fields, pid, callback){
+    var fileName = Setting.modelpath + 'tmp/' + pid + '.zip';
+    RemoteReqControl.postDownload('http://' + Setting.portal.host + ':' + Setting.portal.port + '/GeoModeling/GetDeployPackageServlet',
+        {
+            uid : pid
+        }, fileName,
+        function(){
+            fields = JSON.parse(fields);
+            var ms = {
+                m_name : fields.model_name,
+                m_type : null,
+                m_url : "",
+                ms_limited : 1,
+                mv_num : 1,
+                ms_des : fields.model_description,
+                ms_xml : null,
+                u_name : fields.model_author,
+                m_model_append : {
+                    m_id : fields.model_id,
+                    p_id : pid
+                }
+            };
+            ModelSerControl.addNewModelSer(ms, {
+                file_model : {
+                    path : fileName
+                },
+                ms_img : {
+                    size : 0
+                }
+            }, this.returnFunction(callback, "err in download a service"))
+        }.bind(this)
+    );
 };

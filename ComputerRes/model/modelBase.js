@@ -36,8 +36,9 @@ ModelBase.getByWhere = function (where, callback) {
 };
 
 ModelBase.update = function (newItem, callback) {
-    var where = {'_id':newItem._id},
-        toUpdate = newItem;
+    var where = {'_id':newItem._id};
+    var toUpdate = newItem;
+    delete toUpdate['_id'];
     this.baseModel.update(where,toUpdate,this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
 };
 
