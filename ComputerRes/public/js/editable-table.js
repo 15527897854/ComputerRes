@@ -3,7 +3,7 @@ var EditableTable = function () {
     return {
 
         //main function to initiate the module
-        init: function () {
+        init: function (tableID) {
             function restoreRow(oTable, nRow) {
                 var aData = oTable.fnGetData(nRow);
                 var jqTds = $('>td', nRow);
@@ -44,7 +44,7 @@ var EditableTable = function () {
                 oTable.fnDraw();
             }
 
-            var oTable = $('#editable-sample').dataTable({
+            var oTable = $('#' + tableID).dataTable({
                 "aLengthMenu": [
                     [5, 15, 20, -1],
                     [5, 15, 20, "All"] // change per page values here
@@ -67,12 +67,12 @@ var EditableTable = function () {
                 ]
             });
 
-            jQuery('#editable-sample_wrapper .dataTables_filter input').addClass("form-control medium"); // modify table search input
-            jQuery('#editable-sample_wrapper .dataTables_length select').addClass("form-control xsmall"); // modify table per page dropdown
+            jQuery('#'+tableID+'_wrapper .dataTables_filter input').addClass("form-control medium"); // modify table search input
+            jQuery('#'+tableID+'_wrapper .dataTables_length select').addClass("form-control xsmall"); // modify table per page dropdown
 
             var nEditing = null;
 
-            $('#editable-sample_new').click(function (e) {
+            $('#' + tableID + '-btn').click(function (e) {
                 e.preventDefault();
                 var aiNew = oTable.fnAddData(['', '', '', '',
                         '<a class="edit" href="">Edit</a>', '<a class="cancel" data-mode="new" href="">Cancel</a>'
@@ -82,7 +82,7 @@ var EditableTable = function () {
                 nEditing = nRow;
             });
 
-            $('#editable-sample a.delete').live('click', function (e) {
+            $('#'+tableID+' a.delete').live('click', function (e) {
                 e.preventDefault();
 
                 if (confirm("Are you sure to delete this row ?") == false) {
@@ -94,7 +94,7 @@ var EditableTable = function () {
                 alert("Deleted! Do not forget to do some ajax to sync with backend :)");
             });
 
-            $('#editable-sample a.cancel').live('click', function (e) {
+            $('#'+tableID+' a.cancel').live('click', function (e) {
                 e.preventDefault();
                 if ($(this).attr("data-mode") == "new") {
                     var nRow = $(this).parents('tr')[0];
@@ -105,7 +105,7 @@ var EditableTable = function () {
                 }
             });
 
-            $('#editable-sample a.edit').live('click', function (e) {
+            $('#'+tableID+' a.edit').live('click', function (e) {
                 e.preventDefault();
 
                 /* Get the row as a parent of the link that was clicked on */

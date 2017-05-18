@@ -31,7 +31,7 @@ ModelBase.getByOID = function(_oid,callback){
 ModelBase.getByWhere = function (where, callback) {
     if(ParamCheck.checkParam(callback, where))
     {
-        this.baseModel.find(where, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by where'));
+        this.baseModel.find(where).sort({'_id':-1}).exec(this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by where'));
     }
 };
 
@@ -44,4 +44,115 @@ ModelBase.update = function (newItem, callback) {
 
 ModelBase.updateByWhere = function (where, update,options, callback) {
     this.baseModel.update(where,update,options,this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
+};
+
+ModelBase.save = function (item, callback) {
+    var newItem = new this.baseModel(item);
+    newItem.save(function (err, rst) {
+        if(err){
+            console.log('mongoDB err in save!');
+            return callback(err);
+        }
+        else{
+            callback(null,rst);
+        }
+    });
+};
+
+//转为webix支持的json
+ModelBase.items2TableTree = function (srcItems,callback) {
+    var ItemKeyConvertor = function (srcKey,srcItem) {
+        if(srcKey == '__v')
+            return null;
+        if(srcKey == '_id')
+            return null;
+        var dstItem;
+        var type = typeof(srcItem[srcKey]);
+        if(srcItem[srcKey] == null){
+            type = 'string';
+        }
+        if(type == 'object'){
+            if(srcItem[srcKey].length == undefined){
+                type = 'Object';
+            }
+            else
+                type = 'Array';
+        }
+        dstItem = {
+            title:srcKey,
+            type:type
+            // folder:(type=='Object' || type=='Array')
+        };
+        if(type == 'Object'){
+            var children = [];
+            for(key in srcItem[srcKey]){
+                children.push(ItemKeyConvertor(key,srcItem[srcKey]));
+            }
+            dstItem.children = children;
+        }
+        else if(type == 'Array'){
+            var children = [];
+            for(var i=0;i<srcItem[srcKey].length;i++){
+                children.push(ItemKeyConvertor(i,srcItem[srcKey]));
+            }
+            dstItem.children = children;
+        }
+        else{
+            dstItem.value = srcItem[srcKey];
+        }
+        return dstItem;
+    };
+
+    var ItemConvertor = function (item) {
+        var rst = {
+            title : item['name'],
+            id:item['_id'],
+            // folder : true,
+            type : 'Object'
+        };
+        var children = [];
+        for(key in item){
+            var child = ItemKeyConvertor(key,item);
+            if(child)
+                children.push(child);
+        }
+        rst.children = children;
+        return rst;
+    };
+
+    var ItemsConvertor = function (i,srcItems,dstItems,callback) {
+        if(i<srcItems.length){
+            dstItems.push(ItemConvertor(srcItems[i]));
+            ItemsConvertor(i+1,srcItems,dstItems,callback);
+        }
+        else{
+            callback(null,dstItems);
+        }
+    };
+
+    try{
+        ItemsConvertor(0,srcItems,[],callback);
+    }
+    catch(err){
+        callback(err);
+    }
+};
+
+ModelBase.all2TableTree = function (callback) {
+    this.baseModel.find({}).sort({'_id':-1}).exec(function (err, data) {
+        if(err){
+            callback(err);
+        }
+        else{
+            data = JSON.parse(JSON.stringify(data));
+            ModelBase.items2TableTree(data,function (err, data) {
+                if(err){
+                    callback(err);
+                }
+                else{
+                    callback(null,data);
+                }
+            })
+        }
+    })
 };

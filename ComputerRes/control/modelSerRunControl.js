@@ -6,16 +6,19 @@ var ModelSerRun = require('../model/modelSerRun');
 var RemoteReqControl = require('./remoteReqControl');
 var Child = require('../model/child');
 var ParamCheck = require('../utils/paramCheck');
+var controlBase = require('./controlBase');
 
 function ModelSerRunCtrl()
 {}
 
+ModelSerRunCtrl.__proto__ = controlBase;
 module.exports = ModelSerRunCtrl;
+ModelSerRunCtrl.model = ModelSerRun;
 
 //新增模型运行记录
 ModelSerRunCtrl.addItem = function (msr, callback) {
     var newmsr = new ModelSerRun(msr);
-    newmsr.save(function (err, data) {
+    ModelSerRun.save(newmsr,function (err, data) {
         if(err)
         {
             return callback(err);

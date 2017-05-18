@@ -3,68 +3,18 @@
  */
 
 var ModelNotice = require('../model/notice');
+var controlBase = require('./controlBase');
 
 function ModelNoticeCtrl() {
 
 }
 
+ModelNoticeCtrl.__proto__ = controlBase;
+ModelNoticeCtrl.model = ModelNotice;
 module.exports = ModelNoticeCtrl;
 
-ModelNoticeCtrl.getByWhere = function(where,callback) {
-    ModelNotice.getByWhere(where, function(err, data)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, data);
-    });
-};
 
-ModelNoticeCtrl.addNotice = function(newNotice, callback) {
-    ModelNotice.save(newNotice,function(err, data)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, data);
-    });
-};
-
-ModelNoticeCtrl.delByOID = function(msid, callback) {
-    ModelNotice.delete(msid,function(err, data)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, data);
-    });
-};
-
-ModelNoticeCtrl.getByOID = function(msid, callback) {
-    ModelNotice.getByOID(msid,function(err, data)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, data);
-    });
-};
-
-ModelNoticeCtrl.update = function(notice, callback) {
-    ModelNotice.update(notice, function(err, data)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, data);
-    });
-};
-
+//将未读标记为已读
 ModelNoticeCtrl.updateState = function (where, callback) {
     if(where._id == 'all'){
         ModelNotice.updateByWhere({},{$set:{hasRead:true}},{multi:true,upsert:false},function (err, data) {

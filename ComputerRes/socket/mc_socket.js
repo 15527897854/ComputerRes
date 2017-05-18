@@ -109,7 +109,7 @@ function SocketTrans(app)
                                 type:'stop-run',
                                 hasRead:false
                             };
-                            NoticeCtrl.addNotice(noticeData,function (err, data) {
+                            NoticeCtrl.save(noticeData,function (err, data) {
                                 if(err){
                                     return console.log('Error in addNotice');
                                 }

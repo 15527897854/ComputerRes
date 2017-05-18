@@ -66,33 +66,6 @@ var MS = mongoose.model('modelservice',msSchema);
 ModelService.baseModel = MS;
 ModelService.modelName = "model service";
 
-//新增模型服务信息
-ModelService.prototype.save = function(callback) {
-    //ModelService
-    var modelservice = {
-        _id : new ObjectId(this._id),
-        ms_model : this.ms_model,
-        mv_num : this.mv_num,
-        ms_des : this.ms_des,
-        ms_update : this.ms_update,
-        ms_platform : this.ms_platform,
-        ms_path : this.ms_path,
-        ms_img : this.ms_img,
-        ms_xml : this.ms_xml,
-        ms_status : this.ms_status,
-        ms_user : this.ms_user,
-        ms_limited : this.ms_limited
-    };
-    modelservice = new MS(modelservice);
-    modelservice.save(function (err, item) {
-        if(err)
-        {
-            return callback(err);
-        }
-        return callback(null, item);
-    });
-};
-
 //根据计算服务器获取模型服务
 ModelService.getAll = function(flag, callback){
     if(ParamCheck.checkParam(callback, flag))

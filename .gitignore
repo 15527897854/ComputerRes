@@ -17,3 +17,6 @@ BAK
 output
 /ComputerRes/public/js/output/bundle.js
 ComputerRes.
+/ComputerRes/helper/softwareEnviro.txt
+/ComputerRes/helper/softwareVersion.txt
+/ComputerRes/helper/hardwareEnviro.txt

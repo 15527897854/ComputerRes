@@ -119,11 +119,6 @@ module.exports = function(app)
     //         });
     //     });
 
-    app.route('/setting')
-        .get(function (req, res, next) {
-            res.render('setting');
-        });
-
     //Test
     app.route('/test')
         .get(function (req, res, next) {
