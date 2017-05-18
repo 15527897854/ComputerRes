@@ -189,24 +189,55 @@
                     data : formdata,
                     processData : false,
                     contentType : false,
-                    success : function (data) {
-                        var resJson = JSON.parse(data);
-                        if(resJson.res == 'suc')
-                        {
-                            oid = resJson.oid;
+                    success : function (msg) {
+                        msg = JSON.parse(msg);
+                        if(msg.result == 'suc'){
+                            oid = msg.data._id;
                             recordFinish = true;
                             if(fileFinish == true)
                             {
-                                var newUrl = '/modelser/rmt/all';
-                                if($("#ms_limited").val() != 1){
-                                    newUrl =  '/modelser/rmt/<%=host %>/' + oid;
-                                }
-                                window.location.href = newUrl;
+                                window.location.href = '/modelser/rmt/<%=host %>/' + oid;
                             }
                         }
-                        else if(resJson.res == 'err 1' || resJson.res == 'err 2'){
-                            alert(resJson.des);
-                            window.location.href = '/modelser/new';
+                        else if(msg.result == 'err'){
+                            msg = msg.message;
+                            if(msg.status == 0)
+                            {
+                                //系统出错
+                                alert('系统出错，请稍后重试！');
+                            }
+                            else if(msg.status == 1)
+                            {
+                                msg = msg.rst;
+                                if(msg.isValidate){
+                                }
+                                else{
+                                    //上传文件结构出错
+                                    if(!msg.cfgfile){
+                                        alert('模型不合法，缺少config文件！');
+                                    }
+                                    if(msg.cfg.length){
+                                        var cfgerr = '';
+                                        for(var i=0;i<msg.cfg.length;i++){
+                                            cfgerr += msg.cfg[i];
+                                            if(i != msg.cfg.length-1)
+                                                cfgerr += ' ';
+                                        }
+                                        alert('config文件出错，可能与以下信息相关：\n'+ cfgerr);
+                                    }
+                                    else{
+                                        if(!msg.mdl){
+                                            alert('缺少mdl！');
+                                        }
+                                        else if(!msg.start){
+                                            alert('缺少模型入口程序！');
+                                        }
+                                    }
+                                }
+                            }
+                            else{
+                                alert('未知错误!' + JSON.stringify(msg));
+                            }
                         }
                     }
                 });

@@ -25,22 +25,57 @@ module.exports = function(app)
     //新增模型服务
     app.route('/modelser')
         .post(function(req, res, next) {
-            ModelSerMid.NewModelSer(req, function (err, rst) {
-                res.end(JSON.stringify(rst));
+            ModelSerMid.NewModelSer(req, function(err, rst){
+                if(err){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : err
+                    }));
+                }
+                if(rst.status == 0){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : rst
+                    }));
+                }
+                if(!rst.isValidate){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : rst
+                    }));
+                }
+                res.end(JSON.stringify({
+                    result : 'suc',
+                    data : rst.data
+                }));
             });
         });
 
     //远程上传ms    sessionID用于保存progress
     app.route('/modelser/:sessionid')
         .post(function(req, res, next) {
-            ModelSerMid.NewRmtModelSer(req, function (err, item) {
-                if(err)
-                {
-                    return res.end("Error : " + JSON.stringify(err));
+            ModelSerMid.NewRmtModelSer(req, function (err, rst) {
+                if(err){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : err
+                    }));
+                }
+                if(rst.status == 0){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : rst
+                    }));
+                }
+                if(!rst.isValidate){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : rst
+                    }));
                 }
                 res.end(JSON.stringify({
-                    res : 'suc',
-                    oid : item.data._id.toString()
+                    result : 'suc',
+                    data : rst.data
                 }));
             });
             //var sessionID = req.params.sessionID;
