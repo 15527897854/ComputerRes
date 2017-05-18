@@ -97,6 +97,17 @@ hardwareEnCtrl.addItem = function (item,callback) {
     })
 };
 
+hardwareEnCtrl.deleteItem = function (id,callback) {
+    hardwareEnCtrl.delete(id,function (err, data) {
+        if(err){
+            return callback(JSON.stringify({status:0}));
+        }
+        else{
+            return callback(JSON.stringify({status:1}))
+        }
+    })
+};
+
 hardwareEnCtrl.addByAuto = function (itemsID,callback) {
     sysCtrl.readAllHW(function (err, items) {
         if(err){
