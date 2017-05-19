@@ -162,7 +162,7 @@ hardwareEnCtrl.addByAuto = function (itemsID,callback) {
                                         addByRecursion(index+1);
                                     }
                                     else{
-                                        sweModel.items2TableTree(newInsertedItems,function (err, newInsertedItems) {
+                                        hweModel.items2TableTree(newInsertedItems,function (err, newInsertedItems) {
                                             if(err){
                                                 callback(JSON.stringify({status:0}));
                                             }
