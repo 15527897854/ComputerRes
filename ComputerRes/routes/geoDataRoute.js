@@ -19,7 +19,6 @@ var UDXVisualization = require('../model/UDX_Visualization');
 var UDXConvertor = require('../model/UDXConvertor');
 
 module.exports = function (app) {
-    
     //上传地理模型数据文件
     app.route('/geodata/file')
         .post(function (req, res, next) {
@@ -27,7 +26,7 @@ module.exports = function (app) {
             form.encoding = 'utf-8';		                        //设置编辑
             form.uploadDir = setting.modelpath + '/../geo_data/';//设置上传目录
             form.keepExtensions = true;                             //保留后缀
-            form.maxFieldsSize = 100 * 1024 * 1024;                 //文件大小
+            form.maxFieldsSize = 500 * 1024 * 1024;                 //文件大小
 
             fs.exists(form.uploadDir, function (exists) {
                 if(!exists){
