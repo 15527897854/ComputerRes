@@ -426,8 +426,10 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                         }
                     });
                 }
-                ////删除文件
+                
+                //删除文件
                 //FileOpera.rmdir(files.file_model.path);
+                
                 //转移模型包
                 fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
                     if(err){
@@ -486,6 +488,11 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                 afterUncompress();
             });
     }
+
+};
+
+//批量部署
+ModelSerControl.addByBatch = function () {
 
 };
 
