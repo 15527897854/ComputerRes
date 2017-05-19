@@ -23,3 +23,7 @@ ComputerRes.
 tmp
 geo_model
 redis.conf
+/ComputerRes/helper/dxdiag.exe.mui
+/ComputerRes/helper/dxdiagn.dll
+/ComputerRes/helper/dxdiagn.dll.mui
+/ComputerRes/helper/dxdiag.exe
