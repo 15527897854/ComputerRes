@@ -45,7 +45,7 @@ CommonMethod.crypto = function(buffer){
     encrypted += cip.update(buffer, 'binary', 'hex');
     encrypted += cip.final('hex');
     return encrypted;
-}
+};
 
 //解密
 CommonMethod.decrypto = function(buffer){
@@ -54,6 +54,6 @@ CommonMethod.decrypto = function(buffer){
     decrypted += decipher.update(buffer, 'hex', 'binary');
     decrypted += decipher.final('binary');
     return decrypted;
-}
+};
 
 module.exports = CommonMethod;
