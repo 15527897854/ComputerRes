@@ -276,7 +276,8 @@ ModelSerControl.getLocalModelSer = function(callback){
 };
 
 //模型压缩包文件结构验证
-//成功返回 isValidate = true，失败返回 错误信息
+//成功返回 isValidate == true，失败返回 错误信息
+//status == 0 表示后台读取数据库或者文件出错
 ModelSerControl.validate = function (modelPath, callback) {
     var configPath = modelPath + 'package.config';
     var rst = {
@@ -302,7 +303,7 @@ ModelSerControl.validate = function (modelPath, callback) {
                     callback({status:0});
                 }
                 else{
-                    //验证config
+                    //验证config文件
                     {
                         if(!cfg.host){
                             rst.isValidate = false;
@@ -347,8 +348,8 @@ ModelSerControl.validate = function (modelPath, callback) {
                                 else if(stat2){
                                     callback(rst);
                                 }
-            });
-        }
+                            });
+                        }
                         else if(err){
                             callback({status:0});
                         }
@@ -373,16 +374,14 @@ ModelSerControl.validate = function (modelPath, callback) {
         }
         
     });
-    
 };
 
 //新增模型服务
 //先解压到以_oid命名的文件夹中，验证成功在添加记录，失败不添加记录并删除该文件夹
 ModelSerControl.addNewModelSer = function(fields, files, callback){
-        var date = new Date();
-        var img = null;
-    if(files.ms_img)
-    {
+    var date = new Date();
+    var img = null;
+    if(files.ms_img) {
         if(files.ms_img.size != 0)
         {
             img = uuid.v1() + path.extname(files.ms_img.path);
@@ -394,22 +393,22 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
         }
     }
 
-        //产生新的OID
-        var oid = new ObjectId();
+    //产生新的OID
+    var oid = new ObjectId();
 
-        //解压路径
-        var model_path = setting.modelpath + oid.toString() + '/';
+    //解压路径
+    var model_path = setting.modelpath + oid.toString() + '/';
 
     var afterUncompress = function(){
-                //文件验证
-                ModelSerControl.validate(model_path,function (rst){
-                    if(!rst.status || !rst.isValidate){
-                        //删除文件和文件夹
-                        FileOpera.rmdir(files.file_model.path);
-                        FileOpera.rmdir(model_path);
-                        callback(null,rst);
-                    }
-                    else{
+        //文件验证
+        ModelSerControl.validate(model_path,function (rst){
+            if(!rst.status || !rst.isValidate){
+                //删除文件和文件夹
+                FileOpera.rmdir(files.file_model.path);
+                FileOpera.rmdir(model_path);
+                callback(null,rst);
+            }
+            else{
                 //添加默认测试数据，不用异步请求，两者不相关
                 ModelSerControl.addDefaultTestify(oid.toString());
 
@@ -427,11 +426,9 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                         }
                     });
                 }
-       			//删除文件
-        		FileOpera.rmdir(files.file_model.path);
                 ////删除文件
                 //FileOpera.rmdir(files.file_model.path);
-				//转移模型包
+                //转移模型包
                 fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
                     if(err){
                         console.log('err in moving package!');
@@ -460,27 +457,27 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                         u_email:fields.u_email
                     }
                 };
-        
+
                 var ms = new ModelSerModel(newmodelser);
-                        ModelSerModel.save(ms,function (err, data) {
-                            if(err){
-                                console.log(err);
-                                callback(null,{status:0});
-                            }
-                            else{
-                                rst.data = data;
-                                callback(null,rst);
-                            }
-                        });
+                ModelSerModel.save(ms,function (err, data) {
+                    if(err){
+                        console.log(err);
+                        callback(null,{status:0});
+                    }
+                    else{
+                        rst.data = data;
+                        callback(null,rst);
                     }
                 });
+            }
+        });
     };
 
     if(setting.platform == 2){
         //解压
         CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
             afterUncompress();
-            });
+        });
     }
     else {
         //解压

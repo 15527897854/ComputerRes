@@ -20,3 +20,6 @@ ComputerRes.
 /ComputerRes/helper/softwareEnviro.txt
 /ComputerRes/helper/softwareVersion.txt
 /ComputerRes/helper/hardwareEnviro.txt
+tmp
+geo_model
+redis.conf
