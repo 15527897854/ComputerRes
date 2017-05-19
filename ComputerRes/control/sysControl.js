@@ -365,55 +365,6 @@ SysControl.autoDetectSW = function (callback) {
 };
 
 SysControl.autoDetectHW = function (callback) {
-    // var exePath = __dirname + '/../helper/getHardwareInfo.exe';
-    // if(setting.platform == 1) {
-    //     exec(exePath,function (err, stdout, stderr) {
-    //         if(err){
-    //             console.log(err);
-    //             return callback(err);
-    //         }
-    //         else if(stderr){
-    //             console.log(stderr);
-    //             return callback(stderr);
-    //         }
-    //         else if(stdout){
-    //             console.log(stdout);
-    //             if(stdout == 'Error!'){
-    //                 return callback(stdout);
-    //             }
-    //             else if(stdout == 'Success!'){
-    //                 var softEnPath = __dirname + '/../helper/hardwareEnviro.txt';
-    //                 fs.readFile(softEnPath,function (err, data) {
-    //                     if(err){
-    //                         return callback('read file err!');
-    //                     }
-    //                     //将文件组织为json
-    //                     data = iconv.decode(data,'gbk');
-    //                     data = JSON.parse(data);
-    //                     data.memory = os.totalmem()/1024/1024/1024;
-    //                     callback(null,data);
-    //                 })
-    //             }
-    //         }
-    //     })
-    // }
-    // else if(setting.platform == 2){
-    //
-    // }
-    // var getDisplayCardInfo = function () {
-    //     exec(__dirname + '/../helper/dxdiag.exe ' + __dirname + '/../helper/hardwareEnviro.txt', function(err, stdout, stderr){
-    //         if(err){
-    //
-    //         }
-    //         else if(stderr){
-    //
-    //         }
-    //         else{
-    //
-    //         }
-    //     })
-    // };
-
     var hweList = [];
     hweList.push({
         _id:new ObjectId(),
