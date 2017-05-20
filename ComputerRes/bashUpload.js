@@ -9,13 +9,19 @@ fs.readFile(__dirname + '/upload/dps.json', 'utf-8', function(err, data){
     }
     data = JSON.parse(data).dps;
 
-    var penging = (function(){
+    var count = 0;
+    var penging = (function(index){
+        count ++;
         return function(err, item){
+            count --;
             if(err){
                 console.log('ERROR : ' + JSON.stringify(err));
             }
             else{
-                console.log('Success ! ');
+                console.log('Model : ' + data[index]['modelName'] + ' upload succeeded ! ');
+            }
+            if(count == 0){
+                console.log('Model-packages bash upload have finished!');
             }
         }
     });
@@ -23,14 +29,13 @@ fs.readFile(__dirname + '/upload/dps.json', 'utf-8', function(err, data){
     for(var i = 0; i < data.length; i++){
         var modelName = data[i].fileName.substr(data[i].fileName.indexOf('/') + 1);
         modelName = modelName.substr(0, modelName.indexOf('.'));
-        console.log(modelName);
+        data[i]['modelName'] = modelName;
         ModelSerCtrl.addNewModelSer({
-            remain : true,
             m_name : modelName,
             m_type : '',
             m_url : '',
             ms_limited : 0,
-            mv_num : '', 
+            mv_num : 1, 
             ms_des : '',
             ms_xml : '',
             u_name : 'Admin',
@@ -40,7 +45,7 @@ fs.readFile(__dirname + '/upload/dps.json', 'utf-8', function(err, data){
                 path : __dirname + '/upload/' + data[i].fileName,
                 ms_img : null
             },
-        }, penging()
+        }, penging(i)
         );
     }
 });
