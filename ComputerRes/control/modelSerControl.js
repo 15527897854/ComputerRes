@@ -401,6 +401,11 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
 
     //解压路径
     var model_path = setting.modelpath + oid.toString() + '/';
+    //MD5码
+    FileOpera.getMD5(files.file_model.path, function(err, md5_value){
+        if(err){
+            return callback(err);
+        }
 
     var afterUncompress = function(){
         //文件验证
@@ -446,7 +451,8 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                     ms_model : Object.assign({
                         m_name:fields.m_name,
                         m_type:fields.m_type,
-                        m_url:fields.m_url
+                            m_url:fields.m_url,
+                            p_id : md5_value
                     }, fields.m_model_append),
                     ms_limited:fields.ms_limited,
                     mv_num:fields.mv_num,
@@ -478,9 +484,15 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
         });
     };
 
+<<<<<<< .mine
     CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
         afterUncompress();
     });
+=======
+            CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
+                afterUncompress();
+            });
+>>>>>>> .theirs
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -818,6 +830,16 @@ ModelSerControl.getByOID = function(msid, callback){
         }
         return callback(null, data);
     });
+};
+
+//根据MID查询模型服务
+ModelSerControl.getByMID = function(mid, callback){
+    ModelSerModel.getByMID(mid, this.returnFunction(callback, 'error in getting model service by MID'));
+};
+
+//根据PID查询模型服务
+ModelSerControl.getByPID = function(mid, callback){
+    ModelSerModel.getByPID(mid, this.returnFunction(callback, 'error in getting model service by PID'));
 };
 
 //更新模型服务信息

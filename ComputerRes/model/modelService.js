@@ -99,6 +99,14 @@ ModelService.getByMID = function (mid, callback) {
     }
 };
 
+//通过PID查询
+ModelService.getByPID = function (mid, callback) {
+    if(ParamCheck.checkParam(callback, mid))
+    {
+        var where = { "ms_model.p_id" : mid, "ms_status" : {$ne:-1}};
+        this.getByWhere(where, callback);
+    }
+};
 
 //启动一个模型服务实例
 ModelService.run = function (ms_id, guid, exeoutcb, callback) {
