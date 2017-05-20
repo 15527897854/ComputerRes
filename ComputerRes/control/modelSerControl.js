@@ -10,6 +10,7 @@ var rimraf = require('rimraf');
 var unzip = require('unzip');
 var ObjectId = require('mongodb').ObjectID;
 var uuid = require('node-uuid');
+var iconv = require('iconv-lite');
 
 var setting = require('../setting');
 var ModelSerModel = require('../model/modelService');
@@ -22,9 +23,11 @@ var ParamCheck = require('../utils/paramCheck');
 var GeoDataCtrl = require('../control/geoDataControl');
 var CommonMethod = require('../utils/commonMethod');
 var SystemCtrl = require('./sysControl');
+var batchDeployCtrl = require('./batchDeploy');
 
 var ModelSerControl = function () {};
 ModelSerControl.__proto__ = ControlBase;
+ModelSerControl.model = ModelSerModel;
 
 module.exports = ModelSerControl;
 
@@ -399,108 +402,432 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
     //解压路径
     var model_path = setting.modelpath + oid.toString() + '/';
     //MD5码
-    FileOpera.getMD5(files.file_model.path, function(err, md5_value){
-        if(err){
+    FileOpera.getMD5(files.file_model.path, function(err, md5_value) {
+        if (err) {
             return callback(err);
         }
 
-        var afterUncompress = function(){
+        var afterUncompress = function () {
             //文件验证
-            ModelSerControl.validate(model_path,function (rst){
-                if(!rst.status || !rst.isValidate){
+            ModelSerControl.validate(model_path, function (rst) {
+                if (!rst.status || !rst.isValidate) {
                     //删除文件和文件夹
                     FileOpera.rmdir(files.file_model.path);
                     FileOpera.rmdir(model_path);
-                    callback(null,rst);
+                    callback(null, rst);
                 }
-                else{
+                else {
                     //添加默认测试数据，不用异步请求，两者不相关
                     ModelSerControl.addDefaultTestify(oid.toString());
 
                     //添加模型运行文件权限
-                    if(setting.platform == 2)
-                    {
+                    if (setting.platform == 2) {
                         //
                         ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
-                            if(err) {
+                            if (err) {
 
                             }
-                            else
-                            {
+                            else {
                                 FileOpera.chmod(model_path + cfg.start, 'exec');
                             }
                         });
                     }
-                
-                //删除文件
+
+                    //删除文件
                     //FileOpera.rmdir(files.file_model.path);
-                
+
                     //转移模型包
-                    fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
-                        if(err){
+                    fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function (err) {
+                        if (err) {
                             console.log('err in moving package!');
                         }
                     });
 
                     //生成新的纪录
                     var newmodelser = {
-                        _id : oid,
-                        ms_model : Object.assign({
-                            m_name:fields.m_name,
-                            m_type:fields.m_type,
-                            m_url:fields.m_url,
-                            p_id : md5_value
+                        _id: oid,
+                        ms_model: Object.assign({
+                            m_name: fields.m_name,
+                            m_type: fields.m_type,
+                            m_url: fields.m_url,
+                            p_id: md5_value
                         }, fields.m_model_append),
-                        ms_limited:fields.ms_limited,
-                        mv_num:fields.mv_num,
-                        ms_des:fields.ms_des,
-                        ms_update:date.toLocaleString(),
-                        ms_platform:setting.platform,
-                        ms_path:oid.toString() + '/',
-                        ms_img:img,
-                        ms_xml:fields.ms_xml,
-                        ms_status:0,
-                        ms_user:{
-                            u_name:fields.u_name,
-                            u_email:fields.u_email
+                        ms_limited: fields.ms_limited,
+                        mv_num: fields.mv_num,
+                        ms_des: fields.ms_des,
+                        ms_update: date.toLocaleString(),
+                        ms_platform: setting.platform,
+                        ms_path: oid.toString() + '/',
+                        ms_img: img,
+                        ms_xml: fields.ms_xml,
+                        ms_status: 0,
+                        ms_user: {
+                            u_name: fields.u_name,
+                            u_email: fields.u_email
                         }
                     };
 
                     var ms = new ModelSerModel(newmodelser);
-                    ModelSerModel.save(ms,function (err, data) {
-                        if(err){
+                    ModelSerModel.save(ms, function (err, data) {
+                        if (err) {
                             console.log(err);
-                            callback(null,{status:0});
+                            callback(null, {status: 0});
                         }
-                        else{
+                        else {
                             rst.data = data;
-                            callback(null,rst);
+                            callback(null, rst);
                         }
                     });
                 }
             });
         };
 
-        if(setting.platform == 2){
-            //解压
-            CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
-                afterUncompress();
-            });
-        }
-        else {
-            //解压
-            fs.createReadStream(files.file_model.path).pipe(unzip.Extract({path: model_path}))
-                .on('close',function () {
-                    afterUncompress();
-                });
-        }
+        CommonMethod.Uncompress(files.file_model.path, model_path, function (err) {
+            afterUncompress();
+        });
     });
-
 };
 
+//////////////////////////////////////////////////////////////////////////
 //批量部署
-ModelSerControl.addByBatch = function () {
 
+// //在batchDeploy数据库中添加条目
+// ModelSerControl.addBatchDeployItemsByCfg = function (configPath) {
+//     var geoModelPath = setting.modelpath;
+//     var batch_path = path.relative(path.dirname(configPath),geoModelPath);
+//     fs.stat(configPath,function (err, stat) {
+//         if(err){
+//             if(err.code == 'ENOENT'){
+//                 return console.log('Error in addByBatch: can\'t open config file!');
+//             }
+//             else{
+//                 return console.log('Error in addByBatch: system error, please try again later!');
+//             }
+//         }
+//         else if(stat){
+//             fs.readFile(configPath,function (err, configInfo) {
+//                 if(err){
+//                     return console.log('Error in addByBatch: can\'t open config file!')
+//                 }
+//                 try{
+//                     configInfo = JSON.parse(iconv.decode(configInfo,'gbk'));
+//                 }
+//                 catch (e){
+//                     return console.log(e);
+//                 }
+//
+//                 var msInfos = configInfo.msInfos;
+//                 batchDeployCtrl.getByWhere({batch_path:batch_path},function (err, bds) {
+//                     if(err){
+//                         return console.log('Error in addByBatch: mongodb query failed');
+//                     }
+//                     if(bds.length != msInfos.length){
+//                         for(var i=0;i<msInfos.length;i++){
+//                             var hasInserted = false;
+//                             for(var j=0;j<bds.length;j++){
+//                                 if(msInfos[i].zip_path == bds[j].zip_path){
+//                                     hasInserted = true;
+//                                     break;
+//                                 }
+//                             }
+//                             if(!hasInserted){
+//                                 var ms_info = msInfos[i];
+//                                 ms_info.ms_user = configInfo.ms_user;
+//                                 ms_info.ms_status = 1;
+//                                 ms_info.ms_limited = 0;
+//                                 ms_info.ms_xml = null;
+//                                 ms_info.ms_img = null;
+//                                 ms_info.ms_platform = setting.platform;
+//                                 ms_info.testify = [];
+//                                 ms_info._id = new ObjectId();
+//                                 ms_info.ms_update = (new Date()).toLocaleString();
+//                                 ms_info.ms_path = ms_info._id.toString() + '/';
+//
+//                                 var newBD = {
+//                                     _id:new ObjectId(),
+//                                     batch_path:batch_path,
+//                                     zip_path:msInfos[i].zip_path,
+//                                     ms_info:ms_info,
+//                                     rst:{
+//                                         err_type:-1,
+//                                         validate_detail:{}
+//                                     }
+//                                 };
+//                                 delete msInfos[i].zip_path;
+//                                 delete newBD.ms_info.zip_path;
+//                                 batchDeployCtrl.save(newBD,function (err, saveRst) {
+//                                     if(err){
+//                                         return console.log('Error in addByBatch: mongodb save failed!');
+//                                     }
+//                                     else{
+//
+//                                     }
+//                                 });
+//                             }
+//                         }
+//                     }
+//                 });
+//             })
+//         }
+//         else{
+//             return console.log('Error in addByBatch: config file don\'t exist!')
+//         }
+//     });
+// };
+//
+// //批量部署
+// //需要一个配置文件
+// ModelSerControl.batchDeployByCfg = function (batch_path) {
+//     var where = {
+//         batch_path:batch_path,
+//         'rst.err_type':{'$ne':0}
+//     };
+//     batchDeployCtrl.getByWhere(where,function (err, bds) {
+//         for(var i=0;i<bds.length;i++){
+//             ModelSerControl.deployOneByCfg(bds[i]);
+//         }
+//     })
+// };
+//
+// ModelSerControl.deployOneByCfg = function (bdItem) {
+//     var basePath = setting.modelpath;
+//     var zip_path = path.join(basePath,bdItem.batch_path,bdItem.zip_path);
+//     var model_path = path.join(basePath,bdItem.ms_info._id.toString());
+//     //解压
+//     CommonMethod.Uncompress(zip_path, model_path, function(){
+//         ModelSerControl.validate(zip_path,function (rst){
+//             if(rst.status == 0){
+//                 //删除文件和文件夹
+//                 FileOpera.rmdir(zip_path);
+//                 FileOpera.rmdir(model_path);
+//                 bdItem.rst.err_type = 1;
+//             }
+//             else if(rst.isValidate == false){
+//                 //删除文件和文件夹
+//                 FileOpera.rmdir(zip_path);
+//                 FileOpera.rmdir(model_path);
+//                 bdItem.rst.err_type = 2;
+//                 delete rst.status;
+//                 delete rst.isValidate;
+//                 bdItem.rst.validate_detail = rst;
+//             }
+//             else{
+//                 bdItem.rst.err_type = 0;
+//                 //添加默认测试数据，不用异步请求，两者不相关
+//                 ModelSerControl.addDefaultTestify(itemID.toString());
+//                 //添加模型运行文件权限
+//                 if(setting.platform == 2) {
+//                     //
+//                     ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
+//                         if(err) {
+//
+//                         }
+//                         else
+//                         {
+//                             FileOpera.chmod(model_path + cfg.start, 'exec');
+//                         }
+//                     });
+//                 }
+//                 //转移模型包
+//                 fs.rename(zip_path, setting.modelpath + 'packages/' + itemID.toString() + '.zip', function(err){
+//                     if(err){
+//                         console.log('err in moving package!');
+//                     }
+//                 });
+//             }
+//             //保存
+//             ModelSerControl.update(bdItem,function (err, data) {
+//                 if(err){
+//                     return console.log(err);
+//                 }
+//                 else if(bdItem.rst.err_type == 0 ){
+//                     var ms = new ModelSerModel(bdItem.ms_info);
+//                     ModelSerModel.save(ms,function (err, data) {
+//                         if(err){
+//                             return console.log(err);
+//                         }
+//                         else{
+//                             console.log('---------------------------------Success---------------------------------')
+//                         }
+//                     });
+//                 }
+//             })
+//         });
+//     });
+// };
+
+ModelSerControl.addBatchDeployItemsByMDL = function (ms_user,zip_path) {
+    var batch_path = path.relative(setting.modelpath,zip_path) + '\\';
+    FileOpera.getAllFiles(zip_path,'.zip',function (files) {
+        var addOne = function (i) {
+            if(i == files.length){
+                return ModelSerControl.batchDeployByMDL(batch_path);
+            }
+            var batchItem = {
+                batch_path:batch_path,
+                zip_path:path.relative(batch_path,zip_path+files[i]),
+                deployed:false,
+                ms_user:ms_user
+            };
+            var where = {
+                batch_path:batch_path,
+                zip_path:path.relative(batch_path,zip_path+files[i])
+            };
+            batchDeployCtrl.getByWhere(where,function (err, data) {
+                if(err){
+                    return console.log(err);
+                }
+                else{
+                    if(data.length != 0){
+                        addOne(i+1);
+                    }
+                    else{
+                        batchDeployCtrl.save(batchItem,function (err, data) {
+                            if(err){
+                                return console.log(err);
+                            }
+                            else{
+                                addOne(i+1);
+                            }
+                        })
+                    }
+                }
+            });
+        };
+        if(files.length != 0)
+            addOne(0);
+        else
+            console.log('no zip to batch deploy!');
+    })
+};
+
+ModelSerControl.batchDeployByMDL = function (batch_path) {
+    var where = {
+        batch_path:batch_path,
+        deployed:false
+    };
+    batchDeployCtrl.getByWhere(where,function (err, bds) {
+        var deployOne = function (i) {
+            ModelSerControl.deployOneByMDL(bds[i],function (err) {
+                if(err){
+                    console.log('deploy ' + i + ' failed!');
+                }
+                else{
+                    console.log('deploy ' + i + ' successed!');
+                }
+                if(i<bds.length-1)
+                    deployOne(i+1);
+            });
+        };
+        if(bds.length != 0)
+            deployOne(0);
+    })
+};
+
+//通过mdl部署
+//流程：解压  读config  读mdl  组织modelservice  移动package文件  更新deployItem  更新modelservice中的m_id
+ModelSerControl.deployOneByMDL = function (bdItem,callback) {
+    var msID = new ObjectId();
+    var zip_path = path.join(setting.modelpath, bdItem.batch_path, bdItem.zip_path);
+    var model_path = path.join(setting.modelpath , msID.toString()) + '\\';
+    CommonMethod.Uncompress(zip_path,model_path,function () {
+        var cfg_path = path.join(model_path , 'package.config');
+        ModelSerControl.readCfgBypath(cfg_path,function (err,cfg) {
+            if(err){
+                FileOpera.rmdir(model_path);
+                console.log(err);
+                return callback(err);
+            }
+            else{
+                var mdl_path = path.join(model_path , cfg.mdl);
+                ModelSerControl.readMDLByPath(mdl_path,function (err, mdl) {
+                    if(err){
+                        FileOpera.rmdir(model_path);
+                        console.log(err);
+                        return callback(err);
+                    }
+                    else{
+                        mdl = mdl.ModelClass;
+                        FileOpera.getMD5(zip_path,function (err, strMD5) {
+                            if(err){
+                                console.log('err in get file md5!');
+                                return callback(err);
+                            }
+                            else{
+                                var ms_des = '';
+                                for(var i=0;i<mdl.AttributeSet.LocalAttributes.LocalAttribute;i++){
+                                    ms_des += mdl.AttributeSet.LocalAttributes.LocalAttribute[i].Abstract + '\n';
+                                }
+                                var msItem = {
+                                    _id:msID,
+                                    ms_des:ms_des,
+                                    ms_user:bdItem.ms_user,
+                                    ms_path:msID.toString() + '\\',
+                                    ms_model:{
+                                        m_name:mdl.$.name,
+                                        m_type:mdl.$.type,
+                                        p_id:strMD5,
+                                        m_url:'',
+                                        m_id:''
+                                    },
+                                    mv_num:'1.0',
+                                    ms_status:1,
+                                    ms_limited:0,
+                                    ms_xml:null,
+                                    testify:[],
+                                    ms_img:null,
+                                    ms_platform:setting.platform,
+                                    ms_update:(new Date()).toLocaleString()
+                                };
+                                ModelSerControl.save(msItem,function (err, data) {
+                                    if(err){
+                                        FileOpera.rmdir(model_path);
+                                        console.log(err);
+                                        return callback(err);
+                                    }
+                                    else{
+                                        var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/DeploymentPackageHandleServlet?uid=' + strMD5;
+                                        remoteReqCtrl.getByServer(url,{},function (err, res) {
+                                            if(err){
+                                                console.log('get remote portal m_id failed!');
+                                                return callback(err);
+                                            }
+                                            else{
+                                                bdItem.deployed = true;
+                                                batchDeployCtrl.update(bdItem,function (err, data) {
+                                                    if(err){
+                                                        console.log(err);
+                                                        return callback(err)
+                                                    }
+                                                    else{
+                                                        //添加默认测试数据，不用异步请求，两者不相关
+                                                        ModelSerControl.addDefaultTestify(msItem._id.toString());
+                                                        //转移模型包
+                                                        FileOpera.copyFile(zip_path, setting.modelpath + 'packages/' + msID.toString() + '.zip');
+                                                        //更新m_id
+                                                        msItem.ms_model.m_id = res.modelItemId;
+                                                        ModelSerControl.update(msItem,function (err, data) {
+                                                            if(err){
+                                                                console.log('err in update model service m_id!');
+                                                                return callback(err);
+                                                            }
+                                                            else{
+                                                                callback(null);
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                })
+            }
+        })
+    })
 };
 
 //将记录放置在回收站
@@ -967,6 +1294,15 @@ ModelSerControl.getInputData = function (ms_id, callback) {
     });
 };
 
+ModelSerControl.readMDLByPath = function (path, callback) {
+    ModelSerModel.readMDLByPath(path,function (err, data) {
+        if(err){
+            return callback(err);
+        }
+        return callback(null,data);
+    })
+};
+
 ModelSerControl.readCfg = function (ms, callback) {
     ModelSerModel.readCfg(ms,function (err, data) {
         if(err){
@@ -1018,8 +1354,8 @@ ModelSerControl.addDefaultTestify = function (msid,callback) {
     if(!callback){
         callback = function () {};
     }
-    var testifyRoot = __dirname + '/../geo_model/' + msid + '/testify';
-    var configPath = __dirname + '/../geo_model/' + msid + '/testify/config.json';
+    var testifyRoot = setting.modelpath + msid + '/testify';
+    var configPath = setting.modelpath + msid + '/testify/config.json';
     var configData;
     fs.stat(configPath,function (err, stat) {
         if(err){
@@ -1180,7 +1516,7 @@ ModelSerControl.addTestify = function (msrid,testifyData,callback) {
         if(err){
             return callback(err);
         }
-        var configRoot = __dirname + '/../geo_model/' + msr.ms_id + '/testify';
+        var configRoot = setting.modelpath + msr.ms_id + '/testify';
         var configPath = configRoot + '/config.json';
         fs.stat(configPath,function (err, stat) {
             var configJSON;
@@ -1216,8 +1552,10 @@ ModelSerControl.addTestify = function (msrid,testifyData,callback) {
                     var srcPath = __dirname + '/../geo_data/' + msr.msr_input[i].DataId + '.xml';
                     var dstPath = newTestify + '/' + msr.msr_input[i].DataId + '.xml';
                     try{
-                        var srcData = fs.readFileSync(srcPath).toString();
-                        fs.writeFileSync(dstPath,srcData);
+                        if(fs.existsSync(srcPath)){
+                            var srcData = fs.readFileSync(srcPath).toString();
+                            fs.writeFileSync(dstPath,srcData);
+                        }
                     }
                     catch(e){
                         callback(e);
@@ -1252,7 +1590,7 @@ ModelSerControl.addTestify = function (msrid,testifyData,callback) {
 };
 
 ModelSerControl.getTestify = function (msid, callback) {
-    var configPath = __dirname + '/../geo_model/' + msid + '/testify/config.json';
+    var configPath = setting.modelpath + msid + '/testify/config.json';
     fs.stat(configPath,function (err, stat) {
         var rst;
         if(err){
@@ -1273,8 +1611,8 @@ ModelSerControl.getTestify = function (msid, callback) {
 };
 
 ModelSerControl.delTestify = function (msid,testifyPath, callback) {
-    var testifyFolder = __dirname + '/../geo_model/' + msid + '/testify/' + testifyPath;
-    var configPath = __dirname + '/../geo_model/' + msid + '/testify/config.json';
+    var testifyFolder = setting.modelpath + msid + '/testify/' + testifyPath;
+    var configPath = setting.modelpath + msid + '/testify/config.json';
     var configData = fs.readFileSync(configPath).toString();
     var configJSON = JSON.parse(configData);
     try{

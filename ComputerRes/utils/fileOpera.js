@@ -49,7 +49,7 @@ FileOpera.rmdir = function (path) {
     }
 };
 
-//得到path根目录下的所有后缀名为ext的文件，没有递归处理
+//得到path根目录下的所有后缀名为ext的文件，没有递归处理    ext 带不带 . 都行
 FileOpera.getAllFiles = function (fpath, ext, callback) {
     var rst = [];
     try {
@@ -73,14 +73,20 @@ FileOpera.getAllFiles = function (fpath, ext, callback) {
 
 //Linux赋权限
 FileOpera.chmod = function (fpath, limit) {
-    if(limit == 'exec') {
+    if (limit == 'exec') {
         exec('chmod a+x ' + fpath, function (error, stdout, stderr) {
-            if(error){ console.log(JSON.stringify(error)); }
-            if(stdout){ console.log(JSON.stringify(stdout)); }
-            if(stderr){ console.log(JSON.stringify(stderr)); }
+            if (error) {
+                console.log(JSON.stringify(error));
+            }
+            if (stdout) {
+                console.log(JSON.stringify(stdout));
+            }
+            if (stderr) {
+                console.log(JSON.stringify(stderr));
+            }
         });
     }
-}
+};
 
 //获取文件MD5码
 FileOpera.getMD5 = function(fpath, callback){
@@ -96,4 +102,10 @@ FileOpera.getMD5 = function(fpath, callback){
         str = md5sum.digest('hex');
         return callback(null, str);
     });
-}
+};
+    
+FileOpera.copyFile = function (src,dst) {
+    var readable = fs.createReadStream( src );
+    var writable = fs.createWriteStream( dst );
+    readable.pipe( writable );
+};

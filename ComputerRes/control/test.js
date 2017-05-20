@@ -8,16 +8,21 @@ var softwareEnCtrl = require('./softwareEnCtrl');
 var hardwareEnCtrl = require('./hardwareEnCtrl');
 var msrCtrl = require('./modelSerRunControl');
 var verCtrl = require('./versionCtrl');
+var setting = require('./../setting');
 
 var request = require('request-promise');
 var convert = require('convert-units');
 
+ModelSerCtrl.addBatchDeployItemsByMDL({u_name:'scr',u_email:'1374316846@qq.com'},'E:\\vs10\\saga_3.0.0_src\\saga-gis\\bin\\saga_vc_x64_d\\Packing_SAGA_Models\\');
+// ModelSerCtrl.batchDeployByMDL('..\\..\\..\\..\\vs10\\saga_3.0.0_src\\saga-gis\\bin\\saga_vc_x64_d\\Packing_SAGA_Models\\');
+
+// ModelSerCtrl.addBatchDeployItems(__dirname + '/../geo_model/batchDeploy.cfg');
+// ModelSerCtrl.addByBatch('SAGA');
 
 
-
-var a = verCtrl.rangeMatch('324.345.2345','((([0,345])))||((2345.22.23,infinite))&&(2345.22.23,3454.345.8)||324.x||*&&!1.2.3.4');
-var b = hardwareEnCtrl.rangeMatch(' 401    GHz ','( 400  GHz , infinite ] && [200MHz,500GHZ] || !401MHz');
-console.log(a,b);
+// var a = verCtrl.rangeMatch('324.345.2345','((([0,345])))||((2345.22.23,infinite))&&(2345.22.23,3454.345.8)||324.x||*&&!1.2.3.4');
+// var b = hardwareEnCtrl.rangeMatch(' 401    GHz ','( 400  GHz , infinite ] && [200MHz,500GHZ] || !401MHz');
+// console.log(a,b);
 
 
 // var rst = verCtrl.baseMatch('1.2.235346',' 1.2.3');
