@@ -11,6 +11,7 @@ var settings = require('../setting');
 
 function CommonMethod(){}
 
+//得到当前时间
 CommonMethod.getDateTimeNow = function()
 {
     var date = new Date();
@@ -30,6 +31,7 @@ CommonMethod.getDateTimeNow = function()
     return currentdate;
 };
 
+//解压
 CommonMethod.Uncompress = function(zip_file, file_path, callback){
     if(settings.platform == 2){
         exec('unzip ' + zip_file + ' -d ' + file_path, function(err, stdout, stderr){
@@ -45,6 +47,7 @@ CommonMethod.Uncompress = function(zip_file, file_path, callback){
     
 };
 
+//压缩
 CommonMethod.compress = function(file, path){
     zipper.sync.zip(path).compress().save(file);
 };
@@ -65,6 +68,19 @@ CommonMethod.decrypto = function(buffer){
     decrypted += decipher.update(buffer, 'hex', 'binary');
     decrypted += decipher.final('binary');
     return decrypted;
+};
+
+//启动一个Nodejs进程去执行JS文件 -- 一般用于高IO处理
+CommonMethod.childProcess = function(file, callback){
+    exec(__dirname + '/container_node ' + file, (err, stdout, stderr) => {
+        if(err){
+            return callback(err);
+        }
+        return callback(null, {
+            stdout : stdout,
+            stderr : stderr
+        })
+    });
 };
 
 module.exports = CommonMethod;

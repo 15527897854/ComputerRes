@@ -777,7 +777,8 @@ ModelSerControl.deployOneByMDL = function (bdItem,callback) {
                                     ms_img:null,
                                     ms_platform:setting.platform,
                                     ms_update:(new Date()).toLocaleString()
-};
+                                };
+                                
                                 ModelSerControl.save(msItem,function (err, data) {
                                     if(err){
                                         FileOpera.rmdir(model_path);
