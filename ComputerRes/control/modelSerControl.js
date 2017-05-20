@@ -411,7 +411,7 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                     //删除文件和文件夹
                     FileOpera.rmdir(files.file_model.path);
                     FileOpera.rmdir(model_path);
-                    callback(null,rst);
+                    callback(null, rst);
                 }
                 else{
                     //添加默认测试数据，不用异步请求，两者不相关
@@ -433,12 +433,18 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                     }
                     ////删除文件
                     //FileOpera.rmdir(files.file_model.path);
-                    //转移模型包
-                    fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
-                        if(err){
-                            console.log('err in moving package!');
-                        }
-                    });
+
+                    if(fields.remain == true){
+                        FileOpera.copy(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip');
+                    }
+                    else{
+                        //转移模型包
+                        fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
+                            if(err){
+                                console.log('err in moving package!');
+                            }
+                        });
+                    }
 
                     //生成新的纪录
                     var newmodelser = {

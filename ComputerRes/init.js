@@ -5,7 +5,7 @@ var SysCtrl = require('./control/sysControl');
 var FileOpera = require('./utils/fileOpera');
 
 var Init = function(){
-    console.log('Initializing ...');
+    console.log('Initializing...');
 
     //Checking system fields is null
     var fields = [

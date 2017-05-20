@@ -26,6 +26,7 @@ FileOpera.BuildDir = function (path, callback) {
     });
 };
 
+//删除一个目录及下边所有文件
 FileOpera.rmdir = function (path) {
     if(!fs.existsSync(path))
     {
@@ -48,6 +49,22 @@ FileOpera.rmdir = function (path) {
         fs.rmdirSync(path);
     }
 };
+
+//复制文件
+FileOpera.copy = function(source, target, callback){
+    fs.readFile(source, function(err, data){
+        if(err){
+            return callback(err);
+        }
+        fs.writeFile(target, data, function(err, result){
+            if(err){
+                return callback(err);
+            }
+            FileOpera.rmdir(target);
+            return callback(null, result);
+        });
+    });
+}
 
 //得到path根目录下的所有后缀名为ext的文件，没有递归处理
 FileOpera.getAllFiles = function (fpath, ext, callback) {
