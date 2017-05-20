@@ -5,6 +5,8 @@ const exec = require('child_process').exec;
 const fs = require('fs');
 var zipper = require("zip-local");
 var crypto = require('crypto');
+var unzip = require('unzip');
+
 var settings = require('../setting');
 
 function CommonMethod(){}
@@ -28,10 +30,19 @@ CommonMethod.getDateTimeNow = function()
     return currentdate;
 };
 
-CommonMethod.Uncompress = function(file, path, callback){
-    exec('unzip ' + file + ' -d ' + path, function(err, stdout, stdout){
-        return callback();
-    });
+CommonMethod.Uncompress = function(zip_file, file_path, callback){
+    if(settings.platform == 2){
+        exec('unzip ' + zip_file + ' -d ' + file_path, function(err, stdout, stderr){
+            return callback();
+        });
+    }
+    else if(settings.platform == 1){
+        fs.createReadStream(zip_file).pipe(unzip.Extract({path: file_path}))
+            .on('close',function () {
+                return callback()
+            });
+    }
+    
 };
 
 CommonMethod.compress = function(file, path){

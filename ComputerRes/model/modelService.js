@@ -179,6 +179,24 @@ ModelService.readMDL = function (ms, callback) {
     }
 };
 
+ModelService.readMDLByPath = function (path, callback) {
+    fs.readFile(path, function (err, data) {
+        if(err)
+        {
+            console.log('Error in read mdl file : ' + err);
+            return callback(err);
+        }
+        var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+            if(err)
+            {
+                console.log('Error in parse mdl file : ' + err);
+                return callback(err);
+            }
+            return callback(null, json);
+        });
+    })
+};
+
 //读取config文件
 ModelService.readCfg = function (ms, callback) {
     if(ParamCheck.checkParam(callback, ms))

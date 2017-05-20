@@ -316,10 +316,10 @@ SysControl.autoDetectSW = function (callback) {
             }
             else if(stdout){
                 console.log(stdout);
-                if(stdout == 'Error!'){
+                if(stdout.indexOf('Error!')!=-1){
                     return callback(stdout);
                 }
-                else if(stdout == 'Success!'){
+                else if(stdout.indexOf('Success!')!=-1){
                     var softEnPath = __dirname + '/../helper/softwareEnviro.txt';
                     fs.readFile(softEnPath,function (err, data) {
                         if(err){

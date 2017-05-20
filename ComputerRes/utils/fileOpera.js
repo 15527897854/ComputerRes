@@ -50,24 +50,9 @@ FileOpera.rmdir = function (path) {
     }
 };
 
-//复制文件
-FileOpera.copy = function(source, target, callback){
-    fs.readFile(source, function(err, data){
-        if(err){
-            return callback(err);
-        }
-        fs.writeFile(target, data, function(err, result){
-            if(err){
-                return callback(err);
-            }
-            FileOpera.rmdir(target);
-            return callback(null, result);
-        });
-    });
-}
 
 //得到path根目录下的所有后缀名为ext的文件，没有递归处理
-FileOpera.getAllFiles = function (fpath, ext, callback) {
+//得到path根目录下的所有后缀名为ext的文件，没有递归处理    ext 带不带 . 都行FileOpera.getAllFiles = function (fpath, ext, callback) {
     var rst = [];
     try {
         var files = fs.readdirSync(fpath);
@@ -88,16 +73,38 @@ FileOpera.getAllFiles = function (fpath, ext, callback) {
     }
 };
 
+//复制文件
+FileOpera.copy = function(source, target, callback){
+    fs.readFile(source, function(err, data){
+        if(err){
+            return callback(err);
+        }
+        fs.writeFile(target, data, function(err, result){
+            if(err){
+                return callback(err);
+            }
+            FileOpera.rmdir(target);
+            return callback(null, result);
+        });
+    });
+}
+
 //Linux赋权限
 FileOpera.chmod = function (fpath, limit) {
     if(limit == 'exec') {
         exec('chmod a+x ' + fpath, function (error, stdout, stderr) {
-            if(error){ console.log(JSON.stringify(error)); }
-            if(stdout){ console.log(JSON.stringify(stdout)); }
-            if(stderr){ console.log(JSON.stringify(stderr)); }
+            if (error) {
+                console.log(JSON.stringify(error));
+            }
+            if (stdout) {
+                console.log(JSON.stringify(stdout));
+            }
+            if (stderr) {
+                console.log(JSON.stringify(stderr));
+            }
         });
     }
-}
+};
 
 //获取文件MD5码
 FileOpera.getMD5 = function(fpath, callback){
@@ -113,4 +120,10 @@ FileOpera.getMD5 = function(fpath, callback){
         str = md5sum.digest('hex');
         return callback(null, str);
     });
-}
+};
+    
+FileOpera.copyFile = function (src,dst) {
+    var readable = fs.createReadStream( src );
+    var writable = fs.createWriteStream( dst );
+    readable.pipe( writable );
+};
