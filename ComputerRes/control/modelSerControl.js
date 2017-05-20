@@ -402,97 +402,90 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
     //解压路径
     var model_path = setting.modelpath + oid.toString() + '/';
     //MD5码
-    FileOpera.getMD5(files.file_model.path, function(err, md5_value){
-        if(err){
+    FileOpera.getMD5(files.file_model.path, function(err, md5_value) {
+        if (err) {
             return callback(err);
         }
 
-    var afterUncompress = function(){
-        //文件验证
-        ModelSerControl.validate(model_path,function (rst){
-            if(!rst.status || !rst.isValidate){
-                //删除文件和文件夹
-                FileOpera.rmdir(files.file_model.path);
-                FileOpera.rmdir(model_path);
-                callback(null,rst);
-            }
-            else{
-                //添加默认测试数据，不用异步请求，两者不相关
-                ModelSerControl.addDefaultTestify(oid.toString());
+        var afterUncompress = function () {
+            //文件验证
+            ModelSerControl.validate(model_path, function (rst) {
+                if (!rst.status || !rst.isValidate) {
+                    //删除文件和文件夹
+                    FileOpera.rmdir(files.file_model.path);
+                    FileOpera.rmdir(model_path);
+                    callback(null, rst);
+                }
+                else {
+                    //添加默认测试数据，不用异步请求，两者不相关
+                    ModelSerControl.addDefaultTestify(oid.toString());
 
-                //添加模型运行文件权限
-                if(setting.platform == 2)
-                {
-                    //
-                    ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
-                        if(err) {
+                    //添加模型运行文件权限
+                    if (setting.platform == 2) {
+                        //
+                        ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
+                            if (err) {
 
+                            }
+                            else {
+                                FileOpera.chmod(model_path + cfg.start, 'exec');
+                            }
+                        });
+                    }
+
+                    //删除文件
+                    //FileOpera.rmdir(files.file_model.path);
+
+                    //转移模型包
+                    fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function (err) {
+                        if (err) {
+                            console.log('err in moving package!');
                         }
-                        else
-                        {
-                            FileOpera.chmod(model_path + cfg.start, 'exec');
+                    });
+
+                    //生成新的纪录
+                    var newmodelser = {
+                        _id: oid,
+                        ms_model: Object.assign({
+                            m_name: fields.m_name,
+                            m_type: fields.m_type,
+                            m_url: fields.m_url,
+                            p_id: md5_value
+                        }, fields.m_model_append),
+                        ms_limited: fields.ms_limited,
+                        mv_num: fields.mv_num,
+                        ms_des: fields.ms_des,
+                        ms_update: date.toLocaleString(),
+                        ms_platform: setting.platform,
+                        ms_path: oid.toString() + '/',
+                        ms_img: img,
+                        ms_xml: fields.ms_xml,
+                        ms_status: 0,
+                        ms_user: {
+                            u_name: fields.u_name,
+                            u_email: fields.u_email
+                        }
+                    };
+
+                    var ms = new ModelSerModel(newmodelser);
+                    ModelSerModel.save(ms, function (err, data) {
+                        if (err) {
+                            console.log(err);
+                            callback(null, {status: 0});
+                        }
+                        else {
+                            rst.data = data;
+                            callback(null, rst);
                         }
                     });
                 }
-
-                //删除文件
-                //FileOpera.rmdir(files.file_model.path);
-
-                //转移模型包
-                fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
-                    if(err){
-                        console.log('err in moving package!');
-                    }
-                });
-
-                //生成新的纪录
-                var newmodelser = {
-                    _id : oid,
-                    ms_model : Object.assign({
-                        m_name:fields.m_name,
-                        m_type:fields.m_type,
-                            m_url:fields.m_url,
-                            p_id : md5_value
-                    }, fields.m_model_append),
-                    ms_limited:fields.ms_limited,
-                    mv_num:fields.mv_num,
-                    ms_des:fields.ms_des,
-                    ms_update:date.toLocaleString(),
-                    ms_platform:setting.platform,
-                    ms_path:oid.toString() + '/',
-                    ms_img:img,
-                    ms_xml:fields.ms_xml,
-                    ms_status:0,
-                    ms_user:{
-                        u_name:fields.u_name,
-                        u_email:fields.u_email
-                    }
-                };
-
-                var ms = new ModelSerModel(newmodelser);
-                ModelSerModel.save(ms,function (err, data) {
-                    if(err){
-                        console.log(err);
-                        callback(null,{status:0});
-                    }
-                    else{
-                        rst.data = data;
-                        callback(null,rst);
-                    }
-                });
-            }
-        });
-    };
-
-<<<<<<< .mine
-    CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
-        afterUncompress();
-    });
-=======
-            CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
-                afterUncompress();
             });
->>>>>>> .theirs
+        };
+
+        CommonMethod.Uncompress(files.file_model.path, model_path, function (err) {
+            afterUncompress();
+        });
+    });
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -667,8 +660,8 @@ ModelSerControl.addBatchDeployItemsByMDL = function (ms_user,zip_path) {
     var batch_path = path.relative(setting.modelpath,zip_path) + '\\';
     FileOpera.getAllFiles(zip_path,'.zip',function (files) {
         var addOne = function (i) {
-            if(i == files.length-1){
-                ModelSerControl.batchDeployByMDL(batch_path);
+            if(i == files.length){
+                return ModelSerControl.batchDeployByMDL(batch_path);
             }
             var batchItem = {
                 batch_path:batch_path,
@@ -685,7 +678,7 @@ ModelSerControl.addBatchDeployItemsByMDL = function (ms_user,zip_path) {
                     return console.log(err);
                 }
                 else{
-                    if(data._doc._id){
+                    if(data.length != 0){
                         addOne(i+1);
                     }
                     else{
@@ -714,14 +707,25 @@ ModelSerControl.batchDeployByMDL = function (batch_path) {
         deployed:false
     };
     batchDeployCtrl.getByWhere(where,function (err, bds) {
-        for(var i=0;i<bds.length;i++){
-            ModelSerControl.deployOneByMDL(bds[i]);
-        }
+        var deployOne = function (i) {
+            ModelSerControl.deployOneByMDL(bds[i],function (err) {
+                if(err){
+                    console.log('deploy ' + i + ' failed!');
+                }
+                else{
+                    console.log('deploy ' + i + ' successed!');
+                }
+                if(i<bds.length-1)
+                    deployOne(i+1);
+            });
+        };
+        if(bds.length != 0)
+            deployOne(0);
     })
 };
 
 //通过mdl部署
-//流程：解压 读mdl    组织modelservice    移动package文件  存数据库
+//流程：解压  读config  读mdl  组织modelservice  移动package文件  更新deployItem  更新modelservice中的m_id
 ModelSerControl.deployOneByMDL = function (bdItem,callback) {
     var msID = new ObjectId();
     var zip_path = path.join(setting.modelpath, bdItem.batch_path, bdItem.zip_path);
@@ -731,60 +735,90 @@ ModelSerControl.deployOneByMDL = function (bdItem,callback) {
         ModelSerControl.readCfgBypath(cfg_path,function (err,cfg) {
             if(err){
                 FileOpera.rmdir(model_path);
-                return console.log(err);
+                console.log(err);
+                return callback(err);
             }
             else{
                 var mdl_path = path.join(model_path , cfg.mdl);
                 ModelSerControl.readMDLByPath(mdl_path,function (err, mdl) {
                     if(err){
                         FileOpera.rmdir(model_path);
-                        return console.log(err);
+                        console.log(err);
+                        return callback(err);
                     }
                     else{
                         mdl = mdl.ModelClass;
-                        var p_id = '';
-                        var m_id = '';
-                        var ms_des = '';
-                        for(var i=0;i<mdl.AttributeSet.LocalAttributes.LocalAttribute;i++){
-                            ms_des += mdl.AttributeSet.LocalAttributes.LocalAttribute[i].Abstract + '\n';
-                        }
-                        var msItem = {
-                            _id:msID,
-                            ms_model:{
-                                m_name:mdl.$.name,
-                                m_type:mdl.$.type,
-                                m_url:'',
-                                p_id:p_id,
-                                m_id:m_id
-                            },
-                            mv_num:'1.0',
-                            ms_des:ms_des,
-                            ms_user:bdItem.ms_user,
-                            ms_status:1,
-                            ms_limited:0,
-                            ms_xml:null,
-                            testify:[],
-                            ms_img:null,
-                            ms_platform:setting.platform,
-                            ms_update:(new Date()).toLocaleString(),
-                            ms_path:msID.toString() + '\\'
-                        };
-                        ModelSerControl.save(msItem,function (err, data) {
+                        FileOpera.getMD5(zip_path,function (err, strMD5) {
                             if(err){
-                                FileOpera.rmdir(model_path);
-                                return console.log(err);
+                                console.log('err in get file md5!');
+                                return callback(err);
                             }
                             else{
-                                bdItem.deployed = true;
-                                batchDeployCtrl.update(bdItem,function (err, data) {
+                                var ms_des = '';
+                                for(var i=0;i<mdl.AttributeSet.LocalAttributes.LocalAttribute;i++){
+                                    ms_des += mdl.AttributeSet.LocalAttributes.LocalAttribute[i].Abstract + '\n';
+                                }
+                                var msItem = {
+                                    _id:msID,
+                                    ms_des:ms_des,
+                                    ms_user:bdItem.ms_user,
+                                    ms_path:msID.toString() + '\\',
+                                    ms_model:{
+                                        m_name:mdl.$.name,
+                                        m_type:mdl.$.type,
+                                        p_id:strMD5,
+                                        m_url:'',
+                                        m_id:''
+                                    },
+                                    mv_num:'1.0',
+                                    ms_status:1,
+                                    ms_limited:0,
+                                    ms_xml:null,
+                                    testify:[],
+                                    ms_img:null,
+                                    ms_platform:setting.platform,
+                                    ms_update:(new Date()).toLocaleString()
+                                };
+                                ModelSerControl.save(msItem,function (err, data) {
                                     if(err){
-                                        return console.log(err);
+                                        FileOpera.rmdir(model_path);
+                                        console.log(err);
+                                        return callback(err);
                                     }
                                     else{
-                                        //添加默认测试数据，不用异步请求，两者不相关
-                                        ModelSerControl.addDefaultTestify(msItem._id.toString());
-                                        //转移模型包
-                                        FileOpera.copyFile(zip_path, setting.modelpath + 'packages/' + msID.toString() + '.zip');
+                                        var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/DeploymentPackageHandleServlet?uid=' + strMD5;
+                                        remoteReqCtrl.getByServer(url,{},function (err, res) {
+                                            if(err){
+                                                console.log('get remote portal m_id failed!');
+                                                return callback(err);
+                                            }
+                                            else{
+                                                bdItem.deployed = true;
+                                                batchDeployCtrl.update(bdItem,function (err, data) {
+                                                    if(err){
+                                                        console.log(err);
+                                                        return callback(err)
+                                                    }
+                                                    else{
+                                                        //添加默认测试数据，不用异步请求，两者不相关
+                                                        ModelSerControl.addDefaultTestify(msItem._id.toString());
+                                                        //转移模型包
+                                                        FileOpera.copyFile(zip_path, setting.modelpath + 'packages/' + msID.toString() + '.zip');
+                                                        //更新m_id
+                                                        msItem.ms_model.m_id = res.modelItemId;
+                                                        ModelSerControl.update(msItem,function (err, data) {
+                                                            if(err){
+                                                                console.log('err in update model service m_id!');
+                                                                return callback(err);
+                                                            }
+                                                            else{
+                                                                callback(null);
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -1518,8 +1552,10 @@ ModelSerControl.addTestify = function (msrid,testifyData,callback) {
                     var srcPath = __dirname + '/../geo_data/' + msr.msr_input[i].DataId + '.xml';
                     var dstPath = newTestify + '/' + msr.msr_input[i].DataId + '.xml';
                     try{
-                        var srcData = fs.readFileSync(srcPath).toString();
-                        fs.writeFileSync(dstPath,srcData);
+                        if(fs.existsSync(srcPath)){
+                            var srcData = fs.readFileSync(srcPath).toString();
+                            fs.writeFileSync(dstPath,srcData);
+                        }
                     }
                     catch(e){
                         callback(e);

@@ -73,13 +73,21 @@ FileOpera.getAllFiles = function (fpath, ext, callback) {
 
 //Linux赋权限
 FileOpera.chmod = function (fpath, limit) {
-    if(limit == 'exec') {
+    if (limit == 'exec') {
         exec('chmod a+x ' + fpath, function (error, stdout, stderr) {
-            if(error){ console.log(JSON.stringify(error)); }
-            if(stdout){ console.log(JSON.stringify(stdout)); }
-            if(stderr){ console.log(JSON.stringify(stderr)); }
+            if (error) {
+                console.log(JSON.stringify(error));
+            }
+            if (stdout) {
+                console.log(JSON.stringify(stdout));
+            }
+            if (stderr) {
+                console.log(JSON.stringify(stderr));
+            }
         });
     }
+};
+
 //获取文件MD5码
 FileOpera.getMD5 = function(fpath, callback){
     if(!fs.existsSync(fpath)){
@@ -94,7 +102,8 @@ FileOpera.getMD5 = function(fpath, callback){
         str = md5sum.digest('hex');
         return callback(null, str);
     });
-}
+};
+    
 FileOpera.copyFile = function (src,dst) {
     var readable = fs.createReadStream( src );
     var writable = fs.createWriteStream( dst );

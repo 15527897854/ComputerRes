@@ -104,7 +104,7 @@ function SocketTrans(app)
                             //通知消息数据
                             var noticeData = {
                                 time:new Date(),
-                                title:msr.msr_ms.m_name + '停止运行！',
+                                title:msr.msr_ms.ms_model.m_name + '停止运行！',
                                 detail:'',
                                 type:'stop-run',
                                 hasRead:false
