@@ -402,21 +402,21 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
     //解压路径
     var model_path = setting.modelpath + oid.toString() + '/';
     //MD5码
-    FileOpera.getMD5(files.file_model.path, function(err, md5_value) {
-        if (err) {
+    FileOpera.getMD5(files.file_model.path, function(err, md5_value){
+        if(err){
             return callback(err);
         }
 
-        var afterUncompress = function () {
+        var afterUncompress = function(){
             //文件验证
-            ModelSerControl.validate(model_path, function (rst) {
-                if (!rst.status || !rst.isValidate) {
+            ModelSerControl.validate(model_path,function (rst){
+                if(!rst.status || !rst.isValidate){
                     //删除文件和文件夹
                     FileOpera.rmdir(files.file_model.path);
                     FileOpera.rmdir(model_path);
                     callback(null, rst);
                 }
-                else {
+                else{
                     //添加默认测试数据，不用异步请求，两者不相关
                     ModelSerControl.addDefaultTestify(oid.toString());
 
@@ -424,7 +424,7 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                     if (setting.platform == 2) {
                         //
                         ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
-                            if (err) {
+                            if(err) {
 
                             }
                             else {
@@ -435,56 +435,55 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
 
                     //删除文件
                     //FileOpera.rmdir(files.file_model.path);
-
                     //转移模型包
-                    fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function (err) {
-                        if (err) {
-                            console.log('err in moving package!');
-                        }
-                    });
+                    fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
+                            if(err){
+                                console.log('err in moving package!');
+                            }
+                        });
 
                     //生成新的纪录
                     var newmodelser = {
-                        _id: oid,
-                        ms_model: Object.assign({
-                            m_name: fields.m_name,
-                            m_type: fields.m_type,
-                            m_url: fields.m_url,
-                            p_id: md5_value
+                        _id : oid,
+                        ms_model : Object.assign({
+                            m_name:fields.m_name,
+                            m_type:fields.m_type,
+                            m_url:fields.m_url,
+                            p_id : md5_value
                         }, fields.m_model_append),
-                        ms_limited: fields.ms_limited,
-                        mv_num: fields.mv_num,
-                        ms_des: fields.ms_des,
-                        ms_update: date.toLocaleString(),
-                        ms_platform: setting.platform,
-                        ms_path: oid.toString() + '/',
-                        ms_img: img,
-                        ms_xml: fields.ms_xml,
-                        ms_status: 0,
-                        ms_user: {
-                            u_name: fields.u_name,
-                            u_email: fields.u_email
+                        ms_limited:fields.ms_limited,
+                        mv_num:fields.mv_num,
+                        ms_des:fields.ms_des,
+                        ms_update:date.toLocaleString(),
+                        ms_platform:setting.platform,
+                        ms_path:oid.toString() + '/',
+                        ms_img:img,
+                        ms_xml:fields.ms_xml,
+                        ms_status:0,
+                        ms_user:{
+                            u_name:fields.u_name,
+                            u_email:fields.u_email
                         }
                     };
 
                     var ms = new ModelSerModel(newmodelser);
-                    ModelSerModel.save(ms, function (err, data) {
-                        if (err) {
+                    ModelSerModel.save(ms,function (err, data) {
+                        if(err){
                             console.log(err);
-                            callback(null, {status: 0});
+                            callback(null,{status:0});
                         }
-                        else {
+                        else{
                             rst.data = data;
-                            callback(null, rst);
+                            callback(null,rst);
                         }
                     });
                 }
             });
         };
 
-        CommonMethod.Uncompress(files.file_model.path, model_path, function (err) {
-            afterUncompress();
-        });
+            CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
+                afterUncompress();
+            });
     });
 };
 
@@ -662,7 +661,7 @@ ModelSerControl.addBatchDeployItemsByMDL = function (ms_user,zip_path) {
         var addOne = function (i) {
             if(i == files.length){
                 return ModelSerControl.batchDeployByMDL(batch_path);
-            }
+        }
             var batchItem = {
                 batch_path:batch_path,
                 zip_path:path.relative(batch_path,zip_path+files[i]),
@@ -677,7 +676,7 @@ ModelSerControl.addBatchDeployItemsByMDL = function (ms_user,zip_path) {
                 if(err){
                     return console.log(err);
                 }
-                else{
+        else {
                     if(data.length != 0){
                         addOne(i+1);
                     }
@@ -692,7 +691,7 @@ ModelSerControl.addBatchDeployItemsByMDL = function (ms_user,zip_path) {
                         })
                     }
                 }
-            });
+                });
         };
         if(files.length != 0)
             addOne(0);
@@ -711,13 +710,13 @@ ModelSerControl.batchDeployByMDL = function (batch_path) {
             ModelSerControl.deployOneByMDL(bds[i],function (err) {
                 if(err){
                     console.log('deploy ' + i + ' failed!');
-                }
+        }
                 else{
                     console.log('deploy ' + i + ' successed!');
                 }
                 if(i<bds.length-1)
                     deployOne(i+1);
-            });
+    });
         };
         if(bds.length != 0)
             deployOne(0);
@@ -779,6 +778,7 @@ ModelSerControl.deployOneByMDL = function (bdItem,callback) {
                                     ms_platform:setting.platform,
                                     ms_update:(new Date()).toLocaleString()
                                 };
+                                
                                 ModelSerControl.save(msItem,function (err, data) {
                                     if(err){
                                         FileOpera.rmdir(model_path);
@@ -1553,9 +1553,9 @@ ModelSerControl.addTestify = function (msrid,testifyData,callback) {
                     var dstPath = newTestify + '/' + msr.msr_input[i].DataId + '.xml';
                     try{
                         if(fs.existsSync(srcPath)){
-                            var srcData = fs.readFileSync(srcPath).toString();
-                            fs.writeFileSync(dstPath,srcData);
-                        }
+                        var srcData = fs.readFileSync(srcPath).toString();
+                        fs.writeFileSync(dstPath,srcData);
+                    }
                     }
                     catch(e){
                         callback(e);

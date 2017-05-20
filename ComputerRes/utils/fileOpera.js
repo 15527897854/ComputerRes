@@ -26,6 +26,7 @@ FileOpera.BuildDir = function (path, callback) {
     });
 };
 
+//删除一个目录及下边所有文件
 FileOpera.rmdir = function (path) {
     if(!fs.existsSync(path))
     {
@@ -49,6 +50,8 @@ FileOpera.rmdir = function (path) {
     }
 };
 
+
+//得到path根目录下的所有后缀名为ext的文件，没有递归处理
 //得到path根目录下的所有后缀名为ext的文件，没有递归处理    ext 带不带 . 都行
 FileOpera.getAllFiles = function (fpath, ext, callback) {
     var rst = [];
@@ -71,9 +74,25 @@ FileOpera.getAllFiles = function (fpath, ext, callback) {
     }
 };
 
+//复制文件
+FileOpera.copy = function(source, target, callback){
+    fs.readFile(source, function(err, data){
+        if(err){
+            return callback(err);
+        }
+        fs.writeFile(target, data, function(err, result){
+            if(err){
+                return callback(err);
+            }
+            FileOpera.rmdir(target);
+            return callback(null, result);
+        });
+    });
+}
+
 //Linux赋权限
 FileOpera.chmod = function (fpath, limit) {
-    if (limit == 'exec') {
+    if(limit == 'exec') {
         exec('chmod a+x ' + fpath, function (error, stdout, stderr) {
             if (error) {
                 console.log(JSON.stringify(error));
