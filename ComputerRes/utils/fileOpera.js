@@ -48,7 +48,7 @@ FileOpera.rmdir = function (path) {
     }
 };
 
-//得到path根目录下的所有后缀名为ext的文件，没有递归处理
+//得到path根目录下的所有后缀名为ext的文件，没有递归处理    ext 带不带 . 都行
 FileOpera.getAllFiles = function (fpath, ext, callback) {
     var rst = [];
     try {
@@ -80,3 +80,9 @@ FileOpera.chmod = function (fpath, limit) {
         });
     }
 }
+
+FileOpera.copyFile = function (src,dst) {
+    var readable = fs.createReadStream( src );
+    var writable = fs.createWriteStream( dst );
+    readable.pipe( writable );
+};
