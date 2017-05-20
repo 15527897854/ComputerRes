@@ -270,7 +270,7 @@ var RmtModelSerTable = React.createClass({
                 var button;
                 var button2;
                 var button3 = null;
-                if(!item.ms_model.p_id){
+                if(!item.ms_model.m_id){
                     button3 = (
                         <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.uploadModelSer(e, null, item._id) }} >
                             <i className="fa fa-cloud-upload"> </i>上传门户

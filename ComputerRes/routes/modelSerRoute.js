@@ -15,6 +15,7 @@ var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCrtl = require('../control/modelSerControl');
 var NoticeCtrl = require('../control/noticeCtrl');
 var ModelIns = require('../model/modelInstance');
+
 var ModelSerMid = require('../middlewares/modelserMid');
 var RouteBase = require('./routeBase');
 
@@ -22,8 +23,19 @@ var remoteModelSerRoute = require('./rmtModelSerRoute');
 
 module.exports = function(app)
 {
-    //新增模型服务
     app.route('/modelser')
+        //查询模型服务
+        .get(function(req, res, next){
+            if(req.query.ac = 'search'){
+                if(req.query.mid){
+                    ModelSerCrtl.getByMID(req.query.mid, RouteBase.returnFunction(res, 'error in searching model services!'));
+                }
+                else if(req.query.pid){
+                    ModelSerCrtl.getByPID(req.query.pid, RouteBase.returnFunction(res, 'error in searching model services!'));
+                }
+            }
+        })
+        //新增模型服务
         .post(function(req, res, next) {
             ModelSerMid.NewModelSer(req, function(err, rst){
                 if(err){
