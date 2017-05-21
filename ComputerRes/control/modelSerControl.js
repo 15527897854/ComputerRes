@@ -407,83 +407,90 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
             return callback(err);
         }
 
-        var afterUncompress = function(){
-            //文件验证
-            ModelSerControl.validate(model_path,function (rst){
-                if(!rst.status || !rst.isValidate){
-                    //删除文件和文件夹
-                    FileOpera.rmdir(files.file_model.path);
-                    FileOpera.rmdir(model_path);
-                    callback(null, rst);
-                }
-                else{
-                    //添加默认测试数据，不用异步请求，两者不相关
-                    ModelSerControl.addDefaultTestify(oid.toString());
+        ModelSerControl.getMIDByPID(md5_value, function(err, mid){
+            if(err){
+                mid = null;
+            }
 
-                    //添加模型运行文件权限
-                    if (setting.platform == 2) {
-                        //
-                        ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
-                            if(err) {
+            var afterUncompress = function(){
+                //文件验证
+                ModelSerControl.validate(model_path,function (rst){
+                    if(!rst.status || !rst.isValidate){
+                        //删除文件和文件夹
+                        FileOpera.rmdir(files.file_model.path);
+                        FileOpera.rmdir(model_path);
+                        callback(null, rst);
+                    }
+                    else{
+                        //添加默认测试数据，不用异步请求，两者不相关
+                        ModelSerControl.addDefaultTestify(oid.toString());
 
+                        //添加模型运行文件权限
+                        if (setting.platform == 2) {
+                            //
+                            ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
+                                if(err) {
+
+                                }
+                                else {
+                                    FileOpera.chmod(model_path + cfg.start, 'exec');
+                                }
+                            });
+                        }
+
+                        //删除文件
+                        //FileOpera.rmdir(files.file_model.path);
+                        //转移模型包
+                        fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
+                                if(err){
+                                    console.log('err in moving package!');
+                                }
+                            });
+
+                        //生成新的纪录
+                        var newmodelser = {
+                            _id : oid,
+                            ms_model : Object.assign({
+                                m_name:fields.m_name,
+                                m_type:fields.m_type,
+                                m_url:fields.m_url,
+                                p_id : md5_value,
+                                m_id : mid
+                            }, fields.m_model_append),
+                            ms_limited:fields.ms_limited,
+                            mv_num:fields.mv_num,
+                            ms_des:fields.ms_des,
+                            ms_update:date.toLocaleString(),
+                            ms_platform:setting.platform,
+                            ms_path:oid.toString() + '/',
+                            ms_img:img,
+                            ms_xml:fields.ms_xml,
+                            ms_status:0,
+                            ms_user:{
+                                u_name:fields.u_name,
+                                u_email:fields.u_email
                             }
-                            else {
-                                FileOpera.chmod(model_path + cfg.start, 'exec');
+                        };
+
+                        var ms = new ModelSerModel(newmodelser);
+                        ModelSerModel.save(ms,function (err, data) {
+                            if(err){
+                                console.log(err);
+                                callback(null,{status:0});
+                            }
+                            else{
+                                rst.data = data;
+                                callback(null,rst);
                             }
                         });
                     }
-
-                    //删除文件
-                    //FileOpera.rmdir(files.file_model.path);
-                    //转移模型包
-                    fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
-                            if(err){
-                                console.log('err in moving package!');
-                            }
-                        });
-
-                    //生成新的纪录
-                    var newmodelser = {
-                        _id : oid,
-                        ms_model : Object.assign({
-                            m_name:fields.m_name,
-                            m_type:fields.m_type,
-                            m_url:fields.m_url,
-                            p_id : md5_value
-                        }, fields.m_model_append),
-                        ms_limited:fields.ms_limited,
-                        mv_num:fields.mv_num,
-                        ms_des:fields.ms_des,
-                        ms_update:date.toLocaleString(),
-                        ms_platform:setting.platform,
-                        ms_path:oid.toString() + '/',
-                        ms_img:img,
-                        ms_xml:fields.ms_xml,
-                        ms_status:0,
-                        ms_user:{
-                            u_name:fields.u_name,
-                            u_email:fields.u_email
-                        }
-                    };
-
-                    var ms = new ModelSerModel(newmodelser);
-                    ModelSerModel.save(ms,function (err, data) {
-                        if(err){
-                            console.log(err);
-                            callback(null,{status:0});
-                        }
-                        else{
-                            rst.data = data;
-                            callback(null,rst);
-                        }
-                    });
-                }
-            });
-        };
+                });
+            };
 
             CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
                 afterUncompress();
             });
+        });
     });
 };
 
@@ -1153,6 +1160,43 @@ ModelSerControl.uploadPackage = function(msid, mid, pkg_name, pkg_version, pkg_d
         pending();
     }
 };
+
+//根据OID更新门户的ModelItemID
+ModelSerControl.getMIDByOID = function(oid, callback){
+    if(ParamCheck.checkParam(callback, oid)){
+        ModelSerModel.getByOID(oid, function(err, ms){
+            if(err){
+                return callback(err);
+            }
+            if(item.ms_model.p_id){
+                ModelSerControl.getMIDByPID(item.ms_model.p_id, function(err, mid){
+                    if(err){
+                        return callback(err);
+                    }
+                    return callback(null, mid);
+                });
+            }
+            else{
+                return callback(new Error('No PID'));
+            }
+        });
+    }
+}
+
+//根据PID更新门户的ModelItemID
+ModelSerControl.getMIDByPID = function(pid, callback){
+    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/DeploymentPackageHandleServlet?uid=' + pid, function(err, data){
+        if(err){
+            return callback(err);
+        }
+        if(data.modelItemId){
+            return callback(null, data.modelItemId);
+        }
+        else{
+            return callback(new Error('can not get MID'));
+        }
+    });
+}
 
 //得到初始输入数据
 ModelSerControl.getInputData = function (ms_id, callback) {
