@@ -21,7 +21,7 @@ fs.readFile(__dirname + '/upload/dps.json', 'utf-8', function(err, data){
                 console.log('Model : ' + data[index]['modelName'] + ' upload succeeded ! ');
             }
             if(count == 0){
-                console.log('Model-packages bash upload have finished!');
+                console.log('Model-packages batch upload have finished!');
             }
         }
     });
