@@ -27,7 +27,12 @@ module.exports = function(app)
                     next();
                 }
                 else{
-                    return res.redirect('/login');
+                    if(req.session.admin){
+                        next();
+                    }
+                    else{
+                        return res.redirect('/login');
+                    }
                 }
             }
             else{

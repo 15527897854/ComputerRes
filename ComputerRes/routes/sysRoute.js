@@ -194,7 +194,27 @@ module.exports = function(app)
             res.render('login')
         })
         .post(function(req, res, next){
-            SysControl.adminLogin(req.body.adminname, req.body.adminpwd, RouteBase.returnFunction(res, 'Error in admin login!'));
+            SysControl.adminLogin(req.body.adminname, req.body.adminpwd, function(err, result){
+                if(err){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : JSON.stringify(err)
+                    }));
+                }
+                if(result){
+                    req.session.admin = true;
+                    return res.end(JSON.stringify({
+                        result : 'suc',
+                        data : true
+                    }));
+                }
+                else{
+                    return res.end(JSON.stringify({
+                        result : 'suc',
+                        data : false
+                    }));
+                }
+            });
         });
 
     //获取门户用户名信息

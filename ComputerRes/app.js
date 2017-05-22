@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   secret:'wfsiudhjkfhoihiewhrlkjflkjasd',
-  cookie:{maxAge : 3600000},
+  cookie:{maxAge : 3600000 * 2},
   resave:false,
   saveUninitialized: true
 }));
