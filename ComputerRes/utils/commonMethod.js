@@ -53,18 +53,24 @@ CommonMethod.compress = function(file, path){
 };
 
 //加密
-CommonMethod.crypto = function(buffer){
+CommonMethod.crypto = function(buffer, key){
+    if(key == null || key == undefined){
+        key = settings.crypto.key;
+    }
     var encrypted = "";
-    var cip = crypto.createCipher(settings.crypto.algorithm, settings.crypto.key);
+    var cip = crypto.createCipher(settings.crypto.algorithm, key);
     encrypted += cip.update(buffer, 'binary', 'hex');
     encrypted += cip.final('hex');
     return encrypted;
 };
 
 //解密
-CommonMethod.decrypto = function(buffer){
+CommonMethod.decrypto = function(buffer, key){
+    if(key == null || key == undefined){
+        key = settings.crypto.key;
+    }
     var decrypted = "";
-    var decipher = crypto.createDecipher(settings.crypto.algorithm, settings.crypto.key);
+    var decipher = crypto.createDecipher(settings.crypto.algorithm, key);
     decrypted += decipher.update(buffer, 'hex', 'binary');
     decrypted += decipher.final('binary');
     return decrypted;
@@ -81,6 +87,13 @@ CommonMethod.childProcess = function(file, callback){
             stderr : stderr
         })
     });
+};
+
+//获取IP
+CommonMethod.getIP = function(request){
+    host = request.connection.remoteAddress;
+    host = host.substr(host.lastIndexOf(':') + 1);
+    return host;
 };
 
 module.exports = CommonMethod;

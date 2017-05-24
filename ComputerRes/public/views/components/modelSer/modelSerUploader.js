@@ -48,6 +48,22 @@ var ModelSerUploader = React.createClass({
                 return false;
             }.bind(this)
         });
+        
+        $('#stepy_form').validate({
+            errorPlacement: function(error, element) {
+                error.css(''
+                );
+                $('#stepy_form div.stepy-error').append(error);
+            },
+            rules: {
+                pkg_name: 'required'
+            },
+            messages: {
+                u_name: {
+                    pkg_name: '请填写部署包名称!'
+                }
+            }
+        });
 
         this.setState({stepy : stepy});
 
@@ -65,21 +81,7 @@ var ModelSerUploader = React.createClass({
 
     onSelectedModelItem : function(e, item){
         $('#mid').val(item.model_id);
-        $('#stepy_form').validate({
-            errorPlacement: function(error, element) {
-                error.css(''
-                );
-                $('#stepy_form div.stepy-error').append(error);
-            },
-            rules: {
-                pkg_name: 'required'
-            },
-            messages: {
-                u_name: {
-                    pkg_name: '请填写部署包名称!'
-                }
-            }
-        });
+        $('#mname').val(item.model_name);
         $('#stepy_form-title-1').click();
     },
 
@@ -120,7 +122,8 @@ var ModelSerUploader = React.createClass({
                                     <div className="form-group">
                                         <label className="col-md-2 col-sm-2 control-label">模型条目</label>
                                         <div className="col-md-6 col-sm-6">
-                                            <input name="mid" className="form-control" placeholder="模型条目ID" id="mid" readOnly="readOnly" type="text" value='' />
+                                            <input name="mid" className="form-control" placeholder="模型条目ID" id="mid" readOnly="readOnly" type="hidden" value='' />
+                                            <input name="mname" className="form-control" placeholder="模型条目" id="mname" readOnly="readOnly" type="text" value='' />
                                         </div>
                                     </div>
                                     <div className="form-group">

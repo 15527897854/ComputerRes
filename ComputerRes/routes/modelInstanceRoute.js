@@ -12,6 +12,21 @@ module.exports = function (app) {
                 });
         });
 
+    app.route('/modelins/:guid')
+        .put(function(req, res, next){
+            var ac = req.query.ac;
+            var guid = req.params.guid;
+            if(ac == 'kill'){
+                var flag = app.modelInsColl.kill(guid);
+                if(flag == 1){
+                    return res.end(JSON.stringify({
+                        result : 'suc',
+                        data : 1
+                    }))
+                }
+            }
+        });
+
     //得到模型实例的JSON数据
     app.route('/modelins/json/:guid')
         .get(function (req, res, next) {

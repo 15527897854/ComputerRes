@@ -89,7 +89,12 @@ if(settings.debug)
   var mis = {
     guid : settings.debugGUID,
     socket : null,
-    ms : null,
+    ms : {
+      ms_model : {
+        m_name : '测试模型'
+      },
+      mv_num : 'v0.1'
+    },
     start : date.toLocaleString(),
     state : 'MC_READY'
   };

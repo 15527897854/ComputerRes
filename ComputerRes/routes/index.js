@@ -127,6 +127,7 @@ module.exports = function(app)
     //Test
     app.route('/test')
         .get(function (req, res, next) {
+            
             res.render('test');
         });
 };

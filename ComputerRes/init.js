@@ -41,6 +41,12 @@ var Init = function(){
             }
             if(count_fields == 0){
                 console.log('system fields checking finished ! ');
+                SysCtrl.getParent(function(err, ss){
+                    if(err){
+                        
+                    }
+                    global.parent = ss.ss_value;
+                });
             }
         }
     });

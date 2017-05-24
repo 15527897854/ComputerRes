@@ -157,3 +157,16 @@ ModelInsCollection.prototype.changeStateByGUID = function (guid, state) {
     }
     return -1;
 };
+
+//杀死某个模型程序
+ModelInsCollection.prototype.kill = function(guid){
+    for(var i = 0 ; i < this.ModelInsArr.length; i++)
+    {
+        if(this.ModelInsArr[i].guid == guid)
+        {
+            this.ModelInsArr[i].socket.write('kill');
+            return 1;
+        }
+    }
+    return -1;
+}
