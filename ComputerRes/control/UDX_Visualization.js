@@ -2,31 +2,243 @@
  * Created by Administrator on 3.19.
  */
 var fs = require('fs');
-var lib_udx = require('./nxdat');
 var Canvas = require('canvas');
 var proj4 = require('proj4');
-var GeoDataCtrl = require('../control/geoDataControl');
+var child_process = require('child_process');
 
-function UDXVisualization() {
+var GeoDataCtrl = require('./geoDataControl');
+var lib_udx = require('../model/nxdat');
+var UDXConvertor = require('./UDXConvertor');
+var childCtrl = require('./childControl');
+var remoteReqCtrl = require('./remoteReqControl');
 
-}
-module.exports = UDXVisualization;
+function UDXVisualization(udxVisual) {}
 
-UDXVisualization.test = function () {
-    ctx.font = '30px Impact';
-    ctx.rotate(.1);
-    ctx.fillText("Awesome!", 50, 100);
+// module.exports = UDXVisualization;
 
-    var te = ctx.measureText('Awesome!');
-    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-    ctx.beginPath();
-    ctx.lineTo(50, 102);
-    ctx.lineTo(50 + te.width, 102);
-    ctx.stroke();
-
-    console.log('<img src="' + canvas.toDataURL('/../public/images/awesome.png') + '" />');
+UDXVisualization.test = function (a,cb) {
+    cb({a:a});
 };
 
+UDXVisualization.getSnapshot = function (gdid,callback) {
+    //根据gdid_config.json判断是否生成过配置文件,图像定位信息写在配置文件中,图片本身也写在里面
+    //configPath用于查找是否已经生成过配置文件
+    var rst = {};
+    var configPath = __dirname + '/../public/geojson/' + gdid + '_config.json';
+    fs.stat(configPath,function (err, stat) {
+        if(err){
+            if(err.code == 'ENOENT'){
+                //未生成过
+                UDXVisualization.getDataType(gdid,function (err, dataType,srcDataset) {
+                    if(err || dataType == "Unknown"){
+                        console.log(err);
+                        rst.err = err;
+                        fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                            if(err){
+                                console.log(err);
+                            }
+                            return callback(JSON.stringify(rst));
+                        });
+                    }
+                    if(dataType == 'grid'){
+                        UDXVisualization.GtiffDataset(gdid,srcDataset,1,function (err,data) {
+                            if(err){
+                                console.log(err);
+                                rst.err = err;
+                            }
+                            else{
+                                rst = {
+                                    dataType:'geotiff',
+                                    layers:data
+                                };
+                            }
+                            fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                if(err){
+                                    console.log(err);
+                                }
+                                callback(JSON.stringify(rst));
+                            });
+                        });
+                    }
+                    else if(dataType == 'ascii grid'){
+                        UDXVisualization.AsciiGridDataset(gdid,srcDataset,1,function (err,data) {
+                            if(err){
+                                console.log(err);
+                                rst.err = err;
+                            }
+                            else{
+                                rst = {
+                                    dataType:'geotiff',
+                                    layers:data
+                                };
+                            }
+                            fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                if(err){
+                                    console.log(err);
+                                }
+                                callback(JSON.stringify(rst));
+                            });
+                        });
+                    }
+                    else if(dataType == 'grid list'){
+                        UDXVisualization.GtiffListDataset(gdid,srcDataset,1,function (err,data) {
+                            if(err){
+                                console.log(err);
+                                rst.err = err;
+                            }
+                            else{
+                                rst = {
+                                    dataType:'grid list',
+                                    layers:data
+                                };
+                            }
+                            fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                if(err){
+                                    console.log(err);
+                                }
+                                callback(JSON.stringify(rst));
+                            });
+                        });
+                    }
+                    else if(dataType == 'shp list'){
+                        UDXConvertor.shpList2Geojson(gdid,srcDataset,function (err, data) {
+                            if(err){
+                                console.log(err);
+                                rst.err = err;
+                            }
+                            else{
+                                rst = {
+                                    dataType:'shp list',
+                                    layers:data
+                                };
+                            }
+                            fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                if(err){
+                                    console.log(err);
+                                }
+                                callback(JSON.stringify(rst));
+                            });
+                        });
+                    }
+                    else if(dataType == 'table'){
+                        UDXVisualization.TableDataset(gdid,srcDataset,function (err,data) {
+                            if(err){
+                                console.log(err);
+                                rst.err = err;
+                            }
+                            else{
+                                rst = {
+                                    dataType:'table',
+                                    series:data
+                                };
+                            }
+                            fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                if(err){
+                                    console.log(err);
+                                }
+                                callback(JSON.stringify(rst));
+                            });
+                        });
+                    }
+                    else if(dataType == 'FV_TIN' || dataType == 'FV_Boundary' || dataType == 'shp'){
+                        var convertor;
+                        if(dataType == 'FV_TIN'){
+                            convertor = UDXConvertor.FV_TIN2Geojson;
+                        }
+                        else if(dataType == 'FV_Boundary'){
+                            convertor = UDXConvertor.FV_Boundary2Geojson;
+                        }
+                        else if(dataType == 'shp'){
+                            convertor = UDXConvertor.shp2Geojson;
+                        }
+                        convertor(gdid,srcDataset,function (err, data) {
+                            if(err){
+                                console.log(err);
+                                rst.err = err;
+                            }
+                            else{
+                                rst = {
+                                    dataType:'shp',
+                                    layers:data
+                                };
+                            }
+                            fs.writeFile(configPath,JSON.stringify(rst),function (err) {
+                                if(err){
+                                    console.log(err);
+                                }
+                                callback(JSON.stringify(rst));
+                            });
+                        })
+                    }
+                });
+            }
+            else{
+                rst.err = err;
+                return callback(JSON.stringify(rst));
+            }
+        }
+        else if(stat){
+            //已有历史生成过
+            fs.readFile(configPath,'utf8',function (err,data) {
+                if(err){
+                    return callback(JSON.stringify({err:err}));
+                }
+                setTimeout(function () {
+                    return callback(data.toString());
+                },500);
+            });
+        }
+    });
+};
+
+UDXVisualization.getRMTSnapshot = function (gdid, host, callback) {
+    var configPath = __dirname + '/../public/geojson/' + gdid + '_config.json';
+    fs.stat(configPath,function (err, stat) {
+        var rst = {};
+        if(err){
+            if(err.code == 'ENOENT'){
+                childCtrl.getByWhere({host:host},function (error, child) {
+                    if(error){
+                        rst.err = error;
+                        return callback(JSON.stringify(rst));
+                    }
+                    var port = child.port;
+                    var url = 'http://' + host + ':' + port +'/geodata/snapshot/' + gdid;
+                    remoteReqCtrl.getByServer(url,null,function (err, data) {
+                        if(err){
+                            console.log('---------------------err--------------------\n'+err);
+                            rst.err = err;
+                            return callback(JSON.stringify(rst));
+                        }
+                        fs.writeFile(configPath,data,function (err) {
+                            if(err){
+                                console.log(err);
+                            }
+                            return callback(data);
+                        });
+                    });
+                });
+            }
+            else{
+                rst.err = err;
+                return callback(JSON.stringify(rst));
+            }
+        }
+        else if(stat){
+            //已有历史生成过
+            fs.readFile(configPath,'utf8',function (err,data) {
+                if(err){
+                    return callback(JSON.stringify({err:err}));
+                }
+                setTimeout(function () {
+                    return callback(data.toString());
+                },500);
+            });
+        }
+    });
+};
+
+//获取udx对应的原始数据类型
 UDXVisualization.getDataType = function (gdid,callback) {
     //查找不到数据？redis数据的持久化
     GeoDataCtrl.getByKey(gdid, function (err, gd) {
@@ -56,34 +268,59 @@ UDXVisualization.getDataType = function (gdid,callback) {
         }
         var srcRootNode = lib_udx.getDatasetNode(srcDataset);
         var count = lib_udx.getNodeChildCount(srcRootNode);
-        var firstFloor = [];
+        var firstFloor = [],secondFloor = [];
         for(var i=0;i<count;i++){
             var node = lib_udx.getChildNode(srcRootNode,i);
             var nodeName = lib_udx.getNodeName(node);
             firstFloor.push(nodeName);
+
+            var nodeType = lib_udx.getNodeType(node).value;
+            if(nodeType == 9)
+                continue;
+            
+            var count2 = lib_udx.getNodeChildCount(node);
+            if(count2 > 1){
+                for(var j=0;j<count2;j++){
+                    var node2 = lib_udx.getChildNode(node,j);
+                    var nodeName2 = lib_udx.getNodeName(node2);
+                    secondFloor.push(nodeName2);
+                }
+            }
         }
-        if(firstFloor.indexOf('ShapeType') != -1 || firstFloor.indexOf('FeatureCollection') != -1 ||
-            firstFloor.indexOf('AttributeTable') != -1 || firstFloor.indexOf('SpatialRef') != -1){
-            callback(null,'shp',srcDataset);
+
+        if(firstFloor.indexOf('ShapeType') != -1 && firstFloor.indexOf('FeatureCollection') != -1 &&
+            firstFloor.indexOf('AttributeTable') != -1 && firstFloor.indexOf('SpatialRef') != -1){
+            return callback(null,'shp',srcDataset);
         }
-        else if(firstFloor.indexOf('header') != -1 || firstFloor.indexOf('bands') != -1 ||
+        else if(firstFloor.indexOf('header') != -1 && firstFloor.indexOf('bands') != -1 &&
             firstFloor.indexOf('projection') != -1){
-            callback(null,'grid',srcDataset);
+            return callback(null,'grid',srcDataset);
         }
-        else if(firstFloor.indexOf('head') != -1 || firstFloor.indexOf('body') != -1){
-            callback(null,'ascii grid',srcDataset);
+        else if(firstFloor.indexOf('head') != -1 && firstFloor.indexOf('body') != -1){
+            if(secondFloor.indexOf('ncols') != -1 && secondFloor.indexOf('nrows') != -1 && secondFloor.indexOf('xllcorner')!=-1 && secondFloor.indexOf('cellsize') != -1){
+                return callback(null,'ascii grid',srcDataset);
+            }
+            else if(secondFloor.indexOf('TriangleCount') != -1 && secondFloor.indexOf('PointCount') != -1 && secondFloor.indexOf('TriangleList')!=-1 && secondFloor.indexOf('PointList') != -1){
+                return callback(null,'FV_TIN',srcDataset);
+            }
+            else if(secondFloor.indexOf('description') != -1 && secondFloor.indexOf('nodeCount') != -1){
+                return callback(null,'FV_Boundary',srcDataset);
+            }
+            else{
+                return callback(null,'Unknown',null);
+            }
         }
         else if(firstFloor.indexOf('grid list') != -1){
-            callback(null,'grid list',srcDataset);
+            return callback(null,'grid list',srcDataset);
         }
         else if(firstFloor.indexOf('shp list') != -1){
-            callback(null,'shp list',srcDataset);
+            return callback(null,'shp list',srcDataset);
         }
         else if(firstFloor.indexOf('table') != -1){
-            callback(null,'table',srcDataset);
+            return callback(null,'table',srcDataset);
         }
         else{
-            callback(null,'Unknown',null);
+            return callback(null,'Unknown',null);
         }
     });
 };
@@ -571,38 +808,53 @@ UDXVisualization.TableDataset = function (gdid, srcDataset, callback) {
     }
 };
 
+// UDXVisualization.GtiffFile = function (srcPath,dstPath,band,factor, callback) {
+//     fs.readFile(srcPath,function (err, data) {
+//         if (err) {
+//             console.log("Error:read file err!\n");
+//             callback(err);
+//         }
+//         var strUDX = data.toString();
+//         var srcDataset = lib_udx.createDataset();
+//         // bug
+//         // Cannot enlarge memory arrays. Either (1) compile with -s TOTAL_MEMORY=X
+//         // with X higher than the current value 16777216, (2) compile with
+//         // ALLOW_MEMORY_GROWTH which adjusts the size at runtime but prevents some
+//         // optimizations, or (3) set Module.TOTAL_MEMORY before the program runs.
+//         var ss = lib_udx.loadFromXmlFile(srcDataset, strUDX);
+//         if (ss != 'Parse XML OK') {
+//             return console.log('Error:load udx err!');
+//         }
+//         UDXVisualization.GtiffDataset(srcDataset,band,factor,function (err, rst) {
+//             if(err){
+//                 callback(err);
+//             }
+//             else{
+//                 fs.writeFile(dstPath, rst.image, function(err) {
+//                     if (err) {
+//                         console.log('Error:sava image file err!');
+//                         callback(err);
+//                     } else {
+//                         callback(null,rst)
+//                     }
+//                 });
+//             }
+//         })
+//     })
+// };
 
-UDXVisualization.GtiffFile = function (srcPath,dstPath,band,factor, callback) {
-    fs.readFile(srcPath,function (err, data) {
-        if (err) {
-            console.log("Error:read file err!\n");
-            callback(err);
+process.on('message',function (m) {
+    if(m.code == 'start'){
+        if(m.host){
+            UDXVisualization.getRMTSnapshot(m.gdid,m.host,function (data) {
+                process.send({code:'stop',rst:JSON.parse(data)});
+            })
         }
-        var strUDX = data.toString();
-        var srcDataset = lib_udx.createDataset();
-        // bug
-        // Cannot enlarge memory arrays. Either (1) compile with -s TOTAL_MEMORY=X
-        // with X higher than the current value 16777216, (2) compile with
-        // ALLOW_MEMORY_GROWTH which adjusts the size at runtime but prevents some
-        // optimizations, or (3) set Module.TOTAL_MEMORY before the program runs.
-        var ss = lib_udx.loadFromXmlFile(srcDataset, strUDX);
-        if (ss != 'Parse XML OK') {
-            return console.log('Error:load udx err!');
+        else{
+            UDXVisualization.getSnapshot(m.gdid,function (data) {
+                process.send({code:'stop',rst:JSON.parse(data)});
+            })
         }
-        UDXVisualization.GtiffDataset(srcDataset,band,factor,function (err, rst) {
-            if(err){
-                callback(err);
-            }
-            else{
-                fs.writeFile(dstPath, rst.image, function(err) {
-                    if (err) {
-                        console.log('Error:sava image file err!');
-                        callback(err);
-                    } else {
-                        callback(null,rst)
-                    }
-                });
-            }
-        })
-    })
-};
+        
+    }
+});

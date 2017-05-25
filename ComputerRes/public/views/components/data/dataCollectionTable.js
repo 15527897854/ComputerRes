@@ -108,7 +108,7 @@ var DataCollectionTable = React.createClass({
             url:'/geodata/snapshot/' + gdid,
             success:function (data) {
                 var rst = JSON.parse(data);
-                if(rst.suc == true){
+                if(rst.err == undefined){
                     if(rst.dataType == 'table'){
                         var myDIV = '<div id="chartOption" style="float: left;;display: block;height: 460px;width: 25%;position: relative;top: 40px;">'
                             + '<form id="chartType" style="margin: 60px 20px;" class="form-horizontal pull-left chart-control">'
@@ -381,7 +381,7 @@ var DataCollectionTable = React.createClass({
                     }
                 }
                 else{
-                    alert('数据出错或不支持可视化该类型数据!');
+                    alert('数据出错或该类型数据不支持可视化!');
                     $('#close-modal').trigger("click");
                 }
             }.bind(this)

@@ -22,13 +22,14 @@ registerCtrl.register = function (callback) {
         }
         else{
             var post2portal = function (registerInfo,isupdate) {
-                // var form = {
-                //     ac:'register',
-                //     Info:registerInfo
-                // };
+                var form = {
+                    ac:'register',
+                    Info:JSON.stringify(registerInfo)
+                };
                 //向门户请求注册
-                var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/ComputerNodeServlet?ac=register&Info=' + JSON.stringify(registerInfo);
-                RemoteControl.postByServer(url,null,function (err, msg){
+                // var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/ComputerNodeServlet?ac=register&Info=' + JSON.stringify(registerInfo);
+                var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/ComputerNodeServlet?';
+                RemoteControl.postByServer(url,form,function (err, msg){
                     if(err){
                         console.log('err in post by server!');
                         rst = {status: -1};
