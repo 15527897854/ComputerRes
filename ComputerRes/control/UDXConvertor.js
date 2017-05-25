@@ -1,6 +1,7 @@
 var fs = require('fs');
-var lib_udx = require("./nxdat.js");
 var proj4 = require("proj4");
+
+var lib_udx = require("../model/nxdat.js");
 
 function Convertor(convertor)
 {
@@ -216,40 +217,40 @@ Convertor.GtiffClip = function(srcPath,dstPath,control,callback){
     })
 };
 
-Convertor.SHP2GEOJSON = function (srcPath, dstPath, callback) {
-    fs.readFile(srcPath,function (err, data) {
-        if (err) {
-            console.log("Error:read file err!\n");
-            callback(err);
-        }
-        var strUDX = data.toString();
-        var srcDataset = lib_udx.createDataset();
-        //bug 中文字符编码的问题
-        var ss = lib_udx.loadFromXmlFile(srcDataset, strUDX);
-        if (ss != 'Parse XML OK') {
-            return console.log('Error:load udx err!');
-        }
-        Convertor.SHPDataset2GEOJSON(srcDataset,function (err, rst) {
-            if(err){
-                callback(err);
-            }
-            else{
-                var geojson = JSON.stringify(rst.geojson);
-                fs.writeFile(dstPath,geojson,function (err) {
-                    if(err){
-                        console.log('Error:save image file err!');
-                        callback(err);
-                    }
-                    else{
-                        callback(null,rst);
-                    }
-                });
-            }
-        })
-    })
-};
+// Convertor.SHP2GEOJSON = function (srcPath, dstPath, callback) {
+//     fs.readFile(srcPath,function (err, data) {
+//         if (err) {
+//             console.log("Error:read file err!\n");
+//             callback(err);
+//         }
+//         var strUDX = data.toString();
+//         var srcDataset = lib_udx.createDataset();
+//         //bug 中文字符编码的问题
+//         var ss = lib_udx.loadFromXmlFile(srcDataset, strUDX);
+//         if (ss != 'Parse XML OK') {
+//             return console.log('Error:load udx err!');
+//         }
+//         Convertor.shp2Geojson(srcDataset,function (err, rst) {
+//             if(err){
+//                 callback(err);
+//             }
+//             else{
+//                 var geojson = JSON.stringify(rst.geojson);
+//                 fs.writeFile(dstPath,geojson,function (err) {
+//                     if(err){
+//                         console.log('Error:save image file err!');
+//                         callback(err);
+//                     }
+//                     else{
+//                         callback(null,rst);
+//                     }
+//                 });
+//             }
+//         })
+//     })
+// };
 
-Convertor.SHPDataset2GEOJSON = function (gdid,srcDataset, callback) {
+Convertor.shp2Geojson = function (gdid, srcDataset, callback) {
     var srcRootNode = lib_udx.getDatasetNode(srcDataset);
     var count = lib_udx.getNodeChildCount(srcRootNode);
     if (count < 3) {
@@ -367,7 +368,7 @@ Convertor.SHPDataset2GEOJSON = function (gdid,srcDataset, callback) {
     });
 };
 
-Convertor.SHPListDataset2GEOJSON = function (gdid, srcDataset, callback) {
+Convertor.shpList2Geojson = function (gdid, srcDataset, callback) {
     var listRootNode = lib_udx.getChildNode(lib_udx.getDatasetNode(srcDataset),0);
     var listCount = lib_udx.getNodeChildCount(listRootNode);
     var shpList = [];
@@ -481,3 +482,129 @@ Convertor.SHPListDataset2GEOJSON = function (gdid, srcDataset, callback) {
     };
     convertOne(0);
 };
+
+Convertor.FV_TIN2Geojson = function (gdid, srcDataset, callback) {
+    var srcRootNode = lib_udx.getDatasetNode(srcDataset);
+    var count = lib_udx.getNodeChildCount(srcRootNode);
+    if (count < 2) {
+        return console.log('Error FV_TIN Data!');
+    }
+
+    var geojson = {
+        type:'FeatureCollection',
+        features:[]
+    };
+    
+    var headNode = lib_udx.getChildNode(srcRootNode,0);
+    var bodyNode = lib_udx.getChildNode(srcRootNode,1);
+    var triCount = lib_udx.getNodeIntValue(lib_udx.getChildNode(headNode,0));
+    var pointCount = lib_udx.getNodeIntValue(lib_udx.getChildNode(headNode,1));
+    var triListNode = lib_udx.getChildNode(bodyNode,0);
+    var pointListNode = lib_udx.getChildNode(bodyNode,1);
+
+    var minx = 99999,miny = 99999,maxx = -99999,maxy = -99999;
+    for(var i=0;i<triCount;i++){
+        var triNode = lib_udx.getChildNode(triListNode,i);
+        var coors = [];
+        for(var j=0;j<3;j++){
+            var pointNode = lib_udx.getChildNode(pointListNode,lib_udx.getNodeIntArrayValue(triNode,j)-1);
+            
+            var x = lib_udx.getNodeRealArrayValue(pointNode,0);
+            var y = lib_udx.getNodeRealArrayValue(pointNode,1);
+            var coor = [x,y];
+            if(minx>x)
+                minx=x;
+            if(miny>y)
+                miny=y;
+            if(maxx<x)
+                maxx=x;
+            if(maxy<y)
+                maxy=y;
+            coors.push(coor);
+        }
+
+        geojson.features.push({
+            type:'Feature',
+            geometry:{
+                type:'Polygon',
+                coordinates:[coors]
+            },
+            properties:{}
+        });
+    }
+
+    rst = {
+        path:JSON.stringify(geojson),
+        name:gdid,
+        WSCorner:[minx,miny],
+        ENCorner:[maxx,maxy]
+    };
+    var dstPath = __dirname + '/../public/geojson/' + gdid + '.json';
+    fs.writeFile(dstPath,JSON.stringify(geojson),function (err) {
+        if(err){
+            console.log('Error:save image file err!');
+            callback(err);
+        }
+        else{
+            callback(null,[rst]);
+        }
+    });
+};
+
+Convertor.FV_Boundary2Geojson = function (gdid, srcDataset, callback ) {
+    var srcRootNode = lib_udx.getDatasetNode(srcDataset);
+    var count = lib_udx.getNodeChildCount(srcRootNode);
+    if (count < 2) {
+        return console.log('Error FV_Boundary Data!');
+    }
+
+    var geojson = {
+        type:'FeatureCollection',
+        features:[]
+    };
+
+    var bodyNode = lib_udx.getChildNode(srcRootNode,1);
+    var pointCount = lib_udx.getNodeChildCount(bodyNode);
+    var minx = 99999,miny = 99999,maxx = -99999,maxy = -99999;
+    var coors = [];
+    for(var i=0;i<pointCount;i++){
+        var pointNode = lib_udx.getChildNode(bodyNode,i);
+        var x = lib_udx.getNodeRealArrayValue(pointNode,0);
+        var y = lib_udx.getNodeRealArrayValue(pointNode,1);
+        coors.push([x,y]);
+        
+        if(minx>x)
+            minx=x;
+        if(miny>y)
+            miny=y;
+        if(maxx<x)
+            maxx=x;
+        if(maxy<y)
+            maxy=y;
+    }
+    geojson.features.push({
+        type:'Feature',
+        geometry:{
+            type:'Polygon',
+            coordinates:[coors]
+        },
+        properties:{}
+    });
+
+    rst = {
+        path:JSON.stringify(geojson),
+        name:gdid,
+        WSCorner:[minx,miny],
+        ENCorner:[maxx,maxy]
+    };
+    var dstPath = __dirname + '/../public/geojson/' + gdid + '.json';
+    fs.writeFile(dstPath,JSON.stringify(geojson),function (err) {
+        if(err){
+            console.log('Error:save image file err!');
+            callback(err);
+        }
+        else{
+            callback(null,[rst]);
+        }
+    });
+} ;

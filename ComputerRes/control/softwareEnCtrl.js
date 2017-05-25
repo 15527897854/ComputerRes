@@ -126,6 +126,7 @@ softwareEnCtrl.addByAuto = function (itemsID,callback) {
                         var name = item.name.trim();
                         item.name = name.replace(/\s+/g,' ');
                         item.alias = [];
+                        item.platform = item.name.indexOf('x64')!=-1?'x64':(item.name.indexOf('x86')!=-1?'x86':'');
                         items2add.push(item);
                         break;
                     }
@@ -237,7 +238,7 @@ softwareEnCtrl.ensMatched = function (demands,callback) {
             var unSatisfiedList = [];
             for(var i=0;i<demands.length;i++){
                 var name = demands[i].name.trim();
-                name = name.replace(/\s+/g,' ');
+                name = name.replace(/\s+/g,' ').toLowerCase();
                 var isSatisfied = false;
                 for(var j=0;j<swes.length;j++){
                     var index = -1;
@@ -246,7 +247,7 @@ softwareEnCtrl.ensMatched = function (demands,callback) {
                     }
                     else{
                         for(var k=0;k<swes[j].alias.length;k++){
-                            if(swes[j].alias[k].toLowerCase() == name){
+                            if(swes[j].alias[k].toLowerCase() == name && swes[j].platform.toLowerCase() == demands[i].platform.toLowerCase()){
                                 index = j;
                                 break;
                             }
@@ -261,7 +262,16 @@ softwareEnCtrl.ensMatched = function (demands,callback) {
                     }
                 }
                 if(!isSatisfied){
-                    unSatisfiedList.push(demands);
+                    if(versionCtrl.rangeValid(demands[i].version).isValid){
+                        demands[i].detail = {};
+                        demands[i].detail.isValidRange = true;
+                        demands[i].detail.isSatisfied = false;
+                    }
+                    else{
+                        demands[i].detail.isValidRange = false;
+                        demands[i].detail.isSatisfied = true;
+                    }
+                    unSatisfiedList.push(demands[i]);
                 }
             }
             return callback(JSON.stringify({status:1,unSatisfiedList:unSatisfiedList}));

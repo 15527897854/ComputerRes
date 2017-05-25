@@ -6,6 +6,8 @@ const fs = require('fs');
 var zipper = require("zip-local");
 var crypto = require('crypto');
 var unzip = require('unzip');
+var net = require('net');
+var http = require('http');
 
 var settings = require('../setting');
 
@@ -82,5 +84,30 @@ CommonMethod.childProcess = function(file, callback){
         })
     });
 };
+
+CommonMethod.portIsOccupied = function(port,callback){
+    // 创建服务并监听该端口
+    var server = net.createServer().listen(port);
+    server.on('listening', function () {
+        server.close();
+        callback(false);
+    });
+    server.on('error', function (err) {
+        if (err.code === 'EADDRINUSE') {
+            callback(true);
+        }
+    });
+};
+
+CommonMethod.getPort = function (cb) {
+    var server  = http.createServer();
+    server.listen(0);
+    server.on('listening', function() {
+        var port = server.address().port;
+        server.close();
+        cb(port);
+    });
+};
+
 
 module.exports = CommonMethod;
