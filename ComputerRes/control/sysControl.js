@@ -549,7 +549,7 @@ SysControl.adminLogin = function(adminName, pwd, callback){
                         return callback(err);
                     }
                     pwd = CommonMethod.decrypto(pwd);
-                    var pwd_md5 = crypto.createHash('md5').update(pwd).digest('hex');
+                    var pwd_md5 = CommonMethod.md5(pwd)
                     if(pwd_md5 == ss.ss_value){
                         return callback(null, true)
                     }

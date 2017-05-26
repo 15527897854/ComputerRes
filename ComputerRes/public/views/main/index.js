@@ -16,7 +16,10 @@ var DataPreparation = require('../components/data/dataPreparation');
 var ModelSerUploader = require('../components/modelSer/modelSerUploader');
 var EnviroPanel = require('../components/systemSetting/enviroPanel');
 var UserInfo = require('../components/systemSetting/userInfo');
-var LoginPanel = require('../components/systemSetting/loginPanel');if(document.getElementById('rmtModelSerTable') != null) {
+var LoginPanel = require('../components/systemSetting/loginPanel');
+
+
+if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
         <RmtModelSerTable
             data-source={ document.getElementById('rmtModelSerTable').getAttribute('data-source') }

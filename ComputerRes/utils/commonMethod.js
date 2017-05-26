@@ -69,11 +69,21 @@ CommonMethod.decrypto = function(buffer, key){
     if(key == null || key == undefined){
         key = settings.crypto.key;
     }
-    var decrypted = "";
-    var decipher = crypto.createDecipher(settings.crypto.algorithm, key);
-    decrypted += decipher.update(buffer, 'hex', 'binary');
-    decrypted += decipher.final('binary');
-    return decrypted;
+    try{
+        var decrypted = "";
+        var decipher = crypto.createDecipher(settings.crypto.algorithm, key);
+        decrypted += decipher.update(buffer, 'hex', 'binary');
+        decrypted += decipher.final('binary');
+        return decrypted;
+    }
+    catch(ex){
+        return '';
+    }
+};
+
+//获取MD5值
+CommonMethod.md5 = function(buffer){
+    return crypto.createHash('md5').update(buffer).digest('hex');
 };
 
 //启动一个Nodejs进程去执行JS文件 -- 一般用于高IO处理

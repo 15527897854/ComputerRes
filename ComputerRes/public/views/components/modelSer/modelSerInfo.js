@@ -9,18 +9,27 @@ var ModelSerInfo = React.createClass({
     getInitialState : function () {
         return {
             loading : true,
+            err : null,
             ms : null
         };
     },
+
     componentDidMount : function () {
         Axios.get(this.props.source).then(
             data => {
-                this.setState({loading : false, ms : data.data.modelSer});
+                this.setState({loading : false, ms : data.data.data });
             },
-            err => {  }
+            err => {
+                this.setState({loading : false, err : err });
+            }
         );
     },
     render : function () {
+        if(this.state.loading){
+            return (
+                <span className="" >加载中...</span>
+            );
+        }
         if(this.state.ms == null)
         {
             return (

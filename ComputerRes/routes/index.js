@@ -8,6 +8,7 @@ var geoDataRoute = require('./geoDataRoute');
 var modelInsRoute = require('./modelInstanceRoute');
 var noticeRoute = require('./noticeRoute');
 var childRoute = require('./childRoute');
+var ModelSerAccessRoute = require('./modelSerAccessRoute');
 
 var sysCtrl = require('../control/sysControl');
 var ModelSerCtrl = require('../control/modelSerControl');
@@ -20,6 +21,8 @@ module.exports = function(app)
             res.end('OK');
         });
 
+    ModelSerAccessRoute(app);
+    
     app.route('*')
         .get(function(req, res, next){
             if(setting.auth){
