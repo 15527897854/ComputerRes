@@ -43,9 +43,12 @@ versionCtrl.versionMatch = function (v1, comparator, v2) {
     var len = (vecV1.length<vecV2.length)?vecV2.length:vecV1.length;
     var eq = true;
     for(var i=0;i<len;i++){
+        if(i==vecV1.length && comparator == 'eq')
+            return true;
+
         var ver1 = vecV1[i];
         var ver2 = vecV2[i];
-        //缺省的版本号为0
+        //缺省的子版本号为0
         if(ver1 == undefined)
             ver1 = '0';
         if(ver2 == undefined)
@@ -154,7 +157,10 @@ versionCtrl.rangeValid = function (range) {
     var childRanges = [];
     
     // range = range.replace(/\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/g,true);
-    var regObj = new RegExp(/\s*(\w+\.?)+\s*|\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*!\s*((\w+\.?)+)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/g);
+    // var regObj = new RegExp(/\s*(\w+\.?)+\s*|\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*!\s*((\w+\.?)+)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*|\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*|\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/g);
+    // var regObj = new regExp(/\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*|\s*(\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*(\&\&|\|\|)*\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*)\s*/g);
+    // var regObj = new RegExp(/\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*!\s*(\w+\.?)+\s*|\s*((\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)|(\s*(\(|\[)\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*,\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*(\)|\])\s*))\s*|\s*(\s*((\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)|(\s*(\(|\[)\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*,\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*(\)|\])\s*))\s*(\&\&|\|\|)*\s*((\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)|(\s*(\(|\[)\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*,\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*(\)|\])\s*))\s*)\s*/g);
+    var regObj = new RegExp(/(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)|\s*\*\s*|\s*((\w+\.?)+)\.[xX]\s*|\s*!\s*(\w+\.?)+\s*|(\s*(\(|\[)\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*,\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*(\)|\])\s*)/g);
     var group = [];
     while (group = regObj.exec(range)){
         childRanges.push(group[0]);
@@ -206,33 +212,33 @@ versionCtrl.rangeMatchBase = function (version,range) {
     var group = [];
     if(range.trim() == '*')
         return true;
-    else if(group = range.match(/\s*((\w+\.?)+)\.x|X\s*/)){
+    else if(group = range.match(/\s*((\w+\.?)+)\.(x|X)\s*/)){
         return versionCtrl.versionMatch(group[0],'x',version);
     }
     else if(group = range.match(/\s*!\s*((\w+\.?)+)\s*/)){
         return versionCtrl.versionMatch(group[2],'ne',version);
     }
-    else if(group = range.match(/\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*/)){
+    else if(group = range.match(/\s*\(\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*,\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*\)\s*/)){
         var min = group[1];
         var max = group[3];
         return versionCtrl.versionMatch(min,'lt',version) && versionCtrl.versionMatch(max,'gt',version)
     }
-    else if(group = range.match(/\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/)){
+    else if(group = range.match(/\s*\[\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*,\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*\]\s*/)){
         var min = group[1];
         var max = group[3];
         return versionCtrl.versionMatch(min,'lte',version) && versionCtrl.versionMatch(max,'gte',version)
     }
-    else if(group = range.match(/\s*\[\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\)\s*/)){
+    else if(group = range.match(/\s*\[\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*,\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*\)\s*/)){
         var min = group[1];
         var max = group[3];
         return versionCtrl.versionMatch(min,'lte',version) && versionCtrl.versionMatch(max,'gt',version)
     }
-    else if(group = range.match(/\s*\(\s*((\w+\.?)+)\s*,\s*((\w+\.?)+)\s*\]\s*/)){
+    else if(group = range.match(/\s*\(\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*,\s*(\s*((\w+\.?)+(\s*\-?\s*)?)+\s*)\s*\)\s*/)){
         var min = group[1];
         var max = group[3];
         return versionCtrl.versionMatch(min,'lt',version) && versionCtrl.versionMatch(max,'gte',version)
     }
-    else if(group = range.match(/\s*(\w+\.?)+\s*/)){    //只能放在最后面
+    else if(group = range.match(/\s*((\w+\.?)+(\s*\-?\s*)?)+\s*/)){    //只能放在最后面
         return versionCtrl.versionMatch(group[0],'eq',version);
     }
     else 

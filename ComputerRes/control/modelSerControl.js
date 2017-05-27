@@ -24,6 +24,8 @@ var GeoDataCtrl = require('../control/geoDataControl');
 var CommonMethod = require('../utils/commonMethod');
 var SystemCtrl = require('./sysControl');
 var batchDeployCtrl = require('./batchDeploy');
+var SWECtrl = require('./softwareEnCtrl');
+var HWECtrl = require('./hardwareEnCtrl');
 
 var ModelSerControl = function () {
 };
@@ -819,24 +821,85 @@ ModelSerControl.getCloudModelPackageByMid = function (mid, callback) {
         var pending = function (index) {
             count++;
             return function (err, ms) {
-                if (ms.length != 0) {
-                    packages[index]['pulled'] = true;
-                    packages[index]['ms_id'] = ms[0]._id;
-                }
-                else {
-                    packages[index]['pulled'] = false;
-                }
-                count--;
-                if (count == 0) {
-                    return callback(null, packages);
-                }
+                //此处对模型的软硬件环境进行检测
+                ModelSerControl.getMatchedByPid(packages[index].id,function (err, rst) {
+                    if(err){
+                        return callback(err);
+                    }
+                    else{
+                        packages[index].enviro = rst;
+                        if (ms.length != 0) {
+                            packages[index]['pulled'] = true;
+                            packages[index]['ms_id'] = ms[0]._id;
+                        }
+                        else {
+                            packages[index]['pulled'] = false;
+                        }
+                        count--;
+                        if (count == 0) {
+                            return callback(null, packages);
+                        }
+                    }
+                });
             }
         };
 
         for (var i = 0; i < packages.length; i++) {
+            if(packages[i].id && packages[i].id != '')
             ModelSerModel.getByPid(packages[i].id, pending(i));
         }
     });
+};
+
+ModelSerControl.getMatchedByPid = function (pid, callback) {
+    var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
+    remoteReqCtrl.getByServer(url,null,function (err, res) {
+        if(err){
+            return callback(err);
+        }
+        else{
+            res = JSON.parse(res);
+            if(res.error && res.error != ''){
+                return callback('err on portal server!');
+            }
+            else if(res.result && res.result != ''){
+                ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
+                    if(err){
+                        return callback(err);
+                    }
+                    else{
+                        var softDemands = [],hardDemands = [];
+                        var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
+                        var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;
+                        if(hardJSON == undefined)
+                            hardJSON = [];
+                        if(softJSON == undefined)
+                            softJSON = [];
+                        for(var i=0;i<hardJSON.length;i++){
+                            hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
+                        }
+                        for(var j=0;j<softJSON.length;j++){
+                            softDemands.push({
+                                name:softJSON[j].$.name,
+                                platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
+                                version:softJSON[j]._
+                            });
+                        }
+                        var matchedRst = {};
+                        SWECtrl.ensMatched(softDemands,function (rst) {
+                            rst = JSON.parse(rst);
+                            matchedRst.swe = rst;
+                            HWECtrl.ensMatched(hardDemands,function (rst) {
+                                rst = JSON.parse(rst);
+                                matchedRst.hwe = rst;
+                                callback(null,matchedRst);
+                            })
+                        })
+                    }
+                });
+            }
+        }
+    })
 };
 
 //获取某一类别下的所有模型
@@ -1071,6 +1134,17 @@ ModelSerControl.readMDLByPath = function (path, callback) {
     })
 };
 
+ModelSerControl.parseMDLStr = function (mdlStr, callback) {
+    ModelSerModel.parseMDLStr(mdlStr,function (err, json) {
+        if(err){
+            return callback(err);
+        }
+        else{
+            return callback(null,json);
+        }
+    })
+};
+
 ModelSerControl.readCfg = function (ms, callback) {
     ModelSerModel.readCfg(ms, function (err, data) {
         if (err) {
@@ -1113,8 +1187,7 @@ ModelSerControl.getRmtPreparationData = function (host, msid, callback) {
 //callback完全是为了同步和异步而设
 ModelSerControl.addDefaultTestify = function (msid, callback) {
     if (!callback) {
-        callback = function () {
-        };
+        callback = function () {};
     }
     var testifyRoot = setting.modelpath + msid + '/testify';
     var configPath = setting.modelpath + msid + '/testify/config.json';

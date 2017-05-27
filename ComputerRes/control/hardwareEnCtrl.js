@@ -213,18 +213,24 @@ hardwareEnCtrl.ensMatched = function (demands, callback) {
         else {
             var unSatisfiedList = [];
             for(var i=0;i<demands.length;i++){
+                var index = -1;
                 for(var j=0;j<hwes.length;j++){
                     var demandName = demands[i].name;
                     demandName = demandName.replace(/\s+/g,' ');
                     demandName = demandName.trim();
                     if(demandName.toLowerCase() == hwes[j].name){
-                        var matchRst = hardwareEnCtrl.rangeMatch(hwes[j].value,demands[i].value);
-                        if(!matchRst.isValidRange || !matchRst.isSatisfied){
-                            demands[i].detail = matchRst;
-                            unSatisfiedList.push(demands[i]);
-                        }
+                        index = j;
                         break;
                     }
+                }
+                var matchRst = hardwareEnCtrl.rangeMatch(hwes[j].value,demands[i].value);
+                demands[i].detail = {
+                    name:index!=-1,
+                    value:matchRst.isSatisfied,
+                    valid:matchRst.isValidRange
+                };
+                if(!matchRst.isValidRange || !matchRst.isSatisfied){
+                    unSatisfiedList.push(demands[i]);
                 }
             }
             return callback(JSON.stringify({status:1,unSatisfiedList:unSatisfiedList}));
@@ -385,7 +391,9 @@ hardwareEnCtrl.rangeValid = function (range) {
     };
     var childRanges = [];
 
-    var regObj = new RegExp(/\s*((\.?\w+\.?\s*)+)\s*|\s*\*\s*|\s*!\s*((\.?\w+\.?\s*)+)\s*|\s*\(\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\)\s*|\s*\[\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\]\s*|\s*\[\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\)\s*|\s*\(\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\]\s*/g);
+
+    // var regObj = new RegExp(/\s*((\.?\w+\.?\s*)+)\s*|\s*\*\s*|\s*!\s*((\.?\w+\.?\s*)+)\s*|\s*\(\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\)\s*|\s*\[\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\]\s*|\s*\[\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\)\s*|\s*\(\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\]\s*/g);
+    var regObj = new RegExp(/\s*\*\s*|\s*\!?\s*((\.?\w+\.?\s*)+)\s*|\s*(\(|\[)\s*\s*\!?\s*((\.?\w+\.?\s*)+)\s*\s*,\s*\s*\!?\s*((\.?\w+\.?\s*)+)\s*\s*(\)|\])\s*/g);
     var group = [];
     while (group = regObj.exec(range)){
         childRanges.push(group[0]);
