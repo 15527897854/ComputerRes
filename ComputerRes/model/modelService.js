@@ -197,6 +197,17 @@ ModelService.readMDLByPath = function (path, callback) {
     })
 };
 
+ModelService.parseMDLStr = function (mdlStr, callback) {
+    xmlparse(mdlStr, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+        if(err)
+        {
+            console.log('Error in parse mdl file : ' + err);
+            return callback(err);
+        }
+        return callback(null, json);
+    });
+};
+
 //读取config文件
 ModelService.readCfg = function (ms, callback) {
     if(ParamCheck.checkParam(callback, ms))
