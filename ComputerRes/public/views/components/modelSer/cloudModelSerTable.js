@@ -70,7 +70,7 @@ var CloudModelSerTable = React.createClass({
                     disabled = 'disable';
                 }
                 btn = (
-                    <button className="btn btn-info btn-sm" onClick={ (e) => { this.downCloudModelPackage(e, item.id); } } disabled={disabled} ><i className="fa fa-download"> </i>拉取</button>
+                    <button className="btn btn-info btn-sm" onClick={ (e) => { this.downCloudModelPackage(e, item.id); } } disabled={disabled} ><i className="fa fa-download"> </i> 拉取</button>
                 );
             }
             var softenBtn,hardenBtn;
@@ -199,6 +199,14 @@ var CloudModelSerTable = React.createClass({
                         );
                     }
                 }
+            }
+            else{
+                softenBtn = (
+                    <button className="btn btn-sm btn-info" disabled data-toggle="modal"><i  className="fa fa-question"></i> 未知</button>
+                );
+                hardenBtn = (
+                    <button className="btn btn-sm btn-info" disabled data-toggle="modal"><i  className="fa fa-question"></i> 未知</button>
+                );
             }
             return (
                 <tr>

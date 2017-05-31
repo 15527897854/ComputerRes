@@ -27,3 +27,5 @@ redis.conf
 /ComputerRes/helper/dxdiagn.dll
 /ComputerRes/helper/dxdiagn.dll.mui
 /ComputerRes/helper/dxdiag.exe
+/ComputerRes/control/test.js
+/ComputerRes/softwareEnviro.txt

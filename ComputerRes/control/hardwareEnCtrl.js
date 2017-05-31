@@ -31,13 +31,24 @@ hardwareEnCtrl.autoDetect = function (callback) {
     })
 };
 
-hardwareEnCtrl.getAll = function (callback) {
-    hweModel.all2TableTree(function (err, data) {
+hardwareEnCtrl.getAllA = function (callback) {
+    hweModel.getByWhere({},function (err, data) {
         if(err){
-            callback(JSON.stringify({status:0})) ;
+            return callback(JSON.stringify({status:0}));
         }
         else{
-            callback(JSON.stringify({status:1,enviro:data}));
+            return callback(JSON.stringify({status:1,enviro:data}));
+        }
+    })
+};
+
+hardwareEnCtrl.getAllB = function (callback) {
+    hweModel.all2TableTree(function (err, data) {
+        if(err){
+            return callback(JSON.stringify({status:0})) ;
+        }
+        else{
+            return callback(JSON.stringify({status:1,enviro:data}));
         }
     });
 };

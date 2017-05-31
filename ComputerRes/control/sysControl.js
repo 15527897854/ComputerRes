@@ -154,7 +154,7 @@ SysControl.getRegisterInfo = function (callback) {
     SysControl.getState(function (err, sysInfo) {
         if(err){
             console.log('err in get sys info!');
-            callback(err);
+            return callback(err);
         }
         else{
             SysControl.getIP(function (err, ip) {
@@ -169,8 +169,7 @@ SysControl.getRegisterInfo = function (callback) {
                     des: '',
                     host : ip,
                     port : setting.port,
-                    software:[],
-                    hardware:[],
+                    platform : setting.platform,
                     registered:false
                 };
                 return callback(null,registerInfo);

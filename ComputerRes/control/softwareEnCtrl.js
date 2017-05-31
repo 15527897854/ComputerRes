@@ -13,7 +13,20 @@ softwareEnCtrl.__proto__ = ControlBase;
 module.exports = softwareEnCtrl;
 softwareEnCtrl.model = sweModel;
 
-softwareEnCtrl.getAll = function (callback) {
+//得到所有原始数据
+softwareEnCtrl.getAllA = function (callback) {
+    sweModel.getByWhere({},function (err, data) {
+        if(err){
+            return callback(JSON.stringify({status:0}));
+        }
+        else{
+            return callback(JSON.stringify({status:1,enviro:data}));
+        }
+    })
+};
+
+//将原始数据装换为树状结构
+softwareEnCtrl.getAllB = function (callback) {
     sweModel.all2TableTree(function (err, data) {
         if(err){
             callback(JSON.stringify({status:0})) ;
@@ -35,6 +48,11 @@ softwareEnCtrl.deleteItem = function (id,callback) {
     })
 };
 
+//根据swe的name alias version platform查重
+softwareEnCtrl.isRepeated = function (swe, callback) {
+
+};
+
 //更新前也做 查重 检测？
 softwareEnCtrl.updateItem = function (item,callback) {
     sweModel.getByOID(item._id,function (err, swe) {
@@ -53,12 +71,21 @@ softwareEnCtrl.updateItem = function (item,callback) {
                 var index = item.aliasId;
                 swe.alias.splice(index,1);
             }
-            sweModel.update(swe,function (err, data) {
+            //查重检测
+            sweModel.getByWhere({},function (err, data) {
                 if(err){
-                    callback(JSON.stringify({status:0}));
+                    return callback(JSON.stringify({status:0}));
                 }
                 else{
-                    callback(JSON.stringify({status:1,_id:swe._id}));
+
+                }
+            });
+            sweModel.update(swe,function (err, data) {
+                if(err){
+                    return callback(JSON.stringify({status:0}));
+                }
+                else{
+                    return callback(JSON.stringify({status:1,_id:swe._id}));
                 }
             })
         }

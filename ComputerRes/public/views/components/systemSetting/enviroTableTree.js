@@ -513,7 +513,7 @@ var EnviroTableTree = React.createClass({
                     var childCount = this.getItem(parentID).$count;
                     var nodeID = this.add({title:childCount,value:'',type:'string'},-1,parentID);
                     this.open(parentID);
-                    this.editCell(this.getItem(nodeID).id,'value');
+                    this.editCell(this.getItem(nodeID).id,'value',true,false);
                 };
 
                 tabletree.newItem = function () {

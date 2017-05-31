@@ -113,6 +113,14 @@ module.exports = function(app)
             else if(type == 'software'){
                 enviroCtrl = sweCtrl;
             }
+            var ab = req.query.AB;
+            var getAll = null;
+            if(ab && ab !='A'){
+                getAll = enviroCtrl.getAllA;
+            }
+            else{
+                getAll = enviroCtrl.getAllB;
+            }
 
             if(method == 'auto'){
                 enviroCtrl.autoDetect(function (data) {
@@ -120,7 +128,7 @@ module.exports = function(app)
                 })
             }
             else if(method == 'get'){
-                enviroCtrl.getAll(function (data) {
+                getAll(function (data) {
                     return res.end(data);
                 })
             }

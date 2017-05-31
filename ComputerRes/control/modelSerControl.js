@@ -827,17 +827,19 @@ ModelSerControl.getCloudModelPackageByMid = function (mid, callback) {
                         return callback(err);
                     }
                     else{
-                        packages[index].enviro = rst;
-                        if (ms.length != 0) {
-                            packages[index]['pulled'] = true;
-                            packages[index]['ms_id'] = ms[0]._id;
-                        }
-                        else {
-                            packages[index]['pulled'] = false;
-                        }
                         count--;
-                        if (count == 0) {
-                            return callback(null, packages);
+                        if(rst){
+                            packages[index].enviro = rst;
+                            if (ms.length != 0) {
+                                packages[index]['pulled'] = true;
+                                packages[index]['ms_id'] = ms[0]._id;
+                            }
+                            else {
+                                packages[index]['pulled'] = false;
+                            }
+                            if (count == 0) {
+                                return callback(null, packages);
+                            }
                         }
                     }
                 });
@@ -860,7 +862,7 @@ ModelSerControl.getMatchedByPid = function (pid, callback) {
         else{
             res = JSON.parse(res);
             if(res.error && res.error != ''){
-                return callback('err on portal server!');
+                return callback(null,null);
             }
             else if(res.result && res.result != ''){
                 ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
@@ -892,7 +894,7 @@ ModelSerControl.getMatchedByPid = function (pid, callback) {
                             HWECtrl.ensMatched(hardDemands,function (rst) {
                                 rst = JSON.parse(rst);
                                 matchedRst.hwe = rst;
-                                callback(null,matchedRst);
+                                return callback(null,matchedRst);
                             })
                         })
                     }

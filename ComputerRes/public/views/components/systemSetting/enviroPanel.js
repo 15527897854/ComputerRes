@@ -136,40 +136,36 @@ var EnviroPanel = React.createClass({
                 <div className="panel panel-info">
                     <div className="panel-heading">
                         {panelTitle}
-                            <span className="tools pull-right">
+                        <span className="tools pull-right">
                             <a href="javascript:;" className="fa fa-chevron-down"></a>
                         </span>
                     </div>
                     <div className="panel-body">
-                        <section className="panel">
-                            <div className="panel-body">
-                                <div className="editable-table ">
-                                    <div className="clearfix" style={{margin:"0 0 20px 0px"}}>
-                                        {addBySelect}
-                                        <div style={{margin:'0 20px 0 0px'}} className="btn-group">
-                                            <button id={this.props.tableID + '-auto-btn'} data-toggle="modal" data-target={'#' + this.props.tableID + '-auto-modal'} className="btn btn-primary">
-                                                {autoAddName} <i className="fa fa-plus"></i>
-                                            </button>
-                                        </div>
-                                        <div className="btn-group">
-                                            <button id={this.props.tableID + '-btn'} onClick={e => {this.refs[this.props.tableID + '-ref'].getTableTree().newItem()}} className="btn btn-primary">
-                                                手动添加 <i className="fa fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="space15"></div>
-
-                                    <EnviroTableTree
-                                        tableID={this.props.tableID}
-                                        tabletree={this.props.tabletree}
-                                        source={url + '&method=get'}
-                                        ref={this.props.tableID + '-ref'}
-                                        fields={this.props.fields}
-                                    />
+                        <div className="editable-table ">
+                            <div className="clearfix" style={{margin:"0 0 20px 0px"}}>
+                                {addBySelect}
+                                <div style={{margin:'0 20px 0 0px'}} className="btn-group">
+                                    <button id={this.props.tableID + '-auto-btn'} data-toggle="modal" data-target={'#' + this.props.tableID + '-auto-modal'} className="btn btn-primary">
+                                        {autoAddName} <i className="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div className="btn-group">
+                                    <button id={this.props.tableID + '-btn'} onClick={e => {this.refs[this.props.tableID + '-ref'].getTableTree().newItem()}} className="btn btn-primary">
+                                        手动添加 <i className="fa fa-plus"></i>
+                                    </button>
                                 </div>
                             </div>
-                        </section>
+
+                            <div className="space15"></div>
+
+                            <EnviroTableTree
+                                tableID={this.props.tableID}
+                                tabletree={this.props.tabletree}
+                                source={url + '&method=get'}
+                                ref={this.props.tableID + '-ref'}
+                                fields={this.props.fields}
+                            />
+                        </div>
                     </div>
                 </div>
 
