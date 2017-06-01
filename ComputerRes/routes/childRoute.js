@@ -18,12 +18,13 @@ module.exports = function (app) {
             }
             var port = req.body.port;
             var platform = req.body.platform;
+            var access_token = req.body.access_token;
             ChildCtrl.AddNewChild({
                 host : host,
                 port : port,
                 platform : platform,
                 accepted : false,
-                access_token : ''
+                access_token : access_token
             },RouteBase.returnFunction(res, 'error in adding new child!'));
         });
 
