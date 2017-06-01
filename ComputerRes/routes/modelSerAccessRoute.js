@@ -3,6 +3,8 @@
  */
 
 var RouteBase = require('./routeBase');
+
+var GeoDataCtrl = require('../control/geoDataControl');
 var ModelSerAccessCtrl = require('../control/modelSerAccessControl');
 
 module.exports = function(app){
@@ -47,6 +49,23 @@ module.exports = function(app){
     app.route('/fakedir/modelser/inputdata/json/:path')
         .get(function(req, res, next){
             var path = req.params.path;
-            res.end('123');
+            ModelSerAccessCtrl.getModelSerInputDataByPath(path, RouteBase.returnFunction(res, 'error in getting modelser inputdata!'));
+        });
+    
+    //上传数据
+    app.route('/fakedir/data')
+        .post(function(req, res, next){
+            var path = req.query.path;
+            var type = req.query.type;
+            ModelSerAccessCtrl.authPath(path, function(err, result){
+                if(result){
+                    if(type == 'stream'){
+                        
+                    }
+                    else if(type == 'file'){
+
+                    }
+                }
+            });
         });
 }

@@ -82,25 +82,29 @@ ModelSerRunCtrl.update = function (msr, callback) {
     });
 };
 
+/////////////////////远程
+
 ModelSerRunCtrl.getRmtModelSerRun = function (host, msrid, callback) {
-    ParamCheck.checkParam(callback, host);
-    ParamCheck.checkParam(callback, msrid);
-    Child.getByHost(host, function (err, child) {
-        if(err)
-        {
-            return callback(err);
-        }
-        if(ParamCheck.checkParam(callback, child))
-        {
-            RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/' + msrid, function (err, data) {
+    if(ParamCheck.checkParam(callback, host)){
+        if(ParamCheck.checkParam(callback, msrid)){
+            Child.getByHost(host, function (err, child) {
                 if(err)
                 {
                     return callback(err);
                 }
-                return callback(null, data);
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/' + msrid + '?token=' + child.access_token, function (err, data) {
+                        if(err)
+                        {
+                            return callback(err);
+                        }
+                        return callback(null, data);
+                    });
+                }
             });
         }
-    });
+    }
 };
 
 ModelSerRunCtrl.getAllRmtModelSerRun = function (callback) {
@@ -139,7 +143,7 @@ ModelSerRunCtrl.getAllRmtModelSerRun = function (callback) {
 
         for(var i = 0; i < children.length; i++)
         {
-            RemoteReqControl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelserrun/json/all', pending(i));
+            RemoteReqControl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelserrun/json/all?token=' + children[i].access_token, pending(i));
         }
     });
 };

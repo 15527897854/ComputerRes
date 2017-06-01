@@ -11,15 +11,38 @@
 <body>
     <section>
         <div id="modelserinfo" data-source="/fakedir/modelser/json/<%=path %>" ></div>
-    </section>
-<%- include footerInclude.ejs %>
+        <div class="panel panel-info">
+            <div class="panel-heading" style="background-color: #5CB85C;border-color: #5CB85C; ">
+                数据输入
+                <span class="tools pull-right">
+                    <a href="javascript:;" class="fa fa-chevron-down"></a>
+                </span>
+            </div>
 
-<script type="text/javascript" src="/js/jquery.form.js" ></script>
-<script type="text/javascript" src="/js/jquery.uploadfile.min.js" ></script>
-<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
-<script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
-<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
-<script type="text/javascript" src="/js/output/bundle.js" ></script>
+            <div id="DataPreparation" class="panel-body" data-source="/fakedir/modelser/inputdata/json/<%=path %>" ></div>
+        </div>
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                操作
+            </div>
+            <div class="panel-body" style="text-align: center; min-height: 100px;">
+                <button id="btn_run" class="btn btn-success" style="width: 20%" >
+                    <i class="fa fa-cogs"></i>运行
+                </button>
+                <button href="#" class="btn btn-warning" style="width: 20%" onclick="window.close()" >
+                    <i class="fa fa-reply"></i>取消
+                </button>
+            </div>
+        </div>
+    </section>
+    <%- include footerInclude.ejs %>
+
+    <script type="text/javascript" src="/js/jquery.form.js" ></script>
+    <script type="text/javascript" src="/js/jquery.uploadfile.min.js" ></script>
+    <script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
+    <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+    <script type="text/javascript" src="/js/output/bundle.js" ></script>
 
 </body>
 </html>

@@ -246,7 +246,8 @@ SysControl.getParent = function(callback){
 };
 
 //设置父节点
-SysControl.setParent = function(newparent, callback){
+SysControl.setParent = function(host, port, callback){
+    var newparent = host + ':' + port;
     systemSettingModel.getValueByIndex('parent', function(err, parent){
         if(err)
         {
@@ -258,9 +259,11 @@ SysControl.setParent = function(newparent, callback){
             {
                 return callback(err);
             }
+            var access_token = CommonMethod.crypto(host);
             RemoteControl.postRequestJSONWithForm('http://' + parent.ss_value + '/child-node', {
                 port : setting.port,
-                platform : setting.platform
+                platform : setting.platform,
+                access_token : access_token
             }, this.returnFunction(callback, 'error in post child'));
         }.bind(this));
     }.bind(this));

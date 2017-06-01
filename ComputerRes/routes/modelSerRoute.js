@@ -23,6 +23,7 @@ var remoteModelSerRoute = require('./rmtModelSerRoute');
 
 module.exports = function(app)
 {
+    //新增模型服务
     app.route('/modelser')
         //查询模型服务
         .get(function(req, res, next){

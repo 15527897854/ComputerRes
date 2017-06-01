@@ -77,7 +77,7 @@ CommonMethod.decrypto = function(buffer, key){
         return decrypted;
     }
     catch(ex){
-        return '';
+        return "";
     }
 };
 
@@ -101,9 +101,22 @@ CommonMethod.childProcess = function(file, callback){
 
 //获取IP
 CommonMethod.getIP = function(request){
-    host = request.connection.remoteAddress;
+    var host = request.connection.remoteAddress;
     host = host.substr(host.lastIndexOf(':') + 1);
+    if(host == "1"){
+        host = "127.0.0.1";
+    }
     return host;
+};
+
+//数组包含
+CommonMethod.array_contain = function(array, obj){
+    for(var i = 0; i < array.length; i++){
+        if(array[i] == obj){
+            return true;
+        }
+    }
+    return false;
 };
 
 module.exports = CommonMethod;

@@ -40,7 +40,7 @@ var Init = function(){
 
             }
             if(count_fields == 0){
-                console.log('system fields checking finished ! ');
+                console.log('System fields checking finished ! ');
                 SysCtrl.getParent(function(err, ss){
                     if(err){
                         
@@ -51,12 +51,12 @@ var Init = function(){
         }
     });
 
-    console.log('checking system fields...');
+    console.log('Checking system fields...');
     for(var i = 0; i < fields.length; i++){
         SysCtrl.buildField(fields[i].name, fields[i].value, pending_fields(i));
     }
 
-    console.log('checking directions...');
+    console.log('Checking directions...');
     var directions = [
         __dirname + '/geo_data/',
         __dirname + '/geo_model/packages/',
@@ -73,7 +73,7 @@ var Init = function(){
 
             }
             if(count_directions == 0){
-                console.log('directions checking finished ! ');
+                console.log('Directions checking finished ! ');
             }
         }
     });

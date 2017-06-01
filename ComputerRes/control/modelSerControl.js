@@ -35,12 +35,12 @@ module.exports = ModelSerControl;
 
 //搜索子节点模型服务信息信息
 ModelSerControl.getChildModelSer = function(callback){
-    Child.getAllAvai(function (err, childMs) {
+    Child.getAllAvai(function (err, children) {
         if(err){
             return callback(err);
         }
 
-        if(childMs.length == 0){
+        if(children.length == 0){
             return callback(null, [])
         }
 
@@ -53,12 +53,12 @@ ModelSerControl.getChildModelSer = function(callback){
                     count --;
                     if(err)
                     {
-                        childMs[index].ping = 'err';
+                        children[index].ping = 'err';
                     }
                     else
                     {
-                        childMs[index].ping = 'suc';
-                        childMs[index].ms = data;
+                        children[index].ping = 'suc';
+                        children[index].ms = data;
                     }
                     if(count == 0)
                     {
@@ -69,18 +69,18 @@ ModelSerControl.getChildModelSer = function(callback){
         });
 
         var done = pending(function () {
-            return callback(null, childMs);
+            return callback(null, children);
         });
 
-        for(var i = 0; i < childMs.length; i++){
-            remoteReqCtrl.getRequestJSON('http://' + childMs[i].host + ':' + childMs[i].port + '/modelser/json/all', done(i));
+        for(var i = 0; i < children.length; i++){
+            remoteReqCtrl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelser/json/all?token=' + children[i].access_token, done(i));
         }
     });
 };
 
 //查询子节点的所有模型服务运行实例
 ModelSerControl.getAllRmtMis = function (headers, callback) {
-    Child.getAll(function (err, children) {
+    Child.getAllAvai(function (err, children) {
         if(err)
         {
             return callback(err);
@@ -104,7 +104,7 @@ ModelSerControl.getAllRmtMis = function (headers, callback) {
         var count = 0;
         for(var i = 0; i < children.length; i++)
         {
-            remoteReqCtrl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelins/json/all', pending(i));
+            remoteReqCtrl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelins/json/all?token=' + children[i].access_token, pending(i));
         }
     });
 };
@@ -121,7 +121,7 @@ ModelSerControl.getRmtMis = function(host, guid, callback){
                     return callback(err);
                 }
                 if(ParamCheck.checkParam(callback, child)) {
-                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelins/json/' + guid, this.returnFunction(callback, "error in get rmt model service instance"));
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelins/json/' + guid + '?token=' + child.access_token, this.returnFunction(callback, "error in get rmt model service instance"));
                 }
             }.bind(this));
         }
@@ -132,13 +132,13 @@ ModelSerControl.getRmtMis = function(host, guid, callback){
 ModelSerControl.getRmtModelSer = function (host, msid, callback) {
     if(ParamCheck.checkParam(callback, host)){
         if(ParamCheck.checkParam(callback, msid)){
-    Child.getByHost(host, function (err, child) {
-        if(err)
-        {
-            return callback(err);
-        }
-        remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/' + msid, this.returnFunction(callback, "error in get rmt model service"));
-    }.bind(this));
+            Child.getByHost(host, function (err, child) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/' + msid + 'token=' + child.access_token, this.returnFunction(callback, "error in get rmt model service"));
+            }.bind(this));
         }
     }
 };
@@ -147,13 +147,13 @@ ModelSerControl.getRmtModelSer = function (host, msid, callback) {
 ModelSerControl.startRmtModelSer = function (host, msid, callback) {
     if(ParamCheck.checkParam(callback, host)){
         if(ParamCheck.checkParam(callback, msid)){
-    Child.getByHost(host, function (err, child) {
-        if(err)
-        {
-            return callback(err);
-        }
-        remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=start', this.returnFunction(callback, "error in get rmt model service"));
-    }.bind(this));
+            Child.getByHost(host, function (err, child) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=start&token=' + child.access_token, this.returnFunction(callback, "error in get rmt model service"));
+            }.bind(this));
         }
     }
 };
@@ -169,7 +169,7 @@ ModelSerControl.stopRmtModelSer = function (host, msid, callback) {
                 {
                     return callback(err);
                 }
-                remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=stop', this.returnFunction(callback, "error in get rmt model service"));
+                remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=stop&token=' + child.access_token, this.returnFunction(callback, "error in get rmt model service"));
             }.bind(this));
         }
     }
@@ -188,7 +188,7 @@ ModelSerControl.getRmtInputDate = function (host, msid, callback) {
                 }
                 if(ParamCheck.checkParam(callback, child))
                 {
-                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid + '?token=' + child.access_token , this.returnFunction(callback, "error in get input data of rmt model service"));
                 }
             }.bind(this));
         }
@@ -208,7 +208,7 @@ ModelSerControl.runRmtModelSer = function(host, msid, inputdata, outputdata, cal
                 }
                 if(ParamCheck.checkParam(callback, child))
                 {
-                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata, function(err, data)
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata + '&token=' + child.access_token, function(err, data)
                     {
                         if(err)
                         {
@@ -233,7 +233,7 @@ ModelSerControl.deleteRmtModelSer = function(host, msid, callback) {
                 {
                     return callback(err);
                 }
-                remoteReqCtrl.deleteRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid , this.returnFunction(callback, "error in get input data of rmt model service"));
+                remoteReqCtrl.deleteRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?token=' + child.access_token, this.returnFunction(callback, "error in get input data of rmt model service"));
             }.bind(this));
         }
     }
@@ -248,7 +248,7 @@ ModelSerControl.postRmtModelSer = function(req, host, callback){
             {
                 return callback(err);
             }
-            remoteReqCtrl.postRequest(req, 'http://' + child.host + ':' + child.port + '/modelser/' + req.sessionID , this.returnFunction(callback, "error in get input data of rmt model service"));
+            remoteReqCtrl.postRequest(req, 'http://' + child.host + ':' + child.port + '/modelser/' + req.sessionID + '?token=' + child.access_token, this.returnFunction(callback, "error in get input data of rmt model service"));
         }.bind(this));
     }
 };

@@ -42,7 +42,7 @@ var ModelSerInfo = React.createClass({
         {
             platform = (
                 <span className="label label-info">
-                    <i className="fa fa-windows"> </i>windows
+                    <i className="fa fa-windows"> </i> windows
                 </span>);
         }
         else if(this.state.ms.ms_platform == 2)
@@ -83,7 +83,7 @@ var ModelSerInfo = React.createClass({
                             </div>
                         </div>
                         <div className="col-md-7">
-                            <p style="font-size: 14px; color:#aaa" >
+                            <p style={{"fontSize" : "14px", "color" : "#aaa"}}  >
                                 <strong>模型名称&nbsp;:&nbsp;{this.state.ms.ms_model.m_name}</strong>
                                 <br />
                                 <strong>模型类型&nbsp;:&nbsp;{this.state.ms.ms_model.m_type}</strong>

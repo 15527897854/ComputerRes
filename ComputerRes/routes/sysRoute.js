@@ -59,7 +59,7 @@ module.exports = function(app)
                 SysControl.resetParent(host, RouteBase.returnFunction(res, 'Error in resetting parent!'));
             }
             else{
-                SysControl.setParent(host + ':' + port, RouteBase.returnFunction(res, 'Error in updating parent!'));
+                SysControl.setParent(host, port, RouteBase.returnFunction(res, 'Error in updating parent!'));
             }
         });
 
