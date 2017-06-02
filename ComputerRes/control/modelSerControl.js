@@ -454,8 +454,7 @@ ModelSerControl.addNewModelSer = function (fields, files, callback) {
     });
 };
 
-//////////////////////////////////////////////////////////////////////////
-//批量部署
+//region 批量部署
 ModelSerControl.addBatchDeployItemsByMDL = function (ms_user, zip_path, isLocal) {
     var batch_path = path.relative(setting.modelpath, zip_path) + '\\';
     FileOpera.getAllFiles(zip_path, '.zip', function (files) {
@@ -648,6 +647,7 @@ ModelSerControl.deployOneByMDL = function (bdItem, isLocal, callback) {
         })
     })
 };
+//endregion
 
 //将记录放置在回收站
 //并删除文件
@@ -1470,4 +1470,83 @@ ModelSerControl.delTestify = function (msid, testifyPath, callback) {
     catch (e) {
         return callback(JSON.stringify({suc: false}));
     }
+};
+
+//从门户网站或本机获取runtime节点
+ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
+    let runtime = {};
+    if(place == 'local'){
+        ModelSerModel.getByPID(pid,function (err, ms) {
+            if(err){
+                return cb(err);
+            }
+            else{
+                if(!ms || ms.length ==0)
+                    return cb({code:'查不到对应模型！'});
+                ms = ms[0];
+                ModelSerModel.readMDL(ms,function (err, mdl) {
+                    if(err){
+                        return cb(err);
+                    }
+                    else{
+                        if(!mdl)
+                            return cb({code:'解析模型MDL出错！'});
+                        ModelSerControl.getRuntimeFromMDL(mdl,function (demands) {
+                            return cb(null,demands);
+                        });
+                    }
+                })
+            }
+        })
+    }
+    else if(place == 'portal'){
+        let url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
+        remoteReqCtrl.getByServer(url,null,function (err, res) {
+            if(err){
+                return cb(err);
+            }
+            else{
+                res = JSON.parse(res);
+                if(res.error && res.error != ''){
+                    return cb({code:res.error});
+                }
+                else if(res.result && res.result != ''){
+                    ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
+                        if(err){
+                            return cb(err);
+                        }
+                        else{
+                            ModelSerControl.getRuntimeFromMDL(mdl,function (demands) {
+                                return cb(null,demands);
+                            })
+                        }
+                    });
+                }
+            }
+        })
+    }
+};
+
+ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
+    var softDemands = [],hardDemands = [];
+    var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
+    var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;
+    if(hardJSON == undefined)
+        hardJSON = [];
+    if(softJSON == undefined)
+        softJSON = [];
+    for(var i=0;i<hardJSON.length;i++){
+        hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
+    }
+    for(var j=0;j<softJSON.length;j++){
+        softDemands.push({
+            name:softJSON[j].$.name,
+            platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
+            version:softJSON[j]._
+        });
+    }
+    cb({
+        swe:softDemands,
+        hwe:hardDemands
+    });
 };

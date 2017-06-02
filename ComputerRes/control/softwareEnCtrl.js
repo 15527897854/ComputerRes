@@ -325,6 +325,10 @@ softwareEnCtrl.ensMatched = function (demands,callback) {
     })
 };
 
+softwareEnCtrl.enMatched = function (demand, cb) {
+
+};
+
 softwareEnCtrl.addBySelect = function (itemsID, callback) {
 
 };

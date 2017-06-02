@@ -97,7 +97,8 @@ module.exports = function(app)
             res.render('setting');
         });
 
-    //数据的增删查改
+
+    //region 环境字典
     //type : hardware software
     //method : auto get select
     //ac : update new del
@@ -188,6 +189,15 @@ module.exports = function(app)
                 return res.end(data);
             })
         });
+
+    app.route('/setting/enviro/matchrst')
+        .get(function (req, res) {
+            let demand = req.query.demand;
+            let type = req.query.type;
+
+        });
+    //endregion
+
     //管理员信息
     app.route('/json/admininfo')
         .get(function(req, res, next){

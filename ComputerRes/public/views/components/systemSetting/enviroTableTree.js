@@ -48,7 +48,6 @@ var EnviroTableTree = React.createClass({
                     next: ">",
                     prev: "<"
                 };
-
                 var template = '';
                 if(self.props.tabletree.checkbox){
                     template = "{common.space()}{common.treecheckbox()}{common.icon()}{common.folder()}#title#";
@@ -56,9 +55,78 @@ var EnviroTableTree = React.createClass({
                 else{
                     template = '{common.treetable()} #title#';
                 }
+
+                //将tabletree结构的json转换位正常的json
+                var ttItem2JOSN = function (itemID) {
+                    var json = {};
+                    var tabletree = self.state.tabletree;
+                    var item = tabletree.getItem(itemID);
+                    var convertKey = function (child) {
+                        var type = child.type;
+                        if(type == 'Array'){
+                            var rst = [];
+                            var children = child.children;
+                            for(var i=0;i<children.length;i++){
+                                rst.push(convertKey(children[i]));
+                            }
+                            return rst;
+                        }
+                        else if(type == 'Object'){
+                            var rst = {};
+                            var children = child.children;
+                            for(var i=0;i<children.length;i++){
+                                rst[children[i].title] = convertKey(children[i]);
+                            }
+                            return rst;
+                        }
+                        else{
+                            return child.value;
+                        }
+                    };
+
+                    var children = item.children;
+                    for(var i=0;i<children.length;i++){
+                        var key = item.children[i].title;
+                        var child = item.children[i];
+                        if(key)
+                            json[key] = convertKey(child);
+                    }
+                    return json;
+                };
+
+                //region 自定义筛选函数，要求能够显示出一个文档的所有字段
+                var ttTitleFilter = function (value,filter,obj){
+                    var tabletree = self.state.tabletree;
+                    if(tabletree.getItem(obj.id).$parent == 0){
+                        value = value.replace(/\s+/g,' ').toLowerCase();
+                        value = value.trim();
+                        filter = filter.replace(/\s+/g,' ').toLowerCase();
+                        filter = filter.trim();
+                        return value.indexOf(filter)!=-1;
+                    }
+                    else{
+                        return false;
+                    }
+                };
+                var ttValueFilter = function (value, filter, obj) {
+                    var tabletree = self.state.tabletree;
+                    var rootID = obj.id;
+                    while(tabletree.getItem(rootID).$parent!=0){
+                        rootID = tabletree.getItem(rootID).$parent;
+                    }
+                    filter = filter.replace(/\s+/g,' ').toLowerCase();
+                    filter = filter.trim();
+
+                    var strJSON = JSON.stringify(ttItem2JOSN(rootID)).toLowerCase();
+                    strJSON = strJSON.replace(/\s+/g,' ');
+                    strJSON = strJSON.trim();
+                    return strJSON.indexOf(filter)!=-1
+                };
+                //endregion
+
                 var columns = [
-                    {id:'title',header:['Key',{content:'textFilter'}],template:template,width:self.props.tabletree.css.width.title},
-                    {id:'value',header:['Value',{content:'textFilter'}],editor:'text',width:self.props.tabletree.css.width.value}
+                    {id:'title',header:['Key',{content:'textFilter',placeholder:'Filter',compare:ttTitleFilter}],template:template,width:self.props.tabletree.css.width.title},
+                    {id:'value',header:['Value',{content:'textFilter',placeholder:'Filter',compare:ttValueFilter}],editor:'text',width:self.props.tabletree.css.width.value}
                 ];
                 if(self.props.tabletree.operate){
                     columns.push({id:'type',header:'Type',width:70});

@@ -16,7 +16,10 @@ var DataPreparation = require('../components/data/dataPreparation');
 var ModelSerUploader = require('../components/modelSer/modelSerUploader');
 var EnviroPanel = require('../components/systemSetting/enviroPanel');
 var UserInfo = require('../components/systemSetting/userInfo');
-var LoginPanel = require('../components/systemSetting/loginPanel');if(document.getElementById('rmtModelSerTable') != null) {
+var EnMatchPanel = require('../components/systemSetting/enMatchPanel');
+var LoginPanel = require('../components/systemSetting/loginPanel');
+
+if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
         <RmtModelSerTable
             data-source={ document.getElementById('rmtModelSerTable').getAttribute('data-source') }
@@ -142,4 +145,13 @@ if(document.getElementById('enviro-section') != null){
         tabletree={tabletree}
         fields={fields}
     />, document.getElementById('hwe'));
+}
+
+if(document.getElementById('enMatch-section') != null){
+    ReactDOM.render(<EnMatchPanel
+        host={$('#enMatch-section').attr('data-host')}
+        port={$('#enMatch-section').attr('data-port')}
+        pid={$('#enMatch-section').attr('data-pid')}
+        place= {$('#enMatch-section').attr('data-pidPlace')}
+    />,document.getElementById('sweMatch'));
 }

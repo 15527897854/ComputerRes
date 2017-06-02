@@ -683,7 +683,17 @@ module.exports = function(app)
                 res.end(data);
             });
         });
-    
+
+    app.route('/modelser/enmatch/:pid')
+        .get(function (req, res) {
+            return res.render('enMatch',{
+                port:setting.port,
+                pid:req.params.pid,
+                place:req.query.place
+            })
+        });
+
+
     ///////////////////////////////////JSON//////////////////////////
 
 	//获取某个模型服务的输入输出数据声明
@@ -771,6 +781,26 @@ module.exports = function(app)
                     }));
                 });
             }
+        });
+
+    //从门户或者本机得到runtime节点
+    app.route('/modelser/demands/:pid')
+        .get(function (req, res) {
+            let pid = req.params.pid;
+            let place = req.query.place;
+            ModelSerCrtl.getRuntimeByPid(pid,place,function (err, data) {
+                if(err){
+                    return res.end(JSON.stringify({status:0}));
+                }
+                else{
+                    return res.end(JSON.stringify({status:1,demands:data}));
+                }
+            })
+        });
+
+    app.route('/modelser/demand/')
+        .get(function (req, res) {
+            
         });
     
     //远程模型访问路由

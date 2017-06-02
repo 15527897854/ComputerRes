@@ -249,6 +249,10 @@ hardwareEnCtrl.ensMatched = function (demands, callback) {
     });
 };
 
+hardwareEnCtrl.enMatched = function (demand, cb) {
+
+};
+
 /////////////////////////////////////////////////////////
 //硬件的环境匹配
 //只支持数字形式的比较
