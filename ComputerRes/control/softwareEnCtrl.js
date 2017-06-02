@@ -326,7 +326,16 @@ softwareEnCtrl.ensMatched = function (demands,callback) {
 };
 
 softwareEnCtrl.enMatched = function (demand, cb) {
-
+    sweModel.getByWhere({},function (err, swes) {
+        if(err){
+            return cb(err);
+        }
+        else {
+            for(var i=0;i<swes.length;i++){
+                
+            }
+        }
+    })
 };
 
 softwareEnCtrl.addBySelect = function (itemsID, callback) {

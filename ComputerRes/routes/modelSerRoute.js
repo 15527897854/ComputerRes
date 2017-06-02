@@ -20,6 +20,8 @@ var ModelSerMid = require('../middlewares/modelserMid');
 var RouteBase = require('./routeBase');
 
 var remoteModelSerRoute = require('./rmtModelSerRoute');
+var SWECtrl = require('../control/softwareEnCtrl');
+var HWECtrl = require('../control/hardwareEnCtrl');
 
 module.exports = function(app)
 {
@@ -798,9 +800,23 @@ module.exports = function(app)
             })
         });
 
-    app.route('/modelser/demand/')
+    app.route('/modelser/demand')
         .get(function (req, res) {
-
+            var type = req.query.type;
+            var demand = req.query.demand;
+            var enviroCtrl;
+            if(type == 'swe')
+                enviroCtrl = SWECtrl;
+            else if(type == 'hwe')
+                enviroCtrl = HWECtrl;
+            enviroCtrl.enMatched(demand,function (err, data) {
+                if(err){
+                    return res.end(JSON.stringify(err));
+                }
+                else{
+                    return res.end(JSON.stringify({enviro:data}));
+                }
+            })
         });
     
     //远程模型访问路由
