@@ -800,7 +800,7 @@ module.exports = function(app)
 
     app.route('/modelser/demand/')
         .get(function (req, res) {
-            
+
         });
     
     //远程模型访问路由
