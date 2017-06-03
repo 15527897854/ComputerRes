@@ -43,6 +43,7 @@ var SWESchema = new mongoose.Schema({
     platform:String
     // dependencies:Array
 },{collection:'softwareEnviro'});
+SWESchema.index({alias:'text',name:'text',version:'text',platform:'text'});
 
 var SWE = mongoose.model('softwareEnviro',SWESchema);
 SoftwareEnviro.baseModel = SWE;

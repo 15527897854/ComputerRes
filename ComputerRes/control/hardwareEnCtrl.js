@@ -250,7 +250,29 @@ hardwareEnCtrl.ensMatched = function (demands, callback) {
 };
 
 hardwareEnCtrl.enMatched = function (demand, cb) {
-
+    hweModel.getByWhere({},function (err, hwes) {
+        if(err){
+            return cb(err);
+        }
+        else {
+            var query = {
+                $text:{
+                    $search:demand.name,
+                    $caseSensitive:false
+                }
+            };
+            hardwareEnCtrl.getByTextSearch(query,function (err, data) {
+                if(err){
+                    return cb(err);
+                }
+                else{
+                    //TODO 对模糊查询到的结果进行版本匹配
+                    
+                    return cb(null,data);
+                }
+            })
+        }
+    })
 };
 
 /////////////////////////////////////////////////////////

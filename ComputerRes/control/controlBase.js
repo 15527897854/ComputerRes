@@ -53,6 +53,17 @@ ControlBase.getByWhere = function (where, callback) {
     })
 };
 
+ControlBase.getByTextSearch = function (query, cb) {
+    this.model.getByTextSearch(query,function (err, data) {
+        if(err){
+            return cb(err);
+        }
+        else{
+            return cb(null,data);
+        }
+    })
+};
+
 ControlBase.updateByWhere = function (query, update, options, callback) {
     this.model.updateByWhere(query,update,options,function (err, data) {
         if(err){

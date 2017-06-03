@@ -788,8 +788,8 @@ module.exports = function(app)
     //从门户或者本机得到runtime节点
     app.route('/modelser/demands/:pid')
         .get(function (req, res) {
-            let pid = req.params.pid;
-            let place = req.query.place;
+            var pid = req.params.pid;
+            var place = req.query.place;
             ModelSerCrtl.getRuntimeByPid(pid,place,function (err, data) {
                 if(err){
                     return res.end(JSON.stringify({status:0}));
@@ -800,7 +800,7 @@ module.exports = function(app)
             })
         });
 
-    app.route('/modelser/demand')
+    app.route('/modelser/enmatch')
         .get(function (req, res) {
             var type = req.query.type;
             var demand = req.query.demand;
@@ -811,7 +811,7 @@ module.exports = function(app)
                 enviroCtrl = HWECtrl;
             enviroCtrl.enMatched(demand,function (err, data) {
                 if(err){
-                    return res.end(JSON.stringify(err));
+                    return res.end(JSON.stringify({err:err}));
                 }
                 else{
                     return res.end(JSON.stringify({enviro:data}));

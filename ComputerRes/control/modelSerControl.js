@@ -527,7 +527,11 @@ ModelSerControl.batchDeployByMDL = function (batch_path, isLocal) {
 //流程：解压  读config  读mdl  组织modelservice  移动package文件  更新deployItem  更新modelservice中的m_id
 ModelSerControl.deployOneByMDL = function (bdItem, isLocal, callback) {
     var msID = new ObjectId();
-    var zip_path = path.join(setting.modelpath, bdItem.batch_path, bdItem.zip_path);
+    var zip_path;
+    if(bdItem.batch_path.indexOf(':')==-1)
+        zip_path = path.join(setting.modelpath, bdItem.batch_path, bdItem.zip_path);
+    else
+        zip_path = bdItem.batch_path;
     var model_path = path.join(setting.modelpath, msID.toString()) + '\\';
     CommonMethod.Uncompress(zip_path, model_path, function () {
         var cfg_path = path.join(model_path, 'package.config');
@@ -1474,7 +1478,7 @@ ModelSerControl.delTestify = function (msid, testifyPath, callback) {
 
 //从门户网站或本机获取runtime节点
 ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
-    let runtime = {};
+    var runtime = {};
     if(place == 'local'){
         ModelSerModel.getByPID(pid,function (err, ms) {
             if(err){
@@ -1500,7 +1504,7 @@ ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
         })
     }
     else if(place == 'portal'){
-        let url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
+        var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
         remoteReqCtrl.getByServer(url,null,function (err, res) {
             if(err){
                 return cb(err);

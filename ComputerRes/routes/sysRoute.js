@@ -192,9 +192,9 @@ module.exports = function(app)
 
     app.route('/setting/enviro/matchrst')
         .get(function (req, res) {
-            let demand = req.query.demand;
-            let type = req.query.type;
-
+            var demand = req.query.demand;
+            var type = req.query.type;
+            
         });
     //endregion
 

@@ -15,6 +15,25 @@ var setting = require('./../setting');
 // var UDXVisualization = require('./UDX_Visualization');
 var child_process = require('../utils/child-process');
 
+//全文索引示例
+// var query = {
+//     $text:{
+//         $search:'microsoft visual vc++ 2010',
+//         // $language:'english',
+//         $caseSensitive:false
+//     }
+// };
+// softwareEnCtrl.getByTextSearch(query,function (err, data) {
+//     if(err){
+//         return console.log(err);
+//     }
+//     else{
+//         for(var i=0;i<data.length;i++){
+//             console.log(data[i].score);
+//         }
+//     }
+// });
+
 // ModelSerCtrl.readMDLByPath('E:\\vs10\\saga_3.0.0_src\\saga-gis\\bin\\saga_vc_x64_d\\Packing_SAGA_Models\\climate_tools_0\\model\\climate_tools_0.mdl',function (err, data) {
 //     if(err){
 //         console.log(err);
@@ -59,7 +78,7 @@ var child_process = require('../utils/child-process');
 //     }
 // });
 
-ModelSerCtrl.addBatchDeployItemsByMDL({u_name:'scr',u_email:'1374316846@qq.com'},'F:\\vs10\\saga_3.0.0_src\\saga-gis\\bin\\saga_vc_x64_d\\Packing_SAGA_Models\\',true);
+// ModelSerCtrl.addBatchDeployItemsByMDL({u_name:'scr',u_email:'1374316846@qq.com'},'E:\\SAGA Models\\',true);
 
 // var a = verCtrl.rangeMatch('324.345.2345','((([0,345])))||((2345.22.23,infinite))&&(2345.22.23,3454.345.8)||324.x||*&&!1.2.3.4');
 // var b = hardwareEnCtrl.rangeMatch(' 401    GHz ','( 400  GHz , infinite ] && [200MHz,500GHZ] || !401MHz');

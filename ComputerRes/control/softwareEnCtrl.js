@@ -331,9 +331,22 @@ softwareEnCtrl.enMatched = function (demand, cb) {
             return cb(err);
         }
         else {
-            for(var i=0;i<swes.length;i++){
-                
-            }
+            var query = {
+                $text:{
+                    $search:demand.name + ' , ' + demand.platform,
+                    $caseSensitive:false
+                }
+            };
+            softwareEnCtrl.getByTextSearch(query,function (err, data) {
+                if(err){
+                    return cb(err);
+                }
+                else{
+                    //TODO 对模糊查询到的结果进行版本匹配
+                    
+                    return cb(null,data);
+                }
+            })
         }
     })
 };
