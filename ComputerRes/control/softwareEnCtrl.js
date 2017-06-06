@@ -5,6 +5,8 @@ var sweModel = require('../model/softwareEnviro');
 var ControlBase = require('./controlBase');
 var sysCtrl = require('./sysControl');
 var versionCtrl = require('./versionCtrl');
+var modelserCtrl = require('./modelSerControl');
+var modelBase = require('../model/modelBase');
 
 var softwareEnCtrl = function () {
     
@@ -333,7 +335,7 @@ softwareEnCtrl.enMatched = function (demand, cb) {
         else {
             var query = {
                 $text:{
-                    $search:demand.name + ' , ' + demand.platform,
+                    $search:demand.name + ' ' + demand.platform,
                     $caseSensitive:false
                 }
             };
@@ -347,6 +349,48 @@ softwareEnCtrl.enMatched = function (demand, cb) {
                     return cb(null,data);
                 }
             })
+        }
+    })
+};
+
+softwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
+    modelserCtrl.getRuntimeByPid(pid,place,function (err, demands) {
+        if(err){
+            return cb(err);
+        }
+        else{
+            demands = demands.swe;
+            var count = 0;
+            var matchedList = [];
+            var pending = function (index) {
+                count++;
+                return function (err, matchedItems) {
+                    count--;
+                    if(err){
+                        console.log(err);
+                    }
+                    else{
+                        modelBase.items2TableTree(matchedItems,function (err, matchedItems) {
+                            matchedList[index] = matchedItems;
+                        });
+                    }
+                    if(count == 0){
+                        modelBase.items2TableTree(demands,function (err, demands) {
+                            for(var i=0;i<demands.length;i++){
+                                demands[i].matched = matchedList[i];
+                                demands[i].result = '未知';
+                            }
+                            cb(null,demands);
+                        });
+                    }
+                }
+            };
+            for(var i=0;i<demands.length;i++){
+                demands[i].alias = [];
+                demands[i].publisher = '';
+                demands[i].type = '';
+                softwareEnCtrl.enMatched(demands[i],pending(i));
+            }
         }
     })
 };

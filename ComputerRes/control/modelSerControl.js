@@ -32,7 +32,6 @@ var ModelSerControl = function () {
 ModelSerControl.__proto__ = ControlBase;
 ModelSerControl.model = ModelSerModel;
 
-module.exports = ModelSerControl;
 
 ////////////////远程服务
 
@@ -1554,3 +1553,5 @@ ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
         hwe:hardDemands
     });
 };
+
+module.exports = ModelSerControl;

@@ -148,10 +148,18 @@ if(document.getElementById('enviro-section') != null){
 }
 
 if(document.getElementById('enMatch-section') != null){
+    var width = $('#enMatch-section').width() - 100;
+    var css = {
+        width:{
+            tabletree:width,
+            title:(width-140)/5,
+            demand:(width-140)*2/5,
+            enviro:(width-140)*2/5
+        }
+    };
     ReactDOM.render(<EnMatchPanel
-        host={$('#enMatch-section').attr('data-host')}
-        port={$('#enMatch-section').attr('data-port')}
         pid={$('#enMatch-section').attr('data-pid')}
         place= {$('#enMatch-section').attr('data-pidPlace')}
-    />,document.getElementById('sweMatch'));
+        css={css}
+    />,document.getElementById('enMatch-section'));
 }

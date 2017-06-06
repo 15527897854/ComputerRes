@@ -109,7 +109,8 @@ ModelBase.items2TableTree = function (srcItems,callback) {
             dstItem.children = children;
         }
         else{
-            dstItem.value = srcItem[srcKey];
+            dstItem.evaluate = '';
+            dstItem.value2 = srcItem[srcKey];
         }
         return dstItem;
     };

@@ -5,6 +5,8 @@ var hweModel = require('../model/hardwareEnviro');
 var ControlBase = require('./controlBase');
 var sysCtrl = require('../control/sysControl');
 var convert = require('convert-units');
+var modelserCtrl = require('./modelSerControl');
+var modelBase = require('../model/modelBase');
 
 var hardwareEnCtrl = function () {
 
@@ -275,8 +277,43 @@ hardwareEnCtrl.enMatched = function (demand, cb) {
     })
 };
 
-/////////////////////////////////////////////////////////
-//硬件的环境匹配
+hardwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
+    modelserCtrl.getRuntimeByPid(pid,place,function (err, demands) {
+        if(err){
+            return cb(err);
+        }
+        else{
+            demands = demands.hwe;
+            var count = 0;
+            var matchedList = [];
+            var pending = function (i) {
+                count++;
+                return function (err, matchedItems) {
+                    count--;
+                    if(err){
+                        console.log(err);
+                    }
+                    else{
+                        matchedList.push(matchedItems);
+                    }
+                    if(count == 0){
+                        modelBase.items2TableTree(demands,function (err, demands) {
+                            for(var i=0;i<demands.length;i++){
+                                demands[i].matched = matchedList[i];
+                            }
+                            cb(null,demands);
+                        });
+                    }
+                }
+            };
+            for(var i=0;i<demands.length;i++){
+                hardwareEnCtrl.enMatched(demands[i],pending(i));
+            }
+        }
+    });
+};
+
+//region 硬件的环境匹配
 //只支持数字形式的比较
 //支持的比较符有：区间 * ！
 //v1表示是原有的，v2表示是需求
@@ -448,3 +485,4 @@ hardwareEnCtrl.rangeValid = function (range) {
     }
     return rst;
 };
+//endregion

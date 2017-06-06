@@ -786,37 +786,59 @@ module.exports = function(app)
         });
 
     //从门户或者本机得到runtime节点
-    app.route('/modelser/demands/:pid')
+    // app.route('/modelser/demands/:pid')
+    //     .get(function (req, res) {
+    //         var pid = req.params.pid;
+    //         var place = req.query.place;
+    //         ModelSerCrtl.getRuntimeByPid(pid,place,function (err, data) {
+    //             if(err){
+    //                 return res.end(JSON.stringify({status:0}));
+    //             }
+    //             else{
+    //                 return res.end(JSON.stringify({status:1,demands:data}));
+    //             }
+    //         })
+    //     });
+
+    // app.route('/modelser/enmatch')
+    //     .get(function (req, res) {
+    //         var type = req.query.type;
+    //         var demand = req.query.demand;
+    //         var enviroCtrl;
+    //         if(type == 'swe')
+    //             enviroCtrl = SWECtrl;
+    //         else if(type == 'hwe')
+    //             enviroCtrl = HWECtrl;
+    //         enviroCtrl.enMatched(demand,function (err, data) {
+    //             if(err){
+    //                 return res.end(JSON.stringify({err:err}));
+    //             }
+    //             else{
+    //                 return res.end(JSON.stringify({enviro:data}));
+    //             }
+    //         })
+    //     });
+
+    app.route('/modelser/tabledata/:pid')
         .get(function (req, res) {
             var pid = req.params.pid;
             var place = req.query.place;
-            ModelSerCrtl.getRuntimeByPid(pid,place,function (err, data) {
-                if(err){
-                    return res.end(JSON.stringify({status:0}));
-                }
-                else{
-                    return res.end(JSON.stringify({status:1,demands:data}));
-                }
-            })
-        });
-
-    app.route('/modelser/enmatch')
-        .get(function (req, res) {
             var type = req.query.type;
-            var demand = req.query.demand;
             var enviroCtrl;
-            if(type == 'swe')
+            if(type == 'swe'){
                 enviroCtrl = SWECtrl;
-            else if(type == 'hwe')
+            }
+            else if(type == 'hwe'){
                 enviroCtrl = HWECtrl;
-            enviroCtrl.enMatched(demand,function (err, data) {
+            }
+            enviroCtrl.getMatchTabledata(pid,place,function (err, data) {
                 if(err){
                     return res.end(JSON.stringify({err:err}));
                 }
                 else{
-                    return res.end(JSON.stringify({enviro:data}));
+                    return res.end(JSON.stringify({tabledata:data}));
                 }
-            })
+            });
         });
     
     //远程模型访问路由
