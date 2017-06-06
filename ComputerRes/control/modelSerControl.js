@@ -15,6 +15,7 @@ var iconv = require('iconv-lite');
 var setting = require('../setting');
 var ModelSerModel = require('../model/modelService');
 var ModelSerRunModel = require('../model/modelSerRun');
+var ModelIns = require('../model/modelInstance');
 var FileOpera = require('../utils/fileOpera');
 var Child = require('../model/child');
 var remoteReqCtrl = require('./remoteReqControl');
@@ -24,6 +25,8 @@ var GeoDataCtrl = require('../control/geoDataControl');
 var CommonMethod = require('../utils/commonMethod');
 var SystemCtrl = require('./sysControl');
 var batchDeployCtrl = require('./batchDeploy');
+var ModelSerRunCtrl = require('./modelSerRunControl');
+var NoticeCtrl = require('../control/noticeCtrl');
 
 var ModelSerControl = function () {};
 ModelSerControl.__proto__ = ControlBase;
@@ -884,7 +887,7 @@ ModelSerControl.getByPID = function(mid, callback){
 };
 
 //更新模型服务信息
-ModelSerControl.update = function(ms, callback){
+ModelSerControl.update = function(ms, user, callback){
     ModelSerModel.update(ms, function(err, data)
     {
         if(err)
@@ -896,68 +899,159 @@ ModelSerControl.update = function(ms, callback){
 };
 
 //开启运行实例
-ModelSerControl.run = function (ms_id, guid, callback) {
-    ModelSerModel.getByOID(ms_id, function(err, ms)
-    {
-        if(err)
-        {
-            return callback(err);
-        }
-        if(ms.ms_status != 1)
-        {
-            return callback({
-                Error : -1,
-                Message : 'Service is not available'
-            });
-        }
-        ModelSerModel.run(ms_id, guid, function (err, stdout, stderr) {
-            ModelSerRunModel.getByGUID(guid, function (err2, item) {
-                if(err2)
+ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
+    function run_next(){
+        //生成唯一字符串GUID
+        var guid = uuid.v4();
+
+        //向内存中添加模型运行记录条目
+        var date = new Date();
+        var mis = {
+            guid : guid,
+            socket : null,
+            ms : null,
+            start : date.toLocaleString(),
+            state : 'MC_READY'
+        };
+        var modelIns = new ModelIns(mis);
+        app.modelInsColl.addIns(modelIns);
+
+        ModelSerModel.getByOID(msid, function(err, ms){
+            //添加纪录
+            var msr = {
+                ms_id : ms._id,
+                msr_ms : ms,
+                msr_date : date.toLocaleString(),
+                msr_time : 0,
+                msr_user : user,
+                msr_guid : guid,
+                msr_input : inputData,
+                msr_output : outputData,
+                msr_status : 0,
+                msr_des : ''
+            };
+            ModelSerRunCtrl.save(msr ,function (err, msr) {
+                if(err) {
+                    return res.end('Error : ' + err);
+                }
+
+                if(ms.ms_status != 1)
                 {
-                    return console.log(JSON.stringify(err2));
-                }
-                if(item == null)
-                {
-                    return console.log( 'Can not find MSR when it is ended !');
-                }
-                if(err){
-                    item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
-                }
-                if(stdout){
-                    item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
-                }
-                if(stderr){
-                    item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
-                }
-                var mis = global.app.modelInsColl.getByGUID(guid);
-                //没有配置环境，进程无法启动
-                if(mis.state == "MC_READY" && mis.socket == null){
-                    global.app.modelInsColl.removeByGUID(guid);
-                    item.msr_status = -1;
-                    ModelSerRunModel.update(item, function (err, res) {
-                        if(err)
-                        {
-                            return console.log(JSON.stringify(err2));
-                        }
-                    })
-                }
-                else {
-                    ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
-                        if(err)
-                        {
-                            return console.log(JSON.stringify(err2));
-                        }
+                    return callback({
+                        Error : -1,
+                        Message : 'Service is not available'
                     });
                 }
+                ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
+                    ModelSerRunModel.getByGUID(guid, function (err2, item) {
+                        if(err2)
+                        {
+                            return console.log(JSON.stringify(err2));
+                        }
+                        if(item == null)
+                        {
+                            return console.log( 'Can not find MSR when it is ended !');
+                        }
+                        if(err){
+                            item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
+                        }
+                        if(stdout){
+                            item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
+                        }
+                        if(stderr){
+                            item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
+                        }
+                        var mis = global.app.modelInsColl.getByGUID(guid);
+                        //没有配置环境，进程无法启动
+                        if(mis.state == "MC_READY" && mis.socket == null){
+                            global.app.modelInsColl.removeByGUID(guid);
+                            item.msr_status = -1;
+                            ModelSerRunModel.update(item, function (err, res) {
+                                if(err)
+                                {
+                                    return console.log(JSON.stringify(err2));
+                                }
+                            })
+                        }
+                        else {
+                            ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
+                                if(err)
+                                {
+                                    return console.log(JSON.stringify(err2));
+                                }
+                            });
+                        }
+                    });
+                }, function (err, ms) {
+                    if(err)
+                    {
+                        return callback(err);
+                    }
+                    //绑定内存实例的ms属性
+                    app.modelInsColl.bindMs(guid, ms);
+
+                    //存储通知消息
+                    var notice = {
+                        time : new Date(),
+                        title : ms.ms_model.m_name + '开始运行！',
+                        detail : '',
+                        type : 'start-run',
+                        hasRead : false
+                    };
+                    NoticeCtrl.save(notice, function (err, data) {
+                        if(err)
+                        {
+                            console.log(JSON.stringify(err));
+                        }
+                    });
+
+                    return callback(null, msr);
+                });
             });
-        }, function (err, ms) {
+        });
+    }
+
+    if(outputData == undefined || outputData == null) {
+        ModelSerControl.getInputData(msid, function(err, data){
             if(err)
             {
-                return callback(err);
+                return res.end(JSON.stringify(err));
             }
-            return callback(null, ms);
+            //指定输出文件参数
+            outputData = [];
+            for(var k = 0; k < data.length; k++) {
+                for(var i = 0; i < data[k].Event.length; i++)
+                {
+                    if(data[k].Event[i].$.type == 'noresponse')
+                    {
+                        var dataid = 'gd_' + uuid.v1();
+                        var item = {
+                            StateId : data[k].$.id,
+                            Tag : 'OUTPUT',
+                            Event : data[k].Event[i].$.name,
+                            DataId : dataid,
+                            Ready : false
+                        };
+                        outputData.push(item);
+                    }
+                }
+            }
+            run_next();
         });
-    });
+    }
+    else
+    {
+        outputData = JSON.parse(outputData);
+        //指定输出文件参数
+        for(var k = 0; k < outputData.length; k++) {
+            var dataid = 'gd_' + uuid.v1();
+            outputData[k]['DataId'] = dataid;
+            outputData[k]['Ready'] = false;
+        }
+
+        run_next();
+    }
+    
 
 };
 

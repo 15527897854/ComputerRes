@@ -216,14 +216,44 @@ module.exports = function(app)
                 }
             });
         });
-
-    //获取门户用户名信息
+    
+    //获取、设置门户用户名信息
     app.route('/json/portalinfo')
         .get(function(req, res, next){
             SysControl.getPortalUName(RouteBase.returnFunction(res, 'Error in getting portal name!', 'ss_value'));
+        })
+        .put(function(req, res, next){
+            var portalname = req.query.portalname;
+            var portalpwd = req.query.portalpwd;
+            SysControl.setPortalInfo(portalname, portalpwd, function(err, result){
+                if(err){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : err
+                    }));
+                }
+                if(result.result == 'suc'){
+                    return res.end(JSON.stringify({
+                        result : 'suc',
+                        data : '1'
+                    }));
+                }
+                else{
+                    return res.end(JSON.stringify({
+                        result : 'fail',
+                        data : '0'
+                    }));
+                }
+            });
         });
     //管理员页面渲染
     app.route('/admininfo')
         .get(function(req, res, next){
             res.render('userinfo');
-        });};
+        });
+    //获取IPToken
+    app.route('/token')
+        .get(function(req, res, next){
+            SysControl.getToken(req.query.ip, RouteBase.returnFunction(res, 'Error in getting token!'));
+        });
+};

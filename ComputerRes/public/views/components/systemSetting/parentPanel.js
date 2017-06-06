@@ -14,7 +14,7 @@ var ParentPanel = React.createClass({
             parent : null,
             proParentHost : '',
             proParentPort : '',
-            btn : false
+            btn_parent : false
         };
     },
 
@@ -22,8 +22,23 @@ var ParentPanel = React.createClass({
         this.refresh();
     },
 
-    disableBtn : function(){
-        this.setState({btn : false});
+    disablePatentBtn : function(){
+        this.setState({btn_parent : false});
+    },
+
+    getToken : function(){
+        var ip = $('#txtTargetHost').val();
+        if(ip.trim() == ''){
+            return;
+        }
+        Axios.get('/token?ip=' + ip).then(
+            data => {
+                if(data.data.result == 'suc'){
+                    $('#txtToken').val(data.data.data);   
+                }
+            },
+            err => {}
+        );
     },
 
     refresh : function () {
@@ -67,10 +82,10 @@ var ParentPanel = React.createClass({
             data => {
                 if(data.data.result == 'OK'){
                     this.setState({proParentHost : $('#txtNewParentHost').val(), proParentPort : port});
-                    this.setState({btn : true});
+                    this.setState({btn_parent : true});
                 }
                 else{
-                    this.setState({btn : false});
+                    this.setState({btn_parent : false});
                 }
             },
             err => {}
@@ -102,14 +117,15 @@ var ParentPanel = React.createClass({
                 <span>Error : { JSON.stringify(this.state.err) }</span>
             );
         }
-        var btn = (<button id="btn_ok" type="button" className="btn btn-success" disabled="disabled" onClick={this.onSubmit } >确定</button>);
-        if(this.state.btn){
-            btn = (<button id="btn_ok" type="button" className="btn btn-success" onClick={this.onSubmit } >确定</button>);
+        var parentDisable = 'disabled';
+        if(this.state.btn_parent){
+            parentDisable = null;
         }
         return (
             <div>
                 <p><strong>父节点</strong>&nbsp;:&nbsp;<span>{this.state.parent}</span></p>
-                <button className="btn btn-info" data-toggle="modal" href="#diaParent" >变更父节点</button>
+                <button className="btn btn-info" data-toggle="modal" href="#diaParent" >变更父节点</button> &nbsp;&nbsp;
+                <button className="btn btn-info" data-toggle="modal" href="#diaToken" >获取Token</button>
                 <div aria-hidden="true" aria-labelledby="parentAlterDialog" role="dialog" tabIndex="-1" id="diaParent" className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">
@@ -120,16 +136,37 @@ var ParentPanel = React.createClass({
                             <div className="modal-body">
                                 <form className="form-horizontal" >
                                     <strong>当前父节点</strong>&nbsp;:&nbsp;{this.state.parent}<br />
-                                    <label>更变父节点</label><br />
                                     <label htmlFor="txtNewParentHost" >服务器</label>
-                                    <input id="txtNewParentHost" placeholder="127.0.0.1" type="text" className="form-control" onBlur={this.checkServer} onFocus={this.disableBtn} />
+                                    <input id="txtNewParentHost" placeholder="127.0.0.1" type="text" className="form-control" onBlur={this.checkServer} onFocus={this.disablePatentBtn} />
                                     <label htmlFor="txtNewParentPort" >端口</label>
-                                    <input id="txtNewParentPort" placeholder="8060" type="text" className="form-control" onBlur={this.checkServer} onFocus={this.disableBtn} />
+                                    <input id="txtNewParentPort" placeholder="8060" type="text" className="form-control" onBlur={this.checkServer} onFocus={this.disablePatentBtn} />
                                 </form>
                             </div>
                             <div className="modal-footer">
                                 <button id="btn_close" type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
-                                {btn}
+                                <button id="btn_ok" type="button" className="btn btn-success" disabled={parentDisable} onClick={this.onSubmit } >确定</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div aria-hidden="true" aria-labelledby="diaToken" role="dialog" tabIndex="-1" id="diaToken" className="modal fade">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
+                                <h4 className="modal-title">获取Token</h4>
+                            </div>
+                            <div className="modal-body">
+                                <form className="form-horizontal" >
+                                    <label htmlFor="txtTargetHost" >目标服务器</label>
+                                    <input id="txtTargetHost" placeholder="127.0.0.1" type="text" className="form-control"  />
+                                    <label htmlFor="txtToken" >Token</label>
+                                    <input id="txtToken" readOnly="readOnly" type="text" className="form-control" />
+                                </form>
+                            </div>
+                            <div className="modal-footer">
+                                <button id="btn_token_close" type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
+                                <button id="btn_token_ok" type="button" className="btn btn-success" onClick={this.getToken } >确定</button>
                             </div>
                         </div>
                     </div>

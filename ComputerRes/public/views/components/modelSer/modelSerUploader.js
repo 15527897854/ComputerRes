@@ -6,6 +6,7 @@ var React = require('react');
 var Axios = require('axios');
 
 var ModelItemSelect = require('./modelItemSelect');
+var PortalInfo = require('../systemSetting/portalInfo');
 var NoteDialog = require('../../action/utils/noteDialog');
 
 var ModelSerUploader = React.createClass({
@@ -130,6 +131,12 @@ var ModelSerUploader = React.createClass({
                                         <label className="col-md-2 col-sm-2 control-label">版本</label>
                                         <div className="col-md-6 col-sm-6">
                                             <input name="pkg_version" className="form-control" placeholder="模型版本号" id="pkg_version" type="text"/>
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="col-md-2 col-sm-2 control-label">门户信息</label>
+                                        <div className="col-md-6 col-sm-6">
+                                            <PortalInfo />
                                         </div>
                                     </div>
                                     <div className="form-group">

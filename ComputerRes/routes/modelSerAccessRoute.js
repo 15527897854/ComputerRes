@@ -3,7 +3,7 @@
  */
 
 var RouteBase = require('./routeBase');
-
+var GeoDataMid = require('../middlewares/geoDataMid');
 var GeoDataCtrl = require('../control/geoDataControl');
 var ModelSerAccessCtrl = require('../control/modelSerAccessControl');
 
@@ -60,10 +60,20 @@ module.exports = function(app){
             ModelSerAccessCtrl.authPath(path, function(err, result){
                 if(result){
                     if(type == 'stream'){
-                        
+                        GeoDataMid.postStreamData(req, function(err, gdid){
+                            return res.end(JSON.stringify({
+                                res : 'suc',
+                                gd_id : gdid
+                            }));
+                        });
                     }
                     else if(type == 'file'){
-
+                        GeoDataMid.postFileData(req, function(err, gdid){
+                            return res.end(JSON.stringify({
+                                res : 'suc',
+                                gd_id : gdid
+                            }));
+                        });
                     }
                 }
             });

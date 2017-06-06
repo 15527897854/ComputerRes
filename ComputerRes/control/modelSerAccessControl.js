@@ -106,4 +106,48 @@ ModelSerAccessControl.authPath = function(path, callback){
     }
 }
 
-ModelSerAccessControl
+//运行模型
+ModelSerAccessControl.run = function(path, callback){
+    ModelSerAccessModel.getByPath(path, function(err, msa){
+        if(err){
+            return callback(err);
+        }
+        if(msa.times != -1){
+            if(msa.times < 1){
+                return callback(null, {
+                    auth : false,
+                    message : '剩余次数不足!'
+                });
+            }
+            else{
+                msa.times = msa.times - 1;
+            }
+        }
+        if(msa.deadline != null && msa.deadline.trim() != ''){
+            var deadline = new Date(msa.deadline);
+            var date_now = new Data();
+            if(deadline < date_now){
+                return callback(null, {
+                    auth : false,
+                    message : '超过权限时长!'
+                });   
+            }
+        }
+        ModelSerAccessModel.update(msa, function(err, result){
+            if(err){
+                return callback(err);
+            }
+            ModelSerCtrl.getByPID(msa.pid, function(err, ms){
+                if(err){
+                    return callback(err);
+                }
+                ModelSerCtrl.run(ms._id, inputData, outputData, {
+                    u_name : msa.username,
+                    u_type : 1
+                }, function(err, msr){
+                    return callback(null, msr);
+                });
+            });
+        });
+    });
+}

@@ -7,7 +7,7 @@ var http = require('http');
 var crypto = require('crypto');
 var md5 = crypto.createHash('md5');
 var fs = require('fs');
-var ObjectId = require('mongodb').ObjectID;
+var ObjectId = require('mongoose').Types.ObjectId;
 var exec = require('child_process').exec;
 var iconv = require('iconv-lite');
 
@@ -210,7 +210,7 @@ SysControl.loginPortal = function(uname, pwd, callback){
             return callback(null, true);
         }
         else{
-            return callback(null, true);
+            return callback(null, false);
         }
     });
 };
@@ -237,6 +237,48 @@ SysControl.getPortalToken = function(callback){
 SysControl.getPortalUName = function(callback){
     var portalToken = {};
     systemSettingModel.getValueByIndex('portal_uname', this.returnFunction(callback, 'Error in getting portal user name'));
+};
+
+//设置门户用户名密码
+SysControl.setPortalInfo = function(username, pwd, callback){
+    if(ParamCheck.checkParam(callback, username)){
+        if(ParamCheck.checkParam(callback, pwd)){
+            pwd = CommonMethod.decrypto(pwd);
+            SysControl.loginPortal(username, pwd, function(err, result){
+                if(err){
+                    return callhback(err);
+                }
+                if(result){
+                    var ss_uname = {
+                        ss_index : 'portal_uname',
+                        ss_value : username
+                    };
+                    systemSettingModel.setValueByIndex(ss_uname, function(err, result){
+                        if(err){
+                            return callback(err);
+                        }
+                        var ss_pwd = {
+                            ss_index : 'portal_pwd',
+                            ss_value : pwd
+                        };
+                        systemSettingModel.setValueByIndex(ss_pwd, function(err, result){
+                            if(err){
+                                return callback(err);
+                            }
+                            return callback(null, {
+                                result : 'suc'
+                            });
+                        });
+                    });
+                }
+                else{
+                    return callback(null, {
+                        result : 'fail'
+                    });
+                }
+            });
+        }
+    }
 };
 
 //////////////////////////////////分布式网络
@@ -295,6 +337,14 @@ SysControl.checkServer = function(server, callback){
     {
         return callback(result);
     });
+};
+
+//获取Token
+SysControl.getToken = function(ip, callback){
+    if(ParamCheck.checkParam(callback, ip)){
+        var token = CommonMethod.crypto(ip);
+        return callback(null, token);
+    }
 };
 
 //获取设置信息
