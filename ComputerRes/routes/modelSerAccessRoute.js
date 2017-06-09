@@ -6,24 +6,34 @@ var RouteBase = require('./routeBase');
 var GeoDataMid = require('../middlewares/geoDataMid');
 var GeoDataCtrl = require('../control/geoDataControl');
 var ModelSerAccessCtrl = require('../control/modelSerAccessControl');
+var ModelSerCtrl = require('../control/modelSerControl');
 
 module.exports = function(app){
-    //
-    app.route('/fakedir/modelser/:path')
+    //展示某个模型调用界面
+    app.route('/public/modelser/:msid')
         .get(function(req, res, next){
-            var path = req.params.path;
-            if(req.session.user){
-                return res.render('fakeModelSerRunPro', {
-                    path : path
-                });
-            }
-            else{
-                return res.render('fakeLogin');
-            }
+            var msid = req.params.msid;
+            ModelSerCtrl.getByOID(msid, function(err, ms){
+                if(!ms.ms_limit){
+                    return res.render('customModelSerRunPro', {
+                        msid : msid
+                    });
+                }
+                else{
+                    if(req.session.user){
+                        return res.render('customModelSerRunPro', {
+                            msid : msid
+                        });
+                    }
+                    else{
+                        return res.render('customLogin');
+                    }
+                }
+            });
         })
         .post(function(req, res, next){
-            var path = req.params.path;
-            ModelSerAccessCtrl.auth(path, req.body.username, req.body.pwd, function(err, result){
+            var msid = req.params.msid;
+            ModelSerAccessCtrl.auth(msid, req.body.username, req.body.pwd, function(err, result){
                 if(err){
                     return res.end('Error : ' + JSON.stringify(err));
                 }
@@ -37,20 +47,73 @@ module.exports = function(app){
                 }
             });
         });
+
+    //获取全部可用模型
+
+    //// REST API 
+    //// 公开API 模型服务类
     
-    //通过虚拟路径查询模型服务信息
-    app.route('/fakedir/modelser/json/:path')
+    //模型服务信息API
+    app.route('/modelser/json/:msid')
         .get(function(req, res, next){
-            var path = req.params.path;
-            ModelSerAccessCtrl.getModelSerByPath(path, RouteBase.returnFunction(res, 'error in getting modelser info!'));
+            var msid = req.params.msid;
+            if(msid == 'all'){
+                return ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'error in getting all model servicess!'));
+            }
         });
     
-    //通过虚拟路径查询模型服务输入输出信息
-    app.route('/fakedir/modelser/inputdata/json/:path')
+    //模型服务信息API
+    app.route('/modelser/inputdata/json/:msid')
         .get(function(req, res, next){
-            var path = req.params.path;
-            ModelSerAccessCtrl.getModelSerInputDataByPath(path, RouteBase.returnFunction(res, 'error in getting modelser inputdata!'));
+            var msid = req.params.msid;
+            ModelSerCtrl.getInputData(msid, RouteBase.returnFunction(res, 'error in getting input data!'));
         });
+    
+    //// 权限API 模型服务类
+
+    //运行模型服务
+    app.route('/modelser/:msid')
+        .get(function(req, res, next){
+            var ac = req.query.ac;
+            var msid = req.params.msid;
+            var inputData = req.query.inputData;
+            var outputData = req.query.outputData;
+            if(ac == 'run'){
+                //读取输入文件参数
+                var inputData = JSON.parse(req.query.inputdata);
+                var outputData = req.query.outputdata;
+                
+                var user = {
+                    u_name : '[匿名]',
+                    u_type : 2
+                };
+                if(req.session.admin){
+                    user = {
+                        u_name : req.session.admin,
+                        u_type : 0
+                    };
+                }
+                if(req.session.user){
+                    user = {
+                        u_name : req.session.user,
+                        u_type : 1
+                    };
+                }
+
+                ModelSerCtrl.run(msid, inputData, outputData, user, function(err, msr){
+                    return res.end(JSON.stringify({
+                        res : 'suc',
+                        msr_id : msr._id
+                    }));
+                });
+            }
+            else{
+                next();
+            }
+        });
+
+    
+    //// 公开API 数据类
     
     //上传数据
     app.route('/fakedir/data')

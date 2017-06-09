@@ -1139,10 +1139,11 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
 
 //获取某一类别下的所有模型
 ModelSerControl.getCloudModelByCategoryId = function(id, callback){
-    remoteReqCtrl.postRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/ModelItemServlet?nameId=' + id, function(err, items){
+    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/modelItemServlet?uid=' + id + '&page=1&sortType=name', function(err, items){
         if(err){
             return callback(err);
         }
+        items = items.modelItems;
         if(items.length == 0){
             return callback(null, items);
         }

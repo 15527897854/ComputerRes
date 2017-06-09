@@ -9,8 +9,8 @@
     <link rel="stylesheet" type="text/css" href="/js/fuelux/css/tree-style.css" />
 </head>
 <body>
-    <section>
-        <div id="modelserinfo" data-source="/fakedir/modelser/json/<%=path %>" ></div>
+    <div style="background:#eff0f4" >
+        <div id="modelserinfo" data-source="/modelser/json/<%=path %>" ></div>
         <div class="panel panel-info">
             <div class="panel-heading" style="background-color: #5CB85C;border-color: #5CB85C; ">
                 数据输入
@@ -34,7 +34,8 @@
                 </button>
             </div>
         </div>
-    </section>
+    </div>
+
     <%- include footerInclude.ejs %>
 
     <script type="text/javascript" src="/js/jquery.form.js" ></script>
