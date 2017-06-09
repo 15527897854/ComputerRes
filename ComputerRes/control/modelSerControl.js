@@ -1104,9 +1104,10 @@ ModelSerControl.getCategoryById = function(array, id){
     return -1;
 };
 
-//获取某一类别下的所有模型部署包
+//获取某一条目下的所有模型部署包
 ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
-    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetDeployPackageServlet?modelItemId=' + mid, function(err, packages){
+    mid = CommonMethod.Encode64(CommonMethod.Encode64(mid));
+    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetComputerServicesServlet?modelItemId=' + mid, function(err, packages){
         if(err){
             return callback(err);
         }

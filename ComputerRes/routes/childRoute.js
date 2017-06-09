@@ -70,7 +70,7 @@ module.exports = function (app) {
             ChildCtrl.remove(cid, RouteBase.returnFunction(res, 'Error in removing a child node'));
         });
 
-    /////////////////////////////////JSON
+    ///////////////////////////////// JSON
     app.route('/child-node/json/:cid')
         .get(function (req, res, next) {
         var cid = req.params.cid;

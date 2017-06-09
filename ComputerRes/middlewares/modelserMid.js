@@ -6,10 +6,10 @@ var formidable = require('formidable');
 var uuid = require('node-uuid');
 
 var Setting = require('../setting');
+var CommonMethod = require('../utils/commonMethod');
 var FileOpera = require('../utils/fileOpera');
 var ModelSerControl = require('../control/modelSerControl');
 var RemoteReqControl = require('../control/remoteReqControl');
-var Encode64 = require('../lib/key.min');
 var MidBase = require('./midBase');
 
 var ModelSerMid = function () {
@@ -88,10 +88,10 @@ ModelSerMid.NewRmtModelSer = function (req, callback) {
 //下载门户模型包
 ModelSerMid.getCloudPackage = function(fields, pid, callback){
     var fileName = Setting.modelpath + 'tmp/' + pid + '.zip';
-    var portalCrypto = Encode64(Encode64(pid));
+    var portalCryptoPID = CommonMethod.Encode64(CommonMethod.Encode64(pid));
     RemoteReqControl.postDownload('http://' + Setting.portal.host + ':' + Setting.portal.port + '/GeoModeling/DownloadDeployPackageServlet',
         {
-            uid : pid
+            uid : portalCryptoPID
         }, fileName,
         function(){
             fields = JSON.parse(fields);
