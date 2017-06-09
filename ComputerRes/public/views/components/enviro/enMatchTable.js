@@ -135,24 +135,26 @@ var EnMatchTable = React.createClass({
                                 "><i class='fa fa-search'></i></button>";
                         return '';
                     }
-                }, {
-                    id: 'evaluate',
-                    header: 'Evaluate',
-                    width: 120,
-                    css: "tabletree-operate",
-                    editor: 'select',
-                    options: ['未知','匹配','半匹配','不匹配']
-                }];
+                }
+                // , {
+                //     id: 'evaluate',
+                //     header: 'Evaluate',
+                //     width: 120,
+                //     css: "tabletree-operate",
+                //     editor: 'select',
+                //     options: ['未知','匹配','半匹配','不匹配']
+                // }
+                ];
 
                 tabletree = webix.ui({
                     container:self.props.tableID,
                     view:'treetable',
                     columns:columns,
                     pager:{
-                        template:"{common.first()} {common.prev()} {common.pages()} {common.next()} {common.last()}",
+                        template:"{common.page()}/#limit# {common.prev()}{common.next()}",
                         container:pagerID,
-                        size:10,
-                        group:5,
+                        size:1,
+                        group:1,
                         level:1,
                         width:500
                     },
