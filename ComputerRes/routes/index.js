@@ -8,10 +8,13 @@ var geoDataRoute = require('./geoDataRoute');
 var modelInsRoute = require('./modelInstanceRoute');
 var noticeRoute = require('./noticeRoute');
 var childRoute = require('./childRoute');
+var ModelSerAccessRoute = require('./modelSerAccessRoute');
 
 var sysCtrl = require('../control/sysControl');
+var AuthCtrl = require('../control/authControl')
 var ModelSerCtrl = require('../control/modelSerControl');
 var setting = require('../setting');
+var CommonMethod = require('../utils/commonMethod');
 
 module.exports = function(app)
 {
@@ -20,55 +23,45 @@ module.exports = function(app)
             res.end('OK');
         });
 
+    ModelSerAccessRoute(app);
+    
     app.route('*')
         .get(function(req, res, next){
-            if(setting.auth){
-                if(req.originalUrl == '/login'){
+            var code = AuthCtrl.getAuth(req);
+            switch(code){
+                case 1:{
                     next();
+                    break;
                 }
-                else{
+                case -1:{
                     return res.redirect('/login');
                 }
+                case -2:{
+                    return res.end(JSON.stringify({
+                        result : 'fail',
+                        message : 'auth failed'
+                    }));
+                }
             }
-            else{
-                next();
+        })
+        .post(function(req, res, next){
+            var code = AuthCtrl.postAuth(req);
+            switch(code){
+                case 1:{
+                    next();
+                    break;
+                }
+                case -1:{
+                    res.redirect('login');
+                }
+                case -2:{
+                    res.end(JSON.stringify({
+                        result : 'fail',
+                        message : 'auth failed'
+                    }));
+                }
             }
         });
-
-    // // 未登录只能访问登录和注册页面,已登录不能访问这两个页面
-    // app.route('*')
-    //     .get(function checkLoginStatus(req, res, next) {
-    //         if(setting.debug) {
-    //             return next();
-    //         }
-    //         for(var i = 0; i < setting.parent.length; i++)
-    //         {
-    //             if(req._remoteAddress.indexOf(setting.parent[i]) != -1)
-    //             {
-    //                 return next();
-    //             }
-    //         }
-    //         // console.log('all route +++++++++++++++++++++++++++++++++++ req url:'+req.url);
-    //         // console.log('------------------session-------------------\n'+JSON.stringify(req.session.user)+'---'+typeof(req.session.user));
-    //         if(req.session.user){
-    //             if(req.url != '/login' && req.url.split('/')[1] != 'resetpwd'){
-    //                 next();
-    //             }
-    //             else {
-    //                 // console.log('----------------------------------------------'+req.url);
-    //                 res.redirect('/index');
-    //             }
-    //         }
-    //         else {
-    //             if(req.url == '/login'){
-    //                 // console.log('----------------------------------------------'+req.url);
-    //                 next();
-    //             }
-    //             else {
-    //                 res.redirect('/login');
-    //             }
-    //         }
-    //     });
 
     //use route for systemsetting
     sysRoute(app);
@@ -122,6 +115,7 @@ module.exports = function(app)
     //Test
     app.route('/test')
         .get(function (req, res, next) {
+            
             res.render('test');
         });
 };

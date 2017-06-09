@@ -531,6 +531,7 @@
                                     clearInterval(interval);
                                     var descript = jsItem.msr.msr_des.replace(/\r\n/g, '<br />');
                                     descript = descript.replace(/\\r\\n/g, '<br />');
+                                    descript = descript.replace(/\\n/g, '<br />');
                                     descript = descript.replace(/\"/g, '');
                                     descript = descript.replace(/Stand Output Message :/g, '<span class="label label-info" >模型程序标准输出</span><br />');
                                     descript = descript.replace(/Stand Error Message :/g, '<span class="label label-warning" >模型程序错误信息</span><br />');

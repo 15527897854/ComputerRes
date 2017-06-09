@@ -59,7 +59,7 @@ module.exports = function(app)
                 SysControl.resetParent(host, RouteBase.returnFunction(res, 'Error in resetting parent!'));
             }
             else{
-                SysControl.setParent(host + ':' + port, RouteBase.returnFunction(res, 'Error in updating parent!'));
+                SysControl.setParent(host, port, RouteBase.returnFunction(res, 'Error in updating parent!'));
             }
         });
 
@@ -212,16 +212,66 @@ module.exports = function(app)
             res.render('login')
         })
         .post(function(req, res, next){
-            SysControl.adminLogin(req.body.adminname, req.body.adminpwd, RouteBase.returnFunction(res, 'Error in admin login!'));
+            SysControl.adminLogin(req.body.adminname, req.body.adminpwd, function(err, result){
+                if(err){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : JSON.stringify(err)
+                    }));
+                }
+                if(result){
+                    req.session.admin = true;
+                    return res.end(JSON.stringify({
+                        result : 'suc',
+                        data : true
+                    }));
+                }
+                else{
+                    return res.end(JSON.stringify({
+                        result : 'suc',
+                        data : false
+                    }));
+                }
+            });
         });
-
-    //获取门户用户名信息
+    
+    //获取、设置门户用户名信息
     app.route('/json/portalinfo')
         .get(function(req, res, next){
             SysControl.getPortalUName(RouteBase.returnFunction(res, 'Error in getting portal name!', 'ss_value'));
+        })
+        .put(function(req, res, next){
+            var portalname = req.query.portalname;
+            var portalpwd = req.query.portalpwd;
+            SysControl.setPortalInfo(portalname, portalpwd, function(err, result){
+                if(err){
+                    return res.end(JSON.stringify({
+                        result : 'err',
+                        message : err
+                    }));
+                }
+                if(result.result == 'suc'){
+                    return res.end(JSON.stringify({
+                        result : 'suc',
+                        data : '1'
+                    }));
+                }
+                else{
+                    return res.end(JSON.stringify({
+                        result : 'fail',
+                        data : '0'
+                    }));
+                }
+            });
         });
     //管理员页面渲染
     app.route('/admininfo')
         .get(function(req, res, next){
             res.render('userinfo');
-        });};
+        });
+    //获取IPToken
+    app.route('/token')
+        .get(function(req, res, next){
+            SysControl.getToken(req.query.ip, RouteBase.returnFunction(res, 'Error in getting token!'));
+        });
+};

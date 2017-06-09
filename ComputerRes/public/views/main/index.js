@@ -14,10 +14,10 @@ var CloudModelSerTable = require('../components/modelSer/cloudModelSerTable');
 var DataCollectionTable = require('../components/data/dataCollectionTable');
 var DataPreparation = require('../components/data/dataPreparation');
 var ModelSerUploader = require('../components/modelSer/modelSerUploader');
-var UserInfo = require('../components/systemSetting/userInfo');
-var LoginPanel = require('../components/systemSetting/loginPanel');
 var EnviroPanel = require('../components/enviro/enviroPanel');
 var EnMatchPanel = require('../components/enviro/enMatchPanel');
+var UserInfo = require('../components/systemSetting/userInfo');
+var LoginPanel = require('../components/systemSetting/loginPanel');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(

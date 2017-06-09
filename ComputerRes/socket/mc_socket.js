@@ -60,64 +60,64 @@ function SocketTrans(app)
 
         // 为这个socket实例添加一个"close"事件处理函数
         socket.on('close', function(data) {
-            if(!setting.debug)
-            {
-                mi = app.modelInsColl.getBySocekt(socket);
-                ModelSerRunCtrl.getByGUID(mi.guid, function (err,msr) {
-                    var finished = false;
-                    if(mi.state == 'MC_EXIT' || mi.state == 'MC_RESPONSE')
+            //找到对应的内存对象
+            mi = app.modelInsColl.getBySocekt(socket);
+            ModelSerRunCtrl.getByGUID(mi.guid, function (err,msr) {
+                if(err)
+                {
+                    console.log('Error in finding MSR when socket closed!');
+                }
+                if(msr == null)
+                {
+                    console.log('Can not find MSR when socket closed!');
+                    return ;
+                }
+                //判断是否结束
+                var finished = false;
+                if(mi.state == 'MC_EXIT' || mi.state == 'MC_RESPONSE')
+                {
+                    finished = true;
+                }
+                //计算时间
+                var date_now = new Date();
+                var data_begin = new Date(msr.msr_date);
+                var time_span = date_now.getTime() - data_begin.getTime();
+                time_span = time_span / 1000;
+                msr.msr_time = time_span;
+                if(finished)
+                {
+                    msr.msr_status = 1;
+                }
+                else
+                {
+                    msr.msr_status = -1;
+                }
+                ModelSerRunCtrl.update(msr, function (err2, data) {
+                    if(err2)
                     {
-                        finished = true;
+                        return console.log('Error in removing modelIns and updating MSR');
                     }
-                    if(msr == null)
-                    {
-                        return ;
-                    }
-                    var date_now = new Date();
-                    if(msr != null)
-                    {
-                        var data_begin = new Date(msr.msr_date);
-                        var time_span = date_now.getTime() - data_begin.getTime();
-                        time_span = time_span / 1000;
-                        msr.msr_time = time_span;
-                        if(finished)
-                        {
-                            msr.msr_status = 1;
-                        }
-                        else
-                        {
-                            msr.msr_status = -1;
-                        }
-                        ModelSerRunCtrl.update(msr, function (err2, data) {
-                            if(err2)
-                            {
-                                return console.log('Error in removing modelIns and updating MSR');
-                            }
 
-                            //移除该实例
-                            app.modelInsColl.removeBySocekt(socket);
-                            if(err)
-                            {
-                                return console.log('Error in removing modelIns and finding MSR');
-                            }
-
-                            //通知消息数据
-                            var noticeData = {
-                                time:new Date(),
-                                title:msr.msr_ms.ms_model.m_name + '停止运行！',
-                                detail:'',
-                                type:'stop-run',
-                                hasRead:false
-                            };
-                            NoticeCtrl.save(noticeData,function (err, data) {
-                                if(err){
-                                    return console.log('Error in addNotice');
-                                }
-                            });
-                        });
+                    if(!setting.debug){
+                        //移除该实例
+                        app.modelInsColl.removeBySocekt(socket);
                     }
+
+                    //通知消息数据
+                    var noticeData = {
+                        time : new Date(),
+                        title : msr.msr_ms.ms_model.m_name + '停止运行！',
+                        detail : '',
+                        type : 'stop-run',
+                        hasRead : false
+                    };
+                    NoticeCtrl.save(noticeData,function (err, data) {
+                        if(err){
+                            return console.log('Error in addNotice');
+                        }
+                    });
                 });
-            }
+            });
             console.log('CLOSED: ' + socket.remoteAddress + ' ' + socket.remotePort);
         });
 

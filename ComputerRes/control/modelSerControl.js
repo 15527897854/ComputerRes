@@ -851,7 +851,7 @@ ModelSerControl.getCloudModelPackageByMid = function (mid, callback) {
 
         for (var i = 0; i < packages.length; i++) {
             if(packages[i].id && packages[i].id != '')
-            ModelSerModel.getByPid(packages[i].id, pending(i));
+                ModelSerModel.getByPid(packages[i].id, pending(i));
         }
     });
 };

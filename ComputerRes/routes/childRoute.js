@@ -3,12 +3,12 @@
  */
 var ChildCtrl = require('../control/childControl');
 var RouteBase = require('./routeBase');
+var CommonMethod = require('../utils/commonMethod');
 
 module.exports = function (app) {
     app.route('/child-node')
         .post(function(req, res, next){
-            var host = req.connection.remoteAddress;
-            host = host.substr(host.lastIndexOf(':') + 1);
+            var host = CommonMethod.getIP(req);
 
             if(req.body.platform == undefined || req.body.port == undefined){
                 return res.end(JSON.stringify({
@@ -18,12 +18,13 @@ module.exports = function (app) {
             }
             var port = req.body.port;
             var platform = req.body.platform;
+            var access_token = req.body.access_token;
             ChildCtrl.AddNewChild({
                 host : host,
                 port : port,
                 platform : platform,
                 accepted : false,
-                access_token : ''
+                access_token : access_token
             },RouteBase.returnFunction(res, 'error in adding new child!'));
         });
 
@@ -57,7 +58,7 @@ module.exports = function (app) {
                   }
               });
           }
-      })
+        })
         .put(function (req, res, next){
             var cid = req.params.cid;
             if(req.query.ac == 'accept'){
@@ -69,7 +70,7 @@ module.exports = function (app) {
             ChildCtrl.remove(cid, RouteBase.returnFunction(res, 'Error in removing a child node'));
         });
 
-    /////////////////////////////////JSON
+    ///////////////////////////////// JSON
     app.route('/child-node/json/:cid')
         .get(function (req, res, next) {
         var cid = req.params.cid;
