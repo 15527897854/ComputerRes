@@ -5,7 +5,7 @@
 var React = require('react');
 var Axios = require('axios');
 
-// var Crypto = require('../../action/utils/crypto');
+var Crypto = require('../../action/utils/crypto');
 
 var LoginPanel = React.createClass({
 

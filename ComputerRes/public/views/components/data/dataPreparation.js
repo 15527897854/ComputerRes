@@ -136,6 +136,8 @@ var DataPreparation = React.createClass({
                 var dataSelect = null;
                 var optional = null;
                 var dataReady = null;
+                var dataType = 'SELECT';
+                if(this.props['data-type'] == ''){}
                 if(Event.$.type == 'response'){
                     dataSelect = (<DataUpLoader data-id={State.$.id + '_' + Event.$.name}
                                                 data-type="SELECT"

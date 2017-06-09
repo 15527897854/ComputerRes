@@ -55,22 +55,65 @@ CommonMethod.compress = function(file, path){
 };
 
 //加密
-CommonMethod.crypto = function(buffer){
+CommonMethod.crypto = function(buffer, key){
+    if(key == null || key == undefined){
+        key = settings.crypto.key;
+    }
     var encrypted = "";
-    var cip = crypto.createCipher(settings.crypto.algorithm, settings.crypto.key);
+    var cip = crypto.createCipher(settings.crypto.algorithm, key);
     encrypted += cip.update(buffer, 'binary', 'hex');
     encrypted += cip.final('hex');
     return encrypted;
 };
 
 //解密
-CommonMethod.decrypto = function(buffer){
-    var decrypted = "";
-    var decipher = crypto.createDecipher(settings.crypto.algorithm, settings.crypto.key);
-    decrypted += decipher.update(buffer, 'hex', 'binary');
-    decrypted += decipher.final('binary');
-    return decrypted;
+CommonMethod.decrypto = function(buffer, key){
+    if(key == null || key == undefined){
+        key = settings.crypto.key;
+    }
+    try{
+        var decrypted = "";
+        var decipher = crypto.createDecipher(settings.crypto.algorithm, key);
+        decrypted += decipher.update(buffer, 'hex', 'binary');
+        decrypted += decipher.final('binary');
+        return decrypted;
+    }
+    catch(ex){
+        return "";
+    }
 };
+
+//获取MD5值
+CommonMethod.md5 = function(buffer){
+    return crypto.createHash('md5').update(buffer).digest('hex');
+};
+
+//Encode64加密
+CommonMethod.Encode64 = function(a){
+    var keyStr = "ABCDEFGHIJKLMNOP" + "QRSTUVWXYZabcdef" + "ghijklmnopqrstuv" + "wxyz0123456789+/" + "=";
+    var b = "";
+    var c, chr2, chr3 = "";
+    var d, enc2, enc3, enc4 = "";
+    var i = 0;
+    do {
+        c = a.charCodeAt(i++);
+        chr2 = a.charCodeAt(i++);
+        chr3 = a.charCodeAt(i++);
+        d = c >> 2;
+        enc2 = ((c & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+        if (isNaN(chr2)) {
+            enc3 = enc4 = 64
+        } else if (isNaN(chr3)) {
+            enc4 = 64
+        };
+        b = b + keyStr.charAt(d) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
+        c = chr2 = chr3 = "";
+        d = enc2 = enc3 = enc4 = ""
+    } while (i < a.length);
+    return b;
+}
 
 //启动一个Nodejs进程去执行JS文件 -- 一般用于高IO处理
 CommonMethod.childProcess = function(file, callback){
@@ -108,6 +151,22 @@ CommonMethod.getPort = function (cb) {
         cb(port);
     });
 };
+CommonMethod.getIP = function(request){
+    var host = request.connection.remoteAddress;
+    host = host.substr(host.lastIndexOf(':') + 1);
+    if(host == "1"){
+        host = "127.0.0.1";
+    }
+    return host;
+};
 
-
+//数组包含
+CommonMethod.array_contain = function(array, obj){
+    for(var i = 0; i < array.length; i++){
+        if(array[i] == obj){
+            return true;
+        }
+    }
+    return false;
+};
 module.exports = CommonMethod;

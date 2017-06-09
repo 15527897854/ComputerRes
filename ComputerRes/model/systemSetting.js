@@ -51,7 +51,7 @@ SystemSetting.getValueByIndex = function(ss_index, callback) {
         }
         data = JSON.parse(JSON.stringify(data));
         return callback(null, data);
-        });
+    });
 };
 
 SystemSetting.setValueByIndex = function(item, callback) {

@@ -105,7 +105,7 @@ var SystemSetting = React.createClass({
         return (
             <div className="wrapper">
                 <p><strong>当前版本&nbsp;:&nbsp;</strong><span>v{this.state.data.version}</span> </p>
-                <p><strong>计算机资源OID&nbsp;:&nbsp;</strong><span>v{this.state.data.oid}</span> </p>
+                <p><strong>计算机资源OID&nbsp;:&nbsp;</strong><span>{this.state.data.oid}</span> </p>
                 <p><strong>开放端口&nbsp;:&nbsp;</strong><span>{this.state.data.port}</span> </p>
                 <p><strong>平台&nbsp;:&nbsp;</strong><span>{platform}</span> </p>
                 <p><strong>模型信息库&nbsp;:&nbsp;</strong><span>数据库名称&nbsp;:&nbsp;{this.state.data.mongodb.name}&nbsp;服务器&nbsp;:&nbsp;{this.state.data.mongodb.host}&nbsp;端口&nbsp;:&nbsp;{this.state.data.mongodb.port}</span> </p>

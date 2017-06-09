@@ -134,7 +134,7 @@ ChildCtrl.remove = function(oid, callback){
         if(err){
             return callback(err);
         }
-        RemoteRequestControl.putRequestJSON('http://' + child.host + ':' + child.port + '/parent?ac=reset', function(){});
+        RemoteRequestControl.putRequestJSON('http://' + child.host + ':' + child.port + '/parent?ac=reset&token=' + child.access_token, function(){});
         Child.delete(oid, function(err, result){
             if(err){
                 return callback(err);

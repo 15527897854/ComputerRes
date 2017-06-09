@@ -31,7 +31,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   secret:'wfsiudhjkfhoihiewhrlkjflkjasd',
-  cookie:{maxAge : 3600000},
+  cookie:{maxAge : 3600000 * 2},
   resave:false,
   saveUninitialized: true
 }));
@@ -89,7 +89,12 @@ if(settings.debug)
   var mis = {
     guid : settings.debugGUID,
     socket : null,
-    ms : null,
+    ms : {
+      ms_model : {
+        m_name : '测试模型'
+      },
+      mv_num : 'v0.1'
+    },
     start : date.toLocaleString(),
     state : 'MC_READY'
   };

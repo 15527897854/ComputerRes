@@ -189,15 +189,15 @@ var RmtModelSerTable = React.createClass({
                     var platform;
                     if(item.ms_platform == 1)
                     {
-                        platform = (<span className="label label-info"><i className="fa fa-windows"> </i>windows</span>);
+                        platform = (<span className="label label-info"><i className="fa fa-windows"> </i> windows</span>);
                     }
                     else if(item.ms_platform == 2)
                     {
-                        platform = (<span className="label label-info"><i className="fa fa-linux"> </i>linux</span>);
+                        platform = (<span className="label label-info"><i className="fa fa-linux"> </i> linux</span>);
                     }
                     else
                     {
-                        platform = (<span className="label label-info">Unknown</span>);
+                        platform = (<span className="label label-info"> Unknown</span>);
                     }
                     var status;
                     var button;
@@ -256,11 +256,11 @@ var RmtModelSerTable = React.createClass({
                 var platform;
                 if(item.ms_platform == 1)
                 {
-                    platform = (<span className="label label-info"><i className="fa fa-windows"> </i>windows</span>);
+                    platform = (<span className="label label-info"><i className="fa fa-windows"> </i> windows</span>);
                 }
                 else if(item.ms_platform == 2)
                 {
-                    platform = (<span className="label label-info"><i className="fa fa-linux"> </i>linux</span>);
+                    platform = (<span className="label label-info"><i className="fa fa-linux"> </i> linux</span>);
                 }
                 else
                 {

@@ -103,7 +103,7 @@ GeoDataCtrl.getRmtData = function(req, host, gdid, callback){
                 }
                 if(ParamCheck.checkParam(callback, child))
                 {
-                    RemoteReqControl.getRequest(req, 'http://' + child.host + ':' + child.port + '/geodata/' + gdid, function(err, data){
+                    RemoteReqControl.getRequest(req, 'http://' + child.host + ':' + child.port + '/geodata/' + gdid + '?token=' + child.access_token, function(err, data){
                         if(err)
                         {
                             return callback(err);
@@ -127,7 +127,7 @@ GeoDataCtrl.getAllRmtData = function(host, callback){
             }
             if(ParamCheck.checkParam(callback, child))
             {
-                RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/geodata/json/all', function(err, data){
+                RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/geodata/json/all?token=' + child.access_token, function(err, data){
                     if(err)
                     {
                         return callback(err);
@@ -150,7 +150,7 @@ GeoDataCtrl.postRmtData = function(req, host, callback){
             }
             if(ParamCheck.checkParam(callback, child))
             {
-                RemoteReqControl.postRequest(req, 'http://' + child.host + ':' + child.port + '/geodata', function(err, data){
+                RemoteReqControl.postRequest(req, 'http://' + child.host + ':' + child.port + '/geodata?token=' + child.access_token, function(err, data){
                     if(err)
                     {
                         return callback(err);
@@ -161,3 +161,33 @@ GeoDataCtrl.postRmtData = function(req, host, callback){
         });
     }
 };
+
+//上传数据流数据
+GeoDataCtrl.addStreamData = function(gdid, gdtag, data, callback){
+    
+    //存入数据库
+    var geodata = {
+        gd_id : gdid,
+        gd_tag : gdtag,
+        gd_type : 'STREAM',
+        gd_value : data
+    };
+
+    //添加记录
+    GeoDataCtrl.addData(geodata, function (err, blsuc) {
+        if(err)
+        {
+            return res.end('Error : ' + err)
+        }
+        return res.end(JSON.stringify(
+            {
+                res : 'suc',
+                gd_id : gdid
+            }));
+    });
+};
+
+//上传文件数据
+GeoDataCtrl.addFileData = function(){
+    
+}

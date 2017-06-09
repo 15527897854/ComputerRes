@@ -27,3 +27,8 @@ redis.conf
 /ComputerRes/helper/dxdiagn.dll
 /ComputerRes/helper/dxdiagn.dll.mui
 /ComputerRes/helper/dxdiag.exe
+/ComputerRes/typings
+/ComputerRes/typings.json
+/ComputerRes/jsconfig.json
+/ComputerRes/softwareEnviro.txt
+/ComputerRes/.vscode

@@ -4,6 +4,7 @@
 var React = require('react');
 var Axios = require('axios');
 
+var NoteDialog = require('../../action/utils/noteDialog');
 var DataSelectTabel = require('./dataSelectTable');
 
 var DataUploader = React.createClass({
@@ -15,6 +16,10 @@ var DataUploader = React.createClass({
             fileUrl = '/geodata/file/' + this.props['data-host'];
             streamUrl = '/geodata/stream/' + this.props['data-host'];
             selectUrl = '/geodata/rmt/json/all/' + this.props['data-host'];
+        }
+        if(this.props['data-type'] == 'custom'){
+            fileUrl = '/fakedir/data?type=file';
+            streamUrl = '/fakedir/data?type=stream';
         }
         var id = '';
         if(this.props['data-id']){
@@ -86,7 +91,7 @@ var DataUploader = React.createClass({
                 data => {
                     if(data.data.res == 'suc'){
                         this.state.gdid = data.data.gd_id;
-                        this.onUploadStreamFinished();
+                        this.onUploadStreamFinished(data.data.gd_id);
                     }
                 },
                 err => {}
@@ -110,8 +115,8 @@ var DataUploader = React.createClass({
         }
     },
 
-    onUploadStreamFinished : function() {
-        alert('数据上传成功！');
+    onUploadStreamFinished : function(gdid) {
+        NoteDialog.openNoteDia('数据上传成功！', '数据ID : ' + gdid);
         $('#dataInputModel' + this.state.id).modal('hide');
         $('#dataInputTag_' + this.state.id).val('');
         $('#dataInput_' + this.state.id).val('');
@@ -122,10 +127,10 @@ var DataUploader = React.createClass({
         var resJson = JSON.parse(data);
         if(resJson.res == 'suc')
         {
-            alert('数据上传成功！');
             $('#fileuploaderTag_' + this.state.id).val('');
             $('#dataFileModel' + this.state.id).modal('hide');
             this.state.gdid = resJson.gd_id;
+            NoteDialog.openNoteDia('数据上传成功！', '数据ID : ' + resJson.gd_id);
             this.onFinished();
         }
         this.state.uploader.reset();

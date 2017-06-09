@@ -7,7 +7,7 @@ var http = require('http');
 var crypto = require('crypto');
 var md5 = crypto.createHash('md5');
 var fs = require('fs');
-var ObjectId = require('mongodb').ObjectID;
+var ObjectId = require('mongoose').Types.ObjectId;
 var exec = require('child_process').exec;
 var iconv = require('iconv-lite');
 
@@ -210,7 +210,7 @@ SysControl.loginPortal = function(uname, pwd, callback){
             return callback(null, true);
         }
         else{
-            return callback(null, true);
+            return callback(null, false);
         }
     });
 };
@@ -239,6 +239,48 @@ SysControl.getPortalUName = function(callback){
     systemSettingModel.getValueByIndex('portal_uname', this.returnFunction(callback, 'Error in getting portal user name'));
 };
 
+//设置门户用户名密码
+SysControl.setPortalInfo = function(username, pwd, callback){
+    if(ParamCheck.checkParam(callback, username)){
+        if(ParamCheck.checkParam(callback, pwd)){
+            pwd = CommonMethod.decrypto(pwd);
+            SysControl.loginPortal(username, pwd, function(err, result){
+                if(err){
+                    return callhback(err);
+                }
+                if(result){
+                    var ss_uname = {
+                        ss_index : 'portal_uname',
+                        ss_value : username
+                    };
+                    systemSettingModel.setValueByIndex(ss_uname, function(err, result){
+                        if(err){
+                            return callback(err);
+                        }
+                        var ss_pwd = {
+                            ss_index : 'portal_pwd',
+                            ss_value : pwd
+                        };
+                        systemSettingModel.setValueByIndex(ss_pwd, function(err, result){
+                            if(err){
+                                return callback(err);
+                            }
+                            return callback(null, {
+                                result : 'suc'
+                            });
+                        });
+                    });
+                }
+                else{
+                    return callback(null, {
+                        result : 'fail'
+                    });
+                }
+            });
+        }
+    }
+};
+
 //////////////////////////////////分布式网络
 //获取父节点
 SysControl.getParent = function(callback){
@@ -246,7 +288,8 @@ SysControl.getParent = function(callback){
 };
 
 //设置父节点
-SysControl.setParent = function(newparent, callback){
+SysControl.setParent = function(host, port, callback){
+    var newparent = host + ':' + port;
     systemSettingModel.getValueByIndex('parent', function(err, parent){
         if(err)
         {
@@ -258,9 +301,11 @@ SysControl.setParent = function(newparent, callback){
             {
                 return callback(err);
             }
+            var access_token = CommonMethod.crypto(host);
             RemoteControl.postRequestJSONWithForm('http://' + parent.ss_value + '/child-node', {
                 port : setting.port,
-                platform : setting.platform
+                platform : setting.platform,
+                access_token : access_token
             }, this.returnFunction(callback, 'error in post child'));
         }.bind(this));
     }.bind(this));
@@ -292,6 +337,14 @@ SysControl.checkServer = function(server, callback){
     {
         return callback(result);
     });
+};
+
+//获取Token
+SysControl.getToken = function(ip, callback){
+    if(ParamCheck.checkParam(callback, ip)){
+        var token = CommonMethod.crypto(ip);
+        return callback(null, token);
+    }
 };
 
 //获取设置信息
@@ -544,7 +597,7 @@ SysControl.adminLogin = function(adminName, pwd, callback){
                         return callback(err);
                     }
                     pwd = CommonMethod.decrypto(pwd);
-                    var pwd_md5 = crypto.createHash('md5').update(pwd).digest('hex');
+                    var pwd_md5 = CommonMethod.md5(pwd)
                     if(pwd_md5 == ss.ss_value){
                         return callback(null, true)
                     }

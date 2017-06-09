@@ -113,7 +113,14 @@ namespace ComputerResourceConsole.control
 
         public void OpenHelpPage()
         {
-            Process.Start(System.AppDomain.CurrentDomain.BaseDirectory + "/help/help.html");
+            try
+            {
+                Process.Start(System.AppDomain.CurrentDomain.BaseDirectory + "/help/help.html");
+            }
+            catch(Exception ex)
+            {
+                
+            }
         }
     }
 }
