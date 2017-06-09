@@ -126,6 +126,7 @@ softwareEnCtrl.addByAuto = function (itemsID,callback) {
                         var name = item.name.trim();
                         item.name = name.replace(/\s+/g,' ');
                         item.alias = [];
+                        item.platform = item.name.indexOf('x64')!=-1?'x64':(item.name.indexOf('x86')!=-1?'x86':'');
                         items2add.push(item);
                         break;
                     }
@@ -237,12 +238,14 @@ softwareEnCtrl.ensMatched = function (demands,callback) {
             var unSatisfiedList = [];
             for(var i=0;i<demands.length;i++){
                 var name = demands[i].name.trim();
-                name = name.replace(/\s+/g,' ');
+                name = name.replace(/\s+/g,' ').toLowerCase();
                 var isSatisfied = false;
+                var detail = {};
                 for(var j=0;j<swes.length;j++){
                     var index = -1;
                     if(swes[j].name.toLowerCase() == name){
-                        index = j;
+                        if(demands[i].platform &&　demands[i].platform != '')
+                            index = j;
                     }
                     else{
                         for(var k=0;k<swes[j].alias.length;k++){
@@ -252,17 +255,43 @@ softwareEnCtrl.ensMatched = function (demands,callback) {
                             }
                         }
                     }
+                    
                     if(index != -1){
-                        //判断版本
-                        if(versionCtrl.rangeMatch(swes[j].version, demands[i].version)){
-                            isSatisfied = true;
-                            break;
+                        detail.name = true;
+                        //判断版本和平台
+                        if(demands[i].platform &&　demands[i].platform != '') {
+                            detail.platform = swes[index].platform.toLowerCase() == demands[i].platform.toLowerCase();
                         }
+                        else{
+                            detail.platform = true;
+                        }
+                        var rangeRst = versionCtrl.rangeMatch(swes[j].version, demands[i].version);
+                        detail.valid = rangeRst.isValidRange;
+                        detail.version = rangeRst.isSatisfied;
+                        if(rangeRst.isSatisfied)
+                            break;
                     }
                 }
-                if(!isSatisfied){
-                    unSatisfiedList.push(demands);
+                demands[i].detail = detail;
+                if(detail.name && detail.version && detail.platform && detail.valid){
+
                 }
+                else{
+                    unSatisfiedList.push(demands[i]);
+                }
+                // if(!isSatisfied){
+                //     if(versionCtrl.rangeValid(demands[i].version).isValid){
+                //         demands[i].detail = {};
+                //         demands[i].detail.isValidRange = true;
+                //         demands[i].detail.isSatisfied = false;
+                //     }
+                //     else{
+                //         demands[i].detail = {};
+                //         demands[i].detail.isValidRange = false;
+                //         demands[i].detail.isSatisfied = true;
+                //     }
+                //     unSatisfiedList.push(demands[i]);
+                // }
             }
             return callback(JSON.stringify({status:1,unSatisfiedList:unSatisfiedList}));
         }

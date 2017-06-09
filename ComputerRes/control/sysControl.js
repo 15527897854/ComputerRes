@@ -384,26 +384,14 @@ SysControl.autoDetectSW = function (callback) {
                         var swlist = [];
                         for(var i=0;i<strswlist.length;i++){
                             var swItemKV = strswlist[i].split('[\t\t]');
-                            var strheader = 'OPERATE SYSTEM:';
-                            var index = swItemKV[1].indexOf(strheader);
-                            if(index!=-1){
-                                swlist.push({
-                                    _id:swItemKV[0],
-                                    name:swItemKV[1].substr(strheader.length),
-                                    version:os.release(),
-                                    publisher:'',
-                                    type:'OS'
-                                });
-                            }
-                            else{
-                                swlist.push({
-                                    _id:swItemKV[0],
-                                    name:swItemKV[1],
-                                    version:swItemKV[2],
-                                    publisher:swItemKV[3],
-                                    type:swItemKV[4]
-                                });
-                            }
+                            swlist.push({
+                                _id:swItemKV[0],
+                                name:swItemKV[1],
+                                version:swItemKV[2],
+                                publisher:swItemKV[3],
+                                platform:swItemKV[1].indexOf('x64')!=-1?'x64':(swItemKV[1].indexOf('x86')!=-1?'x86':''),
+                                type:swItemKV[4]
+                            });
                         }
                         
                         callback(null,swlist);
@@ -453,7 +441,7 @@ SysControl.autoDetectHW = function (callback) {
             array.pop();
             array.pop();
             array.shift();
-            var i,j,totle = 0;
+            var i,j,totle = 0,avail = 0;
             for(i=0;i<array.length;i++){
                 var space = array[i].split(" ");
                 var ele = [];
@@ -464,11 +452,18 @@ SysControl.autoDetectHW = function (callback) {
                 }
                 if(ele[1])
                     totle += ele[1];
+                if(ele[0])
+                    avail += ele[0];
             }
             hweList.push({
                 _id:new ObjectId(),
-                name:'hardware size',
+                name:'disk total size',
                 value:Math.floor(totle/1024/1024/1024) + ' GB'
+            });
+            hweList.push({
+                _id:new ObjectId(),
+                name:'disk avail size',
+                value:Math.floor(avail/1024/1024/1024) + ' GB'
             });
             fs.writeFile(__dirname + '/../helper/hardwareEnviro.txt',JSON.stringify(hweList),function (err) {
                 if(err){

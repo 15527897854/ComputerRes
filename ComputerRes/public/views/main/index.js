@@ -119,6 +119,9 @@ if(document.getElementById('enviro-section') != null){
         title:'type',
         type:'string'
     },{
+        title:'platform',
+        type:'string'
+    },{
         title:'alias',
         type:'Array'
     }];

@@ -213,18 +213,24 @@ hardwareEnCtrl.ensMatched = function (demands, callback) {
         else {
             var unSatisfiedList = [];
             for(var i=0;i<demands.length;i++){
+                var index = -1;
                 for(var j=0;j<hwes.length;j++){
                     var demandName = demands[i].name;
                     demandName = demandName.replace(/\s+/g,' ');
                     demandName = demandName.trim();
                     if(demandName.toLowerCase() == hwes[j].name){
-                        var matchRst = hardwareEnCtrl.rangeMatch(hwes[j].value,demands[i].value);
-                        if(!matchRst.isValidRange || !matchRst.isSatisfied){
-                            demands[i].detail = matchRst;
-                            unSatisfiedList.push(demands[i]);
-                        }
+                        index = j;
                         break;
                     }
+                }
+                var matchRst = hardwareEnCtrl.rangeMatch(hwes[j].value,demands[i].value);
+                demands[i].detail = {
+                    name:index!=-1,
+                    value:matchRst.isSatisfied,
+                    valid:matchRst.isValidRange
+                };
+                if(!matchRst.isValidRange || !matchRst.isSatisfied){
+                    unSatisfiedList.push(demands[i]);
                 }
             }
             return callback(JSON.stringify({status:1,unSatisfiedList:unSatisfiedList}));
@@ -237,112 +243,6 @@ hardwareEnCtrl.ensMatched = function (demands, callback) {
 //只支持数字形式的比较
 //支持的比较符有：区间 * ！
 //v1表示是原有的，v2表示是需求
-
-hardwareEnCtrl.valueMatch = function (v1,comparator,v2) {
-    v1 = v1.trim();
-    v2 = v2.trim();
-    v1 = v1.replace(/\s+/g,' ');
-    v2 = v2.replace(/\s+/g,' ');
-    if(v1 == '0'){
-        if(comparator == 'lt' || comparator == 'lte')
-            return true;
-    }
-    else if(v1 == 'infinite'){
-        if(comparator == 'gt' || comparator == 'gte')
-            return true;
-    }
-
-    var value1 = parseFloat(v1);
-    var value2 = parseFloat(v2);
-    if(isNaN(value1) || isNaN(value2))
-        return false;
-    
-    //TODO 对单位的处理
-    var unit1 = v1.substr(value1.toString().length).trim().toUpperCase();
-    var unit2 = v2.substr(value2.toString().length).trim().toUpperCase();
-    
-    if(unit1){
-        if(!unit2)
-            return false;
-        else{
-            if( unit1 == 'B' || unit1 == 'KB' || unit1 == 'MB' ||　unit1 == 'GB' || unit1 == 'TB'){
-                if(unit1 != unit2)
-                    value1 = convert(value1).from(unit1).to(unit2);
-            }
-            else if(unit1.indexOf('HZ') != -1 && unit2.indexOf('HZ') != -1){
-                switch (unit1){
-                    case 'KHZ':
-                        value1 *= 1000;
-                        break;
-                    case 'MHZ':
-                        value1 *= 1000000;
-                        break;
-                    case 'GHZ':
-                        value1 *= 1000000000;
-                        break;
-                    case 'THZ':
-                        value1 *= 1000000000000;
-                        break;
-                }
-                switch (unit2){
-                    case 'KHZ':
-                        value2 *= 1000;
-                        break;
-                    case 'MHZ':
-                        value2 *= 1000000;
-                        break;
-                    case 'GHZ':
-                        value2 *= 1000000000;
-                        break;
-                    case 'THZ':
-                        value2 *= 1000000000000;
-                        break;
-                }
-            }
-        }
-    }
-    
-    switch(comparator){
-        case 'eq':
-            return value1 == value2;
-        case 'ne':
-            return value1 != value2;
-        case 'gt':
-            return value1 > value2;
-        case 'lt':
-            return value1 < value2;
-        case 'gte':
-            return value1 >= value2;
-        case 'lte':
-            return value1 <= value2;
-    }
-};
-
-hardwareEnCtrl.rangeValid = function (range) {
-    var rst = {
-        isValid : false,
-        childRanges : []
-    };
-    var childRanges = [];
-    
-    var regObj = new RegExp(/\s*((\.?\w+\.?\s*)+)\s*|\s*\*\s*|\s*!\s*((\.?\w+\.?\s*)+)\s*|\s*\(\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\)\s*|\s*\[\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\]\s*|\s*\[\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\)\s*|\s*\(\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\]\s*/g);
-    var group = [];
-    while (group = regObj.exec(range)){
-        childRanges.push(group[0]);
-    }
-    for(var i=0;i<childRanges.length;i++){
-        range = range.replace(childRanges[i],true);
-    }
-    try {
-        range = eval(range);
-        rst.isValid = true;
-        rst.childRanges = childRanges;
-    }
-    catch(e){
-        rst.isValid = false;
-    }
-    return rst;
-};
 
 hardwareEnCtrl.rangeMatch = function (value, range) {
     var satisfiesRst = {};
@@ -402,4 +302,112 @@ hardwareEnCtrl.rangeMatchBase = function (value, range) {
     }
     else
         return false;
+};
+
+hardwareEnCtrl.valueMatch = function (v1,comparator,v2) {
+    v1 = v1.trim();
+    v2 = v2.trim();
+    v1 = v1.replace(/\s+/g,' ');
+    v2 = v2.replace(/\s+/g,' ');
+    if(v1 == '0'){
+        if(comparator == 'lt' || comparator == 'lte')
+            return true;
+    }
+    else if(v1 == 'infinite'){
+        if(comparator == 'gt' || comparator == 'gte')
+            return true;
+    }
+
+    var value1 = parseFloat(v1);
+    var value2 = parseFloat(v2);
+    if(isNaN(value1) || isNaN(value2))
+        return false;
+
+    // 对单位的处理
+    var unit1 = v1.substr(value1.toString().length).trim().toUpperCase();
+    var unit2 = v2.substr(value2.toString().length).trim().toUpperCase();
+
+    if(unit1){
+        if(!unit2)
+            return false;
+        else{
+            if( unit1 == 'B' || unit1 == 'KB' || unit1 == 'MB' ||　unit1 == 'GB' || unit1 == 'TB'){
+                if(unit1 != unit2)
+                    value1 = convert(value1).from(unit1).to(unit2);
+            }
+            else if(unit1.indexOf('HZ') != -1 && unit2.indexOf('HZ') != -1){
+                switch (unit1){
+                    case 'KHZ':
+                        value1 *= 1000;
+                        break;
+                    case 'MHZ':
+                        value1 *= 1000000;
+                        break;
+                    case 'GHZ':
+                        value1 *= 1000000000;
+                        break;
+                    case 'THZ':
+                        value1 *= 1000000000000;
+                        break;
+                }
+                switch (unit2){
+                    case 'KHZ':
+                        value2 *= 1000;
+                        break;
+                    case 'MHZ':
+                        value2 *= 1000000;
+                        break;
+                    case 'GHZ':
+                        value2 *= 1000000000;
+                        break;
+                    case 'THZ':
+                        value2 *= 1000000000000;
+                        break;
+                }
+            }
+        }
+    }
+
+    switch(comparator){
+        case 'eq':
+            return value1 == value2;
+        case 'ne':
+            return value1 != value2;
+        case 'gt':
+            return value1 > value2;
+        case 'lt':
+            return value1 < value2;
+        case 'gte':
+            return value1 >= value2;
+        case 'lte':
+            return value1 <= value2;
+    }
+};
+
+hardwareEnCtrl.rangeValid = function (range) {
+    var rst = {
+        isValid : false,
+        childRanges : []
+    };
+    var childRanges = [];
+
+
+    // var regObj = new RegExp(/\s*((\.?\w+\.?\s*)+)\s*|\s*\*\s*|\s*!\s*((\.?\w+\.?\s*)+)\s*|\s*\(\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\)\s*|\s*\[\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\]\s*|\s*\[\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\)\s*|\s*\(\s*((\.?\w+\.?\s*)+)\s*,\s*((\.?\w+\.?\s*)+)\s*\]\s*/g);
+    var regObj = new RegExp(/\s*\*\s*|\s*\!?\s*((\.?\w+\.?\s*)+)\s*|\s*(\(|\[)\s*\s*\!?\s*((\.?\w+\.?\s*)+)\s*\s*,\s*\s*\!?\s*((\.?\w+\.?\s*)+)\s*\s*(\)|\])\s*/g);
+    var group = [];
+    while (group = regObj.exec(range)){
+        childRanges.push(group[0]);
+    }
+    for(var i=0;i<childRanges.length;i++){
+        range = range.replace(childRanges[i],true);
+    }
+    try {
+        range = eval(range);
+        rst.isValid = true;
+        rst.childRanges = childRanges;
+    }
+    catch(e){
+        rst.isValid = false;
+    }
+    return rst;
 };

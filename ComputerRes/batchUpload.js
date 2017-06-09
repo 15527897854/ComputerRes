@@ -44,7 +44,7 @@ fs.readFile(__dirname + '/upload/dps.json', 'utf-8', function(err, data){
             file_model : {
                 path : __dirname + '/upload/' + data[i].fileName,
                 ms_img : null
-            },
+            }
         }, penging(i)
         );
     }

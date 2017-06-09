@@ -27,8 +27,10 @@ var SystemCtrl = require('./sysControl');
 var batchDeployCtrl = require('./batchDeploy');
 var ModelSerRunCtrl = require('./modelSerRunControl');
 var NoticeCtrl = require('../control/noticeCtrl');
-
-var ModelSerControl = function () {};
+var SWECtrl = require('./softwareEnCtrl');
+var HWECtrl = require('./hardwareEnCtrl');
+var ModelSerControl = function () {
+};
 ModelSerControl.__proto__ = ControlBase;
 ModelSerControl.model = ModelSerModel;
 
@@ -49,22 +51,18 @@ ModelSerControl.getChildModelSer = function(callback){
 
         var pending = (function (pcallback) {
             var count = 0;
-            return function(index)
-            {
+            return function (index) {
                 count ++;
                 return function (err, data) {
                     count --;
-                    if(err)
-                    {
+                    if (err) {
                         children[index].ping = 'err';
                     }
-                    else
-                    {
+                    else {
                         children[index].ping = 'suc';
                         children[index].ms = data;
                     }
-                    if(count == 0)
-                    {
+                    if (count == 0) {
                         pcallback();
                     }
                 }
@@ -84,8 +82,7 @@ ModelSerControl.getChildModelSer = function(callback){
 //查询子节点的所有模型服务运行实例
 ModelSerControl.getAllRmtMis = function (headers, callback) {
     Child.getAllAvai(function (err, children) {
-        if(err)
-        {
+        if (err) {
             return callback(err);
         }
 
@@ -93,20 +90,17 @@ ModelSerControl.getAllRmtMis = function (headers, callback) {
             count++;
             return function (err, mis) {
                 count --;
-                if(!err)
-                {
+                if (!err) {
                     children[i].mis = mis;
                 }
-                if(count == 0)
-                {
+                if (count == 0) {
                     return callback(null, children[i]);
                 }
             }
         });
 
         var count = 0;
-        for(var i = 0; i < children.length; i++)
-        {
+        for (var i = 0; i < children.length; i++) {
             remoteReqCtrl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelins/json/all?token=' + children[i].access_token, pending(i));
         }
     });
@@ -114,13 +108,10 @@ ModelSerControl.getAllRmtMis = function (headers, callback) {
 
 //查询某个子节点某个模型服务运行实例
 ModelSerControl.getRmtMis = function(host, guid, callback){
-    if(ParamCheck.checkParam(callback, host))
-    {
-        if(ParamCheck.checkParam(callback, guid))
-        {
+    if (ParamCheck.checkParam(callback, host)) {
+        if (ParamCheck.checkParam(callback, guid)) {
             Child.getByHost(host, function (err, child) {
-                if(err)
-                {
+                if (err) {
                     return callback(err);
                 }
                 if(ParamCheck.checkParam(callback, child)) {
@@ -136,8 +127,7 @@ ModelSerControl.getRmtModelSer = function (host, msid, callback) {
     if(ParamCheck.checkParam(callback, host)){
         if(ParamCheck.checkParam(callback, msid)){
             Child.getByHost(host, function (err, child) {
-                if(err)
-                {
+                if (err) {
                     return callback(err);
                 }
                 remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/' + msid + '?token=' + child.access_token, this.returnFunction(callback, "error in get rmt model service"));
@@ -151,8 +141,7 @@ ModelSerControl.startRmtModelSer = function (host, msid, callback) {
     if(ParamCheck.checkParam(callback, host)){
         if(ParamCheck.checkParam(callback, msid)){
             Child.getByHost(host, function (err, child) {
-                if(err)
-                {
+                if (err) {
                     return callback(err);
                 }
                 remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=start&token=' + child.access_token, this.returnFunction(callback, "error in get rmt model service"));
@@ -163,13 +152,10 @@ ModelSerControl.startRmtModelSer = function (host, msid, callback) {
 
 //关闭远程模型
 ModelSerControl.stopRmtModelSer = function (host, msid, callback) {
-    if(ParamCheck.checkParam(callback, host))
-    {
-        if(ParamCheck.checkParam(callback, msid))
-        {
+    if (ParamCheck.checkParam(callback, host)) {
+        if (ParamCheck.checkParam(callback, msid)) {
             Child.getByHost(host, function (err, child) {
-                if(err)
-                {
+                if (err) {
                     return callback(err);
                 }
                 remoteReqCtrl.putRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=stop&token=' + child.access_token, this.returnFunction(callback, "error in get rmt model service"));
@@ -180,17 +166,13 @@ ModelSerControl.stopRmtModelSer = function (host, msid, callback) {
 
 //获取远程模型输入信息
 ModelSerControl.getRmtInputDate = function (host, msid, callback) {
-    if(ParamCheck.checkParam(callback, host))
-    {
-        if(ParamCheck.checkParam(callback, msid))
-        {
+    if (ParamCheck.checkParam(callback, host)) {
+        if (ParamCheck.checkParam(callback, msid)) {
             Child.getByHost(host, function (err, child) {
-                if(err)
-                {
+                if (err) {
                     return callback(err);
                 }
-                if(ParamCheck.checkParam(callback, child))
-                {
+                if (ParamCheck.checkParam(callback, child)) {
                     remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/inputdata/json/' + msid + '?token=' + child.access_token , this.returnFunction(callback, "error in get input data of rmt model service"));
                 }
             }.bind(this));
@@ -200,22 +182,23 @@ ModelSerControl.getRmtInputDate = function (host, msid, callback) {
 
 //运行远程模型
 ModelSerControl.runRmtModelSer = function(host, msid, inputdata, outputdata, callback){
-    if(ParamCheck.checkParam(callback, host))
-    {
-        if(ParamCheck.checkParam(callback, host))
-        {
+    if (ParamCheck.checkParam(callback, host)) {
+        if (ParamCheck.checkParam(callback, host)) {
             Child.getByHost(host, function(err, child){
-                if(err)
-                {
+                if (err) {
                     return callback(err);
                 }
-                if(ParamCheck.checkParam(callback, child))
-                {
-                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata + '&token=' + child.access_token, function(err, data)
-                    {
-                        if(err)
-                        {
-                            return callback(err);
+							if(ParamCheck.checkParam(callback, child))
+			                {
+			                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata + '&token=' + child.access_token, function(err, data)
+			                    {
+			                        if(err)
+			                        {
+			                            return callback(err);
+			                        }
+			                        return callback(null, data);
+			                    });
+			                }                            return callback(err);
                         }
                         return callback(null, data);
                     });
@@ -227,13 +210,10 @@ ModelSerControl.runRmtModelSer = function(host, msid, inputdata, outputdata, cal
 
 //删除远程模型服务
 ModelSerControl.deleteRmtModelSer = function(host, msid, callback) {
-    if(ParamCheck.checkParam(callback, host))
-    {
-        if(ParamCheck.checkParam(callback, msid))
-        {
+    if (ParamCheck.checkParam(callback, host)) {
+        if (ParamCheck.checkParam(callback, msid)) {
             Child.getByHost(host, function (err, child) {
-                if(err)
-                {
+                if (err) {
                     return callback(err);
                 }
                 remoteReqCtrl.deleteRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?token=' + child.access_token, this.returnFunction(callback, "error in get input data of rmt model service"));
@@ -244,11 +224,9 @@ ModelSerControl.deleteRmtModelSer = function(host, msid, callback) {
 
 //远程上传模型
 ModelSerControl.postRmtModelSer = function(req, host, callback){
-    if(ParamCheck.checkParam(callback, host))
-    {
+    if (ParamCheck.checkParam(callback, host)) {
         Child.getByHost(host, function (err, child) {
-            if(err)
-            {
+            if (err) {
                 return callback(err);
             }
             remoteReqCtrl.postRequest(req, 'http://' + child.host + ':' + child.port + '/modelser/' + req.sessionID + '?token=' + child.access_token, this.returnFunction(callback, "error in get input data of rmt model service"));
@@ -258,13 +236,10 @@ ModelSerControl.postRmtModelSer = function(req, host, callback){
 
 //远程查看图像
 ModelSerControl.getRmtImg = function(host, imgname, res, callback){
-    if(ParamCheck.checkParam(callback, host))
-    {
-        if(ParamCheck.checkParam(callback, imgname))
-        {
+    if (ParamCheck.checkParam(callback, host)) {
+        if (ParamCheck.checkParam(callback, imgname)) {
             Child.getByHost(host, function(err, child){
-                if(err)
-                {
+                if (err) {
                     return callback(err);
                 }
                 remoteReqCtrl.getRequestPipe(res, 'http://' + child.host + ':' + child.port + '/images/modelImg/' + imgname);
@@ -388,13 +363,11 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
     var date = new Date();
     var img = null;
     if(files.ms_img) {
-        if(files.ms_img.size != 0)
-        {
+        if (files.ms_img.size != 0) {
             img = uuid.v1() + path.extname(files.ms_img.path);
             fs.renameSync(files.ms_img.path, setting.modelpath + '../public/images/modelImg/' + img);
         }
-        else
-        {
+        else {
             FileOpera.rmdir(files.ms_img.path);
         }
     }
@@ -457,6 +430,7 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                                 m_name:fields.m_name,
                                 m_type:fields.m_type,
                                 m_url:fields.m_url,
+                            p_id : md5_value
                                 p_id : md5_value,
                                 m_id : mid
                             }, fields.m_model_append),
@@ -499,178 +473,12 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
 
 //////////////////////////////////////////////////////////////////////////
 //批量部署
-
-// //在batchDeploy数据库中添加条目
-// ModelSerControl.addBatchDeployItemsByCfg = function (configPath) {
-//     var geoModelPath = setting.modelpath;
-//     var batch_path = path.relative(path.dirname(configPath),geoModelPath);
-//     fs.stat(configPath,function (err, stat) {
-//         if(err){
-//             if(err.code == 'ENOENT'){
-//                 return console.log('Error in addByBatch: can\'t open config file!');
-//             }
-//             else{
-//                 return console.log('Error in addByBatch: system error, please try again later!');
-//             }
-//         }
-//         else if(stat){
-//             fs.readFile(configPath,function (err, configInfo) {
-//                 if(err){
-//                     return console.log('Error in addByBatch: can\'t open config file!')
-//                 }
-//                 try{
-//                     configInfo = JSON.parse(iconv.decode(configInfo,'gbk'));
-//                 }
-//                 catch (e){
-//                     return console.log(e);
-//                 }
-//
-//                 var msInfos = configInfo.msInfos;
-//                 batchDeployCtrl.getByWhere({batch_path:batch_path},function (err, bds) {
-//                     if(err){
-//                         return console.log('Error in addByBatch: mongodb query failed');
-//                     }
-//                     if(bds.length != msInfos.length){
-//                         for(var i=0;i<msInfos.length;i++){
-//                             var hasInserted = false;
-//                             for(var j=0;j<bds.length;j++){
-//                                 if(msInfos[i].zip_path == bds[j].zip_path){
-//                                     hasInserted = true;
-//                                     break;
-//                                 }
-//                             }
-//                             if(!hasInserted){
-//                                 var ms_info = msInfos[i];
-//                                 ms_info.ms_user = configInfo.ms_user;
-//                                 ms_info.ms_status = 1;
-//                                 ms_info.ms_limited = 0;
-//                                 ms_info.ms_xml = null;
-//                                 ms_info.ms_img = null;
-//                                 ms_info.ms_platform = setting.platform;
-//                                 ms_info.testify = [];
-//                                 ms_info._id = new ObjectId();
-//                                 ms_info.ms_update = (new Date()).toLocaleString();
-//                                 ms_info.ms_path = ms_info._id.toString() + '/';
-//
-//                                 var newBD = {
-//                                     _id:new ObjectId(),
-//                                     batch_path:batch_path,
-//                                     zip_path:msInfos[i].zip_path,
-//                                     ms_info:ms_info,
-//                                     rst:{
-//                                         err_type:-1,
-//                                         validate_detail:{}
-//                                     }
-//                                 };
-//                                 delete msInfos[i].zip_path;
-//                                 delete newBD.ms_info.zip_path;
-//                                 batchDeployCtrl.save(newBD,function (err, saveRst) {
-//                                     if(err){
-//                                         return console.log('Error in addByBatch: mongodb save failed!');
-//                                     }
-//                                     else{
-//
-//                                     }
-//                                 });
-//                             }
-//                         }
-//                     }
-//                 });
-//             })
-//         }
-//         else{
-//             return console.log('Error in addByBatch: config file don\'t exist!')
-//         }
-//     });
-// };
-//
-// //批量部署
-// //需要一个配置文件
-// ModelSerControl.batchDeployByCfg = function (batch_path) {
-//     var where = {
-//         batch_path:batch_path,
-//         'rst.err_type':{'$ne':0}
-//     };
-//     batchDeployCtrl.getByWhere(where,function (err, bds) {
-//         for(var i=0;i<bds.length;i++){
-//             ModelSerControl.deployOneByCfg(bds[i]);
-//         }
-//     })
-// };
-//
-// ModelSerControl.deployOneByCfg = function (bdItem) {
-//     var basePath = setting.modelpath;
-//     var zip_path = path.join(basePath,bdItem.batch_path,bdItem.zip_path);
-//     var model_path = path.join(basePath,bdItem.ms_info._id.toString());
-//     //解压
-//     CommonMethod.Uncompress(zip_path, model_path, function(){
-//         ModelSerControl.validate(zip_path,function (rst){
-//             if(rst.status == 0){
-//                 //删除文件和文件夹
-//                 FileOpera.rmdir(zip_path);
-//                 FileOpera.rmdir(model_path);
-//                 bdItem.rst.err_type = 1;
-//             }
-//             else if(rst.isValidate == false){
-//                 //删除文件和文件夹
-//                 FileOpera.rmdir(zip_path);
-//                 FileOpera.rmdir(model_path);
-//                 bdItem.rst.err_type = 2;
-//                 delete rst.status;
-//                 delete rst.isValidate;
-//                 bdItem.rst.validate_detail = rst;
-//             }
-//             else{
-//                 bdItem.rst.err_type = 0;
-//                 //添加默认测试数据，不用异步请求，两者不相关
-//                 ModelSerControl.addDefaultTestify(itemID.toString());
-//                 //添加模型运行文件权限
-//                 if(setting.platform == 2) {
-//                     //
-//                     ModelSerModel.readCfgBypath(model_path + 'package.config', function (err, cfg) {
-//                         if(err) {
-//
-//                         }
-//                         else
-//                         {
-//                             FileOpera.chmod(model_path + cfg.start, 'exec');
-//                         }
-//                     });
-//                 }
-//                 //转移模型包
-//                 fs.rename(zip_path, setting.modelpath + 'packages/' + itemID.toString() + '.zip', function(err){
-//                     if(err){
-//                         console.log('err in moving package!');
-//                     }
-//                 });
-//             }
-//             //保存
-//             ModelSerControl.update(bdItem,function (err, data) {
-//                 if(err){
-//                     return console.log(err);
-//                 }
-//                 else if(bdItem.rst.err_type == 0 ){
-//                     var ms = new ModelSerModel(bdItem.ms_info);
-//                     ModelSerModel.save(ms,function (err, data) {
-//                         if(err){
-//                             return console.log(err);
-//                         }
-//                         else{
-//                             console.log('---------------------------------Success---------------------------------')
-//                         }
-//                     });
-//                 }
-//             })
-//         });
-//     });
-// };
-
-ModelSerControl.addBatchDeployItemsByMDL = function (ms_user,zip_path) {
+ModelSerControl.addBatchDeployItemsByMDL = function (ms_user, zip_path, isLocal) {
     var batch_path = path.relative(setting.modelpath,zip_path) + '\\';
     FileOpera.getAllFiles(zip_path,'.zip',function (files) {
         var addOne = function (i) {
             if(i == files.length){
-                return ModelSerControl.batchDeployByMDL(batch_path);
+                return ModelSerControl.batchDeployByMDL(batch_path, isLocal);
         }
             var batchItem = {
                 batch_path:batch_path,
@@ -710,14 +518,14 @@ ModelSerControl.addBatchDeployItemsByMDL = function (ms_user,zip_path) {
     })
 };
 
-ModelSerControl.batchDeployByMDL = function (batch_path) {
+ModelSerControl.batchDeployByMDL = function (batch_path, isLocal) {
     var where = {
         batch_path:batch_path,
         deployed:false
     };
     batchDeployCtrl.getByWhere(where,function (err, bds) {
         var deployOne = function (i) {
-            ModelSerControl.deployOneByMDL(bds[i],function (err) {
+            ModelSerControl.deployOneByMDL(bds[i], isLocal, function (err) {
                 if(err){
                     console.log('deploy ' + i + ' failed!');
         }
@@ -735,7 +543,7 @@ ModelSerControl.batchDeployByMDL = function (batch_path) {
 
 //通过mdl部署
 //流程：解压  读config  读mdl  组织modelservice  移动package文件  更新deployItem  更新modelservice中的m_id
-ModelSerControl.deployOneByMDL = function (bdItem,callback) {
+ModelSerControl.deployOneByMDL = function (bdItem, isLocal, callback) {
     var msID = new ObjectId();
     var zip_path = path.join(setting.modelpath, bdItem.batch_path, bdItem.zip_path);
     var model_path = path.join(setting.modelpath , msID.toString()) + '\\';
@@ -796,6 +604,23 @@ ModelSerControl.deployOneByMDL = function (bdItem,callback) {
                                         return callback(err);
                                     }
                                     else{
+                                        if (isLocal) {
+                                            bdItem.deployed = true;
+                                            batchDeployCtrl.update(bdItem, function (err, data) {
+                                                if (err) {
+                                                    console.log(err);
+                                                    return callback(err)
+                                                }
+                                                else {
+                                                    //添加默认测试数据，不用异步请求，两者不相关
+                                                    ModelSerControl.addDefaultTestify(msItem._id.toString());
+                                                    //转移模型包
+                                                    FileOpera.copyFile(zip_path, setting.modelpath + 'packages/' + msID.toString() + '.zip');
+                                                    callback(null);
+                                                }
+                                            });
+                                        }
+                                        else {
                                         var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/DeploymentPackageHandleServlet?uid=' + strMD5;
                                         remoteReqCtrl.getByServer(url,{},function (err, res) {
                                             if(err){
@@ -830,6 +655,7 @@ ModelSerControl.deployOneByMDL = function (bdItem,callback) {
                                             }
                                         });
                                     }
+                                    }
                                 });
                             }
                         });
@@ -845,14 +671,12 @@ ModelSerControl.deployOneByMDL = function (bdItem,callback) {
 ModelSerControl.deleteToTrush = function (_oid, callback) {
     var oid = _oid;
     ModelSerModel.getByOID(_oid, function (err, item) {
-        if(err)
-        {
+        if (err) {
             return callback(err);
         }
         item.ms_status = -1;
         ModelSerModel.update(item, function (err, mess) {
-            if(err)
-            {
+            if (err) {
                 return callback(err);
             }
             //删除文件
@@ -866,10 +690,8 @@ ModelSerControl.deleteToTrush = function (_oid, callback) {
 
 //根据OID查询模型服务信息
 ModelSerControl.getByOID = function(msid, callback){
-    ModelSerModel.getByOID(msid,function(err, data)
-    {
-        if(err)
-        {
+    ModelSerModel.getByOID(msid, function (err, data) {
+        if (err) {
             return callback(err);
         }
         return callback(null, data);
@@ -888,17 +710,14 @@ ModelSerControl.getByPID = function(mid, callback){
 
 //更新模型服务信息
 ModelSerControl.update = function(ms, user, callback){
-    ModelSerModel.update(ms, function(err, data)
-    {
-        if(err)
-        {
+    ModelSerModel.update(ms, function (err, data) {
+        if (err) {
             return callback(err);
         }
         return callback(null, data);
     });
 };
 
-//开启运行实例
 ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
     function run_next(){
         //生成唯一字符串GUID
@@ -934,6 +753,8 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                 if(err) {
                     return res.end('Error : ' + err);
                 }
+        if(ms.ms_status != 1)
+        {
 
                 if(ms.ms_status != 1)
                 {
@@ -942,6 +763,7 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                         Message : 'Service is not available'
                     });
                 }
+        ModelSerModel.run(ms_id, guid, function (err, stdout, stderr) {
                 ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
                     ModelSerRunModel.getByGUID(guid, function (err2, item) {
                         if(err2)
@@ -987,6 +809,7 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                     {
                         return callback(err);
                     }
+            return callback(null, ms);
                     //绑定内存实例的ms属性
                     app.modelInsColl.bindMs(guid, ms);
 
@@ -1118,6 +941,13 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
         var pending = function(index){
             count ++;
             return function(err, ms){
+                //此处对模型的软硬件环境进行检测
+                ModelSerControl.getMatchedByPid(packages[index].id,function (err, rst) {
+                    if(err){
+                        return callback(err);
+                    }
+                    else{
+                        packages[index].enviro = rst;
                 if(ms.length != 0){
                     packages[index]['pulled'] = true;
                     packages[index]['ms_id'] = ms[0]._id;
@@ -1130,12 +960,66 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
                     return callback(null, packages);
                 }
             }
+                });
+            }
         };
 
         for(var i = 0; i < packages.length; i++){
+            if(packages[i].id && packages[i].id != '')
             ModelSerModel.getByPid(packages[i].id, pending(i));
         }
     });
+};
+
+ModelSerControl.getMatchedByPid = function (pid, callback) {
+    var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
+    remoteReqCtrl.getByServer(url,null,function (err, res) {
+        if(err){
+            return callback(err);
+        }
+        else{
+            res = JSON.parse(res);
+            if(res.error && res.error != ''){
+                return callback('err on portal server!');
+            }
+            else if(res.result && res.result != ''){
+                ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
+                    if(err){
+                        return callback(err);
+                    }
+                    else{
+                        var softDemands = [],hardDemands = [];
+                        var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
+                        var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;
+                        if(hardJSON == undefined)
+                            hardJSON = [];
+                        if(softJSON == undefined)
+                            softJSON = [];
+                        for(var i=0;i<hardJSON.length;i++){
+                            hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
+                        }
+                        for(var j=0;j<softJSON.length;j++){
+                            softDemands.push({
+                                name:softJSON[j].$.name,
+                                platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
+                                version:softJSON[j]._
+                            });
+                        }
+                        var matchedRst = {};
+                        SWECtrl.ensMatched(softDemands,function (rst) {
+                            rst = JSON.parse(rst);
+                            matchedRst.swe = rst;
+                            HWECtrl.ensMatched(hardDemands,function (rst) {
+                                rst = JSON.parse(rst);
+                                matchedRst.hwe = rst;
+                                callback(null,matchedRst);
+                            })
+                        })
+                    }
+                });
+            }
+        }
+    })
 };
 
 //获取某一类别下的所有模型
@@ -1297,72 +1181,52 @@ ModelSerControl.getMIDByPID = function(pid, callback){
 //得到初始输入数据
 ModelSerControl.getInputData = function (ms_id, callback) {
     ModelSerModel.getByOID(ms_id, function (err, ms) {
-        if(err)
-        {
+        if (err) {
             return callback(err);
         }
         ModelSerModel.readMDL(ms, function (err, mdl) {
-            if(err)
-            {
+            if (err) {
                 return callback(err);
             }
-            try
-            {
+            try {
                 var dataDecs = null;
-                if(mdl.ModelClass.Behavior.RelatedDatasets != null)
-                {
+                if (mdl.ModelClass.Behavior.RelatedDatasets != null) {
                     dataDecs = mdl.ModelClass.Behavior.RelatedDatasets.DatasetItem;
                 }
-                else if(mdl.ModelClass.Behavior.DatasetDeclarations != null)
-                {
+                else if (mdl.ModelClass.Behavior.DatasetDeclarations != null) {
                     dataDecs = mdl.ModelClass.Behavior.DatasetDeclarations.DatasetDeclaration;
                 }
                 var state = mdl.ModelClass.Behavior.StateGroup.States.State;
-                if(state instanceof Array)
-                {
-                    for(var k = 0; k < state.length; k++)
-                    {
-                        for(var i = 0; i < state[k].Event.length; i++)
-                        {
+                if (state instanceof Array) {
+                    for (var k = 0; k < state.length; k++) {
+                        for (var i = 0; i < state[k].Event.length; i++) {
                             for(var j = 0; j < dataDecs.length; j++) {
-                                if(state[k].Event[i].hasOwnProperty('ResponseParameter'))
-                                {
-                                    if (state[k].Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name)
-                                    {
-                                        if(dataDecs[j].UDXDeclaration)
-                                        {
+                                if (state[k].Event[i].hasOwnProperty('ResponseParameter')) {
+                                    if (state[k].Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name) {
+                                        if (dataDecs[j].UDXDeclaration) {
                                             state[k].Event[i].UDXDeclaration = dataDecs[j];
                                         }
-                                        else if(dataDecs[j].UdxDeclaration)
-                                        {
+                                        else if (dataDecs[j].UdxDeclaration) {
                                             state[k].Event[i].UDXDeclaration = dataDecs[j];
                                         }
                                     }
                                 }
-                                else if(state[k].Event[i].hasOwnProperty('DispatchParameter'))
-                                {
-                                    if (state[k].Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name)
-                                    {
-                                        if(dataDecs[j].UDXDeclaration)
-                                        {
+                                else if (state[k].Event[i].hasOwnProperty('DispatchParameter')) {
+                                    if (state[k].Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name) {
+                                        if (dataDecs[j].UDXDeclaration) {
                                             state[k].Event[i].UDXDeclaration = dataDecs[j];
                                         }
-                                        else if(dataDecs[j].UdxDeclaration)
-                                        {
+                                        else if (dataDecs[j].UdxDeclaration) {
                                             state[k].Event[i].UDXDeclaration = dataDecs[j];
                                         }
                                     }
                                 }
-                                else if(state[k].Event[i].hasOwnProperty('ControlParameter'))
-                                {
-                                    if (state[k].Event[i].ControlParameter.$.datasetReference == dataDecs[j].$.name)
-                                    {
-                                        if(dataDecs[j].UDXDeclaration)
-                                        {
+                                else if (state[k].Event[i].hasOwnProperty('ControlParameter')) {
+                                    if (state[k].Event[i].ControlParameter.$.datasetReference == dataDecs[j].$.name) {
+                                        if (dataDecs[j].UDXDeclaration) {
                                             state[k].Event[i].UDXDeclaration = dataDecs[j];
                                         }
-                                        else if(dataDecs[j].UdxDeclaration)
-                                        {
+                                        else if (dataDecs[j].UdxDeclaration) {
                                             state[k].Event[i].UDXDeclaration = dataDecs[j];
                                         }
                                     }
@@ -1372,49 +1236,35 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                     }
                     return callback(null, state);
                 }
-                else
-                {
-                    for(var i = 0; i < state.Event.length; i++)
-                    {
+                else {
+                    for (var i = 0; i < state.Event.length; i++) {
                         for(var j = 0; j < dataDecs.length; j++) {
-                            if(state.Event[i].hasOwnProperty('ResponseParameter'))
-                            {
-                                if (state.Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name)
-                                {
-                                    if(dataDecs[j].UDXDeclaration)
-                                    {
+                            if (state.Event[i].hasOwnProperty('ResponseParameter')) {
+                                if (state.Event[i].ResponseParameter.$.datasetReference == dataDecs[j].$.name) {
+                                    if (dataDecs[j].UDXDeclaration) {
                                         state.Event[i].UDXDeclaration = dataDecs[j];
                                     }
-                                    else if(dataDecs[j].UdxDeclaration)
-                                    {
+                                    else if (dataDecs[j].UdxDeclaration) {
                                         state.Event[i].UDXDeclaration = dataDecs[j];
                                     }
                                 }
                             }
-                            else if(state.Event[i].hasOwnProperty('DispatchParameter'))
-                            {
-                                if (state.Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name)
-                                {
-                                    if(dataDecs[j].UDXDeclaration)
-                                    {
+                            else if (state.Event[i].hasOwnProperty('DispatchParameter')) {
+                                if (state.Event[i].DispatchParameter.$.datasetReference == dataDecs[j].$.name) {
+                                    if (dataDecs[j].UDXDeclaration) {
                                         state.Event[i].UDXDeclaration = dataDecs[j];
                                     }
-                                    else if(dataDecs[j].UdxDeclaration)
-                                    {
+                                    else if (dataDecs[j].UdxDeclaration) {
                                         state.Event[i].UDXDeclaration = dataDecs[j];
                                     }
                                 }
                             }
-                            else if(state.Event[i].hasOwnProperty('ControlParameter'))
-                            {
-                                if (state.Event[i].ControlParameter.$.datasetReference == dataDecs[j].$.name)
-                                {
-                                    if(dataDecs[j].UDXDeclaration)
-                                    {
+                            else if (state.Event[i].hasOwnProperty('ControlParameter')) {
+                                if (state.Event[i].ControlParameter.$.datasetReference == dataDecs[j].$.name) {
+                                    if (dataDecs[j].UDXDeclaration) {
                                         state.Event[i].UDXDeclaration = dataDecs[j];
                                     }
-                                    else if(dataDecs[j].UdxDeclaration)
-                                    {
+                                    else if (dataDecs[j].UdxDeclaration) {
                                         state.Event[i].UDXDeclaration = dataDecs[j];
                                     }
                                 }
@@ -1425,8 +1275,7 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                     return callback(null, arr);
                 }
             }
-            catch (newerr)
-            {
+            catch (newerr) {
                 console.log('Error in data makeup ; ' + newerr);
                 return  callback(newerr);
             }
@@ -1440,6 +1289,17 @@ ModelSerControl.readMDLByPath = function (path, callback) {
             return callback(err);
         }
         return callback(null,data);
+    })
+};
+
+ModelSerControl.parseMDLStr = function (mdlStr, callback) {
+    ModelSerModel.parseMDLStr(mdlStr,function (err, json) {
+        if(err){
+            return callback(err);
+        }
+        else{
+            return callback(null,json);
+        }
     })
 };
 
@@ -1462,23 +1322,13 @@ ModelSerControl.readCfgBypath = function (path, callback) {
 };
 
 ModelSerControl.getRmtPreparationData = function(host, msid, callback){
-    if(ParamCheck.checkParam(callback, host))
-    {
-        if(ParamCheck.checkParam(callback, msid))
-        {
-            Child.getByHost(host, function(err, child)
-            {
-                if(err)
-                {
+    if (ParamCheck.checkParam(callback, host)) {
+        if (ParamCheck.checkParam(callback, msid)) {
+            Child.getByHost(host, function (err, child) {
+                if (err) {
                     return callback(err);
                 }
-                if(ParamCheck.checkParam(callback, child))
-                {
-                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/' + msid + '?token=' + child.access_token, function(err, data)
-                    {
-                        if(err)
-                        {
-                            return callback(err);
+                        {                            return callback(err);
                         }
                         return callback(null, data);
                     });
@@ -1623,7 +1473,9 @@ ModelSerControl.addDefaultTestify = function (msid,callback) {
                 var addFile = function (i) {
                     //向redis中添加记录
                     GeoDataCtrl.addData(geodataList[i],function (err, rst) {
-                        if(err){return callback()}
+                        if (err) {
+                            return callback()
+                        }
                         else{
                             if(i < geodataList.length-1){
                                 addFile(i+1);

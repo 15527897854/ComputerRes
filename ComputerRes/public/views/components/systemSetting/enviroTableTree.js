@@ -136,6 +136,8 @@ var EnviroTableTree = React.createClass({
                     //当是复杂节点时，不允许编辑
                     if(record.type == 'Object' || record.type == 'Array')
                         return false;
+                    else
+                        return true;
                 });
 
                 //校验edit后的值是否合理，不合适时恢复原始值
@@ -503,7 +505,7 @@ var EnviroTableTree = React.createClass({
                 };
 
                 tabletree.on_click.editbtn = function (e, obj, trg) {
-                    this.editCell(obj.row,'value');
+                    this.editCell(obj.row,'value',true,false);
                 };
 
                 tabletree.on_click.addbtn = function (e, obj, trg) {
@@ -561,7 +563,7 @@ var EnviroTableTree = React.createClass({
                     };
                     addByRecursion(items,null,this);
                 };
-                
+
                 tabletree.openItems = function (itemsID) {
                     for(var i=0;i<itemsID.length;i++){
                         this.open(itemsID[i]);

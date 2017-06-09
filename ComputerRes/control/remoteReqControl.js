@@ -41,9 +41,12 @@ RemoteReqControl.postByServer = function (url, form, callback) {
     var options;
     if(form){
         options = {
-            uri:url,
             method:'POST',
-            formData:form
+            uri:url,
+            formData:form,
+            headers:{
+                'Content-Type': 'multipart/form-data'
+            }
         };
     }
     else{

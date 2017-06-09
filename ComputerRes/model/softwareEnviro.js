@@ -14,6 +14,7 @@ function SoftwareEnviro(swe) {
         this.des = swe.des;
         this.type = swe.type;
         this.publisher = swe.publisher;
+        this.platform = swe.platform;
         // this.dependencies = swe.dependencies;
     }
     else{
@@ -24,6 +25,7 @@ function SoftwareEnviro(swe) {
         this.des = '';
         this.type = '';
         this.publisher = '';
+        this.platform = '';
         // this.dependencies = [];
     }
 }
@@ -37,7 +39,8 @@ var SWESchema = new mongoose.Schema({
     alias:Array,
     description:String,
     type:String,
-    publisher:String
+    publisher:String,
+    platform:String
     // dependencies:Array
 },{collection:'softwareEnviro'});
 
