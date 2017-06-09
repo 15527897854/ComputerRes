@@ -110,7 +110,7 @@ var EnMatchTable = React.createClass({
                     width: self.props.css.width.title,
                     fillspace:true
                 }, {
-                    id: 'value2',
+                    id: 'Value',
                     header: 'Demand',
                     width: self.props.css.width.demand,
                     fillspace:true
@@ -220,7 +220,7 @@ var EnMatchTable = React.createClass({
                             width: width,
                             fillspace:true
                         }, {
-                            id: 'value2',
+                            id: 'Value',
                             header: 'Value',
                             width: width,
                             fillspace:true
@@ -232,7 +232,7 @@ var EnMatchTable = React.createClass({
                             width: width,
                             fillspace:true
                         }, {
-                            id: 'value2',
+                            id: 'Value',
                             header: 'Value',
                             width: width,
                             fillspace:true
@@ -427,7 +427,7 @@ var EnMatchTable = React.createClass({
                     var score = 0;
                     for(var i=0;i<defaultMatched.children.length;i++){
                         if(defaultMatched.children[i].title == 'score'){
-                            score = defaultMatched.children[i].value2;
+                            score = defaultMatched.children[i].Value;
                             break;
                         }
                     }
@@ -446,8 +446,6 @@ var EnMatchTable = React.createClass({
                     }
                 }
                 for(var i=0;i<itemNode.children.length;i++) {
-                    // itemNode.children[i].evaluate = '';
-                    // tt.refresh();
                     for (var j = 0; j < defaultMatched.children.length; j++) {
                         if(itemNode.children[i].title == defaultMatched.children[j].title){
                             if(itemNode.children[i].title == 'alias'){
@@ -455,14 +453,14 @@ var EnMatchTable = React.createClass({
                                     var tmp = defaultMatched.children[j].children[k];
                                     this.state.tabletree.add({
                                         title:itemNode.children[i].$count,
-                                        match:tmp.value2,
+                                        match:tmp.Value,
                                         type:'string'
                                     },-1,itemNode.children[i].id);
                                     tt.refresh();
                                 }
                             }
                             else{
-                                itemNode.children[i].match = defaultMatched.children[j].value2;
+                                itemNode.children[i].match = defaultMatched.children[j].Value;
                             }
                             tt.refresh();
                         }
@@ -495,7 +493,7 @@ var EnMatchTable = React.createClass({
                 var score = 0;
                 for(var i=0;i<checkedNode.children.length;i++){
                     if(checkedNode.children[i].title == 'score'){
-                        score = checkedNode.children[i].value2;
+                        score = checkedNode.children[i].Value;
                         break;
                     }
                 }
@@ -523,17 +521,17 @@ var EnMatchTable = React.createClass({
                             }
                             this.state.tabletree.refresh();
                             for(var k=0;k<checkedNode.children[j].children.length;k++){
-                                var tmp = checkedNode.children[j].children[k];
+                                 var tmp = checkedNode.children[j].children[k];
                                 this.state.tabletree.add({
                                     title:originalNode.children[i].$count,
-                                    match:tmp.value2,
+                                    match:tmp.Value,
                                     type:'string'
                                 },-1,originalNode.children[i].id);
                                 this.state.tabletree.refresh();
                             }
                         }
                         else
-                            originalNode.children[i].match = checkedNode.children[j].value2;
+                            originalNode.children[i].match = checkedNode.children[j].Value;
                     }
                 }
             }

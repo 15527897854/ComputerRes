@@ -585,8 +585,8 @@ Convertor.FV_Boundary2Geojson = function (gdid, srcDataset, callback ) {
     geojson.features.push({
         type:'Feature',
         geometry:{
-            type:'Polygon',
-            coordinates:[coors]
+            type:'LineString',
+            coordinates:coors
         },
         properties:{}
     });

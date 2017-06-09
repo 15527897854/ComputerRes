@@ -80,7 +80,7 @@ var EnviroTableTree = React.createClass({
                             return rst;
                         }
                         else{
-                            return child.value;
+                            return child.Value;
                         }
                     };
 
@@ -126,7 +126,7 @@ var EnviroTableTree = React.createClass({
 
                 var columns = [
                     {id:'title',header:['Key',{content:'textFilter',placeholder:'Filter',compare:ttTitleFilter}],template:template,width:self.props.tabletree.css.width.title},
-                    {id:'value',header:['Value',{content:'textFilter',placeholder:'Filter',compare:ttValueFilter}],editor:'text',width:self.props.tabletree.css.width.value}
+                    {id:'Value',header:['Value',{content:'textFilter',placeholder:'Filter',compare:ttValueFilter}],editor:'text',width:self.props.tabletree.css.width.value}
                 ];
                 if(self.props.tabletree.operate){
                     columns.push({id:'type',header:'Type',width:70});
@@ -220,10 +220,10 @@ var EnviroTableTree = React.createClass({
 
                     if(window.delFlag == 0)
                         return true;
-                    if(state.value == ''){
+                    if(state.Value == ''){
                         var title = this.getItem(editor.row).title;
                         //这三个字段必填
-                        if(title == 'name' || title == 'version'|| title == 'value'){
+                        if(title == 'name' || title == 'version'|| title == 'Value'){
                             if(rootName == 'New Enviroment'){
                                 return window.delFlag == 0;
                             }
@@ -241,8 +241,8 @@ var EnviroTableTree = React.createClass({
                             var closeFlag = 0;
                             var childID = this.getFirstChildId(rootID);
                             while(childID){
-                                if(this.getItem(childID).title == 'name' || this.getItem(childID).title == 'version' || this.getItem(childID).title == 'value'){
-                                    var value = this.getItem(childID).value;
+                                if(this.getItem(childID).title == 'name' || this.getItem(childID).title == 'version' || this.getItem(childID).title == 'Value'){
+                                    var value = this.getItem(childID).Value;
                                     if(value) {
                                         value = value.replace(/\s+/g,' ');
                                         value = value.trim();
@@ -266,7 +266,7 @@ var EnviroTableTree = React.createClass({
                     var childID = this.getFirstChildId(id);
                     while(childID){
                         if(this.getItem(childID).title != 'alias')
-                            this.editCell(childID,'value');
+                            this.editCell(childID,'Value');
                         childID = this.getNextSiblingId(childID);
                     }
                 };
@@ -290,25 +290,25 @@ var EnviroTableTree = React.createClass({
                         var newItem = {};
                         var mastKey = 0;
                         while(childID){
-                            if(ptabletree.getItem(childID).title == 'name' || ptabletree.getItem(childID).title == 'version' || ptabletree.getItem(childID).title == 'value'){
-                                if(ptabletree.getItem(childID).value != undefined && ptabletree.getItem(childID).value != ''){
+                            if(ptabletree.getItem(childID).title == 'name' || ptabletree.getItem(childID).title == 'version' || ptabletree.getItem(childID).title == 'Value'){
+                                if(ptabletree.getItem(childID).Value != undefined && ptabletree.getItem(childID).Value != ''){
                                     mastKey ++;
                                 }
                             }
-                            if(ptabletree.getItem(childID).value == undefined){
+                            if(ptabletree.getItem(childID).Value == undefined){
                                 openNum ++;
                             }
                             if(ptabletree.getItem(childID).title == 'alias'){
                                 newItem[ptabletree.getItem(childID).title] = [];
                             }
                             else{
-                                newItem[ptabletree.getItem(childID).title] = ptabletree.getItem(childID).value==undefined?'':ptabletree.getItem(childID).value;
+                                newItem[ptabletree.getItem(childID).title] = ptabletree.getItem(childID).Value==undefined?'':ptabletree.getItem(childID).Value;
                             }
                             childID = ptabletree.getNextSiblingId(childID);
                         }
                         if(mastKey == 2 && (openNum == 0 || openNum == 1)){
                             if((url.indexOf('software') != -1 && newItem.name && newItem.version) ||
-                                (url.indexOf('software') == -1 && newItem.name && newItem.value)){
+                                (url.indexOf('software') == -1 && newItem.name && newItem.Value)){
                                 Axios.post(url,newItem).then(
                                     data => {
                                         var status = data.data.status;
@@ -325,7 +325,7 @@ var EnviroTableTree = React.createClass({
                                             var childID = ptabletree.getFirstChildId(rootID);
                                             while(childID){
                                                 if(ptabletree.getItem(childID).title == 'name'){
-                                                    newTitle = ptabletree.getItem(childID).value;
+                                                    newTitle = ptabletree.getItem(childID).Value;
                                                     break;
                                                 }
                                             }
@@ -374,8 +374,8 @@ var EnviroTableTree = React.createClass({
                     if(rootName == 'New Enviroment'){
                         // if((url.indexOf('software') != -1 && (this.getItem(editor.row).title == 'name' || this.getItem(editor.row).title == 'version'))
                         // ||(url.indexOf('software') == -1 && (this.getItem(editor.row).title == 'name' || this.getItem(editor.row).title == 'value'))){
-                        if(this.getItem(editor.row).title == 'name' || this.getItem(editor.row).title == 'version' || this.getItem(editor.row).title == 'value'){
-                            if(this.getItem(editor.row).value == '' || this.getItem(editor.row).value == undefined){
+                        if(this.getItem(editor.row).title == 'name' || this.getItem(editor.row).title == 'version' || this.getItem(editor.row).title == 'Value'){
+                            if(this.getItem(editor.row).Value == '' || this.getItem(editor.row).Value == undefined){
                                 return false;
                             }
                             else{
@@ -388,8 +388,8 @@ var EnviroTableTree = React.createClass({
                             var nullFlag = false;
                             var childID = this.getFirstChildId(rootID);
                             while(childID){
-                                if(this.getItem(childID).title == 'name' || this.getItem(childID).title == 'version' || this.getItem(childID).title == 'value'){
-                                    if(this.getItem(childID).value == '' || this.getItem(childID).value == undefined){
+                                if(this.getItem(childID).title == 'name' || this.getItem(childID).title == 'version' || this.getItem(childID).title == 'Value'){
+                                    if(this.getItem(childID).Value == '' || this.getItem(childID).Value == undefined){
                                         nullFlag = true;
                                         break;
                                     }
@@ -402,8 +402,8 @@ var EnviroTableTree = React.createClass({
                     }
 
                     //当新添加节点是array的子节点时，如果为空，直接移除
-                    if(state.value == state.old){
-                        if(state.value == ''){
+                    if(state.Value == state.old){
+                        if(state.Value == ''){
                             var aliasID = this.getItem(editor.row).$parent;
                             if(aliasID == 0 )
                                 return;
@@ -418,7 +418,7 @@ var EnviroTableTree = React.createClass({
                     var msg = {
                         _id:this.getItem(rootID).id,
                         keys:keys.reverse(),
-                        value:state.value,
+                        value:state.Value,
                         type:'field'
                     };
                     // var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
@@ -439,7 +439,7 @@ var EnviroTableTree = React.createClass({
                                 var childID = ptabletree.getFirstChildId(rootID);
                                 while(childID){
                                     if(ptabletree.getItem(childID).title == 'name'){
-                                        newTitle = ptabletree.getItem(childID).value;
+                                        newTitle = ptabletree.getItem(childID).Value;
                                         break;
                                     }
                                 }
@@ -573,15 +573,15 @@ var EnviroTableTree = React.createClass({
                 };
 
                 tabletree.on_click.editbtn = function (e, obj, trg) {
-                    this.editCell(obj.row,'value',true,false);
+                    this.editCell(obj.row,'Value',true,false);
                 };
 
                 tabletree.on_click.addbtn = function (e, obj, trg) {
                     var parentID = obj.row;
                     var childCount = this.getItem(parentID).$count;
-                    var nodeID = this.add({title:childCount,value:'',type:'string'},-1,parentID);
+                    var nodeID = this.add({title:childCount,Value:'',type:'string'},-1,parentID);
                     this.open(parentID);
-                    this.editCell(this.getItem(nodeID).id,'value',true,false);
+                    this.editCell(this.getItem(nodeID).id,'Value',true,false);
                 };
 
                 tabletree.newItem = function () {
@@ -596,7 +596,7 @@ var EnviroTableTree = React.createClass({
                         if(self.props.fields[i].type != 'Array'){
                             //bug
                             this.open(rootID);
-                            this.editCell(this.getItem(field).id,'value');
+                            this.editCell(this.getItem(field).id,'Value');
                         }
                     }
                 };

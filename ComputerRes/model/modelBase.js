@@ -110,7 +110,7 @@ ModelBase.items2TableTree = function (srcItems,callback) {
         }
         else{
             dstItem.evaluate = '';
-            dstItem.value2 = srcItem[srcKey];
+            dstItem.Value = srcItem[srcKey];
         }
         return dstItem;
     };
