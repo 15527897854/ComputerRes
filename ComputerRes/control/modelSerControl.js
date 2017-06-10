@@ -756,12 +756,38 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                         {
                             return console.log(JSON.stringify(err2));
                         }
-                    })
-                }
-                else {
-                    ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
-                        if (err) {
-                            return console.log(JSON.stringify(err2));
+                        if(item == null)
+                        {
+                            return console.log( 'Can not find MSR when it is ended !');
+                        }
+                        if(err){
+                            item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
+                        }
+                        if(stdout){
+                            item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
+                        }
+                        if(stderr){
+                            item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
+                        }
+                        var mis = global.app.modelInsColl.getByGUID(guid);
+                        //没有配置环境，进程无法启动
+                        if(mis.state == "MC_READY" && mis.socket == null){
+                            global.app.modelInsColl.removeByGUID(guid);
+                            item.msr_status = -1;
+                            ModelSerRunModel.update(item, function (err, res) {
+                                if(err)
+                                {
+                                    return console.log(JSON.stringify(err2));
+                                }
+                            })
+                        }
+                        else {
+                            ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
+                                if(err)
+                                {
+                                    return console.log(JSON.stringify(err2));
+                                }
+                            });
                         }
                     });
                 }, function (err, ms) {
@@ -790,14 +816,49 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                     return callback(null, msr);
                 });
             });
-        }, function (err, ms) {
-            if (err) {
-                return callback(err);
-            }
-            return callback(null, ms);
         });
-    });
+    }
 
+    if(outputData == undefined || outputData == null) {
+        ModelSerControl.getInputData(msid, function(err, data){
+            if(err)
+            {
+                return res.end(JSON.stringify(err));
+            }
+            //指定输出文件参数
+            outputData = [];
+            for(var k = 0; k < data.length; k++) {
+                for(var i = 0; i < data[k].Event.length; i++)
+                {
+                    if(data[k].Event[i].$.type == 'noresponse')
+                    {
+                        var dataid = 'gd_' + uuid.v1();
+                        var item = {
+                            StateId : data[k].$.id,
+                            Tag : 'OUTPUT',
+                            Event : data[k].Event[i].$.name,
+                            DataId : dataid,
+                            Ready : false
+                        };
+                        outputData.push(item);
+                    }
+                }
+            }
+            run_next();
+        });
+    }
+    else
+    {
+        outputData = JSON.parse(outputData);
+        //指定输出文件参数
+        for(var k = 0; k < outputData.length; k++) {
+            var dataid = 'gd_' + uuid.v1();
+            outputData[k]['DataId'] = dataid;
+            outputData[k]['Ready'] = false;
+        }
+
+        run_next();
+    }
 };
 
 //获取所有门户网站模型服务
