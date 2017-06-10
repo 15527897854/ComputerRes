@@ -185,9 +185,12 @@ ModelSerControl.runRmtModelSer = function (host, msid, inputdata, outputdata, ca
                 if (err) {
                     return callback(err);
                 }
-                if (ParamCheck.checkParam(callback, child)) {
-                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid + '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata, function (err, data) {
-                        if (err) {
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata + '&token=' + child.access_token, function(err, data)
+                    {
+                        if(err)
+                        {
                             return callback(err);
                         }
                         return callback(null, data);
@@ -704,42 +707,53 @@ ModelSerControl.update = function (ms, callback) {
     });
 };
 
-//开启运行实例
-ModelSerControl.run = function (ms_id, guid, callback) {
-    ModelSerModel.getByOID(ms_id, function (err, ms) {
-        if (err) {
-            return callback(err);
-        }
-        if (ms.ms_status != 1) {
-            return callback({
-                Error: -1,
-                Message: 'Service is not available'
-            });
-        }
-        ModelSerModel.run(ms_id, guid, function (err, stdout, stderr) {
-            ModelSerRunModel.getByGUID(guid, function (err2, item) {
-                if (err2) {
-                    return console.log(JSON.stringify(err2));
+//运行模型服务
+ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
+    function run_next(){
+        //生成唯一字符串GUID
+        var guid = uuid.v4();
+
+        //向内存中添加模型运行记录条目
+        var date = new Date();
+        var mis = {
+            guid : guid,
+            socket : null,
+            ms : null,
+            start : date.toLocaleString(),
+            state : 'MC_READY'
+        };
+        var modelIns = new ModelIns(mis);
+        app.modelInsColl.addIns(modelIns);
+
+        ModelSerModel.getByOID(msid, function(err, ms){
+            //添加纪录
+            var msr = {
+                ms_id : ms._id,
+                msr_ms : ms,
+                msr_date : date.toLocaleString(),
+                msr_time : 0,
+                msr_user : user,
+                msr_guid : guid,
+                msr_input : inputData,
+                msr_output : outputData,
+                msr_status : 0,
+                msr_des : ''
+            };
+            ModelSerRunCtrl.save(msr ,function (err, msr) {
+                if(err) {
+                    return res.end('Error : ' + err);
                 }
-                if (item == null) {
-                    return console.log('Can not find MSR when it is ended !');
+                if(ms.ms_status != 1)
+                {
+                    return callback({
+                        Error : -1,
+                        Message : 'Service is not available'
+                    });
                 }
-                if (err) {
-                    item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
-                }
-                if (stdout) {
-                    item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
-                }
-                if (stderr) {
-                    item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
-                }
-                var mis = global.app.modelInsColl.getByGUID(guid);
-                //没有配置环境，进程无法启动
-                if (mis.state == "MC_READY" && mis.socket == null) {
-                    global.app.modelInsColl.removeByGUID(guid);
-                    item.msr_status = -1;
-                    ModelSerRunModel.update(item, function (err, res) {
-                        if (err) {
+                ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
+                    ModelSerRunModel.getByGUID(guid, function (err2, item) {
+                        if(err2)
+                        {
                             return console.log(JSON.stringify(err2));
                         }
                     })
@@ -750,7 +764,31 @@ ModelSerControl.run = function (ms_id, guid, callback) {
                             return console.log(JSON.stringify(err2));
                         }
                     });
-                }
+                }, function (err, ms) {
+                    if(err)
+                    {
+                        return callback(err);
+                    }
+                    //绑定内存实例的ms属性
+                    global.app.modelInsColl.bindMs(guid, ms);
+
+                    //存储通知消息
+                    var notice = {
+                        time : new Date(),
+                        title : ms.ms_model.m_name + '开始运行！',
+                        detail : '',
+                        type : 'start-run',
+                        hasRead : false
+                    };
+                    NoticeCtrl.save(notice, function (err, data) {
+                        if(err)
+                        {
+                            console.log(JSON.stringify(err));
+                        }
+                    });
+
+                    return callback(null, msr);
+                });
             });
         }, function (err, ms) {
             if (err) {
@@ -830,19 +868,17 @@ ModelSerControl.getCloudModelPackageByMid = function (mid, callback) {
                         return callback(err);
                     }
                     else{
-                        count--;
-                        if(rst){
-                            packages[index].enviro = rst;
-                            if (ms.length != 0) {
-                                packages[index]['pulled'] = true;
-                                packages[index]['ms_id'] = ms[0]._id;
-                            }
-                            else {
-                                packages[index]['pulled'] = false;
-                            }
-                            if (count == 0) {
-                                return callback(null, packages);
-                            }
+                        packages[index].enviro = rst;
+                        if(ms.length != 0){
+                            packages[index]['pulled'] = true;
+                            packages[index]['ms_id'] = ms[0]._id;
+                        }
+                        else{
+                            packages[index]['pulled'] = false;
+                        }
+                        count --;
+                        if(count == 0){
+                            return callback(null, packages);
                         }
                     }
                 });
