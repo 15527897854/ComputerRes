@@ -188,17 +188,13 @@ ModelSerControl.runRmtModelSer = function(host, msid, inputdata, outputdata, cal
                 if (err) {
                     return callback(err);
                 }
-							if(ParamCheck.checkParam(callback, child))
-			                {
-			                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata + '&token=' + child.access_token, function(err, data)
-			                    {
-			                        if(err)
-			                        {
-			                            return callback(err);
-			                        }
-			                        return callback(null, data);
-			                    });
-			                }                            return callback(err);
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/' + msid +  '?ac=run&inputdata=' + inputdata + '&outputdata=' + outputdata + '&token=' + child.access_token, function(err, data)
+                    {
+                        if(err)
+                        {
+                            return callback(err);
                         }
                         return callback(null, data);
                     });
@@ -430,7 +426,6 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                                 m_name:fields.m_name,
                                 m_type:fields.m_type,
                                 m_url:fields.m_url,
-                            p_id : md5_value
                                 p_id : md5_value,
                                 m_id : mid
                             }, fields.m_model_append),
@@ -718,6 +713,7 @@ ModelSerControl.update = function(ms, user, callback){
     });
 };
 
+//运行模型服务
 ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
     function run_next(){
         //生成唯一字符串GUID
@@ -753,9 +749,6 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                 if(err) {
                     return res.end('Error : ' + err);
                 }
-        if(ms.ms_status != 1)
-        {
-
                 if(ms.ms_status != 1)
                 {
                     return callback({
@@ -763,7 +756,6 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                         Message : 'Service is not available'
                     });
                 }
-        ModelSerModel.run(ms_id, guid, function (err, stdout, stderr) {
                 ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
                     ModelSerRunModel.getByGUID(guid, function (err2, item) {
                         if(err2)
@@ -809,9 +801,8 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                     {
                         return callback(err);
                     }
-            return callback(null, ms);
                     //绑定内存实例的ms属性
-                    app.modelInsColl.bindMs(guid, ms);
+                    global.app.modelInsColl.bindMs(guid, ms);
 
                     //存储通知消息
                     var notice = {
@@ -948,18 +939,18 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
                     }
                     else{
                         packages[index].enviro = rst;
-                if(ms.length != 0){
-                    packages[index]['pulled'] = true;
-                    packages[index]['ms_id'] = ms[0]._id;
-                }
-                else{
-                    packages[index]['pulled'] = false;
-                }
-                count --;
-                if(count == 0){
-                    return callback(null, packages);
-                }
-            }
+                        if(ms.length != 0){
+                            packages[index]['pulled'] = true;
+                            packages[index]['ms_id'] = ms[0]._id;
+                        }
+                        else{
+                            packages[index]['pulled'] = false;
+                        }
+                        count --;
+                        if(count == 0){
+                            return callback(null, packages);
+                        }
+                    }
                 });
             }
         };
@@ -1328,11 +1319,7 @@ ModelSerControl.getRmtPreparationData = function(host, msid, callback){
                 if (err) {
                     return callback(err);
                 }
-                        {                            return callback(err);
-                        }
-                        return callback(null, data);
-                    });
-                }
+                return callback(null, data);
             });
         }
     }
