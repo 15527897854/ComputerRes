@@ -10,6 +10,7 @@ var formidable = require('formidable');
 var uuid = require('node-uuid');
 var unzip = require('unzip');
 
+var NoticeCtrl = require('../control/noticeCtrl');
 var setting = require('../setting');
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCtrl = require('../control/modelSerControl');

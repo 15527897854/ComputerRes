@@ -4,6 +4,7 @@
 
 var ModelSerAccessModel = require('../model/modelSerAccess');
 var ModelSerModel = require('../model/modelService');
+var ModelSerRunModel = require('../model/modelSerRun');
 var ModelSerCtrl = require('./modelSerControl');
 var ControlBase = require('./controlBase');
 var CommonMethod = require('../utils/commonMethod');
@@ -16,138 +17,153 @@ ModelSerAccessControl.model = ModelSerAccessModel;
 
 module.exports = ModelSerAccessControl;
 
-//通过Path查询这条记录所关联的模型服务
-ModelSerAccessControl.getModelSerByPath = function(path, callback){
-    ModelSerAccessModel.getByPath(path, function(err, msa){
-        if(err){
-            return callback(err);
-        }
-        msa = msa[0];
-        if(msa){
-            ModelSerModel.getByPID(msa.pid, function(err, ms){
+//模型权限登录
+ModelSerAccessControl.auth = function(msid, username, pwd, callback){
+    if(ParamCheck.checkParam(callback, msid)){
+        ModelSerCtrl.getByOID(msid, function(err, ms){
+            if(ms == null){
+                return callback(null, false);
+            }
+            ModelSerAccessModel.getByPID(ms.ms_model.p_id, function(err, msa){
                 if(err){
                     return callback(err);
                 }
-                if(ms.length == 0){
-                    return callback(null, null);
-                }
-                return callback(null, ms[0]);
-            });
-        }
-        else{
-            return callback(null, null);
-        }
-    });
-};
-
-//通过Path查询这条记录所需的数据
-ModelSerAccessControl.getModelSerInputDataByPath = function(path, callback){
-    ModelSerAccessModel.getByPath(path, function(err, msa){
-        if(err){
-            return callback(err);
-        }
-        msa = msa[0];
-        if(!msa){
-            return callback(null, null);
-        }
-        ModelSerModel.getByPid(msa.pid, function(err, ms){
-            if(err){
-                return callback(err);
-            }
-            ms = ms[0];
-            if(!ms){
-                return callback(err, null)
-            }
-            ModelSerCtrl.getInputData(ms._id, function(err, data){
-                if(err){
-                    return callback(err, data);
-                }
-                return callback(null, data);
-            });
-        });
-    });
-};
-
-//模型权限登录
-ModelSerAccessControl.auth = function(path, username, pwd, callback){
-    if(ParamCheck.checkParam(callback, path)){
-        ModelSerAccessModel.getByPath(path, function(err, msa){
-            if(err){
-                return callback(err);
-            }
-            msa = msa[0];
-            if(msa){
-                if(username == msa.username){
-                    //pwd = CommonMethod.decrypto(pwd);
-                    var pwd_md5 = CommonMethod.md5(pwd);
-                    if(pwd_md5 == msa.pwd){
-                        return callback(null, true);
+                msa = msa[0];
+                if(msa){
+                    if(username == msa.username){
+                        //pwd = CommonMethod.decrypto(pwd);
+                        var pwd_md5 = CommonMethod.md5(pwd);
+                        if(pwd_md5 == msa.pwd){
+                            return callback(null, true);
+                        }
                     }
                 }
+                return callback(null, false);
+            });
+        });
+
+    }
+};
+
+//判断用户是否有MSRID权限
+ModelSerAccessControl.authMsrID = function(msrid, username, pwd, callback){
+    if(ParamCheck.checkParam(callback, msrid)){
+        ModelSerAccessModel.getByMSRID(msrid, function(err, msa){
+            if(err){
+                return callback(err);
             }
-            return callback(null, false);
+            if(msa.length == 0){
+                return callback(null, false);
+            }
+            msa = msa[0];
+            var pwd_md5 = CommonMethod.md5(pwd);
+            if(msa.username == username && msa.pwd == pwd_md5){
+                return callback(null, true);
+            }
+            else{
+                return callback(null, false);
+            }
         });
     }
 };
 
-//检查是否有此Path权限
-ModelSerAccessControl.authPath = function(path, callback){
-    if(ParamCheck.checkParam(callback, path)){
-        ModelSerAccessModel.getByPath(path, function(err, msa){
-            if(err){
-                return callback(err);
-            }
-            msa = msa[0];
-            if(msa){
-                return callback(null, true);
-            }
-            return callback(null, false);
-        });
-    }
-}
-
-//运行模型
-ModelSerAccessControl.run = function(path, callback){
-    ModelSerAccessModel.getByPath(path, function(err, msa){
+//带权限运行模型
+ModelSerAccessControl.run = function(msid, inputData, outputData, user, callback){
+    ModelSerCtrl.getByOID(msid, function(err, ms){
         if(err){
             return callback(err);
         }
-        if(msa.times != -1){
-            if(msa.times < 1){
-                return callback(null, {
-                    auth : false,
-                    message : '剩余次数不足!'
-                });
-            }
-            else{
-                msa.times = msa.times - 1;
-            }
-        }
-        if(msa.deadline != null && msa.deadline.trim() != ''){
-            var deadline = new Date(msa.deadline);
-            var date_now = new Data();
-            if(deadline < date_now){
-                return callback(null, {
-                    auth : false,
-                    message : '超过权限时长!'
-                });   
-            }
-        }
-        ModelSerAccessModel.update(msa, function(err, result){
+        ModelSerAccessModel.getByPID(ms.ms_model.p_id, function(err, msa){
             if(err){
                 return callback(err);
             }
-            ModelSerCtrl.getByPID(msa.pid, function(err, ms){
+            if(msa.length == 0){
+                return callback(null, {
+                    auth : false,
+                    message : '无权限记录！'
+                });
+            }
+            msa = msa[0];
+            ModelSerAccessControl.auth(msid, user.username, user.pwd, function(err, result){
+                if(result){
+                    if(msa.times != -1){
+                        if(msa.times < 1){
+                            return callback(null, {
+                                auth : false,
+                                message : '剩余次数不足!'
+                            });
+                        }
+                        else{
+                            msa.times = msa.times - 1;
+                        }
+                    }
+                    if(msa.deadline != null && msa.deadline.trim() != ''){
+                        var deadline = new Date(msa.deadline);
+                        var date_now = new Date();
+                        if(deadline < date_now){
+                            return callback(null, {
+                                auth : false,
+                                message : '超过权限时长!'
+                            });   
+                        }
+                    }
+                    var msaid = msa._id;
+                    ModelSerAccessModel.update(msa, function(err, result){
+                        if(err){
+                            return callback(err);
+                        }
+                        ModelSerCtrl.getByPID(msa.pid, function(err, ms){
+                            if(err){
+                                return callback(err);
+                            }
+                            ModelSerCtrl.run(msid, inputData, outputData, {
+                                u_name : msa.username,
+                                u_type : 1
+                            }, function(err, msr){
+                                if(err){
+                                    return callback(err);
+                                }
+                                ModelSerAccessControl.addMSR(msaid, msr._id, function(err, result){
+                                    if(err){
+                                        return callback(err);
+                                    }
+                                    return callback(null, {
+                                        auth : true,
+                                        msr : msr
+                                    });
+                                });
+                            });
+                        });
+                    });
+                }
+                else{
+                    return callback(null, {
+                        auth : false,
+                        message : '无权限记录！'
+                    });
+                }
+            })
+        });
+    });
+}
+
+//添加模型权限的运行记录
+ModelSerAccessControl.addMSR = function(msaid, msrid, callback){
+    if(ParamCheck.checkParam(callback, msaid)){
+        ModelSerAccessModel.getByOID(msaid, function(err, msa){
+            if(err){
+                return callback(err);
+            }
+            if(!msa){
+                return callback(new Error('Can not find MSA'));
+            }
+            msa.msrs.push(msrid);
+            ModelSerAccessModel.update(msa, function(err, result){
                 if(err){
                     return callback(err);
                 }
-                ModelSerCtrl.run(ms._id, inputData, outputData, {
-                    u_name : msa.username,
-                    u_type : 1
-                }, function(err, msr){
-                    return callback(null, msr);
-                });
+                return callback(null, true);
             });
         });
-    });
+    }
 }

@@ -88,15 +88,15 @@ var ModelSerInfo = React.createClass({
                                 <br />
                                 <strong>模型类型&nbsp;:&nbsp;{this.state.ms.ms_model.m_type}</strong>
                                 <br />
-                                <strong>版本号&nbsp;:&nbsp;{this.state.ms.ms_model.mv_type}</strong>
+                                <strong>版本号&nbsp;:&nbsp;{this.state.ms.mv_num}</strong>
                                 <br />
                                 <strong>所在平台&nbsp;:&nbsp;{platform}</strong>
                                 <br />
-                                <strong>部署时间&nbsp;:&nbsp;{this.state.ms.ms_model.ms_update}</strong>
+                                <strong>部署时间&nbsp;:&nbsp;{this.state.ms.ms_update}</strong>
                                 <br />
                                 <strong>状态&nbsp;:&nbsp;{status}</strong>
                                 <br />
-                                <strong>描述&nbsp;:&nbsp;{this.state.ms.ms_model.ms_des}</strong>
+                                <strong>描述&nbsp;:&nbsp;{this.state.ms.ms_des}</strong>
                                 <br />{detail}
                                 <br />
                             </p>

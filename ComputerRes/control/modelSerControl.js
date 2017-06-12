@@ -932,26 +932,23 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
         var pending = function(index){
             count ++;
             return function(err, ms){
-                //此处对模型的软硬件环境进行检测
-                ModelSerControl.getMatchedByPid(packages[index].id,function (err, rst) {
-                    if(err){
-                        return callback(err);
+                if(err){
+
+                }
+                else{
+                    if(ms.length != 0){
+                        packages[index]['pulled'] = true;
+                        packages[index]['ms_id'] = ms[0]._id;
                     }
                     else{
-                        packages[index].enviro = rst;
-                        if(ms.length != 0){
-                            packages[index]['pulled'] = true;
-                            packages[index]['ms_id'] = ms[0]._id;
-                        }
-                        else{
-                            packages[index]['pulled'] = false;
-                        }
-                        count --;
-                        if(count == 0){
-                            return callback(null, packages);
-                        }
+                        packages[index]['pulled'] = false;
                     }
-                });
+                }
+                
+                count --;
+                if(count == 0){
+                    return callback(null, packages);
+                }
             }
         };
 
@@ -1140,12 +1137,7 @@ ModelSerControl.getMIDByOID = function(oid, callback){
                 return callback(err);
             }
             if(item.ms_model.p_id){
-                ModelSerControl.getMIDByPID(item.ms_model.p_id, function(err, mid){
-                    if(err){
-                        return callback(err);
-                    }
-                    return callback(null, mid);
-                });
+                return callback(null, ms.ms_model.mid);
             }
             else{
                 return callback(new Error('No PID'));

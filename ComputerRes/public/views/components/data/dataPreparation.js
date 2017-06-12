@@ -137,10 +137,12 @@ var DataPreparation = React.createClass({
                 var optional = null;
                 var dataReady = null;
                 var dataType = 'SELECT';
-                if(this.props['data-type'] == ''){}
+                if(this.props['data-type'] == 'CUSTOM'){
+                    dataType = 'CUSTOM';
+                }
                 if(Event.$.type == 'response'){
                     dataSelect = (<DataUpLoader data-id={State.$.id + '_' + Event.$.name}
-                                                data-type="SELECT"
+                                                data-type={dataType}
                                                 data-rmt={this.state.rmt}
                                                 data-host={this.state.host}
                                                 onFinish={ (gdid) => { this.onDataReady(State.$.id, Event.$.name, gdid) } } />);
