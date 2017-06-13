@@ -25,6 +25,7 @@ var CommonMethod = require('../utils/commonMethod');
 var SystemCtrl = require('./sysControl');
 var ModelSerRunCtrl = require('./modelSerRunControl');
 var NoticeCtrl = require('../control/noticeCtrl');
+var testifyCtrl = require('../control/testifyCtrl');
 
 var ModelSerControl = function () {
 };
@@ -392,7 +393,7 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                     }
                     else{
                         //添加默认测试数据，不用异步请求，两者不相关
-                        ModelSerControl.addDefaultTestify(oid.toString());
+                        testifyCtrl.addDefaultTestify(oid.toString());
 
                         //添加模型运行文件权限
                         if (setting.platform == 2) {
@@ -734,26 +735,17 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
         var pending = function(index){
             count ++;
             return function(err, ms){
-                //此处对模型的软硬件环境进行检测
-                ModelSerControl.getMatchedByPid(packages[index].id,function (err, rst) {
-                    if(err){
-                        return callback(err);
-                    }
-                    else{
-                        packages[index].enviro = rst;
-                        if(ms.length != 0){
-                            packages[index]['pulled'] = true;
-                            packages[index]['ms_id'] = ms[0]._id;
-                        }
-                        else{
-                            packages[index]['pulled'] = false;
-                        }
-                        count --;
-                        if(count == 0){
-                            return callback(null, packages);
-                        }
-                    }
-                });
+                if(ms.length != 0){
+                    packages[index]['pulled'] = true;
+                    packages[index]['ms_id'] = ms[0]._id;
+                }
+                else{
+                    packages[index]['pulled'] = false;
+                }
+                count --;
+                if(count == 0){
+                    return callback(null, packages);
+                }
             }
         };
 
@@ -1125,4 +1117,83 @@ ModelSerControl.getRmtPreparationData = function(host, msid, callback){
             });
         }
     }
+};
+
+//从门户网站或本机获取runtime节点
+ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
+    var runtime = {};
+    if(place == 'local'){
+        ModelSerModel.getByPID(pid,function (err, ms) {
+            if(err){
+                return cb(err);
+            }
+            else{
+                if(!ms || ms.length ==0)
+                    return cb({code:'查不到对应模型！'});
+                ms = ms[0];
+                ModelSerModel.readMDL(ms,function (err, mdl) {
+                    if(err){
+                        return cb(err);
+                    }
+                    else{
+                        if(!mdl)
+                            return cb({code:'解析模型MDL出错！'});
+                        ModelSerControl.getRuntimeFromMDL(mdl,function (demands) {
+                            return cb(null,demands);
+                        });
+                    }
+                })
+            }
+        })
+    }
+    else if(place == 'portal'){
+        var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
+        remoteReqCtrl.getByServer(url,null,function (err, res) {
+            if(err){
+                return cb(err);
+            }
+            else{
+                res = JSON.parse(res);
+                if(res.error && res.error != ''){
+                    return cb({code:res.error});
+                }
+                else if(res.result && res.result != ''){
+                    ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
+                        if(err){
+                            return cb(err);
+                        }
+                        else{
+                            ModelSerControl.getRuntimeFromMDL(mdl,function (demands) {
+                                return cb(null,demands);
+                            })
+                        }
+                    });
+                }
+            }
+        })
+    }
+};
+
+ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
+    var softDemands = [],hardDemands = [];
+    var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
+    var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;
+    if(hardJSON == undefined)
+        hardJSON = [];
+    if(softJSON == undefined)
+        softJSON = [];
+    for(var i=0;i<hardJSON.length;i++){
+        hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
+    }
+    for(var j=0;j<softJSON.length;j++){
+        softDemands.push({
+            name:softJSON[j].$.name,
+            platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
+            version:softJSON[j]._
+        });
+    }
+    cb({
+        swe:softDemands,
+        hwe:hardDemands
+    });
 };

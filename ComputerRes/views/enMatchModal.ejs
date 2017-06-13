@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>环境匹配</title>
+    <title>环境匹配测试</title>
     <link href="/css/uploadfile.css" rel="stylesheet" />
     <link rel="stylesheet" href="/js/data-tables/DT_bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="/js/gritter/css/jquery.gritter.css" />
@@ -9,9 +9,12 @@
     <%- include headInclude.ejs %>
 
     <style>
-        /*.webix_ss_header{*/
-        /*background:#F1F1F1 !important;*/
-        /*}*/
+        .matchList-matched{
+            background-color: rgba(0, 67, 255, 0.2) !important
+        }
+        .matchList-unmatched{
+            background-color: rgba(255, 0, 0, 0.2) !important
+        }
         .webix_cell[aria-level='2'] > .webix_tree_checkbox{
             display: none
         }
@@ -68,6 +71,9 @@
             color:#ed9c28;
             font-weight:bold; cursor: pointer;
         }
+        .panel-heading{
+            text-transform:none
+        }
     </style>
 </head>
 <body class="sticky-header">
@@ -78,18 +84,13 @@
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
 
-        <section id="enMatch-section" data-pid="<%=pid %>" data-pidPlace="<%=place %>" style="background-color: #FFFFFF">
-            <div id="sweMatch"></div>
-            <div id="hweMatch"></div>
+        <section id="enMatchModal" style="background-color: #FFFFFF;width:800px">
         </section>
 
         <%- include footer.ejs %>
     </div>
 </section>
 <%- include footerInclude.ejs %>
-<script type="text/javascript" src="/js/data-tables/jquery.dataTables.js"></script>
-<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
-<script type="text/javascript" src="/js/data-tables/ColReorderWithResize.js"></script>
 
 <script type="text/javascript" src="/js/webix/webix.js"></script>
 <script type="text/javascript" src="/js/gritter/js/jquery.gritter.js"></script>

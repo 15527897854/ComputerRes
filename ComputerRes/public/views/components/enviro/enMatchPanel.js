@@ -55,13 +55,13 @@ var EnMatchPanel = React.createClass({
                     </div>
                     <div className="panel-body">
                         <div className="editable-table ">
-                            {/*<EnMatchTable*/}
-                                {/*tableID="hwe-table"*/}
-                                {/*type="hwe"*/}
-                                {/*pid={this.props.pid}*/}
-                                {/*place={this.props.place}*/}
-                                {/*css={this.props.css}*/}
-                            {/*/>*/}
+                            <EnMatchTable
+                                tableID="hwe-table"
+                                type="hwe"
+                                pid={this.props.pid}
+                                place={this.props.place}
+                                css={this.props.css}
+                            />
                         </div>
                     </div>
                 </div>

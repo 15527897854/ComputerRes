@@ -286,7 +286,7 @@ hardwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
             demands = demands.hwe;
             var count = 0;
             var matchedList = [];
-            var pending = function (i) {
+            var pending = function (index) {
                 count++;
                 return function (err, matchedItems) {
                     count--;
@@ -294,12 +294,15 @@ hardwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
                         console.log(err);
                     }
                     else{
-                        matchedList.push(matchedItems);
+                        modelBase.items2TableTree(matchedItems,function (err, matchedItems) {
+                            matchedList[index] = matchedItems;
+                        });
                     }
                     if(count == 0){
                         modelBase.items2TableTree(demands,function (err, demands) {
                             for(var i=0;i<demands.length;i++){
                                 demands[i].matched = matchedList[i];
+                                demands[i].result = '未知';
                             }
                             cb(null,demands);
                         });
@@ -307,6 +310,7 @@ hardwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
                 }
             };
             for(var i=0;i<demands.length;i++){
+                demands[i].result = '';
                 hardwareEnCtrl.enMatched(demands[i],pending(i));
             }
         }

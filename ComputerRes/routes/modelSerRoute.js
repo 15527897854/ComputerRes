@@ -745,7 +745,12 @@ module.exports = function(app)
                 }
             });
         });
-    
+
+    app.route('/enmatchtest')
+        .get(function (req, res) {
+            return res.render('enMatchModal');
+        });
+
     //远程模型访问路由
     remoteModelSerRoute(app);
 };

@@ -671,7 +671,7 @@ var EnviroTableTree = React.createClass({
         }
         
         return (
-            <div ref={this.props.tableID}>
+            <div>
                 <div id={'pager_'+this.props.tableID}></div>
                 <div id={this.props.tableID}></div>
             </div>

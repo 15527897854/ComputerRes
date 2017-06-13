@@ -389,6 +389,7 @@ softwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
                 demands[i].alias = [];
                 demands[i].publisher = '';
                 demands[i].type = '';
+                demands[i].result = '';
                 softwareEnCtrl.enMatched(demands[i],pending(i));
             }
         }
