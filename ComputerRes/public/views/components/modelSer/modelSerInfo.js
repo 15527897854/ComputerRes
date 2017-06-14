@@ -67,36 +67,37 @@ var ModelSerInfo = React.createClass({
                 <a style="more" href={ms.ms_model.m_url} >更多信息</a>
             );
         }
+        var img = (<img src="/images/modelImg/default.png" alt=""  />);
+        if(this.state.ms.ms_img.trim() != '' && this.state.ms.ms_img != null){
+            img = (<img height="200px" width="160px" src={ '/images/modelImg/' + this.state.ms.ms_img } alt=""  />)
+        }
         return (
             <div className="panel panel-primary">
                 <div className="panel-heading">
                     模型服务信息
-                    <span className="tools pull-right">
-                        <a href="javascript:;" className="fa fa-chevron-down"> </a>
-                    </span>
                 </div>
                 <div className="panel-body">
                     <div className="row">
                         <div className="col-md-2">
                             <div className="blog-img">
-                                <img src="/images/modelImg/default.png" alt=""  />
+                                {img}
                             </div>
                         </div>
                         <div className="col-md-7">
                             <p style={{"fontSize" : "14px", "color" : "#aaa"}}  >
-                                <strong>模型名称&nbsp;:&nbsp;{this.state.ms.ms_model.m_name}</strong>
+                                <strong>模型名称&nbsp;:&nbsp;</strong>{this.state.ms.ms_model.m_name}
                                 <br />
-                                <strong>模型类型&nbsp;:&nbsp;{this.state.ms.ms_model.m_type}</strong>
+                                <strong>模型类型&nbsp;:&nbsp;</strong>{this.state.ms.ms_model.m_type}
                                 <br />
-                                <strong>版本号&nbsp;:&nbsp;{this.state.ms.mv_num}</strong>
+                                <strong>版本号&nbsp;:&nbsp;</strong>{this.state.ms.mv_num}
                                 <br />
-                                <strong>所在平台&nbsp;:&nbsp;{platform}</strong>
+                                <strong>所在平台&nbsp;:&nbsp;</strong>{platform}
                                 <br />
-                                <strong>部署时间&nbsp;:&nbsp;{this.state.ms.ms_update}</strong>
+                                <strong>部署时间&nbsp;:&nbsp;</strong>{this.state.ms.ms_update}
                                 <br />
-                                <strong>状态&nbsp;:&nbsp;{status}</strong>
+                                <strong>状态&nbsp;:&nbsp;</strong>{status}
                                 <br />
-                                <strong>描述&nbsp;:&nbsp;{this.state.ms.ms_des}</strong>
+                                <strong>描述&nbsp;:&nbsp;</strong>{this.state.ms.ms_des}
                                 <br />{detail}
                                 <br />
                             </p>

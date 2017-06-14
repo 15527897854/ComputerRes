@@ -14,6 +14,8 @@ var DataPreparation = React.createClass({
             rmt = 1;
             host = this.props['data-host'];
         }
+        
+        window.addGeoData = this.onDataReady;
 
         return {
             rmt : rmt,

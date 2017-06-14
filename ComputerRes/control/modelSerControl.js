@@ -704,7 +704,7 @@ ModelSerControl.getByPID = function(mid, callback){
 };
 
 //更新模型服务信息
-ModelSerControl.update = function(ms, user, callback){
+ModelSerControl.update = function(ms, callback){
     ModelSerModel.update(ms, function (err, data) {
         if (err) {
             return callback(err);

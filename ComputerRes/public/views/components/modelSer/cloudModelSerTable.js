@@ -62,7 +62,7 @@ var CloudModelSerTable = React.createClass({
         var packages = this.state.itemPackage.map(function(item){
             var btn = null;
             if(item.pulled == true){
-                btn = (<button className="btn btn-info btn-sm" onClick={ (e) => { window.location.href='/modelser/' + item.ms_id } }><i className="fa fa-eye"> </i>查看</button>);
+                btn = (<button className="btn btn-success btn-sm" onClick={ (e) => { window.location.href='/modelser/' + item.ms_id } }><i className="fa fa-eye"> </i>查看</button>);
             }
             else{
                 var disabled = null;
