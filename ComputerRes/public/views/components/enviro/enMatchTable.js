@@ -16,12 +16,12 @@ var EnMatchTable = React.createClass({
             allTT:null,
             modalUI:null,
             btnDisabled:true,
-            hasBinded:false,
-            done:false
+            done:false,
+            pid:''
         }
     },
 
-    componentDidMount:function () {
+    loadData:function () {
         var url = '/modelser/tabledata/' + this.props.pid + '?place=' + this.props.place + '&type=' + this.props.type;
         Axios.get(url).then(
             data=>{
@@ -35,8 +35,10 @@ var EnMatchTable = React.createClass({
                     this.setState({loading:false,err:{code:'获取相匹配的环境失败！'}});
                 }
                 else if(data.data.tabledata){
-                    this.setState({loading:false,demandsEn:data.data.tabledata});
+                    this.state.pid = this.props.pid;
+                    this.state.demandsEn = data.data.tabledata;
                     this.Init();
+                    this.setState({loading:false,demandsEn:data.data.tabledata});
                 }
             },
             err=>{
@@ -63,6 +65,7 @@ var EnMatchTable = React.createClass({
         Axios.get(url2).then(
             data => {
                 if(data.data.status == 1){
+                    this.state.pid = this.props.pid;
                     this.setState({loading:false,allEn:data.data.enviro})
                 }
                 else{
@@ -87,9 +90,18 @@ var EnMatchTable = React.createClass({
         );
     },
 
+    componentDidMount:function () {
+        this.loadData();
+    },
+
+    hadLoaded:function () {
+        return !this.state.loading;
+    },
+
     Init:function (){
-        if(this.state.hasBinded == true)
-            return;
+        $('#'+ this.props.tableID).children().remove();
+        $('#pager_'+ this.props.tableID).children().remove();
+        this.props.removeTab3();
         var demandsEn = this.state.demandsEn;
         var self = this;
         var type = (self.props.type.indexOf('swe') == -1) ? '硬件' : '软件';
@@ -110,14 +122,12 @@ var EnMatchTable = React.createClass({
                     header: 'Key',
                     template: '{common.treetable()} #title#',
                     // adjust:'data',
-                    width: self.props.css.width.title,
-                    fillspace:true
+                    width: self.props.css.width.title
                 }, {
                     id: 'Value',
                     header: 'Demand',
                     // adjust:'data',
-                    width: self.props.css.width.demand,
-                    fillspace:true
+                    width: self.props.css.width.demand
                 }, {
                     id: 'value',
                     header: 'Matched&nbsp;' +
@@ -125,10 +135,9 @@ var EnMatchTable = React.createClass({
                     'onclick="window[\''+self.props.tableID+'-props\'].showModal()" ' +
                     'data-toggle="modal" ' +
                     'data-target="#' + self.props.tableID + '-select-modal" ' +
-                    ' ><i class="fa fa-ellipsis-h"></i>&nbsp;&nbsp;more</button>',
+                    ' ><i class=""></i>more</button>',
                     width: self.props.css.width.enviro,
                     // adjust:'data',
-                    fillspace:true,
                     template:function (obj, common, value) {
                         if(obj.title == 'result'){
                             var rootID = obj.id;
@@ -149,31 +158,31 @@ var EnMatchTable = React.createClass({
                     },
                     editor:'inline-checkbox'
                 }
-                // , {
-                //     id: 'select',
-                //     header: 'Select',
-                //     width: 70,
-                //     css: "tabletree-operate",
-                //     template: function (obj) {
-                //         if(obj.type == 'Object')
-                //             return "<button class='tt-select-btn tabletree-btn btn btn-info btn-xs' " +
-                //                 "id='" + obj.id + "_select_btn' " +
-                //                 "type='button'" +
-                //                 "onclick='showModal(this)'" +
-                //                 "data-toggle='modal' " +
-                //                 "data-target='#'" + self.props.tableID + "'-select-modal'" +
-                //                 "><i class='fa fa-search'></i></button>";
-                //         return '';
-                //     }
-                // }
-                // , {
-                //     id: 'evaluate',
-                //     header: 'Evaluate',
-                //     width: 120,
-                //     css: "tabletree-operate",
-                //     editor: 'select',
-                //     options: ['未知','匹配','半匹配','不匹配']
-                // }
+                    // , {
+                    //     id: 'select',
+                    //     header: 'Select',
+                    //     width: 70,
+                    //     css: "tabletree-operate",
+                    //     template: function (obj) {
+                    //         if(obj.type == 'Object')
+                    //             return "<button class='tt-select-btn tabletree-btn btn btn-info btn-xs' " +
+                    //                 "id='" + obj.id + "_select_btn' " +
+                    //                 "type='button'" +
+                    //                 "onclick='showModal(this)'" +
+                    //                 "data-toggle='modal' " +
+                    //                 "data-target='#'" + self.props.tableID + "'-select-modal'" +
+                    //                 "><i class='fa fa-search'></i></button>";
+                    //         return '';
+                    //     }
+                    // }
+                    // , {
+                    //     id: 'evaluate',
+                    //     header: 'Evaluate',
+                    //     width: 120,
+                    //     css: "tabletree-operate",
+                    //     editor: 'select',
+                    //     options: ['未知','匹配','半匹配','不匹配']
+                    // }
                 ];
 
                 tabletree = webix.ui({
@@ -187,7 +196,7 @@ var EnMatchTable = React.createClass({
                         size:1,
                         group:1,
                         level:1,
-                        width:300,
+                        width:180,
                         animate:true,
                         on:{
                             onAfterPageChange:function (new_page) {
@@ -199,16 +208,13 @@ var EnMatchTable = React.createClass({
                             }
                         }
                     },
-                    scroll:true,
-                    scrollX:true,
-                    scrollY:false,
+                    scroll:'xy',
                     checkboxRefresh:true,
                     editable:true,
                     autoheight:true,
-                    autowidth:true,
-                    maxWidth:self.props.css.width.tabletree,
+                    width:self.props.css.width.tabletree,
                     select:false,
-                    resizeColumn:true,
+                    resizeColumn:{ headerOnly:true },
                     datatype:'myjson',
                     data:demandsEn
                 });
@@ -229,9 +235,17 @@ var EnMatchTable = React.createClass({
                 });
 
                 window[self.props.tableID+'-props'].showModal = function () {
-                    {
-                        var i=0;
-                        var id = self.state.tabletree.getFirstId();
+                    var i=0;
+                    var id = self.state.tabletree.getFirstId();
+                    if(id == undefined){
+                        $.gritter.add({
+                            title: '警告：',
+                            text: '没有环境需求！',
+                            sticky: false,
+                            time: 2000
+                        });
+                    }
+                    else{
                         while(i<window[self.props.tableID+'-props'].currentPage && id){
                             id = self.state.tabletree.getNextSiblingId(id);
                             i += 1;
@@ -255,25 +269,21 @@ var EnMatchTable = React.createClass({
                             id: 'title',
                             header: 'Key',
                             template: '{common.space()}{common.treecheckbox()}{common.icon()}{common.folder()}#title#',
-                            width: width,
-                            fillspace:true
+                            width: width
                         }, {
                             id: 'Value',
                             header: 'Value',
-                            width: width,
-                            fillspace:true
+                            width: width
                         }];
                         var modalColumns2 = [{
                             id: 'title',
                             header: 'Key',
                             template: '{common.space()}{common.treecheckbox()}{common.icon()}{common.folder()}#title#',
-                            width: width,
-                            fillspace:true
+                            width: width
                         }, {
                             id: 'Value',
                             header: 'Value',
-                            width: width,
-                            fillspace:true
+                            width: width
                         }];
                         var pagerModal1 = {
                             paddingY:15,
@@ -307,8 +317,8 @@ var EnMatchTable = React.createClass({
                             pager:self.props.tableID + '_modal_pager1',
                             editable:false,
                             autoheight:true,
-                            autowidth:true,
-                            width:width*2,
+                            maxWidth:width*2,
+                            scroll:'xy',
                             select:'row',
                             resizeColumn:true,
                             datatype:'myjson',
@@ -326,32 +336,22 @@ var EnMatchTable = React.createClass({
                                     }
                                     var submitBtn = $('#' + self.props.tableID + '-select-modal .btn-tt-submit');
                                     if(this.getChecked().length != 0){
-                                        // self.state.hasBinded = true;
                                         self.setState({btnDisabled:false});
                                     }
                                     else{
-                                        // self.state.hasBinded = true;
                                         self.setState({btnDisabled:true});
                                     }
                                 }
                             }
                         };
-
-                        // var tabChild2;
-                        // if(self.state.allEn == null){
-                        //
-                        // }
-                        // else{
-                        //
-                        // }
                         var modalTT2 = {
                             view:'treetable',
                             columns:modalColumns2,
                             pager:self.props.tableID + '_modal_pager2',
                             editable:false,
                             autoheight:true,
-                            autowidth:true,
-                            width:width*2,
+                            maxWidth:width*2,
+                            scroll:'xy',
                             select:'row',
                             resizeColumn:true,
                             datatype:'myjson',
@@ -369,70 +369,66 @@ var EnMatchTable = React.createClass({
                                     }
                                     var submitBtn = $('#' + self.props.tableID + '-select-modal .btn-tt-submit');
                                     if(this.getChecked().length != 0){
-                                        // self.state.hasBinded = true;
                                         self.setState({btnDisabled:false});
                                     }
                                     else{
-                                        // self.state.hasBinded = true;
                                         self.setState({btnDisabled:true});
                                     }
                                 }
                             }
-                        }
-                    }
-                    self.state.modalUI = webix.ui({
-                        type:'line',
-                        container:$('#' + self.props.tableID + '-select-modal .modal-body').attr('id'),
-                        rows:[{
-                            view:'tabbar',
-                            multiview:true,
-                            options:[
-                                {id:'1',value:'匹配环境',width:100},
-                                {id:'2',value:'所有环境',width:100}
-                            ],
-                            on:{
-                                'onChange':function () {
-                                    var submitBtn = $('#' + self.props.tableID + '-select-modal .btn-tt-submit');
-                                    var tt;
-                                    if(this.getValue() == '1'){
-                                        tt = self.state.matchTT;
-                                    }
-                                    else if(this.getValue() == '2'){
-                                        tt = self.state.allTT;
-                                    }
-                                    if(tt.getChecked().length != 0){
-                                        // self.state.hasBinded = true;
-                                        self.setState({btnDisabled:false});
-                                    }
-                                    else{
-                                        // self.state.hasBinded = true;
-                                        self.setState({btnDisabled:true});
+                        };
+                        self.state.modalUI = webix.ui({
+                            type:'line',
+                            container:$('#' + self.props.tableID + '-select-modal .modal-body').attr('id'),
+                            rows:[{
+                                view:'tabbar',
+                                multiview:true,
+                                options:[
+                                    {id:'1',value:'匹配环境',width:100},
+                                    {id:'2',value:'所有环境',width:100}
+                                ],
+                                on:{
+                                    'onChange':function () {
+                                        var submitBtn = $('#' + self.props.tableID + '-select-modal .btn-tt-submit');
+                                        var tt;
+                                        if(this.getValue() == '1'){
+                                            tt = self.state.matchTT;
+                                        }
+                                        else if(this.getValue() == '2'){
+                                            tt = self.state.allTT;
+                                        }
+                                        if(tt.getChecked().length != 0){
+                                            self.setState({btnDisabled:false});
+                                        }
+                                        else{
+                                            self.setState({btnDisabled:true});
+                                        }
                                     }
                                 }
-                            }
-                        },{
-                            cells:[
-                                {
-                                    id:'1',
-                                    rows:[
-                                        pagerModal1,
-                                        modalTT1
-                                    ]
-                                },
-                                {
-                                    id:'2',
-                                    rows:[
-                                        pagerModal2,
-                                        modalTT2
-                                    ]
-                                }
-                            ]
-                        }]
-                    });
-                    self.state.matchTT = self.state.modalUI.getChildViews()[1].getChildViews()[0].getChildViews()[1];
-                    self.state.allTT = self.state.modalUI.getChildViews()[1].getChildViews()[1].getChildViews()[1];
+                            },{
+                                cells:[
+                                    {
+                                        id:'1',
+                                        rows:[
+                                            pagerModal1,
+                                            modalTT1
+                                        ]
+                                    },
+                                    {
+                                        id:'2',
+                                        rows:[
+                                            pagerModal2,
+                                            modalTT2
+                                        ]
+                                    }
+                                ]
+                            }]
+                        });
+                        self.state.matchTT = self.state.modalUI.getChildViews()[1].getChildViews()[0].getChildViews()[1];
+                        self.state.allTT = self.state.modalUI.getChildViews()[1].getChildViews()[1].getChildViews()[1];
 
-                    $('#' + self.props.tableID + '-select-modal').modal();
+                        $('#' + self.props.tableID + '-select-modal').modal('show');
+                    }
                 };
 
                 $('#' + self.props.tableID + '-select-modal').on('show.bs.modal',function () {
@@ -446,11 +442,9 @@ var EnMatchTable = React.createClass({
                         tt = self.state.allTT;
                     }
                     if(tt.getChecked().length != 0){
-                        // self.state.hasBinded = true;
                         self.setState({btnDisabled:false});
                     }
                     else{
-                        // self.state.hasBinded = true;
                         self.setState({btnDisabled:true});
                     }
                 });
@@ -459,6 +453,12 @@ var EnMatchTable = React.createClass({
                     $(this).find('.modal-body').children().remove();
                     window.demandNodeID = '';
                 });
+
+                // var height = self.props.css.height.tabbar;
+                // webix.ui({
+                //     container:'enMatchSpan',
+                //     height:height
+                // });
             })
         }
     },
@@ -524,6 +524,8 @@ var EnMatchTable = React.createClass({
     },
 
     changeMatched:function (e) {
+        if(window.demandNodeID && window.demandNodeID == '')
+            return;
         var tt;
         var tabUI = this.state.modalUI.getChildViews()[0];
         var tabValue = tabUI.getValue();
@@ -626,14 +628,17 @@ var EnMatchTable = React.createClass({
             return (<span><i className="fa fa-spinner fa-spin fa-3x fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Loading...</span>);
         if(this.state.err)
             return (<span>Server error: {JSON.stringify(this.state.err)}</span>);
+        if(this.state.pid != this.props.pid)
+            this.loadData();
         return (
             <div>
                 <div>
                     <div id={this.props.tableID}></div>
                     <div id={'pager_'+this.props.tableID} style={{float:'right'}}></div>
+                    <div className="enMatchSpan"></div>
                 </div>
-                <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabIndex="-1" id={this.props.tableID + '-select-modal'} className="modal fade">
-                    <div className="modal-dialog" style={{width: '750px'}}>
+                <div aria-hidden="true" aria-labelledby="myModalLabel" tabIndex="-1" id={this.props.tableID + '-select-modal'} className="modal fade">
+                    <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button type="button" id="close-modal" className="close" data-dismiss="modal" aria-hidden="true">

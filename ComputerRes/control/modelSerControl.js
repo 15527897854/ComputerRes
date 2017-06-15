@@ -393,7 +393,7 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                     }
                     else{
                         //添加默认测试数据，不用异步请求，两者不相关
-                        testifyCtrl.addDefaultTestify(oid.toString());
+                        testifyCtrl.addDefaultTestify(oid.toString(),ModelSerControl.getInputData);
 
                         //添加模型运行文件权限
                         if (setting.platform == 2) {
@@ -1147,18 +1147,14 @@ ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
         })
     }
     else if(place == 'portal'){
-        var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
-        remoteReqCtrl.getByServer(url,null,function (err, res) {
+        var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPidServlet?pid=' + pid;
+        remoteReqCtrl.getByServer(url,null,function (err, mdlStr) {
             if(err){
                 return cb(err);
             }
             else{
-                res = JSON.parse(res);
-                if(res.error && res.error != ''){
-                    return cb({code:res.error});
-                }
-                else if(res.result && res.result != ''){
-                    ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
+                if(mdlStr && mdlStr != ''){
+                    ModelSerControl.parseMDLStr(mdlStr,function (err, mdl) {
                         if(err){
                             return cb(err);
                         }
@@ -1168,6 +1164,9 @@ ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
                             })
                         }
                     });
+                }
+                else{
+                    return cb(null,[]);
                 }
             }
         })
@@ -1196,4 +1195,8 @@ ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
         swe:softDemands,
         hwe:hardDemands
     });
+};
+
+ModelSerControl.addDefaultTestify = function (msid, cb) {
+    testifyCtrl.addDefaultTestify(msid,ModelSerControl.getInputData,cb);
 };

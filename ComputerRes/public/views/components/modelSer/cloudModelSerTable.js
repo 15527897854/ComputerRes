@@ -39,15 +39,12 @@ var CloudModelSerTable = React.createClass({
         );
     },
 
-    enviroModal : function (e,id) {
-
-    },
-
     downCloudModelPackage : function(e, pid){
         this.setState({ processBar : true });
         Axios.get('/modelser/cloud/packages/' + pid + '?ac=download&fields=' + JSON.stringify(this.state.itemDetail)).then(
             data => {
                 if(data.data.result == 'suc'){
+                    $('#'+ pid+'-match-modal').modal('hide');
                     $('#md_modelItemDetail').modal('hide');
                     NoteDialog.openNoteDia('模型拉取成功！','模型 : ' + this.state.itemDetail.model_name + ' 拉取成功！');
                     this.refs.modelItemSelector.getModelItems();
@@ -59,18 +56,46 @@ var CloudModelSerTable = React.createClass({
     },
 
     render : function() {
+        var self = this;
         var modalList = [];
-        var childModalWidth = 800;
+        var childModalWidth = 530;
         var css = {
             width:{
                 tabletree:childModalWidth,
-                title:(childModalWidth-140)/5,
-                demand:(childModalWidth-140)*2/5,
-                enviro:(childModalWidth-140)*2/5
+                title:120,
+                demand:(childModalWidth-120)/2,
+                enviro:(childModalWidth-120)/2,
+                tabbar:childModalWidth
+            },
+            height:{
+                tabbar:500
             }
         };
         var packages = this.state.itemPackage.map(function(item){
-            item.id = '73674ec897c7120bb82865ffd8dc12e5';
+            var procBar = null;
+            if(this.state.processBar){
+                procBar = (
+                    <div style={{textAlign:'center'}}>
+                        <i className="fa fa-spinner fa-spin fa-3x fa-fw" style={{margin:'0 auto'}}></i>
+                    </div>
+                );
+            }
+            var changeModalFooter = function (display) {
+                if(display == true){
+                    $($('#' + item.id+'-match-modal .modal-footer')[2]).show();
+                    $('#' + item.id+'-match-modal .progress').show();
+                }
+                else if(display == false){
+                    $($('#' + item.id+'-match-modal .modal-footer')[2]).hide();
+                    $('#' + item.id+'-match-modal .progress').hide();
+                }
+            };
+            var changeModalBtn = function (display) {
+                if(display)
+                    $('#'+item.id+'-match-modal .editEn-btn').show();
+                else
+                    $('#'+item.id+'-match-modal .editEn-btn').hide();
+            };
             var btn = null;
             if(item.pulled == true){
                 btn = (<button className="btn btn-info btn-sm" onClick={ (e) => { window.location.href='/modelser/' + item.ms_id } }><i className="fa fa-eye"> </i>查看</button>);
@@ -81,36 +106,46 @@ var CloudModelSerTable = React.createClass({
                     disabled = 'disable';
                 }
                 modalList.push((
-                    <EnMatchStepy
-                        id={item.id+'-match'}
-                        pid={item.id}
-                        place="local"
-                        css={css}
-                    />
+                    <div id={item.id+'-match-modal'} className="modal fade" tabIndex="-1">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <button type="button" className="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 className="modal-title">Enviroment Match</h4>
+                                </div>
+                                <div className="modal-body">
+                                    <EnMatchStepy
+                                        id={item.id+'-match'}
+                                        pid={item.id}
+                                        place="portal"
+                                        css={css}
+                                        changeModalFooter = {changeModalFooter}
+                                        changeModalBtn = {changeModalBtn}
+                                        ref={item.id+'-match-ref'}
+                                    />
+                                    {procBar}
+                                </div>
+                                <div className="modal-footer" style={{display:'none',margin:0}}>
+                                    <button type="button" data-dismiss="modal" className="btn btn-default">Close</button>
+                                    <a className="btn btn-primary editEn-btn" style={{display:'none'}} href='/setting/enviroment'>Edit Enviroment</a>
+                                    <button type="button" className="btn btn-success" onClick={ (e) => { this.downCloudModelPackage(e, item.id); } } disabled={disabled}><i className="fa fa-download"> </i>Deploy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 ));
                 btn = (
-                    <button href={'#'+item.id+'-match'} data-toggle="modal" className="btn btn-info btn-sm" ><i className="fa fa-book"> </i> 环境匹配</button>
-                    // <button className="btn btn-info btn-sm" onClick={ (e) => { this.downCloudModelPackage(e, item.id); } } disabled={disabled} ><i className="fa fa-download"> </i> 拉取</button>
+                    <button href={'#'+item.id+'-match-modal'} data-toggle="modal" className="btn btn-info btn-sm" ><i className="fa fa-book"> </i> 环境匹配</button>
                 );
             }
             return (
-                <tr>
+                <tr key={item.id}>
                     <td>v1.0</td>
                     <td>{item.name}</td>
                     <td>{btn}</td>
                 </tr>
             );
         }.bind(this));
-        var procBar = null;
-        if(this.state.processBar){
-            procBar = (
-                <div className="progress progress-striped active progress-sm">
-                    <div style={ { width : '100%' }} aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" className="progress-bar progress-bar-success">
-                        <span className="sr-only"> </span>
-                    </div>
-                </div>
-            );
-        }
         return (
             <div className="wrapper">
                 <ModelItemSelect ref="modelItemSelector" data-source={this.props['data-source']} onSelectedItem={this.openModelDetail} />
@@ -129,7 +164,7 @@ var CloudModelSerTable = React.createClass({
                                 <h5 >登记时间 : {this.state.itemDetail.model_registerTime} </h5>
                                 <h5 >平台 : {this.state.itemDetail.model_platform} </h5>
                                 <h5 >状态 : {this.state.itemDetail.model_status} </h5>
-                                <table className="table">
+                                <table className="table" style={{margin:0}}>
                                     <thead>
                                     <tr>
                                         <th>版本</th>
@@ -141,7 +176,6 @@ var CloudModelSerTable = React.createClass({
                                     {packages}
                                     </tbody>
                                 </table>
-                                {procBar}
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-default" data-dismiss="modal">关闭</button>
@@ -151,7 +185,7 @@ var CloudModelSerTable = React.createClass({
                 </div>
                 {modalList}
             </div>
-            );
+        );
     }
 });
 

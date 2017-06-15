@@ -22,6 +22,7 @@ var remoteModelSerRoute = require('./rmtModelSerRoute');
 var SWECtrl = require('../control/softwareEnCtrl');
 var HWECtrl = require('../control/hardwareEnCtrl');
 var testifyCtrl = require('../control/testifyCtrl');
+var NoticeCtrl = require('../control/noticeCtrl');
 
 module.exports = function(app)
 {
@@ -577,7 +578,7 @@ module.exports = function(app)
             var msid = req.params.msid;
             //暂时放到这里，用来生成已经部署过的模型的测试数据
             //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
-            testifyCtrl.addDefaultTestify(msid.toString(),function () {
+            ModelSerCtrl.addDefaultTestify(msid.toString(),function () {
                 testifyCtrl.getTestify(msid,function (data) {
                     res.end(data);
                 });

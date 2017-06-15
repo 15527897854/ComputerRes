@@ -2,7 +2,6 @@
  * Created by SCR on 2017/6/10.
  */
 var fs = require('fs');
-var ModelSerControl = require('./modelSerControl');
 var setting = require('../setting');
 var FileOpera = require('../utils/fileOpera');
 var GeoDataCtrl = require('./geoDataControl');
@@ -13,7 +12,7 @@ var testifyCtrl = function () {
 };
 module.exports = testifyCtrl;
 
-testifyCtrl.addDefaultTestify = function (msid,callback) {
+testifyCtrl.addDefaultTestify = function (msid,getInputData,callback) {
     if(!callback){
         callback = function () {};
     }
@@ -36,12 +35,12 @@ testifyCtrl.addDefaultTestify = function (msid,callback) {
         for(var i=0;i<configJSON.length;i++){
             if(configJSON[i].tag == 'default'){
                 //已经生成过默认测试数据
-                return callback()
+                return callback();
             }
         }
         //得到testify一级目录下的所有xml
         FileOpera.getAllFiles(testifyRoot,'.xml',function (files) {
-            ModelSerControl.getInputData(msid,function (err, states) {
+            getInputData(msid,function (err, states) {
                 if(err){
                     return callback();
                 }
