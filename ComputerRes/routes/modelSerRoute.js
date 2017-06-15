@@ -576,8 +576,8 @@ module.exports = function(app)
             //暂时放到这里，用来生成已经部署过的模型的测试数据
             //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
             ModelSerCtrl.addDefaultTestify(msid.toString(),function () {
-            ModelSerCtrl.getTestify(msid,function (data) {
-                res.end(data);
+                ModelSerCtrl.getTestify(msid,function (data) {
+                    res.end(data);
                 });
             });
         })

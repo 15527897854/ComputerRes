@@ -17,7 +17,7 @@ var ModelSerUploader = require('../components/modelSer/modelSerUploader');
 var EnviroPanel = require('../components/systemSetting/enviroPanel');
 var UserInfo = require('../components/systemSetting/userInfo');
 var LoginPanel = require('../components/systemSetting/loginPanel');
-
+var TestifyDataPanel = require('../components/data/TestifyDataPanel');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -89,6 +89,12 @@ if(document.getElementById('DataPreparation') != null) {
         data-type={ document.getElementById('DataPreparation').getAttribute('data-type') }
         data-host={ document.getElementById('DataPreparation').getAttribute('data-host') } />,
         document.getElementById('DataPreparation'));
+}
+
+if(document.getElementById('TestifyDataPanel') != null ){
+    ReactDOM.render(<TestifyDataPanel 
+    data-source={document.getElementById('TestifyDataPanel').getAttribute('data-source') } />,
+    document.getElementById('TestifyDataPanel'));
 }
 
 if(document.getElementById('enviro-section') != null){

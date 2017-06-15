@@ -69,7 +69,7 @@ var ModelSerInfo = React.createClass({
         }
         var img = (<img src="/images/modelImg/default.png" alt=""  />);
         if(this.state.ms.ms_img.trim() != '' && this.state.ms.ms_img != null){
-            img = (<img height="200px" width="160px" src={ '/images/modelImg/' + this.state.ms.ms_img } alt=""  />)
+            img = (<img height="128px" width="128px" src={ '/images/modelImg/' + this.state.ms.ms_img } alt=""  />)
         }
         return (
             <div className="panel panel-primary">
