@@ -20,10 +20,6 @@ var EnMatchPanel = React.createClass({
     },
 
     render:function () {
-        // if(this.state.loading)
-        //     return (<span><i className="fa fa-spinner fa-spin fa-3x fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Loading...</span>);
-        // if(this.state.err)
-        //     return (<span>Server error: {JSON.stringify(this.state.err)}</span>);
         return (
             <div>
                 <div className="panel panel-info">
@@ -55,13 +51,13 @@ var EnMatchPanel = React.createClass({
                     </div>
                     <div className="panel-body">
                         <div className="editable-table ">
-                            {/*<EnMatchTable*/}
-                                {/*tableID="hwe-table"*/}
-                                {/*type="hwe"*/}
-                                {/*pid={this.props.pid}*/}
-                                {/*place={this.props.place}*/}
-                                {/*css={this.props.css}*/}
-                            {/*/>*/}
+                            <EnMatchTable
+                                tableID="hwe-table"
+                                type="hwe"
+                                pid={this.props.pid}
+                                place={this.props.place}
+                                css={this.props.css}
+                            />
                         </div>
                     </div>
                 </div>

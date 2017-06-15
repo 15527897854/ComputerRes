@@ -362,34 +362,40 @@ softwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
             demands = demands.swe;
             var count = 0;
             var matchedList = [];
-            var pending = function (index) {
-                count++;
-                return function (err, matchedItems) {
-                    count--;
-                    if(err){
-                        console.log(err);
+            if(demands.length){
+                var pending = function (index) {
+                    count++;
+                    return function (err, matchedItems) {
+                        count--;
+                        if(err){
+                            console.log(err);
+                        }
+                        else{
+                            modelBase.items2TableTree(matchedItems,function (err, matchedItems) {
+                                matchedList[index] = matchedItems;
+                            });
+                        }
+                        if(count == 0){
+                            modelBase.items2TableTree(demands,function (err, demands) {
+                                for(var i=0;i<demands.length;i++){
+                                    demands[i].matched = matchedList[i];
+                                    demands[i].result = '未知';
+                                }
+                                cb(null,demands);
+                            });
+                        }
                     }
-                    else{
-                        modelBase.items2TableTree(matchedItems,function (err, matchedItems) {
-                            matchedList[index] = matchedItems;
-                        });
-                    }
-                    if(count == 0){
-                        modelBase.items2TableTree(demands,function (err, demands) {
-                            for(var i=0;i<demands.length;i++){
-                                demands[i].matched = matchedList[i];
-                                demands[i].result = '未知';
-                            }
-                            cb(null,demands);
-                        });
-                    }
+                };
+                for(var i=0;i<demands.length;i++){
+                    demands[i].alias = [];
+                    demands[i].publisher = '';
+                    demands[i].type = '';
+                    demands[i].result = '';
+                    softwareEnCtrl.enMatched(demands[i],pending(i));
                 }
-            };
-            for(var i=0;i<demands.length;i++){
-                demands[i].alias = [];
-                demands[i].publisher = '';
-                demands[i].type = '';
-                softwareEnCtrl.enMatched(demands[i],pending(i));
+            }
+            else{
+                cb(null,[]);
             }
         }
     })

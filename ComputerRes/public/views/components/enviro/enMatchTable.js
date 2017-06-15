@@ -9,18 +9,19 @@ var EnMatchTable = React.createClass({
         return {
             loading:true,
             err:null,
-            tabletreeJSON:null,
+            demandsEn:null,
+            allEn:null,
             tabletree:null,
-            modalUI:null,
             matchTT:null,
             allTT:null,
-            allEn:null,
+            modalUI:null,
             btnDisabled:true,
-            hasBinded:false
+            done:false,
+            pid:''
         }
     },
 
-    componentDidMount:function () {
+    loadData:function () {
         var url = '/modelser/tabledata/' + this.props.pid + '?place=' + this.props.place + '&type=' + this.props.type;
         Axios.get(url).then(
             data=>{
@@ -34,7 +35,10 @@ var EnMatchTable = React.createClass({
                     this.setState({loading:false,err:{code:'获取相匹配的环境失败！'}});
                 }
                 else if(data.data.tabledata){
-                    this.setState({loading:false,tabletreeJSON:data.data.tabledata});
+                    this.state.pid = this.props.pid;
+                    this.state.demandsEn = data.data.tabledata;
+                    this.Init();
+                    this.setState({loading:false,demandsEn:data.data.tabledata});
                 }
             },
             err=>{
@@ -49,34 +53,35 @@ var EnMatchTable = React.createClass({
         );
 
         var url2 = '/setting/enviro?method=get&type=';
-        var zhcnType;
+        var zhCnType;
         if(this.props.type == 'swe'){
             url2 += 'software';
-            zhcnType = '软件';
+            zhCnType = '软件';
         }
         else if(this.props.type == 'hwe'){
             url2 += 'hardware';
-            zhcnType = '硬件'
+            zhCnType = '硬件'
         }
         Axios.get(url2).then(
             data => {
                 if(data.data.status == 1){
+                    this.state.pid = this.props.pid;
                     this.setState({loading:false,allEn:data.data.enviro})
                 }
                 else{
                     $.gritter.add({
                         title: '警告：',
-                        text: '获取'+zhcnType+'环境列表失败，请稍后重试！',
+                        text: '获取'+zhCnType+'环境列表失败，请稍后重试！',
                         sticky: false,
                         time: 2000
                     });
-                    this.setState({loading:false,err:{code:'获取'+zhcnType+'环境列表失败！'}});
+                    this.setState({loading:false,err:{code:'获取'+zhCnType+'环境列表失败！'}});
                 }
             },
             err => {
                 $.gritter.add({
                     title: '警告：',
-                    text: '获取'+zhcnType+'环境列表失败，请稍后重试！',
+                    text: '获取'+zhCnType+'环境列表失败，请稍后重试！',
                     sticky: false,
                     time: 2000
                 });
@@ -85,11 +90,22 @@ var EnMatchTable = React.createClass({
         );
     },
 
-    bindComponent:function (){
-        var tabletreeJSON = this.state.tabletreeJSON;
+    componentDidMount:function () {
+        this.loadData();
+    },
+
+    hadLoaded:function () {
+        return !this.state.loading;
+    },
+
+    Init:function (){
+        $('#'+ this.props.tableID).children().remove();
+        $('#pager_'+ this.props.tableID).children().remove();
+        this.props.removeTab3();
+        var demandsEn = this.state.demandsEn;
         var self = this;
         var type = (self.props.type.indexOf('swe') == -1) ? '硬件' : '软件';
-        if(tabletreeJSON){
+        if(demandsEn){
             webix.ready(function (){
                 var pagerID = "pager_"+self.props.tableID;
                 var myjson = webix.DataDriver.myjson = webix.copy(webix.DataDriver.json);
@@ -97,8 +113,6 @@ var EnMatchTable = React.createClass({
                     return obj.children;
                 };
                 webix.locale.pager = {
-                    first: "<<",
-                    last: ">>",
                     next: ">",
                     prev: "<"
                 };
@@ -107,99 +121,135 @@ var EnMatchTable = React.createClass({
                     id: 'title',
                     header: 'Key',
                     template: '{common.treetable()} #title#',
-                    width: self.props.css.width.title,
-                    fillspace:true
+                    // adjust:'data',
+                    width: self.props.css.width.title
                 }, {
                     id: 'Value',
                     header: 'Demand',
-                    width: self.props.css.width.demand,
-                    fillspace:true
+                    // adjust:'data',
+                    width: self.props.css.width.demand
                 }, {
-                    id: 'match',
-                    header: 'Matched',
+                    id: 'value',
+                    header: 'Matched&nbsp;' +
+                    '<button id="' + self.props.tableID + '-matchBtn" class="tt-select-btn tabletree-btn btn btn-info btn-xs" type="button" ' +
+                    'onclick="window[\''+self.props.tableID+'-props\'].showModal()" ' +
+                    'data-toggle="modal" ' +
+                    'data-target="#' + self.props.tableID + '-select-modal" ' +
+                    ' ><i class=""></i>more</button>',
                     width: self.props.css.width.enviro,
-                    fillspace:true
-                }, {
-                    id: 'select',
-                    header: 'Select',
-                    width: 70,
-                    css: "tabletree-operate",
-                    template: function (obj) {
-                        if(obj.type == 'Object')
-                            return "<button class='tt-select-btn tabletree-btn btn btn-info btn-xs' " +
-                                "id='" + obj.id + "_select_btn' " +
-                                "type='button'" +
-                                "onclick='showModal(this)'" +
-                                "data-toggle='modal' " +
-                                "data-target='#'" + self.props.tableID + "'-select-modal'" +
-                                "><i class='fa fa-search'></i></button>";
-                        return '';
-                    }
+                    // adjust:'data',
+                    template:function (obj, common, value) {
+                        if(obj.title == 'result'){
+                            var rootID = obj.id;
+                            while(self.state.tabletree.getItem(rootID).$parent!=0){
+                                rootID = self.state.tabletree.getItem(rootID).$parent;
+                            }
+                            self.state.tabletree.getItem(rootID).result = value;
+                            if (value == 1){
+                                return "<div class='webix_table_checkbox webix_checked'>Matched</div>";
+                            }
+                            else
+                                return "<div class='webix_table_checkbox webix_notchecked'>Unmatched</div>";
+                        }
+                        else if(obj.value && obj.value!=undefined)
+                            return obj.value;
+                        else
+                            return '';
+                    },
+                    editor:'inline-checkbox'
                 }
-                // , {
-                //     id: 'evaluate',
-                //     header: 'Evaluate',
-                //     width: 120,
-                //     css: "tabletree-operate",
-                //     editor: 'select',
-                //     options: ['未知','匹配','半匹配','不匹配']
-                // }
+                    // , {
+                    //     id: 'select',
+                    //     header: 'Select',
+                    //     width: 70,
+                    //     css: "tabletree-operate",
+                    //     template: function (obj) {
+                    //         if(obj.type == 'Object')
+                    //             return "<button class='tt-select-btn tabletree-btn btn btn-info btn-xs' " +
+                    //                 "id='" + obj.id + "_select_btn' " +
+                    //                 "type='button'" +
+                    //                 "onclick='showModal(this)'" +
+                    //                 "data-toggle='modal' " +
+                    //                 "data-target='#'" + self.props.tableID + "'-select-modal'" +
+                    //                 "><i class='fa fa-search'></i></button>";
+                    //         return '';
+                    //     }
+                    // }
+                    // , {
+                    //     id: 'evaluate',
+                    //     header: 'Evaluate',
+                    //     width: 120,
+                    //     css: "tabletree-operate",
+                    //     editor: 'select',
+                    //     options: ['未知','匹配','半匹配','不匹配']
+                    // }
                 ];
 
                 tabletree = webix.ui({
+                    type:'line',
                     container:self.props.tableID,
                     view:'treetable',
                     columns:columns,
                     pager:{
-                        template:"{common.page()}/#limit# {common.prev()}{common.next()}",
+                        template:"{common.prev()}&nbsp;<div class='paging1'>{common.page()}/#limit#</div>{common.next()}",
                         container:pagerID,
                         size:1,
                         group:1,
                         level:1,
-                        width:500
+                        width:180,
+                        animate:true,
+                        on:{
+                            onAfterPageChange:function (new_page) {
+                                if(!window[self.props.tableID+'-props'])
+                                    window[self.props.tableID+'-props'] = {};
+                                window[self.props.tableID+'-props'].currentPage = new_page;
+                                if(new_page == this.config.limit-1)
+                                    self.state.done = true;
+                            }
+                        }
                     },
+                    scroll:'xy',
+                    checkboxRefresh:true,
                     editable:true,
                     autoheight:true,
-                    autowidth:true,
                     width:self.props.css.width.tabletree,
-                    select:'row',
-                    resizeColumn:true,
+                    select:false,
+                    resizeColumn:{ headerOnly:true },
                     datatype:'myjson',
-                    data:tabletreeJSON
+                    data:demandsEn
                 });
                 self.state.tabletree = tabletree;
+                if(!window[self.props.tableID+'-props'])
+                    window[self.props.tableID+'-props'] = {};
+                window[self.props.tableID+'-props'].currentPage = 0;
 
                 tabletree.openAll();
 
                 self.addDefaultMatched();
 
-                //改变result一列中的值
-                // {
-                //     var itemID = tabletree.getFirstId();
-                //     while(itemID){
-                //         var itemNode = tabletree.getItem(itemID);
-                //         for(var i=0;i<itemNode.children.length;i++){
-                //             var node = itemNode.children[i];
-                //             while(node && node.type != 'Object'){
-                //                 node.result = '';
-                //                 tabletree.refresh();
-                //                 node = node.children;
-                //             }
-                //         }
-                //         itemID = tabletree.getNextSiblingId(itemID);
-                //     }
-                // }
-
                 tabletree.attachEvent('onBeforeEditStart',function (cell) {
-                    if(this.getItem(cell.row).type != 'Object'){
+                    if(this.getItem(cell.row).title != 'result'){
                         return false;
                     }
+                    return true;
                 });
 
-                window.showModal = function (e) {
-                    {
-                        var id = e.id;
-                        id = id.substring(0,id.indexOf('_select_btn'));
+                window[self.props.tableID+'-props'].showModal = function () {
+                    var i=0;
+                    var id = self.state.tabletree.getFirstId();
+                    if(id == undefined){
+                        $.gritter.add({
+                            title: '警告：',
+                            text: '没有环境需求！',
+                            sticky: false,
+                            time: 2000
+                        });
+                    }
+                    else{
+                        while(i<window[self.props.tableID+'-props'].currentPage && id){
+                            id = self.state.tabletree.getNextSiblingId(id);
+                            i += 1;
+                        }
                         window.demandNodeID = id;
                         var modalData = self.state.tabletree.getItem(id).matched;
                         var width = $('#' + self.props.tableID + '-select-modal .modal-dialog').width();
@@ -219,25 +269,21 @@ var EnMatchTable = React.createClass({
                             id: 'title',
                             header: 'Key',
                             template: '{common.space()}{common.treecheckbox()}{common.icon()}{common.folder()}#title#',
-                            width: width,
-                            fillspace:true
+                            width: width
                         }, {
                             id: 'Value',
                             header: 'Value',
-                            width: width,
-                            fillspace:true
+                            width: width
                         }];
                         var modalColumns2 = [{
                             id: 'title',
                             header: 'Key',
                             template: '{common.space()}{common.treecheckbox()}{common.icon()}{common.folder()}#title#',
-                            width: width,
-                            fillspace:true
+                            width: width
                         }, {
                             id: 'Value',
                             header: 'Value',
-                            width: width,
-                            fillspace:true
+                            width: width
                         }];
                         var pagerModal1 = {
                             paddingY:15,
@@ -248,7 +294,8 @@ var EnMatchTable = React.createClass({
                                 size:10,
                                 group:5,
                                 width:500,
-                                level:1
+                                level:1,
+                                animate:true,
                             }]
                         };
                         var pagerModal2 = {
@@ -260,7 +307,8 @@ var EnMatchTable = React.createClass({
                                 size:10,
                                 group:5,
                                 width:500,
-                                level:1
+                                level:1,
+                                animate:true,
                             }]
                         };
                         var modalTT1 = {
@@ -269,8 +317,8 @@ var EnMatchTable = React.createClass({
                             pager:self.props.tableID + '_modal_pager1',
                             editable:false,
                             autoheight:true,
-                            autowidth:true,
-                            width:width*2,
+                            maxWidth:width*2,
+                            scroll:'xy',
                             select:'row',
                             resizeColumn:true,
                             datatype:'myjson',
@@ -288,25 +336,22 @@ var EnMatchTable = React.createClass({
                                     }
                                     var submitBtn = $('#' + self.props.tableID + '-select-modal .btn-tt-submit');
                                     if(this.getChecked().length != 0){
-                                        self.state.hasBinded = true;
                                         self.setState({btnDisabled:false});
                                     }
                                     else{
-                                        self.state.hasBinded = true;
                                         self.setState({btnDisabled:true});
                                     }
                                 }
                             }
                         };
-
                         var modalTT2 = {
                             view:'treetable',
                             columns:modalColumns2,
                             pager:self.props.tableID + '_modal_pager2',
                             editable:false,
                             autoheight:true,
-                            autowidth:true,
-                            width:width*2,
+                            maxWidth:width*2,
+                            scroll:'xy',
                             select:'row',
                             resizeColumn:true,
                             datatype:'myjson',
@@ -324,70 +369,66 @@ var EnMatchTable = React.createClass({
                                     }
                                     var submitBtn = $('#' + self.props.tableID + '-select-modal .btn-tt-submit');
                                     if(this.getChecked().length != 0){
-                                        self.state.hasBinded = true;
                                         self.setState({btnDisabled:false});
                                     }
                                     else{
-                                        self.state.hasBinded = true;
                                         self.setState({btnDisabled:true});
                                     }
                                 }
                             }
-                        }
-                    }
-                    self.state.modalUI = webix.ui({
-                        type:'line',
-                        container:$('#' + self.props.tableID + '-select-modal .modal-body').attr('id'),
-                        rows:[{
-                            view:'tabbar',
-                            multiview:true,
-                            options:[
-                                {id:'1',value:'匹配环境',width:100},
-                                {id:'2',value:'所有环境',width:100}
-                            ],
-                            on:{
-                                'onChange':function () {
-                                    var submitBtn = $('#' + self.props.tableID + '-select-modal .btn-tt-submit');
-                                    var tt;
-                                    if(this.getValue() == '1'){
-                                        tt = self.state.matchTT;
-                                    }
-                                    else if(this.getValue() == '2'){
-                                        tt = self.state.allTT;
-                                    }
-                                    if(tt.getChecked().length != 0){
-                                        self.state.hasBinded = true;
-                                        self.setState({btnDisabled:false});
-                                    }
-                                    else{
-                                        self.state.hasBinded = true;
-                                        self.setState({btnDisabled:true});
+                        };
+                        self.state.modalUI = webix.ui({
+                            type:'line',
+                            container:$('#' + self.props.tableID + '-select-modal .modal-body').attr('id'),
+                            rows:[{
+                                view:'tabbar',
+                                multiview:true,
+                                options:[
+                                    {id:'1',value:'匹配环境',width:100},
+                                    {id:'2',value:'所有环境',width:100}
+                                ],
+                                on:{
+                                    'onChange':function () {
+                                        var submitBtn = $('#' + self.props.tableID + '-select-modal .btn-tt-submit');
+                                        var tt;
+                                        if(this.getValue() == '1'){
+                                            tt = self.state.matchTT;
+                                        }
+                                        else if(this.getValue() == '2'){
+                                            tt = self.state.allTT;
+                                        }
+                                        if(tt.getChecked().length != 0){
+                                            self.setState({btnDisabled:false});
+                                        }
+                                        else{
+                                            self.setState({btnDisabled:true});
+                                        }
                                     }
                                 }
-                            }
-                        },{
-                            cells:[
-                                {
-                                    id:'1',
-                                    rows:[
-                                        pagerModal1,
-                                        modalTT1
-                                    ]
-                                },
-                                {
-                                    id:'2',
-                                    rows:[
-                                        pagerModal2,
-                                        modalTT2
-                                    ]
-                                }
-                            ]
-                        }]
-                    });
-                    self.state.matchTT = self.state.modalUI.getChildViews()[1].getChildViews()[0].getChildViews()[1];
-                    self.state.allTT = self.state.modalUI.getChildViews()[1].getChildViews()[1].getChildViews()[1];
+                            },{
+                                cells:[
+                                    {
+                                        id:'1',
+                                        rows:[
+                                            pagerModal1,
+                                            modalTT1
+                                        ]
+                                    },
+                                    {
+                                        id:'2',
+                                        rows:[
+                                            pagerModal2,
+                                            modalTT2
+                                        ]
+                                    }
+                                ]
+                            }]
+                        });
+                        self.state.matchTT = self.state.modalUI.getChildViews()[1].getChildViews()[0].getChildViews()[1];
+                        self.state.allTT = self.state.modalUI.getChildViews()[1].getChildViews()[1].getChildViews()[1];
 
-                    $('#' + self.props.tableID + '-select-modal').modal();
+                        $('#' + self.props.tableID + '-select-modal').modal('show');
+                    }
                 };
 
                 $('#' + self.props.tableID + '-select-modal').on('show.bs.modal',function () {
@@ -401,11 +442,9 @@ var EnMatchTable = React.createClass({
                         tt = self.state.allTT;
                     }
                     if(tt.getChecked().length != 0){
-                        self.state.hasBinded = true;
                         self.setState({btnDisabled:false});
                     }
                     else{
-                        self.state.hasBinded = true;
                         self.setState({btnDisabled:true});
                     }
                 });
@@ -414,6 +453,12 @@ var EnMatchTable = React.createClass({
                     $(this).find('.modal-body').children().remove();
                     window.demandNodeID = '';
                 });
+
+                // var height = self.props.css.height.tabbar;
+                // webix.ui({
+                //     container:'enMatchSpan',
+                //     height:height
+                // });
             })
         }
     },
@@ -425,55 +470,62 @@ var EnMatchTable = React.createClass({
             var itemNode = tt.getItem(itemID);
             var defaultMatched = itemNode.matched[0];
             if(defaultMatched){
-                {
-                    var score = 0;
-                    for(var i=0;i<defaultMatched.children.length;i++){
-                        if(defaultMatched.children[i].title == 'score'){
-                            score = defaultMatched.children[i].Value;
-                            break;
-                        }
-                    }
-                    if(score > 2.5){
-                        itemNode.evaluate = '匹配';
-                    }
-                    else if(score > 1.0){
-                        itemNode.evaluate = '半匹配';
-                    }
-                    else if(score > 0.5){
-                        itemNode.evaluate = '未知';
-                    }
-                    else{
-                        itemNode.evaluate = '不匹配';
-                        continue;
-                    }
-                }
+                // {
+                //     var score = 0;
+                //     for(var i=0;i<defaultMatched.children.length;i++){
+                //         if(defaultMatched.children[i].title == 'score'){
+                //             score = defaultMatched.children[i].Value;
+                //             break;
+                //         }
+                //     }
+                //     if(score >= 1.0){
+                //         itemNode.evaluate = '匹配';
+                //     }
+                //     else{
+                //         itemNode.evaluate = '不匹配';
+                //         // continue;
+                //     }
+                // }
+                var score = 0;
                 for(var i=0;i<itemNode.children.length;i++) {
                     for (var j = 0; j < defaultMatched.children.length; j++) {
+                        if(itemNode.children[i].title == 'result' && defaultMatched.children[j].title == 'score'){
+                            score = defaultMatched.children[j].Value;
+                            itemNode.children[i].value = score>=1? 1:0;
+                            itemNode.result = score>=1? 1:0;
+                            tt.refresh();
+                        }
                         if(itemNode.children[i].title == defaultMatched.children[j].title){
                             if(itemNode.children[i].title == 'alias'){
                                 for(var k=0;k<defaultMatched.children[j].children.length;k++){
                                     var tmp = defaultMatched.children[j].children[k];
                                     this.state.tabletree.add({
                                         title:itemNode.children[i].$count,
-                                        match:tmp.Value,
+                                        value:tmp.Value,
                                         type:'string'
                                     },-1,itemNode.children[i].id);
                                     tt.refresh();
                                 }
                             }
                             else{
-                                itemNode.children[i].match = defaultMatched.children[j].Value;
+                                itemNode.children[i].value = defaultMatched.children[j].Value;
                             }
                             tt.refresh();
                         }
                     }
                 }
             }
+            else{
+                itemNode.result = 0;
+                tt.refresh();
+            }
             itemID = tt.getNextSiblingId(itemID);
         }
     },
 
     changeMatched:function (e) {
+        if(window.demandNodeID && window.demandNodeID == '')
+            return;
         var tt;
         var tabUI = this.state.modalUI.getChildViews()[0];
         var tabValue = tabUI.getValue();
@@ -491,49 +543,57 @@ var EnMatchTable = React.createClass({
         if(checkedID){
             var checkedNode = tt.getItem(checkedID);
             var originalNode = this.state.tabletree.getItem(window.demandNodeID);
-            {
-                var score = 0;
-                for(var i=0;i<checkedNode.children.length;i++){
-                    if(checkedNode.children[i].title == 'score'){
-                        score = checkedNode.children[i].Value;
-                        break;
-                    }
-                }
-                if(score > 2.5){
-                    originalNode.evaluate = '匹配';
-                }
-                else if(score > 1.0){
-                    originalNode.evaluate = '半匹配';
-                }
-                else if(score > 0.5){
-                    originalNode.evaluate = '未知';
-                }
-                else{
-                    originalNode.evaluate = '不匹配';
-                    this.state.tabletree.refresh();
-                    return;
-                }
-            }
+            // {
+            //     var score = 0;
+            //     for(var i=0;i<checkedNode.children.length;i++){
+            //         if(checkedNode.children[i].title == 'score'){
+            //             score = checkedNode.children[i].Value;
+            //             break;
+            //         }
+            //     }
+            //     if(score >= 1){
+            //         originalNode.evaluate = '匹配';
+            //     }
+            //     else{
+            //         originalNode.evaluate = '不匹配';
+            //         this.state.tabletree.refresh();
+            //         // $('#' + this.props.tableID + '-select-modal').modal('hide');
+            //         // return;
+            //     }
+            // }
+            var score = 0;
             for(var i=0;i<originalNode.children.length;i++){
+                if(tabValue == '2' && originalNode.children[i].title == 'result'){
+                    originalNode.children[i].value = 0;
+                }
                 for(var j=0;j<checkedNode.children.length;j++){
+                    if(originalNode.children[i].title == 'result' && checkedNode.children[j].title == 'score'){
+                        score = checkedNode.children[j].Value;
+                        originalNode.children[i].value = score>=1? 1:0;
+                        originalNode.result = score>=1?1:0;
+                        this.state.tabletree.refresh();
+                    }
                     if(originalNode.children[i].title == checkedNode.children[j].title){
                         if(originalNode.children[i].title == 'alias'){
-                            for(var m=0;m<originalNode.children[i].children.length;m++){
-                                this.state.tabletree.remove(originalNode.children[i].children[m]);
+                            var aliasID = this.state.tabletree.getFirstChildId(originalNode.children[i].id);
+                            while(aliasID){
+                                var tmpID = this.state.tabletree.getNextSiblingId(aliasID);
+                                this.state.tabletree.remove(aliasID);
+                                aliasID = tmpID;
                             }
                             this.state.tabletree.refresh();
                             for(var k=0;k<checkedNode.children[j].children.length;k++){
                                  var tmp = checkedNode.children[j].children[k];
                                 this.state.tabletree.add({
                                     title:originalNode.children[i].$count,
-                                    match:tmp.Value,
+                                    value:tmp.Value,
                                     type:'string'
                                 },-1,originalNode.children[i].id);
                                 this.state.tabletree.refresh();
                             }
                         }
                         else
-                            originalNode.children[i].match = checkedNode.children[j].Value;
+                            originalNode.children[i].value = checkedNode.children[j].Value;
                     }
                 }
             }
@@ -545,23 +605,40 @@ var EnMatchTable = React.createClass({
         }
     },
 
+    getMatchedResult:function () {
+        var msg = {
+            done:this.state.done
+        };
+        var result = [];
+        var rootID = this.state.tabletree.getFirstId();
+        while(rootID){
+            var rootNode = this.state.tabletree.getItem(rootID);
+            result.push({
+                name:rootNode.title,
+                result:rootNode.result
+            });
+            rootID = this.state.tabletree.getNextSiblingId(rootID);
+        }
+        msg.result = result;
+        return msg;
+    },
+
     render:function () {
         if(this.state.loading)
             return (<span><i className="fa fa-spinner fa-spin fa-3x fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Loading...</span>);
         if(this.state.err)
             return (<span>Server error: {JSON.stringify(this.state.err)}</span>);
-        if(this.state.hasBinded == false){
-            this.bindComponent();
-        }
-        if(this.state.tabletree){
-            this.addDefaultMatched();
-        }
+        if(this.state.pid != this.props.pid)
+            this.loadData();
         return (
-            <div ref={this.props.tableID}>
-                <div id={'pager_'+this.props.tableID}></div>
-                <div id={this.props.tableID}></div>
-                <div aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabIndex="-1" id={this.props.tableID + '-select-modal'} className="modal fade">
-                    <div className="modal-dialog" style={{width: '750px'}}>
+            <div>
+                <div>
+                    <div id={this.props.tableID}></div>
+                    <div id={'pager_'+this.props.tableID} style={{float:'right'}}></div>
+                    <div className="enMatchSpan"></div>
+                </div>
+                <div aria-hidden="true" aria-labelledby="myModalLabel" tabIndex="-1" id={this.props.tableID + '-select-modal'} className="modal fade">
+                    <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button type="button" id="close-modal" className="close" data-dismiss="modal" aria-hidden="true">
