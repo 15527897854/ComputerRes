@@ -668,8 +668,6 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
 
         run_next();
     }
-
-
 };
 
 //获取所有门户网站模型服务
@@ -1113,7 +1111,14 @@ ModelSerControl.getRmtPreparationData = function(host, msid, callback){
                 if (err) {
                     return callback(err);
                 }
-                return callback(null, data);
+                if (ParamCheck.checkParam(callback, child)) {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/' + msid, function (err, data) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        return callback(null, data);
+                    });
+                }
             });
         }
     }
