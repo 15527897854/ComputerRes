@@ -35,6 +35,17 @@ ModelBase.getByWhere = function (where, callback) {
     }
 };
 
+ModelBase.getByTextSearch = function (query, cb) {
+    this.findBase(query,
+        {score: { $meta: "textScore" }},
+        {score: { $meta: "textScore" }},
+        cb);
+};
+
+ModelBase.findBase = function (query, options, sort, cb) {
+    this.baseModel.find(query,options).sort(sort).exec(this.returnFunction(cb, 'Error in getting a ' + this.modelName));
+};
+
 ModelBase.update = function (newItem, callback) {
     var where = {'_id':newItem._id};
     var toUpdate = newItem;
@@ -99,7 +110,8 @@ ModelBase.items2TableTree = function (srcItems,callback) {
             dstItem.children = children;
         }
         else{
-            dstItem.value = srcItem[srcKey];
+            dstItem.evaluate = '';
+            dstItem.Value = srcItem[srcKey];
         }
         return dstItem;
     };

@@ -20,6 +20,10 @@ var ModelSerMid = require('../middlewares/modelserMid');
 var RouteBase = require('./routeBase');
 
 var remoteModelSerRoute = require('./rmtModelSerRoute');
+var SWECtrl = require('../control/softwareEnCtrl');
+var HWECtrl = require('../control/hardwareEnCtrl');
+var testifyCtrl = require('../control/testifyCtrl');
+var NoticeCtrl = require('../control/noticeCtrl');
 
 module.exports = function(app)
 {
@@ -576,7 +580,7 @@ module.exports = function(app)
             //暂时放到这里，用来生成已经部署过的模型的测试数据
             //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
             ModelSerCtrl.addDefaultTestify(msid.toString(),function () {
-                ModelSerCtrl.getTestify(msid,function (data) {
+                testifyCtrl.getTestify(msid,function (data) {
                     res.end(data);
                 });
             });
@@ -584,11 +588,21 @@ module.exports = function(app)
         .delete(function (req, res, next) {
             var msid = req.params.msid;
             var path = req.query.path;
-            ModelSerCtrl.delTestify(msid,path,function (data) {
+            testifyCtrl.delTestify(msid,path,function (data) {
                 res.end(data);
             });
         });
     
+    app.route('/modelser/enmatch/:pid')
+        .get(function (req, res) {
+            return res.render('enMatch',{
+                port:setting.port,
+                pid:req.params.pid,
+                place:req.query.place
+            })
+        });
+
+
     ///////////////////////////////////JSON//////////////////////////
 
 	//获取某个模型服务的输入输出数据声明
@@ -678,6 +692,67 @@ module.exports = function(app)
             }
         });
     
+    //从门户或者本机得到runtime节点
+    // app.route('/modelser/demands/:pid')
+    //     .get(function (req, res) {
+    //         var pid = req.params.pid;
+    //         var place = req.query.place;
+    //         ModelSerCrtl.getRuntimeByPid(pid,place,function (err, data) {
+    //             if(err){
+    //                 return res.end(JSON.stringify({status:0}));
+    //             }
+    //             else{
+    //                 return res.end(JSON.stringify({status:1,demands:data}));
+    //             }
+    //         })
+    //     });
+
+    // app.route('/modelser/enmatch')
+    //     .get(function (req, res) {
+    //         var type = req.query.type;
+    //         var demand = req.query.demand;
+    //         var enviroCtrl;
+    //         if(type == 'swe')
+    //             enviroCtrl = SWECtrl;
+    //         else if(type == 'hwe')
+    //             enviroCtrl = HWECtrl;
+    //         enviroCtrl.enMatched(demand,function (err, data) {
+    //             if(err){
+    //                 return res.end(JSON.stringify({err:err}));
+    //             }
+    //             else{
+    //                 return res.end(JSON.stringify({enviro:data}));
+    //             }
+    //         })
+    //     });
+
+    app.route('/modelser/tabledata/:pid')
+        .get(function (req, res) {
+            var pid = req.params.pid;
+            var place = req.query.place;
+            var type = req.query.type;
+            var enviroCtrl;
+            if(type == 'swe'){
+                enviroCtrl = SWECtrl;
+            }
+            else if(type == 'hwe'){
+                enviroCtrl = HWECtrl;
+            }
+            enviroCtrl.getMatchTabledata(pid,place,function (err, data) {
+                if(err){
+                    return res.end(JSON.stringify({err:err}));
+                }
+                else{
+                    return res.end(JSON.stringify({tabledata:data}));
+                }
+            });
+        });
+
+    app.route('/enmatchtest')
+        .get(function (req, res) {
+            return res.render('enMatchModal');
+        });
+
     //远程模型访问路由
     remoteModelSerRoute(app);
 };

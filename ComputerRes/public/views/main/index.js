@@ -14,7 +14,9 @@ var CloudModelSerTable = require('../components/modelSer/cloudModelSerTable');
 var DataCollectionTable = require('../components/data/dataCollectionTable');
 var DataPreparation = require('../components/data/dataPreparation');
 var ModelSerUploader = require('../components/modelSer/modelSerUploader');
-var EnviroPanel = require('../components/systemSetting/enviroPanel');
+var EnviroPanel = require('../components/enviro/enviroPanel');
+var EnMatchPanel = require('../components/enviro/enMatchPanel');
+var EnMatchStepy = require('../components/enviro/enMatchStepy');
 var UserInfo = require('../components/systemSetting/userInfo');
 var LoginPanel = require('../components/systemSetting/loginPanel');
 var TestifyDataPanel = require('../components/data/TestifyDataPanel');
@@ -151,4 +153,39 @@ if(document.getElementById('enviro-section') != null){
         tabletree={tabletree}
         fields={fields}
     />, document.getElementById('hwe'));
+}
+
+if(document.getElementById('enMatch-section') != null){
+    var width = $('#enMatch-section').width() - 100;
+    var css = {
+        width:{
+            tabletree:width,
+            title:(width-140)/5,
+            demand:(width-140)*2/5,
+            enviro:(width-140)*2/5
+        }
+    };
+    ReactDOM.render(<EnMatchPanel
+        pid={$('#enMatch-section').attr('data-pid')}
+        place= {$('#enMatch-section').attr('data-pidPlace')}
+        css={css}
+    />,document.getElementById('enMatch-section'));
+}
+
+if(document.getElementById('enMatchModal')!=null){
+    var width = $('#enMatchModal').width();
+    var css = {
+        width:{
+            tabletree:width,
+            title:(width-140)/5,
+            demand:(width-140)*2/5,
+            enviro:(width-140)*2/5
+        }
+    };
+    ReactDOM.render(<EnMatchStepy
+        id="a"
+        pid='17a836de80c5c7619b2cf99b5ca86608'
+        place= 'local'
+        css={css}
+    />,document.getElementById('enMatchModal'));
 }

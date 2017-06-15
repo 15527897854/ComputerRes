@@ -21,14 +21,12 @@ var Child = require('../model/child');
 var remoteReqCtrl = require('./remoteReqControl');
 var ControlBase = require('./controlBase');
 var ParamCheck = require('../utils/paramCheck');
-var GeoDataCtrl = require('../control/geoDataControl');
 var CommonMethod = require('../utils/commonMethod');
 var SystemCtrl = require('./sysControl');
-var batchDeployCtrl = require('./batchDeploy');
 var ModelSerRunCtrl = require('./modelSerRunControl');
 var NoticeCtrl = require('../control/noticeCtrl');
-var SWECtrl = require('./softwareEnCtrl');
-var HWECtrl = require('./hardwareEnCtrl');
+var testifyCtrl = require('../control/testifyCtrl');
+
 var ModelSerControl = function () {
 };
 ModelSerControl.__proto__ = ControlBase;
@@ -395,7 +393,7 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                     }
                     else{
                         //添加默认测试数据，不用异步请求，两者不相关
-                        ModelSerControl.addDefaultTestify(oid.toString());
+                        testifyCtrl.addDefaultTestify(oid.toString(),ModelSerControl.getInputData);
 
                         //添加模型运行文件权限
                         if (setting.platform == 2) {
@@ -464,201 +462,6 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
             });
         });
     });
-};
-
-//////////////////////////////////////////////////////////////////////////
-//批量部署
-ModelSerControl.addBatchDeployItemsByMDL = function (ms_user, zip_path, isLocal) {
-    var batch_path = path.relative(setting.modelpath,zip_path) + '\\';
-    FileOpera.getAllFiles(zip_path,'.zip',function (files) {
-        var addOne = function (i) {
-            if(i == files.length){
-                return ModelSerControl.batchDeployByMDL(batch_path, isLocal);
-        }
-            var batchItem = {
-                batch_path:batch_path,
-                zip_path:path.relative(batch_path,zip_path+files[i]),
-                deployed:false,
-                ms_user:ms_user
-            };
-            var where = {
-                batch_path:batch_path,
-                zip_path:path.relative(batch_path,zip_path+files[i])
-            };
-            batchDeployCtrl.getByWhere(where,function (err, data) {
-                if(err){
-                    return console.log(err);
-                }
-        else {
-                    if(data.length != 0){
-                        addOne(i+1);
-                    }
-                    else{
-                        batchDeployCtrl.save(batchItem,function (err, data) {
-                            if(err){
-                                return console.log(err);
-                            }
-                            else{
-                                addOne(i+1);
-                            }
-                        })
-                    }
-                }
-                });
-        };
-        if(files.length != 0)
-            addOne(0);
-        else
-            console.log('no zip to batch deploy!');
-    })
-};
-
-ModelSerControl.batchDeployByMDL = function (batch_path, isLocal) {
-    var where = {
-        batch_path:batch_path,
-        deployed:false
-    };
-    batchDeployCtrl.getByWhere(where,function (err, bds) {
-        var deployOne = function (i) {
-            ModelSerControl.deployOneByMDL(bds[i], isLocal, function (err) {
-                if(err){
-                    console.log('deploy ' + i + ' failed!');
-        }
-                else{
-                    console.log('deploy ' + i + ' successed!');
-                }
-                if(i<bds.length-1)
-                    deployOne(i+1);
-    });
-        };
-        if(bds.length != 0)
-            deployOne(0);
-    })
-};
-
-//通过mdl部署
-//流程：解压  读config  读mdl  组织modelservice  移动package文件  更新deployItem  更新modelservice中的m_id
-ModelSerControl.deployOneByMDL = function (bdItem, isLocal, callback) {
-    var msID = new ObjectId();
-    var zip_path = path.join(setting.modelpath, bdItem.batch_path, bdItem.zip_path);
-    var model_path = path.join(setting.modelpath , msID.toString()) + '\\';
-    CommonMethod.Uncompress(zip_path,model_path,function () {
-        var cfg_path = path.join(model_path , 'package.config');
-        ModelSerControl.readCfgBypath(cfg_path,function (err,cfg) {
-            if(err){
-                FileOpera.rmdir(model_path);
-                console.log(err);
-                return callback(err);
-            }
-            else{
-                var mdl_path = path.join(model_path , cfg.mdl);
-                ModelSerControl.readMDLByPath(mdl_path,function (err, mdl) {
-                    if(err){
-                        FileOpera.rmdir(model_path);
-                        console.log(err);
-                        return callback(err);
-                    }
-                    else{
-                        mdl = mdl.ModelClass;
-                        FileOpera.getMD5(zip_path,function (err, strMD5) {
-                            if(err){
-                                console.log('err in get file md5!');
-                                return callback(err);
-                            }
-                            else{
-                                var ms_des = '';
-                                for(var i=0;i<mdl.AttributeSet.LocalAttributes.LocalAttribute;i++){
-                                    ms_des += mdl.AttributeSet.LocalAttributes.LocalAttribute[i].Abstract + '\n';
-                                }
-                                var msItem = {
-                                    _id:msID,
-                                    ms_des:ms_des,
-                                    ms_user:bdItem.ms_user,
-                                    ms_path:msID.toString() + '\\',
-                                    ms_model:{
-                                        m_name:mdl.$.name,
-                                        m_type:mdl.$.type,
-                                        p_id:strMD5,
-                                        m_url:'',
-                                        m_id:''
-                                    },
-                                    mv_num:'1.0',
-                                    ms_status:1,
-                                    ms_limited:0,
-                                    ms_xml:null,
-                                    testify:[],
-                                    ms_img:null,
-                                    ms_platform:setting.platform,
-                                    ms_update:(new Date()).toLocaleString()
-                                };
-                                
-                                ModelSerControl.save(msItem,function (err, data) {
-                                    if(err){
-                                        FileOpera.rmdir(model_path);
-                                        console.log(err);
-                                        return callback(err);
-                                    }
-                                    else{
-                                        if (isLocal) {
-                                            bdItem.deployed = true;
-                                            batchDeployCtrl.update(bdItem, function (err, data) {
-                                                if (err) {
-                                                    console.log(err);
-                                                    return callback(err)
-                                                }
-                                                else {
-                                                    //添加默认测试数据，不用异步请求，两者不相关
-                                                    ModelSerControl.addDefaultTestify(msItem._id.toString());
-                                                    //转移模型包
-                                                    FileOpera.copyFile(zip_path, setting.modelpath + 'packages/' + msID.toString() + '.zip');
-                                                    callback(null);
-                                                }
-                                            });
-                                        }
-                                        else {
-                                        var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/DeploymentPackageHandleServlet?uid=' + strMD5;
-                                        remoteReqCtrl.getByServer(url,{},function (err, res) {
-                                            if(err){
-                                                console.log('get remote portal m_id failed!');
-                                                return callback(err);
-                                            }
-                                            else{
-                                                bdItem.deployed = true;
-                                                batchDeployCtrl.update(bdItem,function (err, data) {
-                                                    if(err){
-                                                        console.log(err);
-                                                        return callback(err)
-                                                    }
-                                                    else{
-                                                        //添加默认测试数据，不用异步请求，两者不相关
-                                                        ModelSerControl.addDefaultTestify(msItem._id.toString());
-                                                        //转移模型包
-                                                        FileOpera.copyFile(zip_path, setting.modelpath + 'packages/' + msID.toString() + '.zip');
-                                                        //更新m_id
-                                                        msItem.ms_model.m_id = res.modelItemId;
-                                                        ModelSerControl.update(msItem,function (err, data) {
-                                                            if(err){
-                                                                console.log('err in update model service m_id!');
-                                                                return callback(err);
-                                                            }
-                                                            else{
-                                                                callback(null);
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                    }
-                                });
-                            }
-                        });
-                    }
-                })
-            }
-        })
-    })
 };
 
 //将记录放置在回收站
@@ -865,8 +668,6 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
 
         run_next();
     }
-    
-
 };
 
 //获取所有门户网站模型服务
@@ -932,17 +733,13 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
         var pending = function(index){
             count ++;
             return function(err, ms){
-                if(err){
-
+                if(ms.length != 0){
+                    packages[index]['pulled'] = true;
+                    packages[index]['ms_id'] = ms[0]._id;
                 }
                 else{
-                    if(ms.length != 0){
-                        packages[index]['pulled'] = true;
-                        packages[index]['ms_id'] = ms[0]._id;
-                    }
-                    else{
-                        packages[index]['pulled'] = false;
-                    }
+                    packages[index]['pulled'] = false;
+                }
                 }
                 
                 count --;
@@ -959,56 +756,56 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
     });
 };
 
-ModelSerControl.getMatchedByPid = function (pid, callback) {
-    var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
-    remoteReqCtrl.getByServer(url,null,function (err, res) {
-        if(err){
-            return callback(err);
-        }
-        else{
-            res = JSON.parse(res);
-            if(res.error && res.error != ''){
-                return callback('err on portal server!');
-            }
-            else if(res.result && res.result != ''){
-                ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
-                    if(err){
-                        return callback(err);
-                    }
-                    else{
-                        var softDemands = [],hardDemands = [];
-                        var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
-                        var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;
-                        if(hardJSON == undefined)
-                            hardJSON = [];
-                        if(softJSON == undefined)
-                            softJSON = [];
-                        for(var i=0;i<hardJSON.length;i++){
-                            hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
-                        }
-                        for(var j=0;j<softJSON.length;j++){
-                            softDemands.push({
-                                name:softJSON[j].$.name,
-                                platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
-                                version:softJSON[j]._
-                            });
-                        }
-                        var matchedRst = {};
-                        SWECtrl.ensMatched(softDemands,function (rst) {
-                            rst = JSON.parse(rst);
-                            matchedRst.swe = rst;
-                            HWECtrl.ensMatched(hardDemands,function (rst) {
-                                rst = JSON.parse(rst);
-                                matchedRst.hwe = rst;
-                                callback(null,matchedRst);
-                            })
-                        })
-                    }
-                });
-            }
-        }
-    })
-};
+// ModelSerControl.getMatchedByPid = function (pid, callback) {
+//     var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
+//     remoteReqCtrl.getByServer(url,null,function (err, res) {
+//         if(err){
+//             return callback(err);
+//         }
+//         else{
+//             res = JSON.parse(res);
+//             if(res.error && res.error != ''){
+//                 return callback('err on portal server!');
+//             }
+//             else if(res.result && res.result != ''){
+//                 ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
+//                     if(err){
+//                         return callback(err);
+//                     }
+//                     else{
+//                         var softDemands = [],hardDemands = [];
+//                         var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
+//                         var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;
+//                         if(hardJSON == undefined)
+//                             hardJSON = [];
+//                         if(softJSON == undefined)
+//                             softJSON = [];
+//                         for(var i=0;i<hardJSON.length;i++){
+//                             hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
+//                         }
+//                         for(var j=0;j<softJSON.length;j++){
+//                             softDemands.push({
+//                                 name:softJSON[j].$.name,
+//                                 platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
+//                                 version:softJSON[j]._
+//                             });
+//                         }
+//                         var matchedRst = {};
+//                         SWECtrl.ensMatched(softDemands,function (rst) {
+//                             rst = JSON.parse(rst);
+//                             matchedRst.swe = rst;
+//                             HWECtrl.ensMatched(hardDemands,function (rst) {
+//                                 rst = JSON.parse(rst);
+//                                 matchedRst.hwe = rst;
+//                                 callback(null,matchedRst);
+//                             })
+//                         })
+//                     }
+//                 });
+//             }
+//         }
+//     })
+// };
 
 //获取某一类别下的所有模型
 ModelSerControl.getCloudModelByCategoryId = function(id, callback){
@@ -1144,7 +941,7 @@ ModelSerControl.getMIDByOID = function(oid, callback){
             }
         });
     }
-}
+};
 
 //根据PID更新门户的ModelItemID
 ModelSerControl.getMIDByPID = function(pid, callback){
@@ -1159,7 +956,7 @@ ModelSerControl.getMIDByPID = function(pid, callback){
             return callback(new Error('can not get MID'));
         }
     });
-}
+};
 
 //得到初始输入数据
 ModelSerControl.getInputData = function (ms_id, callback) {
@@ -1311,295 +1108,97 @@ ModelSerControl.getRmtPreparationData = function(host, msid, callback){
                 if (err) {
                     return callback(err);
                 }
+                if (ParamCheck.checkParam(callback, child)) {
+                    remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/' + msid, function (err, data) {
+                        if (err) {
+                            return callback(err);
+                        }
                 return callback(null, data);
             });
         }
+            });
+    }
     }
 };
 
-//将testify文件夹下的测试数据添加到config.json中，同时将测试数据记录在redis中，将数据复制到geo_data中
-//callback完全是为了同步和异步而设
-ModelSerControl.addDefaultTestify = function (msid,callback) {
-    if(!callback){
-        callback = function () {};
-    }
-    var testifyRoot = setting.modelpath + msid + '/testify';
-    var configPath = setting.modelpath + msid + '/testify/config.json';
-    var configData;
-    fs.stat(configPath,function (err, stat) {
+//从门户网站或本机获取runtime节点
+ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
+    var runtime = {};
+    if(place == 'local'){
+        ModelSerModel.getByPID(pid,function (err, ms) {
         if(err){
-            if(err.code = 'ENOENT'){
-                configData = '[]';
+                return cb(err);
             }
             else{
-                return callback()
-            }
-        }
-        else if(stat){
-            configData = fs.readFileSync(configPath).toString();
-        }
-        var configJSON = JSON.parse(configData);
-        for(var i=0;i<configJSON.length;i++){
-            if(configJSON[i].tag == 'default'){
-                //已经生成过默认测试数据
-                return callback()
-            }
-        }
-        //得到testify一级目录下的所有xml
-        FileOpera.getAllFiles(testifyRoot,'.xml',function (files) {
-            ModelSerControl.getInputData(msid,function (err, states) {
+                if(!ms || ms.length ==0)
+                    return cb({code:'查不到对应模型！'});
+                ms = ms[0];
+                ModelSerModel.readMDL(ms,function (err, mdl) {
                 if(err){
-                    return callback();
+                        return cb(err);
                 }
-                var newTestify = {
-                    tag:'default',
-                    detail:'',
-                    path:'',
-                    inputs:[]
-                };
-                var geodataList = [];
-                //针对博文的所有测试数据都是input的情况
-                if(states.length == 1 && states[0].$.name=='RUNSTATE'){
-                    var stateID = states[0].$.id;
-                    var events = states[0].Event;
-                    for(var i=0;i<events.length;i++){
-                        if(events[i].$.name == 'LOADDATASET' && events[i].$.type == 'response'){
-                            for(var j=0;j<files.length;j++){
-                                if(files[j] == 'input.xml'){
-                                    //复制文件
-                                    var gdid = 'gd_' + uuid.v1();
-                                    var fname = gdid + '.xml';
-                                    var geo_data_Path = __dirname + '/../geo_data/' + fname;
-                                    var gd_value = fs.readFileSync(testifyRoot + '/input.xml').toString();
-                                    fs.writeFileSync(geo_data_Path, gd_value);
-                                    //向config.json中添加记录
-                                    newTestify.inputs.push({
-                                        DataId:gdid,
-                                        Event:events[i].$.name,
-                                        Optional:events[i].$.optional,
-                                        StateId:stateID
-                                    });
-
-                                    var stat = fs.statSync(geo_data_Path);
-                                    var geodata;
-                                    if(stat.size - 16>setting.data_size){
-                                        geodata = {
-                                            gd_id:gdid,
-                                            gd_tag:'',
-                                            gd_type:'FILE',
-                                            gd_value:fname
-                                        };
-                                    }
                                     else{
-                                        geodata = {
-                                            gd_id:gdid,
-                                            gd_tag:'',
-                                            gd_type:'STREAM',
-                                            gd_value:gd_value
-                                        }
-                                    }
-                                    geodataList.push(geodata);
-                                }
-                            }
-                        }
-                    }
-                }
-                else{
-                    for(var i=0;i<states.length;i++){
-                        var stateID = states[i].$.id;
-                        var events = states[i].Event;
-                        for(var j=0;j<events.length;j++){
-                            for(var k=0;k<files.length;k++){
-                                if(events[j].$.name + '.xml' == files[k] && events[j].$.type == 'response'){
-                                    //复制文件
-                                    var gdid = 'gd_' + uuid.v1();
-                                    var fname = gdid + '.xml';
-                                    var geo_data_Path = __dirname + '/../geo_data/' + fname;
-                                    var gd_value = fs.readFileSync(testifyRoot + '/' + files[i]).toString();
-                                    fs.writeFileSync(geo_data_Path, gd_value);
-                                    //向config.json中添加记录
-                                    newTestify.inputs.push({
-                                        DataId:gdid,
-                                        Event:events[j].$.name,
-                                        Optional:events[j].$.optional,
-                                        StateId:stateID
+                        if(!mdl)
+                            return cb({code:'解析模型MDL出错！'});
+                        ModelSerControl.getRuntimeFromMDL(mdl,function (demands) {
+                            return cb(null,demands);
                                     });
-
-                                    var stat = fs.statSync(geo_data_Path);
-                                    var geodata;
-                                    if(stat.size - 16>setting.data_size){
-                                        geodata = {
-                                            gd_id:gdid,
-                                            gd_tag:'',
-                                            gd_type:'FILE',
-                                            gd_value:fname
-                                        };
                                     }
-                                    else{
-                                        geodata = {
-                                            gd_id:gdid,
-                                            gd_tag:'',
-                                            gd_type:'STREAM',
-                                            gd_value:gd_value
+                })
                                         }
+        })
                                     }
-                                    geodataList.push(geodata);
-                                }
-                            }
-                        }
-                    }
-                }
-                var addFile = function (i) {
-                    //向redis中添加记录
-                    GeoDataCtrl.addData(geodataList[i],function (err, rst) {
+    else if(place == 'portal'){
+        var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPidServlet?pid=' + pid;
+        remoteReqCtrl.getByServer(url,null,function (err, mdlStr) {
                         if (err) {
-                            return callback()
+                return cb(err);
                         }
                         else{
-                            if(i < geodataList.length-1){
-                                addFile(i+1);
+                if(mdlStr && mdlStr != ''){
+                    ModelSerControl.parseMDLStr(mdlStr,function (err, mdl) {
+                        if(err){
+                            return cb(err);
                             }
                             else{
-                                if(geodataList.length == 0){
-                                    fs.writeFileSync(configPath,'[]');
+                            ModelSerControl.getRuntimeFromMDL(mdl,function (demands) {
+                                return cb(null,demands);
+                            })
                                 }
-                                else{
-                                //没有出错在向config.json中添加记录
-                                configJSON.push(newTestify);
-                                fs.writeFileSync(configPath,JSON.stringify(configJSON));
-                            }
-                                return callback();
-                            }
-                        }
                     });
-                };
-                if(geodataList.length)
-                    addFile(0);
-                else 
-                    callback();
-            });
+        }
+            else{
+                    return cb(null,[]);
+            }
+            }
+        })
+            }
+                    };
+
+ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
+    var softDemands = [],hardDemands = [];
+    var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
+    var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;
+    if(hardJSON == undefined)
+        hardJSON = [];
+    if(softJSON == undefined)
+        softJSON = [];
+    for(var i=0;i<hardJSON.length;i++){
+        hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
+            }
+    for(var j=0;j<softJSON.length;j++){
+        softDemands.push({
+            name:softJSON[j].$.name,
+            platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
+            version:softJSON[j]._
         });
+            }
+    cb({
+        swe:softDemands,
+        hwe:hardDemands
     });
 };
 
-ModelSerControl.addTestify = function (msrid,testifyData,callback) {
-    ModelSerRunModel.getByOID(msrid,function (err, msr) {
-        if(err){
-            return callback(err);
-        }
-        var configRoot = setting.modelpath + msr.ms_id + '/testify';
-        var configPath = configRoot + '/config.json';
-        fs.stat(configPath,function (err, stat) {
-            var configJSON;
-            if(stat && !err){
-                var configData = fs.readFileSync(configPath).toString();
-                if(configData == ""){
-                    configData = "[]";
-                }
-                configJSON = JSON.parse(configData);
-                //判断是否已添加该测试记录
-                for(var i=0;i<configJSON.length;i++){
-                    if(configJSON[i].DataId == msrid){
-                        return callback(null,{suc:true,status:2});
-                    }
-                }
-            }
-            else if(err.code = 'ENOENT'){
-                configJSON = [];
-            }
-            else{
-                callback(err);
-            }
-            var newTestify = configRoot + '/' + msrid;
-            try{
-                fs.mkdirSync(newTestify);
-            }
-            catch(e){
-                if(e.code!='EEXIST')
-                    return callback(err);
-            }
-            for(var i=0;i<msr.msr_input.length;i++){
-                if(msr.msr_input[i].DataId != "") {
-                    var srcPath = __dirname + '/../geo_data/' + msr.msr_input[i].DataId + '.xml';
-                    var dstPath = newTestify + '/' + msr.msr_input[i].DataId + '.xml';
-                    try{
-                        if(fs.existsSync(srcPath)){
-                        var srcData = fs.readFileSync(srcPath).toString();
-                        fs.writeFileSync(dstPath,srcData);
-                    }
-                    }
-                    catch(e){
-                        callback(e);
-                    }
-                }
-            }
-
-
-            //添加记录
-            testifyData.inputs = [];
-            for(var i=0;i<msr.msr_input.length;i++){
-                if(msr.msr_input[i].DataId!=""){
-                    var input = {
-                        DataId:msr.msr_input[i].DataId,
-                        Event:msr.msr_input[i].Event,
-                        Optional:msr.msr_input[i].Optional,
-                        StateId:msr.msr_input[i].StateId
-                    };
-                    testifyData.inputs.push(input);
-                }
-            }
-            configJSON.push(testifyData);
-            fs.writeFile(configPath,JSON.stringify(configJSON),function (err) {
-                if(err){
-                    console.log(err);
-                    return callback(err);
-                }
-                callback(null,{suc:true,status:1});
-            })
-        })
-    })
-};
-
-ModelSerControl.getTestify = function (msid, callback) {
-    var configPath = setting.modelpath + msid + '/testify/config.json';
-    fs.stat(configPath,function (err, stat) {
-        var rst;
-        if(err){
-            if(err.code = 'ENOENT'){
-                rst = {status:0,testifies:[]};
-            }
-            else{
-                rst = {status:-1};
-            }
-        }
-        else if(stat){
-            var testifyData = fs.readFileSync(configPath).toString();
-            rst = {status:1,testifies:JSON.parse(testifyData)};
-        }
-        rst = JSON.stringify(rst);
-        callback(rst);
-    })
-};
-
-ModelSerControl.delTestify = function (msid,testifyPath, callback) {
-    var testifyFolder = setting.modelpath + msid + '/testify/' + testifyPath;
-    var configPath = setting.modelpath + msid + '/testify/config.json';
-    var configData = fs.readFileSync(configPath).toString();
-    var configJSON = JSON.parse(configData);
-    try{
-        //删除记录
-        for(var i=0;i<configJSON.length;i++){
-            if(testifyPath == configJSON[i].path){
-                configJSON.splice(i,1);
-                break;
-            }
-        }
-        fs.writeFileSync(configPath,JSON.stringify(configJSON));
-        //删除文件
-        FileOpera.rmdir(testifyFolder);
-        callback(JSON.stringify({suc:true}));
-    }
-    catch(e){
-        return callback(JSON.stringify({suc:false}));
-    }
+ModelSerControl.addDefaultTestify = function (msid, cb) {
+    testifyCtrl.addDefaultTestify(msid,ModelSerControl.getInputData,cb);
 };

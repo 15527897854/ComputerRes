@@ -55,7 +55,8 @@
 		},
 
 		toggle: function () {
-			return this[!this.isShown ? 'show' : 'hide']();
+			// return this[!this.isShown ? 'show' : 'hide']();
+			return ;
 		},
 
 		show: function () {

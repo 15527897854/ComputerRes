@@ -37,32 +37,33 @@ registerCtrl.register = function (callback) {
                     }
                     else{
                         if(msg == '注册节点成功')
-                            callback(JSON.stringify({status:-1}));
+                            callback(JSON.stringify({status:1}));
                         //存
+                        registerInfo.registered = true;
                         if(isupdate){
                             registerModel.update(registerInfo,function (err, data){
                                 if(err){
                                     console.log('err in update in mongoDB!');
-                                    rst = {status: -1};
-                                    return callback(JSON.stringify(rst));
+                                    // rst = {status: -1};
+                                    // return callback(JSON.stringify(rst));
                                 }
-                                else{
-                                    rst = {status: 1};
-                                    return callback(JSON.stringify(rst));
-                                }
+                                // else{
+                                //     rst = {status: 1};
+                                //     return callback(JSON.stringify(rst));
+                                // }
                             });
                         }
                         else{
                             registerModel.save(registerInfo,function (err, data){
                                 if(err){
                                     console.log('err in update in mongoDB!');
-                                    rst = {status: -1};
-                                    return callback(JSON.stringify(rst));
+                                    // rst = {status: -1};
+                                    // return callback(JSON.stringify(rst));
                                 }
-                                else{
-                                    rst = {status: 1};
-                                    return callback(JSON.stringify(rst));
-                                }
+                                // else{
+                                //     rst = {status: 1};
+                                //     return callback(JSON.stringify(rst));
+                                // }
                             });
                         }
                         
@@ -72,19 +73,17 @@ registerCtrl.register = function (callback) {
             
             if(data.length){
                 registerInfo = data[0];
-                if(registerInfo.registered){
+                if(registerInfo.registered == true){
                     rst = {status: 2};
                     return callback(JSON.stringify(rst));
                 }
-                else if(!registerInfo.registered){
-                    registerInfo.registered = true;
+                else if(registerInfo.registered == false){
                     post2portal(registerInfo,true);
                 }
             }
             else{
                 //数据库没存，要动态生成，存到数据库中
                 sysCtrl.getRegisterInfo(function (err, registerInfo){
-                    registerInfo.registered = true;
                     post2portal(registerInfo);
                 });
             }

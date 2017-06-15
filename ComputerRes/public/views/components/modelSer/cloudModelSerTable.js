@@ -6,6 +6,7 @@ var Axios = require('axios');
 
 var NoteDialog = require('../../action/utils/noteDialog');
 var ModelItemSelect = require('./modelItemSelect');
+var EnMatchStepy = require('../enviro/enMatchStepy');
 
 var CloudModelSerTable = React.createClass({
     getInitialState : function () {
@@ -38,15 +39,12 @@ var CloudModelSerTable = React.createClass({
         );
     },
 
-    enviroModal : function (e,id) {
-
-    },
-
     downCloudModelPackage : function(e, pid){
         this.setState({ processBar : true });
         Axios.get('/modelser/cloud/packages/' + pid + '?ac=download&fields=' + JSON.stringify(this.state.itemDetail)).then(
             data => {
                 if(data.data.result == 'suc'){
+                    $('#'+ pid+'-match-modal').modal('hide');
                     $('#md_modelItemDetail').modal('hide');
                     NoteDialog.openNoteDia('模型拉取成功！','模型 : ' + this.state.itemDetail.model_name + ' 拉取成功！');
                     this.refs.modelItemSelector.getModelItems();
@@ -58,8 +56,46 @@ var CloudModelSerTable = React.createClass({
     },
 
     render : function() {
+        var self = this;
         var modalList = [];
+        var childModalWidth = 530;
+        var css = {
+            width:{
+                tabletree:childModalWidth,
+                title:120,
+                demand:(childModalWidth-120)/2,
+                enviro:(childModalWidth-120)/2,
+                tabbar:childModalWidth
+            },
+            height:{
+                tabbar:500
+            }
+        };
         var packages = this.state.itemPackage.map(function(item){
+            var procBar = null;
+            if(this.state.processBar){
+                procBar = (
+                    <div style={{textAlign:'center'}}>
+                        <i className="fa fa-spinner fa-spin fa-3x fa-fw" style={{margin:'0 auto'}}></i>
+                    </div>
+                );
+            }
+            var changeModalFooter = function (display) {
+                if(display == true){
+                    $($('#' + item.id+'-match-modal .modal-footer')[2]).show();
+                    $('#' + item.id+'-match-modal .progress').show();
+                }
+                else if(display == false){
+                    $($('#' + item.id+'-match-modal .modal-footer')[2]).hide();
+                    $('#' + item.id+'-match-modal .progress').hide();
+                }
+            };
+            var changeModalBtn = function (display) {
+                if(display)
+                    $('#'+item.id+'-match-modal .editEn-btn').show();
+                else
+                    $('#'+item.id+'-match-modal .editEn-btn').hide();
+            };
             var btn = null;
             if(item.pulled == true){
                 btn = (<button className="btn btn-success btn-sm" onClick={ (e) => { window.location.href='/modelser/' + item.ms_id } }><i className="fa fa-eye"> </i>查看</button>);
@@ -69,157 +105,47 @@ var CloudModelSerTable = React.createClass({
                 if(this.state.processBar){
                     disabled = 'disable';
                 }
-                btn = (
-                    <button className="btn btn-info btn-sm" onClick={ (e) => { this.downCloudModelPackage(e, item.id); } } disabled={disabled} ><i className="fa fa-download"> </i>拉取</button>
-                );
-            }
-            var softenBtn,hardenBtn;
-            if(item.enviro){
-                var hweRst = item.enviro.hwe;
-                var sweRst = item.enviro.swe;
-                if(sweRst){
-                    if(sweRst.status == 1){
-                        if(sweRst.unSatisfiedList.length == 0){
-                            softenBtn = (
-                                <button className="btn btn-sm btn-success" disabled data-toggle="modal"><i  className="fa fa-check"></i> 匹配</button>
-                            );
-                        }
-                        else{
-                            softenBtn = (
-                                <button className="btn btn-sm btn-warning" data-toggle="modal" href={'#' + item.id + '-hwe-modal'}><i  className="fa fa-times"></i> 不匹配</button>
-                            );
-                            var trs = [];
-                            for(var i=0;i<sweRst.unSatisfiedList.length;i++){
-                                var detail = sweRst.unSatisfiedList[i].detail;
-                                var tdI = (<i className="fa fa-exclamation-circle"></i> );
-                                trs.push((
-                                    <tr>
-                                        <th><p style={detail.name == false?{color:'#d9534f'}:{}}>{detail.name == false?tdI:null}&nbsp;{sweRst.unSatisfiedList[i].name}</p></th>
-                                        <th><p style={detail.version == false?{color:'#d9534f'}:{}}>{detail.version == false?tdI:null}&nbsp;{sweRst.unSatisfiedList[i].version}</p></th>
-                                        <th><p style={detail.platform == false?{color:'#d9534f'}:{}}>{detail.platform == false?tdI:null}&nbsp;{sweRst.unSatisfiedList[i].platform}</p></th>
-                                    </tr>
-                                ));
-                            }
-                            var modal = (
-                                <div aria-hidden="true" role="dialog" tabIndex="-1" id={item.id + '-hwe-modal'} className="modal fade">
-                                <div className="modal-dialog">
-                                    <div className="modal-content">
-                                        <div className="modal-header">
-                                            <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                            <h4 className="modal-title">不满足的软件环境</h4>
-                                        </div>
-                                        <div className="modal-body">
-                                            <h5>以下环境可能不满足：</h5>
-                                            <table className="table">
-                                                <thead>
-                                                <tr>
-                                                    <th>name</th>
-                                                    <th>version</th>
-                                                    <th>platform</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                {trs}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div className="modal-footer">
-                                            <button type="button" className="btn btn-default" data-dismiss="modal">关闭</button>
-                                        </div>
-                                    </div>
+                modalList.push((
+                    <div id={item.id+'-match-modal'} className="modal fade" tabIndex="-1">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <button type="button" className="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 className="modal-title">Enviroment Match</h4>
+                                </div>
+                                <div className="modal-body">
+                                    <EnMatchStepy
+                                        id={item.id+'-match'}
+                                        pid={item.id}
+                                        place="portal"
+                                        css={css}
+                                        changeModalFooter = {changeModalFooter}
+                                        changeModalBtn = {changeModalBtn}
+                                        ref={item.id+'-match-ref'}
+                                    />
+                                    {procBar}
+                                </div>
+                                <div className="modal-footer" style={{display:'none',margin:0}}>
+                                    <button type="button" data-dismiss="modal" className="btn btn-default">Close</button>
+                                    <a className="btn btn-primary editEn-btn" style={{display:'none'}} href='/setting/enviroment'>Edit Enviroment</a>
+                                    <button type="button" className="btn btn-success" onClick={ (e) => { this.downCloudModelPackage(e, item.id); } } disabled={disabled}><i className="fa fa-download"> </i>Deploy</button>
                                 </div>
                             </div>
-                            );
-                            modalList.push(modal);
-                        }
-                    }
-                    else{
-                        softenBtn = (
-                            <button className="btn btn-sm btn-info" disabled data-toggle="modal"><i  className="fa fa-question"></i> 未知</button>
-                        );
-                    }
-                }
-                if(hweRst){
-                    if(hweRst.status == 1){
-                        if(hweRst.unSatisfiedList.length == 0){
-                            hardenBtn = (
-                                <button className="btn btn-sm btn-success" disabled data-toggle="modal"><i  className="fa fa-check"></i> 匹配</button>
-                            );
-                        }
-                        else{
-                            hardenBtn = (
-                                <button className="btn btn-sm btn-warning" data-toggle="modal" href={'#' + item.id + '-hwe-modal'}><i  className="fa fa-times"></i> 不匹配</button>
-                            );
-                            var trs = [];
-                            for(var i=0;i<hweRst.unSatisfiedList.length;i++){
-                                var detail = hweRst.unSatisfiedList[i].detail;
-                                var tdI = (<i style={{color:'#d9534f'}} className="fa fa-exclamation-circle"></i> );
-                                trs.push((
-                                    <tr>
-                                        <th><p style={detail.name == false?{color:'#d9534f'}:{}}>{detail.name == false?tdI:null}&nbsp;{hweRst.unSatisfiedList[i].name}</p></th>
-                                        <th><p style={detail.value == false?{color:'#d9534f'}:{}}>{detail.value == false?tdI:null}&nbsp;{hweRst.unSatisfiedList[i].value}</p></th>
-                                    </tr>
-                                ));
-                            }
-                            var modal = (
-                                <div aria-hidden="true" role="dialog" tabIndex="-1" id={item.id + '-hwe-modal'} className="modal fade">
-                                    <div className="modal-dialog">
-                                        <div className="modal-content">
-                                            <div className="modal-header">
-                                                <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                                <h4 className="modal-title">不满足的软件环境</h4>
-                                            </div>
-                                            <div className="modal-body">
-                                                <h5>以下环境可能不满足：</h5>
-                                                <table className="table">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>name</th>
-                                                        <th>value</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    {trs}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <div className="modal-footer">
-                                                <button type="button" className="btn btn-default" data-dismiss="modal">关闭</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                            modalList.push(modal);
-                        }
-                    }
-                    else{
-                        hardenBtn = (
-                            <button className="btn btn-sm btn-info" disabled data-toggle="modal"><i  className="fa fa-question"></i> 未知</button>
-                        );
-                    }
-                }
+                        </div>
+                    </div>
+                ));
+                btn = (
+                    <button href={'#'+item.id+'-match-modal'} data-toggle="modal" className="btn btn-info btn-sm" ><i className="fa fa-book"> </i> 环境匹配</button>
+                );
             }
             return (
-                <tr>
+                <tr key={item.id}>
                     <td>v1.0</td>
                     <td>{item.name}</td>
-                    <td>{softenBtn}</td>
-                    <td>{hardenBtn}</td>
                     <td>{btn}</td>
                 </tr>
             );
         }.bind(this));
-        var procBar = null;
-        if(this.state.processBar){
-            procBar = (
-                <div className="progress progress-striped active progress-sm">
-                    <div style={ { 'width' : '100%' }} aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" className="progress-bar progress-bar-success">
-                        <span className="sr-only"> </span>
-                    </div>
-                </div>
-            );
-        }
         return (
             <div className="wrapper">
                 <ModelItemSelect ref="modelItemSelector" data-source={this.props['data-source']} onSelectedItem={this.openModelDetail} />
@@ -238,13 +164,11 @@ var CloudModelSerTable = React.createClass({
                                 <h5 >登记时间 : {this.state.itemDetail.model_registerTime} </h5>
                                 <h5 >平台 : {this.state.itemDetail.model_platform} </h5>
                                 <h5 >状态 : {this.state.itemDetail.model_status} </h5>
-                                <table className="table">
+                                <table className="table" style={{margin:0}}>
                                     <thead>
                                     <tr>
                                         <th>版本</th>
                                         <th>名称</th>
-                                        <th>软件环境</th>
-                                        <th>硬件环境</th>
                                         <th>操作</th>
                                     </tr>
                                     </thead>
@@ -252,7 +176,6 @@ var CloudModelSerTable = React.createClass({
                                     {packages}
                                     </tbody>
                                 </table>
-                                {procBar}
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-default" data-dismiss="modal">关闭</button>
@@ -262,7 +185,7 @@ var CloudModelSerTable = React.createClass({
                 </div>
                 {modalList}
             </div>
-            );
+        );
     }
 });
 

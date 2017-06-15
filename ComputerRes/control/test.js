@@ -1,4 +1,7 @@
 var fs = require('fs');
+var request = require('request-promise');
+var convert = require('convert-units');
+var http = require('http');
 
 var ModelSerCtrl = require('./modelSerControl');
 var sysCtrl = require('./sysControl');
@@ -9,16 +12,73 @@ var hardwareEnCtrl = require('./hardwareEnCtrl');
 var msrCtrl = require('./modelSerRunControl');
 var verCtrl = require('./versionCtrl');
 var setting = require('./../setting');
+// var UDXVisualization = require('./UDX_Visualization');
+var child_process = require('../utils/child-process');
 
-var request = require('request-promise');
-var convert = require('convert-units');
+//全文索引示例
+// var query = {
+//     $text:{
+//         $search:'microsoft visual vc++ 2010',
+//         // $language:'english',
+//         $caseSensitive:false
+//     }
+// };
+// softwareEnCtrl.getByTextSearch(query,function (err, data) {
+//     if(err){
+//         return console.log(err);
+//     }
+//     else{
+//         for(var i=0;i<data.length;i++){
+//             console.log(data[i].score);
+//         }
+//     }
+// });
 
-ModelSerCtrl.addBatchDeployItemsByMDL({u_name:'scr',u_email:'1374316846@qq.com'},'E:\\vs10\\saga_3.0.0_src\\saga-gis\\bin\\saga_vc_x64_d\\Packing_SAGA_Models\\');
-// ModelSerCtrl.batchDeployByMDL('..\\..\\..\\..\\vs10\\saga_3.0.0_src\\saga-gis\\bin\\saga_vc_x64_d\\Packing_SAGA_Models\\');
+// ModelSerCtrl.readMDLByPath('E:\\vs10\\saga_3.0.0_src\\saga-gis\\bin\\saga_vc_x64_d\\Packing_SAGA_Models\\climate_tools_0\\model\\climate_tools_0.mdl',function (err, data) {
+//     if(err){
+//         console.log(err);
+//     }
+//     else{
+//         console.log(JSON.stringify(data));
+//     }
+// });
 
-// ModelSerCtrl.addBatchDeployItems(__dirname + '/../geo_model/batchDeploy.cfg');
-// ModelSerCtrl.addByBatch('SAGA');
+// child_process.newVisualization('gd_4d0fca90-249f-11e7-b8be-c1d3177b5021',function (err, data) {
+//     if(err){
+//         console.log(err);
+//     }
+// });
 
+// fs.stat('./sadf.txt',function (err, data) {
+//     if(err){
+//         if(err.code == 'ENOENT'){
+//             console.log(err);
+//         }
+//         else{
+//             console.log(err);
+//         }
+//     }
+//     else{
+//         console.log('null err');
+//     }
+// });
+
+// var url = 'http://127.0.0.1:1000/post';
+// var form = {
+//     field:'1',
+//     my_file:fs.createReadStream(__dirname+ '/../public/images/404-error.png')
+// };
+// // url += '?a='+ JSON.stringify(form);
+// RemoteReqControl.postByServer(url,form,function (err, data) {
+//     if(err){
+//         return console.log(err);
+//     }
+//     else{
+//         console.log(data);
+//     }
+// });
+
+// ModelSerCtrl.addBatchDeployItemsByMDL({u_name:'scr',u_email:'1374316846@qq.com'},'E:\\SAGA Models\\',true);
 
 // var a = verCtrl.rangeMatch('324.345.2345','((([0,345])))||((2345.22.23,infinite))&&(2345.22.23,3454.345.8)||324.x||*&&!1.2.3.4');
 // var b = hardwareEnCtrl.rangeMatch(' 401    GHz ','( 400  GHz , infinite ] && [200MHz,500GHZ] || !401MHz');

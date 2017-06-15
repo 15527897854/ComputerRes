@@ -5,6 +5,8 @@ var sweModel = require('../model/softwareEnviro');
 var ControlBase = require('./controlBase');
 var sysCtrl = require('./sysControl');
 var versionCtrl = require('./versionCtrl');
+var modelserCtrl = require('./modelSerControl');
+var modelBase = require('../model/modelBase');
 
 var softwareEnCtrl = function () {
     
@@ -13,7 +15,20 @@ softwareEnCtrl.__proto__ = ControlBase;
 module.exports = softwareEnCtrl;
 softwareEnCtrl.model = sweModel;
 
-softwareEnCtrl.getAll = function (callback) {
+//得到所有原始数据
+softwareEnCtrl.getAllA = function (callback) {
+    sweModel.getByWhere({},function (err, data) {
+        if(err){
+            return callback(JSON.stringify({status:0}));
+        }
+        else{
+            return callback(JSON.stringify({status:1,enviro:data}));
+        }
+    })
+};
+
+//将原始数据装换为树状结构
+softwareEnCtrl.getAllB = function (callback) {
     sweModel.all2TableTree(function (err, data) {
         if(err){
             callback(JSON.stringify({status:0})) ;
@@ -35,6 +50,11 @@ softwareEnCtrl.deleteItem = function (id,callback) {
     })
 };
 
+//根据swe的name alias version platform查重
+softwareEnCtrl.isRepeated = function (swe, callback) {
+
+};
+
 //更新前也做 查重 检测？
 softwareEnCtrl.updateItem = function (item,callback) {
     sweModel.getByOID(item._id,function (err, swe) {
@@ -53,12 +73,21 @@ softwareEnCtrl.updateItem = function (item,callback) {
                 var index = item.aliasId;
                 swe.alias.splice(index,1);
             }
-            sweModel.update(swe,function (err, data) {
+            //查重检测
+            sweModel.getByWhere({},function (err, data) {
                 if(err){
-                    callback(JSON.stringify({status:0}));
+                    return callback(JSON.stringify({status:0}));
                 }
                 else{
-                    callback(JSON.stringify({status:1,_id:swe._id}));
+
+                }
+            });
+            sweModel.update(swe,function (err, data) {
+                if(err){
+                    return callback(JSON.stringify({status:0}));
+                }
+                else{
+                    return callback(JSON.stringify({status:1,_id:swe._id}));
                 }
             })
         }
@@ -294,6 +323,80 @@ softwareEnCtrl.ensMatched = function (demands,callback) {
                 // }
             }
             return callback(JSON.stringify({status:1,unSatisfiedList:unSatisfiedList}));
+        }
+    })
+};
+
+softwareEnCtrl.enMatched = function (demand, cb) {
+    sweModel.getByWhere({},function (err, swes) {
+        if(err){
+            return cb(err);
+        }
+        else {
+            var query = {
+                $text:{
+                    $search:demand.name + ' ' + demand.platform,
+                    $caseSensitive:false
+                }
+            };
+            softwareEnCtrl.getByTextSearch(query,function (err, data) {
+                if(err){
+                    return cb(err);
+                }
+                else{
+                    //TODO 对模糊查询到的结果进行版本匹配
+                    
+                    return cb(null,data);
+                }
+            })
+        }
+    })
+};
+
+softwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
+    modelserCtrl.getRuntimeByPid(pid,place,function (err, demands) {
+        if(err){
+            return cb(err);
+        }
+        else{
+            demands = demands.swe;
+            var count = 0;
+            var matchedList = [];
+            if(demands.length){
+                var pending = function (index) {
+                    count++;
+                    return function (err, matchedItems) {
+                        count--;
+                        if(err){
+                            console.log(err);
+                        }
+                        else{
+                            modelBase.items2TableTree(matchedItems,function (err, matchedItems) {
+                                matchedList[index] = matchedItems;
+                            });
+                        }
+                        if(count == 0){
+                            modelBase.items2TableTree(demands,function (err, demands) {
+                                for(var i=0;i<demands.length;i++){
+                                    demands[i].matched = matchedList[i];
+                                    demands[i].result = '未知';
+                                }
+                                cb(null,demands);
+                            });
+                        }
+                    }
+                };
+                for(var i=0;i<demands.length;i++){
+                    demands[i].alias = [];
+                    demands[i].publisher = '';
+                    demands[i].type = '';
+                    demands[i].result = '';
+                    softwareEnCtrl.enMatched(demands[i],pending(i));
+                }
+            }
+            else{
+                cb(null,[]);
+            }
         }
     })
 };

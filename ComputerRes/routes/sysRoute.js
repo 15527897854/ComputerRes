@@ -97,7 +97,8 @@ module.exports = function(app)
             res.render('setting');
         });
 
-    //数据的增删查改
+
+    //region 环境字典
     //type : hardware software
     //method : auto get select
     //ac : update new del
@@ -113,6 +114,14 @@ module.exports = function(app)
             else if(type == 'software'){
                 enviroCtrl = sweCtrl;
             }
+            var ab = req.query.AB;
+            var getAll = null;
+            if(ab && ab !='A'){
+                getAll = enviroCtrl.getAllA;
+            }
+            else{
+                getAll = enviroCtrl.getAllB;
+            }
 
             if(method == 'auto'){
                 enviroCtrl.autoDetect(function (data) {
@@ -120,7 +129,7 @@ module.exports = function(app)
                 })
             }
             else if(method == 'get'){
-                enviroCtrl.getAll(function (data) {
+                getAll(function (data) {
                     return res.end(data);
                 })
             }
@@ -180,6 +189,15 @@ module.exports = function(app)
                 return res.end(data);
             })
         });
+
+    app.route('/setting/enviro/matchrst')
+        .get(function (req, res) {
+            var demand = req.query.demand;
+            var type = req.query.type;
+            
+        });
+    //endregion
+
     //管理员信息
     app.route('/json/admininfo')
         .get(function(req, res, next){

@@ -154,7 +154,7 @@ SysControl.getRegisterInfo = function (callback) {
     SysControl.getState(function (err, sysInfo) {
         if(err){
             console.log('err in get sys info!');
-            callback(err);
+            return callback(err);
         }
         else{
             SysControl.getIP(function (err, ip) {
@@ -169,8 +169,7 @@ SysControl.getRegisterInfo = function (callback) {
                     des: '',
                     host : ip,
                     port : setting.port,
-                    software:[],
-                    hardware:[],
+                    platform : setting.platform,
                     registered:false
                 };
                 return callback(null,registerInfo);
@@ -380,21 +379,25 @@ SysControl.autoDetectSW = function (callback) {
                         }
                         //将文件组织为json
                         data = iconv.decode(data,'gbk');
+                        if(data=='')
+                            return callback(null,[]);
                         var strswlist = data.split('[\t\t\t]');
                         var swlist = [];
                         for(var i=0;i<strswlist.length;i++){
                             var swItemKV = strswlist[i].split('[\t\t]');
+                            var platform = '';
+                            if(swItemKV[1])
+                                platform = swItemKV[1].indexOf('x64')!=-1?'x64':(swItemKV[1].indexOf('x86')!=-1?'x86':'');
                             swlist.push({
                                 _id:swItemKV[0],
                                 name:swItemKV[1],
                                 version:swItemKV[2],
                                 publisher:swItemKV[3],
-                                platform:swItemKV[1].indexOf('x64')!=-1?'x64':(swItemKV[1].indexOf('x86')!=-1?'x86':''),
+                                platform:platform,
                                 type:swItemKV[4]
                             });
                         }
-                        
-                        callback(null,swlist);
+                        return callback(null,swlist);
                     })
                 }
             }

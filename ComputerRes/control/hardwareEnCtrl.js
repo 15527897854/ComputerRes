@@ -5,6 +5,8 @@ var hweModel = require('../model/hardwareEnviro');
 var ControlBase = require('./controlBase');
 var sysCtrl = require('../control/sysControl');
 var convert = require('convert-units');
+var modelserCtrl = require('./modelSerControl');
+var modelBase = require('../model/modelBase');
 
 var hardwareEnCtrl = function () {
 
@@ -31,13 +33,24 @@ hardwareEnCtrl.autoDetect = function (callback) {
     })
 };
 
-hardwareEnCtrl.getAll = function (callback) {
-    hweModel.all2TableTree(function (err, data) {
+hardwareEnCtrl.getAllA = function (callback) {
+    hweModel.getByWhere({},function (err, data) {
         if(err){
-            callback(JSON.stringify({status:0})) ;
+            return callback(JSON.stringify({status:0}));
         }
         else{
-            callback(JSON.stringify({status:1,enviro:data}));
+            return callback(JSON.stringify({status:1,enviro:data}));
+        }
+    })
+};
+
+hardwareEnCtrl.getAllB = function (callback) {
+    hweModel.all2TableTree(function (err, data) {
+        if(err){
+            return callback(JSON.stringify({status:0})) ;
+        }
+        else{
+            return callback(JSON.stringify({status:1,enviro:data}));
         }
     });
 };
@@ -238,8 +251,78 @@ hardwareEnCtrl.ensMatched = function (demands, callback) {
     });
 };
 
-/////////////////////////////////////////////////////////
-//硬件的环境匹配
+hardwareEnCtrl.enMatched = function (demand, cb) {
+    hweModel.getByWhere({},function (err, hwes) {
+        if(err){
+            return cb(err);
+        }
+        else {
+            var query = {
+                $text:{
+                    $search:demand.name,
+                    $caseSensitive:false
+                }
+            };
+            hardwareEnCtrl.getByTextSearch(query,function (err, data) {
+                if(err){
+                    return cb(err);
+                }
+                else{
+                    //TODO 对模糊查询到的结果进行版本匹配
+                    
+                    return cb(null,data);
+                }
+            })
+        }
+    })
+};
+
+hardwareEnCtrl.getMatchTabledata = function (pid, place, cb) {
+    modelserCtrl.getRuntimeByPid(pid,place,function (err, demands) {
+        if(err){
+            return cb(err);
+        }
+        else{
+            demands = demands.hwe;
+            var count = 0;
+            var matchedList = [];
+            if(demands.length){
+                var pending = function (index) {
+                    count++;
+                    return function (err, matchedItems) {
+                        count--;
+                        if(err){
+                            console.log(err);
+                        }
+                        else{
+                            modelBase.items2TableTree(matchedItems,function (err, matchedItems) {
+                                matchedList[index] = matchedItems;
+                            });
+                        }
+                        if(count == 0){
+                            modelBase.items2TableTree(demands,function (err, demands) {
+                                for(var i=0;i<demands.length;i++){
+                                    demands[i].matched = matchedList[i];
+                                    demands[i].result = '未知';
+                                }
+                                cb(null,demands);
+                            });
+                        }
+                    }
+                };
+                for(var i=0;i<demands.length;i++){
+                    demands[i].result = '';
+                    hardwareEnCtrl.enMatched(demands[i],pending(i));
+                }
+            }
+            else{
+                cb(null,[]);
+            }
+        }
+    });
+};
+
+//region 硬件的环境匹配
 //只支持数字形式的比较
 //支持的比较符有：区间 * ！
 //v1表示是原有的，v2表示是需求
@@ -411,3 +494,4 @@ hardwareEnCtrl.rangeValid = function (range) {
     }
     return rst;
 };
+//endregion

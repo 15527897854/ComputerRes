@@ -57,6 +57,8 @@
 		},
 
 		appendModal: function (modal) {
+			if(this.stack.length)
+				this.stack[this.stack.length-1].$element.hide();
 			this.stack.push(modal);
 
 			var that = this;
@@ -107,10 +109,14 @@
 				modal.options.replace ?
 					that.replace(showModal) :
 					showModal();
+				if(that.stack.length>1)
+					that.stack[that.stack.length-2].$element.hide();
 			}));
 
 			modal.$element.on('hidden.modalmanager', targetIsSelf(function (e) {
 				that.backdrop(modal);
+				if(that.stack.length>1)
+					that.stack[that.stack.length-2].$element.show();
 				// handle the case when a modal may have been removed from the dom before this callback executes
 				if (!modal.$element.parent().length) {
 					that.destroyModal(modal);

@@ -29,6 +29,7 @@ var HWESchema = new mongoose.Schema({
     name : String,
     value:String
 },{collection:'hardwareEnviro'});
+HWESchema.index({name:'text',value:'text'});
 
 var HWE = mongoose.model('hardwareEnviro',HWESchema);
 HardwareEnviro.baseModel = HWE;
