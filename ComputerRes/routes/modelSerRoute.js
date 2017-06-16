@@ -27,7 +27,6 @@ var NoticeCtrl = require('../control/noticeCtrl');
 
 module.exports = function(app)
 {
-    //新增模型服务
     app.route('/modelser')
         //查询模型服务
         .get(function(req, res, next){
@@ -575,16 +574,6 @@ module.exports = function(app)
 
     //get 所有测试数据
     app.route('/modelser/testify/:msid')
-        .get(function (req, res) {
-            var msid = req.params.msid;
-            //暂时放到这里，用来生成已经部署过的模型的测试数据
-            //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
-            ModelSerCtrl.addDefaultTestify(msid.toString(),function () {
-                testifyCtrl.getTestify(msid,function (data) {
-                    res.end(data);
-                });
-            });
-        })
         .delete(function (req, res, next) {
             var msid = req.params.msid;
             var path = req.query.path;

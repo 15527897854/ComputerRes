@@ -10,6 +10,8 @@ var ModelSerCtrl = require('../control/modelSerControl');
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelInsCtrl = require('../control/ModelInsCtrl');
 
+var fs = require('fs');
+
 module.exports = function(app){
     //展示某个模型调用界面
     app.route('/public/modelser/preparation/:msid')
@@ -115,7 +117,19 @@ module.exports = function(app){
 
     //// REST API 
     //// 公开API 模型服务类
-    
+
+    //查询模型服务
+    app.route('/modelser')
+        .get(function(req, res, next){
+            if(req.query.ac = 'search'){
+                if(req.query.mid){
+                    ModelSerCtrl.getByMID(req.query.mid, RouteBase.returnFunction(res, 'error in searching model services!'));
+                }
+                else if(req.query.pid){
+                    ModelSerCtrl.getByPID(req.query.pid, RouteBase.returnFunction(res, 'error in searching model services!'));
+                }
+            }
+        });
     //模型服务信息API
     app.route('/modelser/json/:msid')
         .get(function(req, res, next){
@@ -176,9 +190,9 @@ module.exports = function(app){
                         }
                         else{
                             return res.end(JSON.stringify({
-                                        res : 'fail',
-                                        message : '无权限访问此模型!'
-                                    }));
+                                res : 'fail',
+                                message : '无权限访问此模型!'
+                            }));
                         }
                     }
                     else{
@@ -211,7 +225,18 @@ module.exports = function(app){
                 next();
             }
         });
-
+    //get 所有测试数据
+    app.route('/modelser/testify/:msid')
+        .get(function (req, res) {
+            var msid = req.params.msid;
+            //暂时放到这里，用来生成已经部署过的模型的测试数据
+            //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
+            ModelSerCtrl.addDefaultTestify(msid.toString(),function () {
+                testifyCtrl.getTestify(msid,function (data) {
+                    res.end(data);
+                });
+            });
+        })
     
     //// 权限API 模型运行记录类
 
@@ -306,4 +331,52 @@ module.exports = function(app){
                 });
             }
         });
+
+    //下载数据
+    app.route('/geodata/:gdid')
+    .get(function (req, res, next) {
+        var gdid = req.params.gdid;
+        GeoDataCtrl.getByKey(gdid, function (err, gd) {
+            if(err)
+            {
+                return res.end('error');
+            }
+            if(gd == null)
+            {
+                return res.end('No Data!');
+            }
+            var filename = gd.gd_id + '.xml';
+            if(gd.gd_type == 'FILE')
+            {
+                fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                    if (err) {
+                        GeoDataCtrl.delete(gdid, function (err, reslut) {
+                            return res.end('Data file do not exist!')
+                        });
+                    }
+                    else {
+                        fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                            if(err)
+                            {
+                                return res.end('error');
+                            }
+                            res.set({
+                                'Content-Type': 'file/xml',
+                                'Content-Length': data.length });
+                            res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                            res.end(data);
+                        });
+                    }
+                });
+            }
+            else if(gd.gd_type == 'STREAM')
+            {
+                res.set({
+                    'Content-Type': 'file/xml',
+                    'Content-Length': gd.gd_value.length });
+                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                res.end(gd.gd_value);
+            }
+        });
+    });
 }

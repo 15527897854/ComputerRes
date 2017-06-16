@@ -24,6 +24,7 @@ var ModelSerInfo = React.createClass({
             }
         );
     },
+    
     render : function () {
         if(this.state.loading){
             return (
@@ -68,7 +69,7 @@ var ModelSerInfo = React.createClass({
             );
         }
         var img = (<img src="/images/modelImg/default.png" alt=""  />);
-        if(this.state.ms.ms_img.trim() != '' && this.state.ms.ms_img != null){
+        if(this.state.ms.ms_img != null && this.state.ms.ms_img.trim() != ''){
             img = (<img height="128px" width="128px" src={ '/images/modelImg/' + this.state.ms.ms_img } alt=""  />)
         }
         return (
