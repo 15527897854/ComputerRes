@@ -175,7 +175,10 @@ module.exports = function(app){
                             });
                         }
                         else{
-                            return res.end('无权访问此模型!');
+                            return res.end(JSON.stringify({
+                                        res : 'fail',
+                                        message : '无权限访问此模型!'
+                                    }));
                         }
                     }
                     else{

@@ -740,7 +740,6 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
                 else{
                     packages[index]['pulled'] = false;
                 }
-                }
                 
                 count --;
                 if(count == 0){

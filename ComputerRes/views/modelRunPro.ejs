@@ -24,20 +24,7 @@
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
         <div id="modelserinfo" data-source="/modelser/json/<%=modelSer._id %>" ></div>
-
-        <div class="panel panel-info" id="testify-panel">
-            <div class="panel-heading" style="background-color: #46B8DA;border-color: #46B8DA; ">
-                测试数据
-                <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
-                 </span>
-            </div>
-            <div class="panel-body">
-                <div id="testify-body" class="panel-body" style="padding: 15px;margin-right: 80px">
-
-                </div>
-            </div>
-        </div>
+        <div id="TestifyDataPanel" data-source="/modelser/testify/<%=modelSer._id %>" ></div>
 
         <div class="panel panel-info">
             <div class="panel-heading" style="background-color: #5CB85C;border-color: #5CB85C; ">
@@ -112,162 +99,43 @@
             {
                 window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
             }
-            $.ajax({
-                url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
-                type:'GET',
-                success : function(data){
-                    var resJson = JSON.parse(data);
-                    if(resJson.res = 'suc')
+            $(document).ready(function(){
+            $('#btn_run').click(function(e){
+                for(var i = 0; i < window.allInputData.length; i++)
+                {
+                    if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 )
                     {
-                        window.location.href = '/modelserrun/' + resJson.msr_id;
+                        return alert('数据未全准备！');
                     }
                 }
-            });
-        });
-    });
-</script>
-<script type="text/javascript">
-    //加载所有测试数据条目
-    $(document).ready(function () {
-        $.ajax({
-            url:'/modelser/testify/<%=modelSer._id%>',
-            method:'get',
-            success:function (msg) {
-                testifies = JSON.parse(msg);
-                if(testifies.status ==1){
-                    var testifies = testifies.testifies;
-                    if(testifies.length == 0){
-                        $('#testify-body').empty();
-                        $('#testify-body').append('<h4>没有测试数据！</h4>');
 
-                        $.gritter.add({
-                            title: '提示：',
-                            text: '没有测试数据！',
-                            sticky: false,
-                            time: 2000
-                        });
-                        return false;
-                    }
-                    var child = '<h4 >Tag:</h4>'
-                                +'<select style="margin: 0 50px 0 15px;width: 30%;" id="testifies" class="form-control m-bot15">'
-                                +'</select>'
-                                +'<h4>Detail:</h4>'
-                                +'<p style="margin-left: 15px;" id="testify-detail"></p>'
-                                +'<div style="text-align: center">'
-                                +'<input id="btn_testify_load" type="button" class="btn btn-warning" value="加载测试数据" style="width: 15%;font-family: \'Microsoft YaHei\';margin: 0 10px;">'
-                                +'<input id="btn_testify_del" type="button" class="btn btn-danger" value="删除测试数据" style="width: 15%;font-family: \'Microsoft YaHei\';margin: 0 10px;">'
-                                +'</div>';
-                    $('#testify-body').append($(child));
-                    for(var i=0;i<testifies.length;i++){
-                        var option = $('<option>');
-                        option.append(testifies[i].tag);
-                        $('#testifies').append(option);
-                    }
-                    $('#testifies option:first').attr('selected','selected');
-                    $('#testify-detail').append(testifies[0].detail);
-                    $('#testifies').change(function () {
-                        if($('#testifies option').length == 0){
-                            $('#testify-body').empty();
-                            $('#testify-body').append('<h4>没有测试数据！</h4>');
-
-                            $.gritter.add({
-                                title: '提示：',
-                                text: '没有测试数据！',
-                                sticky: false,
-                                time: 2000
-                            });
-                            return false;
+                for(var i = 0; i < window.allOutputData.length; i++)
+                {
+                    window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
+                }
+                $.ajax({
+                    url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
+                    type:'GET',
+                    success : function(data){
+                        var resJson = JSON.parse(data);
+                        if(resJson.res == 'suc')
+                        {
+                            window.location.href = '/public/modelserrun/' + resJson.msr_id;
                         }
                         else{
-                            $('#testify-detail').text(testifies[$('#testifies option:selected')[0].index].detail);
-                        }
-                    });
-
-                    //加载测试数据
-                    $('#btn_testify_load').click(function () {
-                        var selectedTestify = testifies[$('#testifies option:selected')[0].index];
-                        for(var i = 0; i < selectedTestify.inputs.length; i++){
-                            window.addGeoData(selectedTestify.inputs[i].StateId, selectedTestify.inputs[i].Event, selectedTestify.inputs[i].DataId);
-                        }
-                        
-                        //悬浮提示框
-                        $.gritter.add({
-                            title: '加载测试数据成功！',
-                            text: '<p><strong style="">Tag:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].tag+'</p><p><strong>Detail:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].detail + '</p>',
-                            sticky: false,
-                            time: 2000
-                        });
-                        return false;
-                    });
-
-                    //删除测试数据
-                    $('#btn_testify_del').click(function () {
-                        //TODO默认测试数据不能删除
-                        if(testifies[$('#testifies option:selected')[0].index].tag == 'default'){
                             $.gritter.add({
-                                title: '警告：',
-                                text: '不能删除默认测试数据！',
-                                sticky: false,
-                                time: 2000
-                            });
-                            return false;
-                        }
-                        else if(confirm("确认删除测试数据?")) {
-                            var selectedTestify = testifies[$('#testifies option:selected')[0].index];
-                            var path = selectedTestify.path;
-                            $.ajax({
-                                url: '/modelser/testify/<%= modelSer._id %>?path=' + path,
-                                method: 'delete',
-                                success: function (msg) {
-                                    msg = JSON.parse(msg);
-                                    var title;
-                                    if(msg.suc){
-                                        //删除select中的option
-                                        $('#testifies option')[$('#testifies option:selected')[0].index].remove();
-                                        $('#testifies').trigger('change');
-                                        title = '删除测试数据成功！';
-                                    }
-                                    else if(!msg.suc){
-                                        title = '删除测试数据失败！';
-                                    }
-                                    $.gritter.add({
-                                        title: title,
-                                        text: '<p><strong style="">Tag:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].tag+'</p><p><strong>Detail:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].detail + '</p>',
-                                        sticky: false,
-                                        time: 2000
-                                    });
-                                    return false;
-                                }
+                                // (string | mandatory) the heading of the notification
+                                title: '调用失败!',
+                                // (string | mandatory) the text inside the notification
+                                text: resJson.message
                             });
                         }
-                    });
-                }
-                else if(testifies.status == 0){
-                    $('#testify-body').empty();
-                    $('#testify-body').append('<h4>没有测试数据！</h4>');
-
-                    $.gritter.add({
-                        title: '提示：',
-                        text: '没有测试数据！',
-                        sticky: false,
-                        time: 2000
-                    });
-                    return false;
-                }
-                else if(testifies.status == -1){
-                    $.gritter.add({
-                        title: '警告：',
-                        text: '加载测试数据失败！',
-                        sticky: false,
-                        time: 2000
-                    });
-                    return false;
-                }
-            }
+                    }
+                });
+            });
         });
-
+        });
     });
-
 </script>
 </body>
 </html>
