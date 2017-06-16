@@ -24,7 +24,7 @@ var ModelSerInfo = React.createClass({
             }
         );
     },
-    
+
     render : function () {
         if(this.state.loading){
             return (
@@ -72,6 +72,8 @@ var ModelSerInfo = React.createClass({
         if(this.state.ms.ms_img != null && this.state.ms.ms_img.trim() != ''){
             img = (<img height="128px" width="128px" src={ '/images/modelImg/' + this.state.ms.ms_img } alt=""  />)
         }
+        var url = window.location.href;
+        url = url.substr(0, url.lastIndexOf(':') + 5);
         return (
             <div className="panel panel-primary">
                 <div className="panel-heading">
@@ -97,6 +99,8 @@ var ModelSerInfo = React.createClass({
                                 <strong>部署时间&nbsp;:&nbsp;</strong>{this.state.ms.ms_update}
                                 <br />
                                 <strong>状态&nbsp;:&nbsp;</strong>{status}
+                                <br />
+                                <strong>外部请求地址&nbsp;:&nbsp;</strong>{url}/public/modelser/preparation/{this.state.ms._id}
                                 <br />
                                 <strong>描述&nbsp;:&nbsp;</strong>{this.state.ms.ms_des}
                                 <br />{detail}
