@@ -4,6 +4,9 @@
 
 var React = require('react');
 var Axios = require('axios');
+var CopyToClipBoard = require('copy-to-clipboard');
+
+var NoteDialog = require('../../action/utils/noteDialog');
 
 var ModelSerInfo = React.createClass({
     getInitialState : function () {
@@ -23,6 +26,11 @@ var ModelSerInfo = React.createClass({
                 this.setState({loading : false, err : err });
             }
         );
+    },
+
+    copyToClipBoard : function(text){
+        CopyToClipBoard(text);
+        NoteDialog.openNoteDia('复制成功!');
     },
 
     render : function () {
@@ -74,6 +82,13 @@ var ModelSerInfo = React.createClass({
         }
         var url = window.location.href;
         url = url.substr(0, url.lastIndexOf(':') + 5);
+        var limited = null;
+        if(this.state.ms.ms_limited == 1){
+            limited = (<span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title="权限模型" ><i className="fa fa-lock" ></i>&nbsp;权限模型</span>);
+        }
+        else{
+            limited = (<span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title="公开模型" ><i className="fa fa-unlock" ></i>&nbsp;公开模型</span>);
+        }
         return (
             <div className="panel panel-primary">
                 <div className="panel-heading">
@@ -87,25 +102,23 @@ var ModelSerInfo = React.createClass({
                             </div>
                         </div>
                         <div className="col-md-7">
-                            <p style={{"fontSize" : "14px", "color" : "#aaa"}}  >
-                                <strong>模型名称&nbsp;:&nbsp;</strong>{this.state.ms.ms_model.m_name}
-                                <br />
-                                <strong>模型类型&nbsp;:&nbsp;</strong>{this.state.ms.ms_model.m_type}
-                                <br />
-                                <strong>版本号&nbsp;:&nbsp;</strong>{this.state.ms.mv_num}
-                                <br />
-                                <strong>所在平台&nbsp;:&nbsp;</strong>{platform}
-                                <br />
-                                <strong>部署时间&nbsp;:&nbsp;</strong>{this.state.ms.ms_update}
-                                <br />
-                                <strong>状态&nbsp;:&nbsp;</strong>{status}
-                                <br />
-                                <strong>外部请求地址&nbsp;:&nbsp;</strong>{url}/public/modelser/preparation/{this.state.ms._id}
-                                <br />
-                                <strong>描述&nbsp;:&nbsp;</strong>{this.state.ms.ms_des}
-                                <br />{detail}
-                                <br />
-                            </p>
+                            <p className="muted" >名称&nbsp;:&nbsp;{this.state.ms.ms_model.m_name}</p>
+                            <p className="muted" >类型&nbsp;:&nbsp;{this.state.ms.ms_model.m_type}</p>
+                            <p className="muted" >版本号&nbsp;:&nbsp;{this.state.ms.mv_num}</p>
+                            <p className="muted" >所在平台&nbsp;:&nbsp;{platform}</p>
+                            <p className="muted" >部署时间&nbsp;:&nbsp;{this.state.ms.ms_update}</p>
+                            <p className="muted" >状态&nbsp;:&nbsp;{status}</p>
+                            <p className="muted" >权限情况&nbsp;:&nbsp;{limited}</p>
+                            运行请求地址&nbsp;:&nbsp;
+                            <div className="input-group m-bot15">
+                                <span className="input-group-btn">
+                                    <button type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/public/modelser/preparation/' + this.state.ms._id) } } ><i className="fa fa-files-o"></i></button>
+                                </span>
+                                <input type="text" readOnly="readonly" className="form-control" value={url + '/public/modelser/preparation/' + this.state.ms._id} />
+                            </div>
+                            <p  className="muted" >描述&nbsp;:&nbsp;{this.state.ms.ms_des}</p>
+                            <br />{detail}
+                            <br />
                         </div>
                     </div>
                 </div>

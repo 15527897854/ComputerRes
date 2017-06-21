@@ -14,6 +14,17 @@ var TestifyCtrl = require('../control/testifyCtrl');
 var fs = require('fs');
 
 module.exports = function(app){
+    //模型服务信息界面
+    app.route('/public/modelser/:msid')
+        .get(function(req, res, next){
+            var msid = req.params.msid;
+            if(msid == 'all'){
+                return res.render('customModelSers');
+            }
+            res.render('customModelSerDetail', {
+                msid : msid
+            });
+        });
     //展示某个模型调用界面
     app.route('/public/modelser/preparation/:msid')
         .get(function(req, res, next){
@@ -166,28 +177,46 @@ module.exports = function(app){
                 
                 ModelSerCtrl.getByOID(msid, function(err, ms){
                     if(ms.ms_limited == 1){
+                        var authRunCb = (function(err, result){
+                            if(err){
+                                return res.end(JSON.stringify(err));
+                            }
+                            if(result.auth){
+                                return res.end(JSON.stringify({
+                                    res : 'suc',
+                                    msr_id : result.msr._id
+                                }));
+                            }
+                            else{ 
+                                return res.end(JSON.stringify({
+                                    res : 'fail',
+                                    message : result.message
+                                }));
+                            }
+                        });
                         if(req.session.user){
                             user = {
                                 username : req.session.user,
                                 pwd : req.session.pwd
                             };
-                            ModelSerAccessCtrl.run(msid, inputData, outputData, user, function(err, result){
-                                if(err){
-                                    return res.end(JSON.stringify(err));
-                                }
-                                if(result.auth){
-                                    return res.end(JSON.stringify({
-                                        res : 'suc',
-                                        msr_id : result.msr._id
-                                    }));
-                                }
-                                else{ 
-                                    return res.end(JSON.stringify({
-                                        res : 'fail',
-                                        message : result.message
-                                    }));
-                                }
-                            });
+                            ModelSerAccessCtrl.run(msid, inputData, outputData, user, authRunCb);
+                        }
+                        else if(req.query.auth){
+                            var auth = {};
+                            try{
+                                auth = JSON.parse(req.query.auth);
+                            }
+                            catch(ex){
+                                return res.end(JSON.stringify({
+                                    res : 'fail',
+                                    message : '验证失败!'
+                                }));
+                            }
+                            user = {
+                                username : auth.username,
+                                pwd : auth.pwd
+                            };
+                            ModelSerAccessCtrl.run(msid, inputData, outputData, user, authRunCb);
                         }
                         else{
                             return res.end(JSON.stringify({
@@ -335,49 +364,54 @@ module.exports = function(app){
 
     //下载数据
     app.route('/geodata/:gdid')
-    .get(function (req, res, next) {
-        var gdid = req.params.gdid;
-        GeoDataCtrl.getByKey(gdid, function (err, gd) {
-            if(err)
-            {
-                return res.end('error');
+        .get(function (req, res, next) {
+            var gdid = req.params.gdid;
+            if(gdid == 'all'){
+                next();
             }
-            if(gd == null)
-            {
-                return res.end('No Data!');
-            }
-            var filename = gd.gd_id + '.xml';
-            if(gd.gd_type == 'FILE')
-            {
-                fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
-                    if (err) {
-                        GeoDataCtrl.delete(gdid, function (err, reslut) {
-                            return res.end('Data file do not exist!')
+            else{
+                GeoDataCtrl.getByKey(gdid, function (err, gd) {
+                    if(err)
+                    {
+                        return res.end('error');
+                    }
+                    if(gd == null)
+                    {
+                        return res.end('No Data!');
+                    }
+                    var filename = gd.gd_id + '.xml';
+                    if(gd.gd_type == 'FILE')
+                    {
+                        fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                            if (err) {
+                                GeoDataCtrl.delete(gdid, function (err, reslut) {
+                                    return res.end('Data file do not exist!')
+                                });
+                            }
+                            else {
+                                fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                                    if(err)
+                                    {
+                                        return res.end('error');
+                                    }
+                                    res.set({
+                                        'Content-Type': 'file/xml',
+                                        'Content-Length': data.length });
+                                    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                                    res.end(data);
+                                });
+                            }
                         });
                     }
-                    else {
-                        fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
-                            if(err)
-                            {
-                                return res.end('error');
-                            }
-                            res.set({
-                                'Content-Type': 'file/xml',
-                                'Content-Length': data.length });
-                            res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                            res.end(data);
-                        });
+                    else if(gd.gd_type == 'STREAM')
+                    {
+                        res.set({
+                            'Content-Type': 'file/xml',
+                            'Content-Length': gd.gd_value.length });
+                        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                        res.end(gd.gd_value);
                     }
                 });
             }
-            else if(gd.gd_type == 'STREAM')
-            {
-                res.set({
-                    'Content-Type': 'file/xml',
-                    'Content-Length': gd.gd_value.length });
-                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                res.end(gd.gd_value);
-            }
         });
-    });
 }

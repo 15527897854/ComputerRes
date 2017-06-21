@@ -140,7 +140,10 @@ var RmtModelSerTable = React.createClass({
     },
 
     openModelSerInfoHandle : function (e, host, msid) {
-        if(host){
+        if(host && host == 'custom'){
+            window.location = '/public/modelser/' + msid;
+        }
+        else if(host){
             window.location = '/modelser/rmt/' + host + '/' + msid;
         }
         else{
@@ -158,7 +161,10 @@ var RmtModelSerTable = React.createClass({
     },
 
     openModelSerProHandle : function (e, host, msid) {
-        if(host){
+        if(host && host == 'custom'){
+            window.open('/public/modelser/preparation/' + msid);
+        }
+        else if(host){
             window.open('/modelser/rmt/preparation/' + host + '/' + msid + '');
         }
         else{
@@ -251,7 +257,57 @@ var RmtModelSerTable = React.createClass({
                 return mss;
             }.bind(this));
         }
-        else{
+        else if(this.state.type == 'custom'){
+            MsItems = this.state.data.map(function (item) {
+                var platform;
+                if(item.ms_platform == 1)
+                {
+                    platform = (<span className="label label-info"><i className="fa fa-windows"> </i> windows</span>);
+                }
+                else if(item.ms_platform == 2)
+                {
+                    platform = (<span className="label label-info"><i className="fa fa-linux"> </i> linux</span>);
+                }
+                else
+                {
+                    platform = (<span className="label label-info">Unknown</span>);
+                }
+                var status;
+                var button;
+                if(item.ms_status == 1)
+                {
+                    status = (<span className="badge badge-success">可用</span>);
+                    button = (
+                        <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.openModelSerProHandle(e, 'custom', item._id) }} >
+                            <i className="fa fa-retweet"> </i>调用
+                        </button>);
+                }
+                else
+                {
+                    status = (<span className="badge badge-defult">不可用</span>);
+                }
+                var limited = null;
+                if(item.ms_limited){
+                    limited = (<span className="label label-default tooltips" title="权限模型" ><i className="fa fa-lock" ></i></span>);
+                }
+                return (
+                    <tr key={item._id}>
+                        <td>{item.ms_model.m_name}&nbsp;{limited}</td>
+                        <td>{item.mv_num}</td>
+                        <td>{platform}</td>
+                        <td>{status}</td>
+                        <td>0/1</td>
+                        <td>127.0.0.1</td>
+                        <td>
+                            <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
+                            { this.openModelSerInfoHandle(e, 'custom', item._id ) } }  ><i className="fa fa-book"> </i>详情</button>&nbsp;
+                            {button}
+                        </td>
+                    </tr>
+                );
+            }.bind(this));
+        }
+        else {
             MsItems = this.state.data.map(function (item) {
                 var platform;
                 if(item.ms_platform == 1)
@@ -306,9 +362,13 @@ var RmtModelSerTable = React.createClass({
                         </button>
                     );
                 }
+                var limited = null;
+                if(item.ms_limited){
+                    limited = (<span className="label label-default tooltips" title="权限模型" ><i className="fa fa-lock" ></i></span>);
+                }
                 return (
                     <tr key={item._id}>
-                        <td>{item.ms_model.m_name}</td>
+                        <td>{item.ms_model.m_name}&nbsp;{limited}</td>
                         <td>{item.mv_num}</td>
                         <td>{platform}</td>
                         <td>{status}</td>

@@ -8,8 +8,8 @@ var GeoDataCtrl = require('./geoDataControl');
 var ModelSerRunModel = require('../model/modelSerRun');
 
 var testifyCtrl = function () {
-
 };
+
 module.exports = testifyCtrl;
 
 testifyCtrl.addDefaultTestify = function (msid,getInputData,callback) {

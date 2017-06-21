@@ -20,6 +20,7 @@ var EnMatchStepy = require('../components/enviro/enMatchStepy');
 var UserInfo = require('../components/systemSetting/userInfo');
 var LoginPanel = require('../components/systemSetting/loginPanel');
 var TestifyDataPanel = require('../components/data/TestifyDataPanel');
+var ModelSerDetail = require('../components/modelSer/modelSerDetail');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -33,6 +34,11 @@ if(document.getElementById('rmtModelSerTable') != null) {
 if(document.getElementById('modelserinfo') != null) {
     ReactDOM.render(<ModelSerInfo source={ document.getElementById('modelserinfo').getAttribute('data-source') }  />,
         document.getElementById('modelserinfo'));
+}
+
+if(document.getElementById('ModelSerDetail') != null) {
+    ReactDOM.render(<ModelSerDetail data-source={ document.getElementById('ModelSerDetail').getAttribute('data-source') }  />,
+        document.getElementById('ModelSerDetail'));
 }
 
 if(document.getElementById('rmtModelSerRunTable') != null) {
