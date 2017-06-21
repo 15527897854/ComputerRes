@@ -5,14 +5,13 @@ var registerModel = require('../model/register');
 var ControlBase = require('./controlBase');
 var RemoteControl = require('./remoteReqControl');
 var setting = require('../setting');
-var sysCtrl = require('./sysControl');
 
 var registerCtrl = function () {};
 registerCtrl.__proto__ = ControlBase;
 module.exports = registerCtrl;
 
 //向门户注册：取数据、改数据、post数据、存数据
-registerCtrl.register = function (callback) {
+registerCtrl.register = function (getRegisterInfo,callback) {
     registerModel.getByWhere({},function (err, data) {
         var rst;
         if(err){
@@ -27,9 +26,9 @@ registerCtrl.register = function (callback) {
                     Info:JSON.stringify(registerInfo)
                 };
                 //向门户请求注册
-                // var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/ComputerNodeServlet?ac=register&Info=' + JSON.stringify(registerInfo);
-                var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/ComputerNodeServlet?';
-                RemoteControl.postByServer(url,form,function (err, msg){
+                var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/computerNodeServlet?ac=register&Info=' + JSON.stringify(registerInfo);
+                // var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/computerNodeServlet';
+                RemoteControl.postByServer(url,null,function (err, msg){
                     if(err){
                         console.log('err in post by server!');
                         rst = {status: -1};
@@ -83,7 +82,7 @@ registerCtrl.register = function (callback) {
             }
             else{
                 //数据库没存，要动态生成，存到数据库中
-                sysCtrl.getRegisterInfo(function (err, registerInfo){
+                getRegisterInfo(function (err, registerInfo){
                     post2portal(registerInfo);
                 });
             }

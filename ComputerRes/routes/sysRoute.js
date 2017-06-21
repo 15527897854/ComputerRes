@@ -75,14 +75,12 @@ module.exports = function(app)
         .get(function (req, res, next) {
             var ac = req.query.ac;
             if(ac == 'register'){
-                sysControl.register(function (rst) {
-                    registerCtrl.register(function (rst) {
-                        return res.end(rst)
-                    })
-                });
+                SysControl.register(function (rst) {
+                    return res.end(rst)
+                })
             }
             else if(ac == 'deregister'){
-                sysControl.deregister(function (rst) {
+                SysControl.deregister(function (rst) {
                     return res.end(rst)
                 });
             }
@@ -108,10 +106,10 @@ module.exports = function(app)
             //分为三种：get、auto、select
             var method = req.query.method;
             var enviroCtrl = null;
-            if(type == 'hardware'){
+            if(type == 'hardware' || type == 'hwe'){
                 enviroCtrl = hweCtrl;
             }
-            else if(type == 'software'){
+            else if(type == 'software' || type == 'swe'){
                 enviroCtrl = sweCtrl;
             }
             var ab = req.query.AB;
