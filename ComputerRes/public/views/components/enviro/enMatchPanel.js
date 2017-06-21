@@ -26,7 +26,7 @@ var EnMatchPanel = React.createClass({
                     <div className="panel-heading">
                         软件环境
                         <span className="tools pull-right">
-                            <a href="javascript:;" className="fa fa-chevron-down"></a>
+                            <a className="fa fa-chevron-down"></a>
                         </span>
                     </div>
                     <div className="panel-body">
@@ -39,14 +39,14 @@ var EnMatchPanel = React.createClass({
                                 css={this.props.css}
                             />
                         </div>
-                    </div>
+					</div>
                 </div>
 
                 <div className="panel panel-info">
                     <div className="panel-heading">
                         硬件环境
                         <span className="tools pull-right">
-                            <a href="javascript:;" className="fa fa-chevron-down"></a>
+                            <a className="fa fa-chevron-down"></a>
                         </span>
                     </div>
                     <div className="panel-body">
