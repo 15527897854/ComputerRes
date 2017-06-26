@@ -10,10 +10,23 @@ var ModelSerCtrl = require('../control/modelSerControl');
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelInsCtrl = require('../control/ModelInsCtrl');
 var TestifyCtrl = require('../control/testifyCtrl');
+var cp = require('../utils/child-process'); 
 
 var fs = require('fs');
 
 module.exports = function(app){
+    //客户端界面
+    app.route('/public/index')
+        .get(function(req, res, next){
+            return res.render('customIndex');
+        });
+
+    //模型信息
+    app.route('/public/info')
+        .get(function(req, res, next){
+            return res.render('customInfo');
+        });
+
     //模型服务信息界面
     app.route('/public/modelser/:msid')
         .get(function(req, res, next){
@@ -413,5 +426,19 @@ module.exports = function(app){
                     }
                 });
             }
+        });
+
+    //数据快照
+    app.route('/geodata/snapshot/:gdid')
+        .get(function (req, res, next) {
+            var gdid = req.params.gdid;
+            cp.newVisualization(gdid,null,function (err, data) {
+                if(err){
+                    return res.end(JSON.stringify({err:err}));
+                }
+                else{
+                    return res.end(data);
+                }
+            });
         });
 }

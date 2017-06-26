@@ -21,6 +21,8 @@ var UserInfo = require('../components/systemSetting/userInfo');
 var LoginPanel = require('../components/systemSetting/loginPanel');
 var TestifyDataPanel = require('../components/data/TestifyDataPanel');
 var ModelSerDetail = require('../components/modelSer/modelSerDetail');
+var CustomIndexPanel = require('../components/systemSetting/customIndex');
+var CustomInfoPanel = require('../components/systemSetting/customInfo');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -37,7 +39,10 @@ if(document.getElementById('modelserinfo') != null) {
 }
 
 if(document.getElementById('ModelSerDetail') != null) {
-    ReactDOM.render(<ModelSerDetail data-source={ document.getElementById('ModelSerDetail').getAttribute('data-source') }  />,
+    ReactDOM.render(<ModelSerDetail 
+    data-source={ document.getElementById('ModelSerDetail').getAttribute('data-source') }
+    data-type={ document.getElementById('ModelSerDetail').getAttribute('data-type') }
+      />,
         document.getElementById('ModelSerDetail'));
 }
 
@@ -52,6 +57,16 @@ if(document.getElementById('rmtModelSerRunTable') != null) {
 if(document.getElementById('settingPage') != null) {
     ReactDOM.render(<SystemSetting source="/settings"/>,
         document.getElementById('settingPage'));
+}
+
+if(document.getElementById('CustomIndexPanel') != null) {
+    ReactDOM.render(<CustomIndexPanel />,
+        document.getElementById('CustomIndexPanel'));
+}
+
+if(document.getElementById('CustomInfoPanel') != null) {
+    ReactDOM.render(<CustomInfoPanel />,
+        document.getElementById('CustomInfoPanel'));
 }
 
 if(document.getElementById('childPanel') != null) {

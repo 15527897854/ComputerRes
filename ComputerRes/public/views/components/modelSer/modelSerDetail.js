@@ -7,7 +7,7 @@ var Axios = require('axios');
 var CopyToClipBoard = require('copy-to-clipboard');
 
 var NoteDialog = require('../../action/utils/noteDialog');
-
+var ModelSerOpera = require('./modelSerOpera');
 
 var ModelSerDetail = React.createClass({
     getInitialState : function(){
@@ -19,6 +19,10 @@ var ModelSerDetail = React.createClass({
     },
 
     componentDidMount : function(){
+        this.refresh();
+    },
+
+    refresh : function(){
         Axios.get(this.props['data-source']).then(
             data => {
                 if(data.data.result == 'suc'){
@@ -49,6 +53,15 @@ var ModelSerDetail = React.createClass({
     copyToClipBoard : function(text){
         CopyToClipBoard(text);
         NoteDialog.openNoteDia('复制成功!');
+    },
+
+    onDeleted : function(){
+        if(this.props['data-type'] == 'admin'){
+            window.location.href = '/modelser/all';
+        }
+        else{
+            window.location.href = '/public/modelser/all';
+        }
     },
 
     render : function(){
@@ -87,12 +100,15 @@ var ModelSerDetail = React.createClass({
             )
         }
         var status = null;
+        var opera_status = null;
         if(this.state.ms.ms_status == 1){
+            opera_status = "started";
             status = (
                 <span className="badge badge-success">可用</span>
             )
         }
         else {
+            opera_status = "stopped";
             status = (
                 <span className="badge badge-default">不可用</span>
             );
@@ -117,6 +133,26 @@ var ModelSerDetail = React.createClass({
         }
         var url = window.location.href;
         url = url.substr(0, url.lastIndexOf(':') + 5);
+        
+        var starting = "/modelser/" + this.state.ms._id + '?ac=start';
+        var stopping = "/modelser/" + this.state.ms._id + '?ac=stop';
+        var deleting = "/modelser/" + this.state.ms._id;
+        var run = "/modelser/preparation/" + this.state.ms._id;
+
+        var modelserOpera = null;
+        if(this.props['data-type'] == 'admin'){
+            modelserOpera = (<ModelSerOpera 
+                                    data-status={opera_status} 
+                                    data-starting={starting}
+                                    data-stopping={stopping}
+                                    data-deleting={deleting}
+                                    data-run={run}
+                                    onStarted={this.refresh}
+                                    onStopped={this.refresh}
+                                    onDeleted={this.onDeleted}
+                                     />);
+        }
+
         return (
             <div className="panel panel-default">
                 <div className="panel-body">
@@ -172,6 +208,7 @@ var ModelSerDetail = React.createClass({
                             </p>
                             {moreInfo}
                             <br />
+                            {modelserOpera}
                         </div>
                     </div>
                 </div>

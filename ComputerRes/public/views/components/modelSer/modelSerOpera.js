@@ -1,13 +1,25 @@
+/**
+ * Created by Franklin on 2017/6/24.
+ */
+
 var React = require('react');
 var Axios = require('axios');
 
 var NoteDialog = require('../../action/utils/noteDialog');
 
 var ModelSerOpera = React.createClass({
+    getInitialState : function(){
+        return {};
+    },
+
+    componentDidMount : function(){
+
+    },
+
     onStarted : function(e){
         Axios.put(this.props['data-starting']).then(
             data => {
-                if(data.data.result == 'suc'){
+                if(data.data.res == 'Success'){
                     NoteDialog.openNoteDia('服务已开启');
                     if(this.props['onStarted']){
                         this.props['onStarted']();
@@ -21,7 +33,7 @@ var ModelSerOpera = React.createClass({
     onStopped : function(e){
         Axios.put(this.props['data-stopping']).then(
             data => {
-                if(data.data.result == 'suc'){
+                if(data.data.res == 'Success'){
                     NoteDialog.openNoteDia('服务已关闭');
                     if(this.props['onStopped']){
                         this.props['onStopped']();
@@ -54,7 +66,7 @@ var ModelSerOpera = React.createClass({
             return (
                 <div className="btn-group btn-group-justified">
                     <a href="#" className="btn btn-default" onClick={ this.onRun } >
-                        <i className="fa fa-retweet"></i>调用
+                        <i className="fa fa-retweet"></i>管理员调用
                     </a>
                     <a href="#" className="btn btn-danger" onClick={this.onStopped} >
                         <i className="fa fa-stop"></i>关闭服务
@@ -74,5 +86,10 @@ var ModelSerOpera = React.createClass({
                 </div>
             );
         }
+        else{
+            return null;
+        }
     }
 });
+
+module.exports = ModelSerOpera;

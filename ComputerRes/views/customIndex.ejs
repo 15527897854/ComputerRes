@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>模型服务容器</title>
+        <%- include headInclude.ejs %>
+        <link href="/css/uploadfile.css" rel="stylesheet" />
+        <link href="/css/ol.css" type="text/css"/>
+        <link rel="stylesheet" href="/css/ol3-layerswitcher.css" />
+        <link rel="stylesheet" type="text/css" href="/js/gritter/css/jquery.gritter.css" />
+        <!--dynamic table-->
+        <link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />
+        <link href="/js/advanced-datatable/css/demo_table.css" rel="stylesheet" />
+        <link rel="stylesheet" href="/js/data-tables/DT_bootstrap.css" />
+    </head>
+    <body class="sticky-header" style="background:#eff0f4" >
+        <section class="panel">
+            <div class="carousel slide auto panel-body" id="c-slide">
+                <ol class="carousel-indicators out">
+                    <li data-target="#c-slide" data-slide-to="0" class="active"></li>
+                    <li data-target="#c-slide" data-slide-to="1" class=""></li>
+                </ol>
+                <div class="carousel-inner">
+                    <div class="item text-center active">
+                        <h3>欢迎来到模型服务容器</h3>
+                        <p>这里有你想要的各种模型</p>
+                    </div>
+                    <div class="item text-center">
+                        <h3>新手指南</h3>
+                        <p>新手指南向导</p>
+                    </div>
+                </div>
+                <a class="left carousel-control" href="#c-slide" data-slide="prev">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                <a class="right carousel-control" href="#c-slide" data-slide="next">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+        </section>
+        <div class="panel-body" id="CustomIndexPanel" >
+            
+        </div>
+        <%- include footer.ejs %>
+    <%- include footerInclude.ejs %>
+    <script type="text/javascript" src="/js/output/bundle.js" ></script>
+    <!--dynamic table-->
+    <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+    <script type="text/javascript" src="/js/output/bundle.js" ></script>
+    </body>
+</html>

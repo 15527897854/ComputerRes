@@ -61,6 +61,24 @@ module.exports = function(app)
                     }));
                 }
             }
+        })
+        .put(function(req, res, next){
+            var code = AuthCtrl.postAuth(req);
+            switch(code){
+                case 1:{
+                    next();
+                    break;
+                }
+                case -1:{
+                    res.redirect('login');
+                }
+                case -2:{
+                    res.end(JSON.stringify({
+                        result : 'fail',
+                        message : 'auth failed'
+                    }));
+                }
+            }
         });
 
     //use route for systemsetting
