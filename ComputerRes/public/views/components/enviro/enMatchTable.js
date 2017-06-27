@@ -101,7 +101,8 @@ var EnMatchTable = React.createClass({
     Init:function (){
         $('#'+ this.props.tableID).children().remove();
         $('#pager_'+ this.props.tableID).children().remove();
-        this.props.removeTab3();
+        if(this.props.removeTab3)
+            this.props.removeTab3();
         var demandsEn = this.state.demandsEn;
         var self = this;
         var type = (self.props.type.indexOf('swe') == -1) ? '硬件' : '软件';
@@ -146,17 +147,23 @@ var EnMatchTable = React.createClass({
                             }
                             self.state.tabletree.getItem(rootID).result = value;
                             if (value == 1){
+                                if(value != obj.defaultValue)
+                                    return "<div class='webix_table_checkbox webix_checked'>Forced Matched</div>";
                                 return "<div class='webix_table_checkbox webix_checked'>Matched</div>";
                             }
-                            else
+                            else{
+                                if(value != obj.defaultValue)
+                                    return "<div class='webix_table_checkbox webix_notchecked'>Forced Unmatched</div>";
                                 return "<div class='webix_table_checkbox webix_notchecked'>Unmatched</div>";
+                            }
                         }
                         else if(obj.value && obj.value!=undefined)
                             return obj.value;
                         else
                             return '';
                     },
-                    editor:'inline-checkbox'
+                    editor:'inline-checkbox',
+                    fillspace:true
                 }
                     // , {
                     //     id: 'select',
@@ -273,7 +280,8 @@ var EnMatchTable = React.createClass({
                         }, {
                             id: 'Value',
                             header: 'Value',
-                            width: width
+                            width: width,
+                            fillspace:true
                         }];
                         var modalColumns2 = [{
                             id: 'title',
@@ -283,7 +291,8 @@ var EnMatchTable = React.createClass({
                         }, {
                             id: 'Value',
                             header: 'Value',
-                            width: width
+                            width: width,
+                            fillspace:true
                         }];
                         var pagerModal1 = {
                             paddingY:15,
@@ -493,6 +502,7 @@ var EnMatchTable = React.createClass({
                             score = defaultMatched.children[j].Value;
                             itemNode.children[i].value = score>=1? 1:0;
                             itemNode.result = score>=1? 1:0;
+                            itemNode.children[i].defaultValue = score>=1?1:0;
                             tt.refresh();
                         }
                         if(itemNode.children[i].title == defaultMatched.children[j].title){
@@ -570,6 +580,7 @@ var EnMatchTable = React.createClass({
                     if(originalNode.children[i].title == 'result' && checkedNode.children[j].title == 'score'){
                         score = checkedNode.children[j].Value;
                         originalNode.children[i].value = score>=1? 1:0;
+                        originalNode.children[i].defaultValue = score>=1? 1:0;
                         originalNode.result = score>=1?1:0;
                         this.state.tabletree.refresh();
                     }

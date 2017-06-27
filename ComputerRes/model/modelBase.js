@@ -123,6 +123,9 @@ ModelBase.items2TableTree = function (srcItems,callback) {
             // folder : true,
             type : 'Object'
         };
+        if(item.score && item.score!=undefined){
+            rst.Value = item.score;
+        }
         var children = [];
         for(key in item){
             var child = ItemKeyConvertor(key,item);

@@ -661,3 +661,13 @@ SysControl.alterNameAndPwdWithAuth = function(adminName, pwd, newAdminName, newP
         }
     }
 };
+
+//region 注册到门户
+SysControl.register = function (cb) {
+    registerCtrl.register(SysControl.getRegisterInfo,cb);
+};
+
+SysControl.deregister = function (cb) {
+    registerCtrl.deregister(cb);
+};
+//endregion
