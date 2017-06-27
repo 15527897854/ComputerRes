@@ -15,6 +15,7 @@ var iconv = require('iconv-lite');
 var setting = require('../setting');
 var ModelSerModel = require('../model/modelService');
 var ModelSerRunModel = require('../model/modelSerRun');
+var GeoDataCtrl = require('./geoDataControl');
 var ModelIns = require('../model/modelInstance');
 var FileOpera = require('../utils/fileOpera');
 var Child = require('../model/child');
@@ -341,13 +342,13 @@ ModelSerControl.validate = function (modelPath, callback) {
                                 else if(stat2){
                                     callback(rst);
                                 }
-                            });
-                        }
+            });
+        }
                     });
                 }
             });
         }
-
+        
     });
 };
 
@@ -412,10 +413,10 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                         //FileOpera.rmdir(files.file_model.path);
                         //转移模型包
                         fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
-                            if(err){
-                                console.log('err in moving package!');
-                            }
-                        });
+                                if(err){
+                                    console.log('err in moving package!');
+                                }
+                            });
 
                         //生成新的纪录
                         var newmodelser = {
@@ -507,7 +508,7 @@ ModelSerControl.getByPID = function(mid, callback){
 };
 
 //更新模型服务信息
-ModelSerControl.update = function(ms, user, callback){
+ModelSerControl.update = function(ms, callback){
     ModelSerModel.update(ms, function (err, data) {
         if (err) {
             return callback(err);
@@ -598,7 +599,17 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                                 }
                             });
                         }
+
+                        //销毁必要数据
+                        for(var i = 0; i < item.msr_input.length; i++){
+                            if(item.msr_input[i].Destroyed){
+                                GeoDataCtrl.delete(item.msr_input[i].DataId, function(err, result){
+
+                                });
+                            }
+                        }
                     });
+                    
                 }, function (err, ms) {
                     if(err)
                     {
@@ -740,6 +751,7 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
                 else{
                     packages[index]['pulled'] = false;
                 }
+                
                 count --;
                 if(count == 0){
                     return callback(null, packages);
@@ -749,7 +761,7 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
 
         for(var i = 0; i < packages.length; i++){
             if(packages[i].id && packages[i].id != '')
-                ModelSerModel.getByPid(packages[i].id, pending(i));
+            ModelSerModel.getByPid(packages[i].id, pending(i));
         }
     });
 };
@@ -807,7 +819,7 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
 
 //获取某一类别下的所有模型
 ModelSerControl.getCloudModelByCategoryId = function(id, callback){
-    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/modelItemServlet?uid=' + id + '&page=1&sortType=name', function(err, items){
+    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/modelItemServlet?uid=' + id + '&page=1&sortType=name&TagOrClass=class', function(err, items){
         if(err){
             return callback(err);
         }
@@ -863,7 +875,7 @@ ModelSerControl.uploadPackage = function(msid, mid, pkg_name, pkg_version, pkg_d
                         var resJson = data;
                         var url = 'http://' + setting.portal.host + ':' + setting.portal.port +
                             '/GeoModeling/DeploymentPackageHandleServlet';
-                        // '?calcName=' + pkg_name + '&calcDesc=' + pkg_des + '&calcPlatform=1&modelItemId=' + mid + '&calcFcId=' + resJson.fcId + '&calcFileName=' + resJson.result;
+                           // '?calcName=' + pkg_name + '&calcDesc=' + pkg_des + '&calcPlatform=1&modelItemId=' + mid + '&calcFcId=' + resJson.fcId + '&calcFileName=' + resJson.result;
                         url = encodeURI(url);
                         remoteReqCtrl.postRequestJSONWithForm(url,{
                             calcName : pkg_name,
@@ -932,12 +944,7 @@ ModelSerControl.getMIDByOID = function(oid, callback){
                 return callback(err);
             }
             if(item.ms_model.p_id){
-                ModelSerControl.getMIDByPID(item.ms_model.p_id, function(err, mid){
-                    if(err){
-                        return callback(err);
-                    }
-                    return callback(null, mid);
-                });
+                return callback(null, ms.ms_model.mid);
             }
             else{
                 return callback(new Error('No PID'));
@@ -1116,11 +1123,11 @@ ModelSerControl.getRmtPreparationData = function(host, msid, callback){
                         if (err) {
                             return callback(err);
                         }
-                        return callback(null, data);
-                    });
-                }
+                return callback(null, data);
             });
         }
+            });
+    }
     }
 };
 
@@ -1129,7 +1136,7 @@ ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
     var runtime = {};
     if(place == 'local'){
         ModelSerModel.getByPID(pid,function (err, ms) {
-            if(err){
+        if(err){
                 return cb(err);
             }
             else{
@@ -1137,46 +1144,46 @@ ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
                     return cb({code:'查不到对应模型！'});
                 ms = ms[0];
                 ModelSerModel.readMDL(ms,function (err, mdl) {
-                    if(err){
+                if(err){
                         return cb(err);
-                    }
-                    else{
+                }
+                                    else{
                         if(!mdl)
                             return cb({code:'解析模型MDL出错！'});
                         ModelSerControl.getRuntimeFromMDL(mdl,function (demands) {
                             return cb(null,demands);
-                        });
-                    }
+                                    });
+                                    }
                 })
-            }
+                                        }
         })
-    }
+                                    }
     else if(place == 'portal'){
         var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPidServlet?pid=' + pid;
         remoteReqCtrl.getByServer(url,null,function (err, mdlStr) {
-            if(err){
+                        if (err) {
                 return cb(err);
-            }
-            else{
+                        }
+                        else{
                 if(mdlStr && mdlStr != ''){
                     ModelSerControl.parseMDLStr(mdlStr,function (err, mdl) {
                         if(err){
                             return cb(err);
-                        }
-                        else{
+                            }
+                            else{
                             ModelSerControl.getRuntimeFromMDL(mdl,function (demands) {
                                 return cb(null,demands);
                             })
-                        }
+                                }
                     });
-                }
-                else{
+        }
+            else{
                     return cb(null,[]);
-                }
+            }
             }
         })
-    }
-};
+            }
+                    };
 
 ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
     var softDemands = [],hardDemands = [];
@@ -1188,14 +1195,14 @@ ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
         softJSON = [];
     for(var i=0;i<hardJSON.length;i++){
         hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
-    }
+            }
     for(var j=0;j<softJSON.length;j++){
         softDemands.push({
             name:softJSON[j].$.name,
             platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
             version:softJSON[j]._
         });
-    }
+            }
     cb({
         swe:softDemands,
         hwe:hardDemands

@@ -17,9 +17,14 @@ module.exports = GeoDataMid;
 GeoDataMid.postStreamData = function(req, callback){
     var data = req.body.data;
     var gd_tag = '';
+    var gd_destroy = 'FALSE';
     if(req.body.gd_tag)
     {
         gd_tag = req.body.gd_tag;
+    }
+    if(req.body.gd_destroy)
+    {
+        gd_destroy = req.body.gd_destroy;
     }
 
     //生成数据ID

@@ -10,6 +10,7 @@ var formidable = require('formidable');
 var uuid = require('node-uuid');
 var unzip = require('unzip');
 
+var NoticeCtrl = require('../control/noticeCtrl');
 var setting = require('../setting');
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCtrl = require('../control/modelSerControl');
@@ -26,7 +27,6 @@ var NoticeCtrl = require('../control/noticeCtrl');
 
 module.exports = function(app)
 {
-    //新增模型服务
     app.route('/modelser')
         //查询模型服务
         .get(function(req, res, next){
@@ -574,16 +574,6 @@ module.exports = function(app)
 
     //get 所有测试数据
     app.route('/modelser/testify/:msid')
-        .get(function (req, res) {
-            var msid = req.params.msid;
-            //暂时放到这里，用来生成已经部署过的模型的测试数据
-            //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
-            ModelSerCtrl.addDefaultTestify(msid.toString(),function () {
-                testifyCtrl.getTestify(msid,function (data) {
-                    res.end(data);
-                });
-            });
-        })
         .delete(function (req, res, next) {
             var msid = req.params.msid;
             var path = req.query.path;
@@ -591,7 +581,7 @@ module.exports = function(app)
                 res.end(data);
             });
         });
-
+    
     app.route('/modelser/enmatch/:pid')
         .get(function (req, res) {
             return res.render('enMatch',{
@@ -690,7 +680,7 @@ module.exports = function(app)
                 });
             }
         });
-
+    
     //从门户或者本机得到runtime节点
     // app.route('/modelser/demands/:pid')
     //     .get(function (req, res) {

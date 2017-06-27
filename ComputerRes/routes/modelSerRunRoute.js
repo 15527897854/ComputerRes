@@ -5,6 +5,7 @@
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCtrl = require('../control/modelSerControl');
 var setting = require('../setting');
+var TestifyCtrl = require('../control/testifyCtrl');
 
 var RouteBase = require('./routeBase');
 
@@ -90,7 +91,7 @@ module.exports = function (app) {
                 detail:detail,
                 path:msrid
             };
-            ModelSerCtrl.addTestify(msrid,testifyData,function (err, data) {
+            TestifyCtrl.addTestify(msrid,testifyData,function (err, data) {
                 if(err){
                     return res.end(JSON.stringify({suc:false}));
                 }

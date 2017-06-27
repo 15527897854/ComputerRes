@@ -1185,6 +1185,16 @@ footer.sticky-footer {
     box-shadow: 0 5px 0 #42b5b6;
 }
 
+.state-overview .yellow {
+    background: #FCB322;
+    box-shadow: 0 5px 0 #F0AD4E;
+}
+
+.state-overview .grey {
+    background: #49586E;
+    box-shadow: 0 5px 0 #474747;
+}
+
 .state-overview .symbol, .state-overview .state-value {
     display: inline-block;
 }
