@@ -15,6 +15,7 @@ var iconv = require('iconv-lite');
 var setting = require('../setting');
 var ModelSerModel = require('../model/modelService');
 var ModelSerRunModel = require('../model/modelSerRun');
+var GeoDataCtrl = require('./geoDataControl');
 var ModelIns = require('../model/modelInstance');
 var FileOpera = require('../utils/fileOpera');
 var Child = require('../model/child');
@@ -598,7 +599,17 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                                 }
                             });
                         }
+
+                        //销毁必要数据
+                        for(var i = 0; i < item.msr_input.length; i++){
+                            if(item.msr_input[i].Destroyed){
+                                GeoDataCtrl.delete(item.msr_input[i].DataId, function(err, result){
+
+                                });
+                            }
+                        }
                     });
+                    
                 }, function (err, ms) {
                     if(err)
                     {

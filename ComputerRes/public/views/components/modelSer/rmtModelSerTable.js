@@ -329,7 +329,7 @@ var RmtModelSerTable = React.createClass({
                 if(!item.ms_model.m_id){
                     button3 = (
                         <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.uploadModelSer(e, null, item._id) }} >
-                            <i className="fa fa-cloud-upload"> </i>上传门户
+                            <i className="fa fa-cloud-upload"> </i>注册
                         </button>);
                 }
                 if(item.ms_status == 1)

@@ -150,7 +150,7 @@ var ModelSerDetail = React.createClass({
                                     onStarted={this.refresh}
                                     onStopped={this.refresh}
                                     onDeleted={this.onDeleted}
-                                     />);
+                                        />);
         }
 
         return (
@@ -199,7 +199,7 @@ var ModelSerDetail = React.createClass({
                                 <span className="input-group-btn">
                                     <button title="复制" type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
                                 </span>
-                                <input type="text" readOnly="readonly" className="form-control" value={url + '/modelser/' + this.state.ms._id + '?ac=run&inputdata=[]&outputdate=[]'} />
+                                <input type="text" readOnly="readonly" className="form-control" value={url + '/modelser/' + this.state.ms._id + '?ac=run&inputdata=[]&outputdate=[]&auth={username:"",pwd:""}'} />
                             </div>
                             <p className="muted" >
                                 描述&nbsp;:&nbsp;

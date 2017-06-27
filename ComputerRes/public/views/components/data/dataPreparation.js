@@ -14,8 +14,6 @@ var DataPreparation = React.createClass({
             rmt = 1;
             host = this.props['data-host'];
         }
-        
-        window.addGeoData = this.onDataReady;
 
         return {
             rmt : rmt,
@@ -40,6 +38,7 @@ var DataPreparation = React.createClass({
                                     StateId : State.$.id,
                                     Event : Event.$.name,
                                     DataId : '',
+                                    Destroyed : false,
                                     Optional : Event.$.optional
                                 });
                             }
@@ -47,6 +46,7 @@ var DataPreparation = React.createClass({
                                 this.state.allOutputData.push({
                                     StateId : State.$.id,
                                     Event : Event.$.name,
+                                    Destroyed : false,
                                     Tag : ''
                                 });
                             }
@@ -54,6 +54,9 @@ var DataPreparation = React.createClass({
 
                         window.allInputData = this.state.allInputData;
                         window.allOutputData = this.state.allOutputData;
+                        window.addGeoData = this.onDataReady;
+                        window.checkGeoData = this.checkGeoData;
+
                     }.bind(this));
                 }
             },
@@ -105,6 +108,40 @@ var DataPreparation = React.createClass({
         return (<p id={ 'data_pre_p_' + stateId + '_' + eventName }><strong>数据准备情况&nbsp;:&nbsp;</strong><span className="label label-warning">未准备</span></p>);
     },
 
+    checkGeoData : function(){
+        for(var i = 0; i < window.allInputData.length; i++){
+            if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 ){
+                return {
+                    result : 'fail',
+                    message : '数据未完全准备!'
+                };
+            }
+            else{
+                if($('#dataDestroyed_' + window.allInputData[i].StateId + '_' + window.allInputData[i].Event)[0].checked){
+                    window.allInputData[i].Destroyed = true;
+                }
+                else{
+                    window.allInputData[i].Destroyed = false;
+                }
+            }
+        }
+
+        for(var i = 0; i < window.allOutputData.length; i++)
+        {
+            window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
+            if($('#dataDestroyed_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event)[0].checked){
+                window.allOutputData[i].Destroyed = true;
+            }
+            else{
+                window.allOutputData[i].Destroyed = false;
+            }
+        }
+
+        return {
+            result : 'suc'
+        };
+    },
+
     render : function(){
         if(this.state.loading)
         {
@@ -139,6 +176,14 @@ var DataPreparation = React.createClass({
                 var optional = null;
                 var dataReady = null;
                 var dataType = 'SELECT';
+                var dataDestoryed = (
+                    <div className="checkbox">
+                        <label>
+                            <input id={ 'dataDestroyed_' + State.$.id + '_' + Event.$.name} type="checkbox" value="" />
+                            使用后销毁
+                        </label>
+                    </div>
+                );    
                 if(this.props['data-type'] == 'CUSTOM'){
                     dataType = 'CUSTOM';
                 }
@@ -173,32 +218,33 @@ var DataPreparation = React.createClass({
                         <p><strong>数据参考：</strong>{udxDec}</p>
                         {dataReady}
                         {dataSelect}
+                        {dataDestoryed}
                     </div>
                 );
             }.bind(this));
 
             return(
-            <div key={State.$.id} className="panel-body">
-                <h4 style={{color: '#9ad717'}}><strong>状态信息</strong></h4>
-                <p><strong>名称&nbsp;:&nbsp;</strong>{State.$.name}</p>
-                <p><strong>ID&nbsp;:&nbsp;</strong>{State.$.id}</p>
-                <p><strong>描述&nbsp;:&nbsp;</strong>{State.$.description}</p>
-                <p><strong>类型&nbsp;:&nbsp;</strong>{State.$.type}</p>
-                <br />
-                <h4><strong>事件</strong></h4>
-                <section className="panel">
-                    <header className="panel-heading custom-tab ">
-                        <ul className="nav nav-tabs">
-                            {EventHead}
-                        </ul>
-                    </header>
-                    <div className="panel-body">
-                        <div className="tab-content">
-                            {EventBody}
+                <div key={State.$.id} className="panel-body">
+                    <h4 style={{color : '#9ad717'}}><strong>状态信息</strong></h4>
+                    <p><strong>名称&nbsp;:&nbsp;</strong>{State.$.name}</p>
+                    <p><strong>ID&nbsp;:&nbsp;</strong>{State.$.id}</p>
+                    <p><strong>描述&nbsp;:&nbsp;</strong>{State.$.description}</p>
+                    <p><strong>类型&nbsp;:&nbsp;</strong>{State.$.type}</p>
+                    <br />
+                    <h4><strong>事件</strong></h4>
+                    <section className="panel">
+                        <header className="panel-heading custom-tab ">
+                            <ul className="nav nav-tabs">
+                                {EventHead}
+                            </ul>
+                        </header>
+                        <div className="panel-body">
+                            <div className="tab-content">
+                                {EventBody}
+                            </div>
                         </div>
-                    </div>
-                </section>
-            </div>);
+                    </section>
+                </div>);
         }.bind(this));
         return (
             <div>
