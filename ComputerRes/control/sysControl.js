@@ -354,59 +354,215 @@ SysControl.getSettings = function(callback){
     });
 };
 
-SysControl.autoDetectSW = function (callback) {
-    var exePath = __dirname + '/../helper/getSoftwareInfo.exe';
-    if(setting.platform == 1) {
-        exec(exePath,function (err, stdout, stderr) {
-            if(err){
-                console.log(err);
-                return callback(err);
-            }
-            else if(stderr){
-                console.log(stderr);
-                return callback(stderr);
-            }
-            else if(stdout){
-                console.log(stdout);
-                if(stdout.indexOf('Error!')!=-1){
-                    return callback(stdout);
+//获取注册表信息
+SysControl.autoDetectSW = function (cb) {
+    var softEnPath = __dirname + '/../helper/softwareEnviro.txt';
+    var softEnOutPath = __dirname + '/../helper/softwareEnviroOut.txt';
+    var getReg = function (type, cb) {
+        var regePath;
+        if(type == 'x86'){
+            regePath = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node';
+        }
+        else if(type == 'x64'){
+            regePath = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall';
+        }
+        var parseRegedit = function (stdout) {
+            var sweRst = [];
+            if(!stdout)
+                stdout = '';
+            var count = 0;
+            var regList = stdout.split("\r\n\r\n");
+            for(var i=0;i<regList.length;i++){
+                var sweStr = regList[i];
+                var groupName = sweStr.match(/DisplayName\s{4}REG_SZ\s{4}(.*)/);
+                var groupVer = sweStr.match(/DisplayVersion\s{4}REG_SZ\s{4}(.*)/);
+                var groupPub = sweStr.match(/Publisher\s{4}REG_SZ\s{4}(.*)/);
+                var name = '';
+                var version = '';
+                var publisher = '';
+                var type = '';
+                if(groupName){
+                    count ++;
+                    name = groupName[1];
+                    if(name.indexOf('redistributable') != -1 && name.index.indexOf('c++')){
+                        type = 'C++ Runtime';
+                    }
+                    else if(name.indexOf('.net') != -1 && name.indexOf('framework') != -1 && name.indexOf('microsoft') != -1){
+                        type = '.NET Runtime';
+                    }
+                    else if(name.indexOf('java') != -1 && (name.indexOf('se') || name.indexOf('ee')!=-1|| name.index('me')!= -1)){
+                        type = 'Java Runtime';
+                    }
+                    else if(name.indexOf('crt') != -1 && name.indexOf('visual')!= -1 && name.indexOf('c++')!=-1){
+                        type = 'C Runtime';
+                    }
                 }
-                else if(stdout.indexOf('Success!')!=-1){
-                    var softEnPath = __dirname + '/../helper/softwareEnviro.txt';
-                    fs.readFile(softEnPath,function (err, data) {
+                else
+                    continue;
+                if(groupVer){
+                    version = groupVer[1];
+                }
+                if(groupPub){
+                    publisher = groupPub[1];
+                }
+                sweRst.push({
+                    _id:CommonMethod.createGUID(),
+                    name:name,
+                    version:version,
+                    publisher:publisher,
+                    // platform:name.indexOf('x64')!=-1?'x64':(name.indexOf('x86')!=-1?'x86':''),
+                    type:type
+                })
+            }
+            return  cb(null,sweRst);
+        };
+        var child = exec('REG QUERY ' + regePath + ' /s',{
+            encoding: 'GBK',
+            maxBuffer: 1024*1024*100  /*stdout和stderr的最大长度*/
+        });
+        if(fs.existsSync(softEnOutPath))
+            fs.unlinkSync(softEnOutPath);
+        child.stdout.on('data',function (data) {
+            data = iconv.decode(data,'gbk');
+            fs.appendFileSync(softEnOutPath,data,'utf8');
+        });
+        child.stderr.on('data',function (data) {
+            cb(data);
+        });
+        child.on('close',function (code) {
+            fs.readFile(softEnOutPath,function (err, data) {
+                if(err){
+                    return cb(err);
+                }
+                else {
+                    parseRegedit(data.toString())
+                }
+            })
+        });
+
+    };
+    var sweStrList = [];
+    getReg('x64',function (err,sweStrList2) {
+        if(err){
+            return cb(err);
+        }
+        else{
+            sweStrList = sweStrList.concat(sweStrList2);
+            // getReg('x86',function (err, sweStrList2) {
+            //     if(err){
+            //         return cb(err);
+            //     }
+            //     else{
+            //         sweStrList = sweStrList.concat(sweStrList2);
+
+                    // fs.writeFile(softEnPath,sweStrList.join('[\\t\\t\\t]'),function (err) {
+                    //     if(err){
+                    //         console.log(err);
+                    //     }
+                    //
+                    // })
+                    // var swlist = [];
+                    // for(var i=0;i<strswlist.length;i++){
+                    //     var swItemKV = strswlist[i].split('[\t\t]');
+                    //     var platform = '';
+                    //     if(swItemKV[1])
+                    //         platform = swItemKV[1].indexOf('x64')!=-1?'x64':(swItemKV[1].indexOf('x86')!=-1?'x86':'');
+                    //     swlist.push({
+                    //         _id:swItemKV[0],
+                    //         name:swItemKV[1],
+                    //         version:swItemKV[2],
+                    //         publisher:swItemKV[3],
+                    //         platform:platform,
+                    //         type:swItemKV[4]
+                    //     });
+                    // }
+
+                    sweStrList.push({
+                        _id:CommonMethod.createGUID(),
+                        name:os.type(),
+                        version:os.release(),
+                        publisher:'',
+                        type:'OS'
+                    });
+                    var sweStrRst = '';
+                    for(var i=0;i<sweStrList.length;i++){
+                        sweStrRst += sweStrList[i]._id + '[\t\t]' +
+                            sweStrList[i].name + '[\t\t]' +
+                            sweStrList[i].version + '[\t\t]' +
+                            sweStrList[i].publisher + '[\t\t]' +
+                            // sweStrList[i].platform + '[\t\t]' +
+                            sweStrList[i].type;
+                        if(i<sweStrList.length-1){
+                            sweStrRst += '[\t\t\t]';
+                        }
+                    }
+                    fs.writeFile(softEnPath,sweStrRst,'utf8',function (err) {
                         if(err){
-                            return callback('read file err!');
+                            return cb(err);
                         }
-                        //将文件组织为json
-                        data = iconv.decode(data,'gbk');
-                        if(data=='')
-                            return callback(null,[]);
-                        var strswlist = data.split('[\t\t\t]');
-                        var swlist = [];
-                        for(var i=0;i<strswlist.length;i++){
-                            var swItemKV = strswlist[i].split('[\t\t]');
-                            var platform = '';
-                            if(swItemKV[1])
-                                platform = swItemKV[1].indexOf('x64')!=-1?'x64':(swItemKV[1].indexOf('x86')!=-1?'x86':'');
-                            swlist.push({
-                                _id:swItemKV[0],
-                                name:swItemKV[1],
-                                version:swItemKV[2],
-                                publisher:swItemKV[3],
-                                platform:platform,
-                                type:swItemKV[4]
-                            });
+                        else{
+                            return cb(null,sweStrList);
                         }
-                        return callback(null,swlist);
-                    })
-                }
-            }
-        })
-    }
-    else if(setting.platform == 2){
-        
-    }
+                    });
+            //     }
+            // })
+        }
+    })
 };
+
+// SysControl.autoDetectSW = function (callback) {
+//     var exePath = __dirname + '/../helper/getSoftwareInfo.exe';
+//     if(setting.platform == 1) {
+//         exec(exePath,function (err, stdout, stderr) {
+//             if(err){
+//                 console.log(err);
+//                 return callback(err);
+//             }
+//             else if(stderr){
+//                 console.log(stderr);
+//                 return callback(stderr);
+//             }
+//             else if(stdout){
+//                 console.log(stdout);
+//                 if(stdout.indexOf('Error!')!=-1){
+//                     return callback(stdout);
+//                 }
+//                 else if(stdout.indexOf('Success!')!=-1){
+//                     var softEnPath = __dirname + '/../helper/softwareEnviro.txt';
+//                     fs.readFile(softEnPath,function (err, data) {
+//                         if(err){
+//                             return callback('read file err!');
+//                         }
+//                         //将文件组织为json
+//                         data = iconv.decode(data,'gbk');
+//                         if(data=='')
+//                             return callback(null,[]);
+//                         var strswlist = data.split('[\t\t\t]');
+//                         var swlist = [];
+//                         for(var i=0;i<strswlist.length;i++){
+//                             var swItemKV = strswlist[i].split('[\t\t]');
+//                             var platform = '';
+//                             if(swItemKV[1])
+//                                 platform = swItemKV[1].indexOf('x64')!=-1?'x64':(swItemKV[1].indexOf('x86')!=-1?'x86':'');
+//                             swlist.push({
+//                                 _id:swItemKV[0],
+//                                 name:swItemKV[1],
+//                                 version:swItemKV[2],
+//                                 publisher:swItemKV[3],
+//                                 platform:platform,
+//                                 type:swItemKV[4]
+//                             });
+//                         }
+//                         return callback(null,swlist);
+//                     })
+//                 }
+//             }
+//         })
+//     }
+//     else if(setting.platform == 2){
+//
+//     }
+// };
 
 SysControl.autoDetectHW = function (callback) {
     var hweList = [];
@@ -524,31 +680,20 @@ SysControl.readAllSW = function (callback) {
             return callback('read file err!');
         }
         //将文件组织为json
-        data = iconv.decode(data,'gbk');
+        data = data.toString();
+        // data = iconv.decode(data,'gbk');
         var strswlist = data.split('[\t\t\t]');
         var swlist = [];
         for(var i=0;i<strswlist.length;i++){
             var swItemKV = strswlist[i].split('[\t\t]');
-            var strheader = 'OPERATE SYSTEM:';
-            var index = swItemKV[1].indexOf(strheader);
-            if(index!=-1){
-                swlist.push({
-                    _id:swItemKV[0],
-                    name:swItemKV[1].substr(strheader.length),
-                    version:os.release(),
-                    publisher:'',
-                    type:'OS'
-                });
-            }
-            else{
-                swlist.push({
-                    _id:swItemKV[0],
-                    name:swItemKV[1],
-                    version:swItemKV[2],
-                    publisher:swItemKV[3],
-                    type:swItemKV[4]
-                });
-            }
+            swlist.push({
+                _id:swItemKV[0],
+                name:swItemKV[1],
+                version:swItemKV[2],
+                publisher:swItemKV[3],
+                // platform:swItemKV[1].indexOf('x64')!=-1?'x64':(swItemKV[1].indexOf('x86')!=-1?'x86':''),
+                type:swItemKV[4]
+            });
         }
         callback(null,swlist);
     })

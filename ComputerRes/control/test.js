@@ -15,6 +15,10 @@ var setting = require('./../setting');
 // var UDXVisualization = require('./UDX_Visualization');
 var child_process = require('../utils/child-process');
 
+sysCtrl.autoDetectSW(function (err,data) {
+    console.log(data);
+});
+
 //全文索引示例
 // var query = {
 //     $text:{
