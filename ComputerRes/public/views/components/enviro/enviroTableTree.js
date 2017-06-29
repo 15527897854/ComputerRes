@@ -418,7 +418,7 @@ var EnviroTableTree = React.createClass({
                     var msg = {
                         _id:this.getItem(rootID).id,
                         keys:keys.reverse(),
-                        value:state.Value,
+                        value:state.value,
                         type:'field'
                     };
                     // var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
@@ -662,7 +662,7 @@ var EnviroTableTree = React.createClass({
         {
             if(this.state.loading)
             {
-                return (<span>Loading...</span>);
+                return (<span><i className="fa fa-spinner fa-spin fa-3x fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;&nbsp;Loading...</span>);
             }
             if(this.state.err)
             {
