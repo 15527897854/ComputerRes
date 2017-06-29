@@ -357,6 +357,7 @@ SysControl.getSettings = function(callback){
 //获取注册表信息
 SysControl.autoDetectSW = function (cb) {
     var softEnPath = __dirname + '/../helper/softwareEnviro.txt';
+    var softEnOutPath = __dirname + '/../helper/softwareEnviroOut.txt';
     var getReg = function (type, cb) {
         var regePath;
         if(type == 'x86'){
@@ -409,7 +410,7 @@ SysControl.autoDetectSW = function (cb) {
                     name:name,
                     version:version,
                     publisher:publisher,
-                    platform:name.indexOf('x64')!=-1?'x64':(name.indexOf('x86')!=-1?'x86':''),
+                    // platform:name.indexOf('x64')!=-1?'x64':(name.indexOf('x86')!=-1?'x86':''),
                     type:type
                 })
             }
@@ -419,17 +420,17 @@ SysControl.autoDetectSW = function (cb) {
             encoding: 'GBK',
             maxBuffer: 1024*1024*100  /*stdout和stderr的最大长度*/
         });
-        if(fs.existsSync(softEnPath))
-            fs.unlinkSync(softEnPath);
+        if(fs.existsSync(softEnOutPath))
+            fs.unlinkSync(softEnOutPath);
         child.stdout.on('data',function (data) {
             data = iconv.decode(data,'gbk');
-            fs.appendFileSync(softEnPath,data,'utf8');
+            fs.appendFileSync(softEnOutPath,data,'utf8');
         });
         child.stderr.on('data',function (data) {
             cb(data);
         });
         child.on('close',function (code) {
-            fs.readFile(softEnPath,function (err, data) {
+            fs.readFile(softEnOutPath,function (err, data) {
                 if(err){
                     return cb(err);
                 }
@@ -476,7 +477,33 @@ SysControl.autoDetectSW = function (cb) {
                     //     });
                     // }
 
-                    return cb(null,sweStrList);
+                    sweStrList.push({
+                        _id:CommonMethod.createGUID(),
+                        name:os.type(),
+                        version:os.release(),
+                        publisher:'',
+                        type:'OS'
+                    });
+                    var sweStrRst = '';
+                    for(var i=0;i<sweStrList.length;i++){
+                        sweStrRst += sweStrList[i]._id + '[\t\t]' +
+                            sweStrList[i].name + '[\t\t]' +
+                            sweStrList[i].version + '[\t\t]' +
+                            sweStrList[i].publisher + '[\t\t]' +
+                            // sweStrList[i].platform + '[\t\t]' +
+                            sweStrList[i].type;
+                        if(i<sweStrList.length-1){
+                            sweStrRst += '[\t\t\t]';
+                        }
+                    }
+                    fs.writeFile(softEnPath,sweStrRst,'utf8',function (err) {
+                        if(err){
+                            return cb(err);
+                        }
+                        else{
+                            return cb(null,sweStrList);
+                        }
+                    });
             //     }
             // })
         }
@@ -653,16 +680,10 @@ SysControl.readAllSW = function (callback) {
             return callback('read file err!');
         }
         //将文件组织为json
-        data = iconv.decode(data,'gbk');
+        data = data.toString();
+        // data = iconv.decode(data,'gbk');
         var strswlist = data.split('[\t\t\t]');
         var swlist = [];
-        swlist.push({
-            _id:CommonMethod.createGUID(),
-            name:os.type(),
-            version:os.release(),
-            publisher:'',
-            type:'OS'
-        });
         for(var i=0;i<strswlist.length;i++){
             var swItemKV = strswlist[i].split('[\t\t]');
             swlist.push({
@@ -670,6 +691,7 @@ SysControl.readAllSW = function (callback) {
                 name:swItemKV[1],
                 version:swItemKV[2],
                 publisher:swItemKV[3],
+                // platform:swItemKV[1].indexOf('x64')!=-1?'x64':(swItemKV[1].indexOf('x86')!=-1?'x86':''),
                 type:swItemKV[4]
             });
         }

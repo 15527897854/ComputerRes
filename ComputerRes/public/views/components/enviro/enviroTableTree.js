@@ -418,7 +418,7 @@ var EnviroTableTree = React.createClass({
                     var msg = {
                         _id:this.getItem(rootID).id,
                         keys:keys.reverse(),
-                        value:state.Value,
+                        value:state.value,
                         type:'field'
                     };
                     // var type = (url.indexOf('software') == -1) ? '硬件' : '软件';
