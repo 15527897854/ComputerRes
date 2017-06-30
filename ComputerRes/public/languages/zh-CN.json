@@ -1,0 +1,35 @@
+{
+    "ConfigName" : "中文",
+    "SelectButton" : "语言",
+    "Name" : "模型服务服务容器",
+    "Heading" : {
+        "Homepage" : "主页",
+        "Status" : "服务器状态",
+        "Notice" : "通知",
+        "LocalModelService" : "本地模型服务",
+        "RemoteModelService" : "远程模型服务",
+        "CloudModelService" : "门户云模型",
+        "DataCenter" : "数据中心",
+        "Settings" : "设置"
+    },
+    "Navigation" : {
+        "Notice" : {
+            "Title" : "通知消息",
+            "NoMessage" : "没有未读消息"
+        },
+        "User" : {
+            "Info" : "信息",
+            "Settings"  : "设置",
+            "SignOut" : "登出"
+        }
+    },
+    "Homepage" : {
+        "Welcome" : "欢迎来到模型服务容器",
+        "ModelService" : "本地模型服务",
+        "Notice" : "通知消息",
+        "Status" : "服务器状态",
+        "Deployment" : "部署模型服务",
+        "ModelServiceRuningRecords" : "模型运行记录",
+        "Network" : "运算网络"
+    }
+}

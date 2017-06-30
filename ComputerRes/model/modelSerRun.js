@@ -70,22 +70,42 @@ ModelSerRun.getAll = function(callback)
 };
 
 //根据ms_id获取ModelSerRun
-ModelSerRun.getByMsId = function(_msid, callback)
-{
-    CheckParam.checkParam(callback,_msid);
-    var msid = new ObjectId(_msid);
-    MSR.find({ms_id:msid}, this.returnFunction(callback, "error in getting by MsId model service runs"));
+ModelSerRun.getByMsId = function(_msid, callback){
+    if(CheckParam.checkParam(callback,_msid)){
+        var msid = new ObjectId(_msid);
+        MSR.find({ms_id:msid}, this.returnFunction(callback, "error in getting by MsId model service runs"));
+    }
 };
 
 //根据msr_guid获取ModelSerRun
-ModelSerRun.getByGUID = function(guid, callback)
-{
-    CheckParam.checkParam(callback,guid);
-    MSR.findOne({msr_guid : guid},this.returnFunction(callback, "error in getting by GUID model service runs"));
+ModelSerRun.getByGUID = function(guid, callback){
+    if(CheckParam.checkParam(callback,guid)){
+        MSR.findOne({msr_guid : guid},this.returnFunction(callback, "error in getting by GUID model service runs"));
+    }
 };
 
+//根据输出数据的DataId获取此数据
+ModelSerRun.getByOutputDataID = function(dataid, callback){
+    if(CheckParam.checkParam(callback, dataid)){
+        MSR.find({"msr_output.DataId" : { "$in" : [ dataid ]}}, function(err, msr){
+            if(err){
+                return callback(err);
+            }
+            if(msr.length == 0){
+                return callback(null, null)
+            }
+            msr = msr[0];
+            for(var i = 0; i < msr.msr_output.length; i++){
+                if(msr.msr_output[i].DataId == dataid){
+                    return callback(null, msr.msr_output[i]);
+                }
+            }
+            return callback(null, null);
+        });
+    }
+};
 
-//
+//更新描述信息
 ModelSerRun.updateDes = function (_oid, msr_des, callback) {
     if(CheckParam.checkParam(callback, _oid))
     {

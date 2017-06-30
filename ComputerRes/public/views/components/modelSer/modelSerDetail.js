@@ -121,8 +121,8 @@ var ModelSerDetail = React.createClass({
             img = (<img width="128" height="128" src="/images/modelImg/default.png" alt={this.state.ms.ms_model.ms_name} />);
         }
         var moreInfo = null;
-        if(this.state.ms.ms_model.m_url && this.state.ms.ma_model.m_url.trim() != ''){
-            moreInfo = (<a style="more" href={this.state.ms.ma_model.m_url} >更多信息</a>);
+        if(this.state.ms.ms_model.m_url && this.state.ms.ms_model.m_url.trim() != ''){
+            moreInfo = (<a href={this.state.ms.ms_model.m_url} >更多信息</a>);
         }
         var limited = null;
         if(this.state.ms.ms_limited == 1){
@@ -207,6 +207,7 @@ var ModelSerDetail = React.createClass({
 
                             </p>
                             {moreInfo}
+                            <br />
                             <br />
                             {modelserOpera}
                         </div>

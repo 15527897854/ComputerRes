@@ -59,6 +59,7 @@ var Init = function(){
     console.log('Checking directions...');
     var directions = [
         __dirname + '/geo_data/',
+        __dirname + '/geo_model/',
         __dirname + '/geo_model/packages/',
         __dirname + '/geo_model/tmp/',
         __dirname + '/public/tmp/'

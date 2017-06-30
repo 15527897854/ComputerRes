@@ -30,20 +30,23 @@ var ModelSerUploader = React.createClass({
             validate: false,
             finishButton:true,
             finish: function() {
-                this.setState({ processBar : true });
                 var formData = $('#stepy_form').serialize();
+                this.setState({ processBar : true });
                 Axios.get('/modelser/' + this.props['data-msid'] + '?ac=upload&' + formData).then(
                     data => {
                         if(data.data.result == 'suc'){
-                            NoteDialog.openNoteDia('模型上传成功！','模型包 ' + $('#pkg_name').val() + ' 上传成功！');
+                            NoteDialog.openNoteDia('模型注册成功！','模型包 ' + $('#pkg_name').val() + ' 上传成功！');
+                            setTimeout(function(){
+                                window.location.href = '/modelser/all';
+                            }, 3000);
                         }
                         else{
-                            NoteDialog.openNoteDia('模型上传失败！','模型包 ' + $('#pkg_name').val() + ' 上传失败！Message : ' + JSON.stringify(data.data.message));
+                            NoteDialog.openNoteDia('模型注册失败！','模型包 ' + $('#pkg_name').val() + ' 上传失败！Message : ' + JSON.stringify(data.data.message));
                         }
                         this.setState({ processBar : false });
                     },
                     err => {
-                            NoteDialog.openNoteDia('模型上传失败！','模型包 ' + $('#pkg_name').val() + ' 上传失败！Message : ' + JSON.stringify(err));
+                            NoteDialog.openNoteDia('模型注册失败！','模型包 ' + $('#pkg_name').val() + ' 上传失败！Message : ' + JSON.stringify(err));
                     }
                 );
                 return false;
@@ -123,14 +126,20 @@ var ModelSerUploader = React.createClass({
                                     <div className="form-group">
                                         <label className="col-md-2 col-sm-2 control-label">模型条目</label>
                                         <div className="col-md-6 col-sm-6">
-                                            <input name="mid" className="form-control" placeholder="模型条目ID" id="mid" readOnly="readOnly" type="hidden" value='' />
-                                            <input name="mname" className="form-control" placeholder="模型条目" id="mname" readOnly="readOnly" type="text" value='' />
+                                            <input name="mid" className="form-control" placeholder="模型条目ID" id="mid" readOnly="readOnly" type="hidden" />
+                                            <input name="mname" className="form-control" placeholder="模型条目" id="mname" readOnly="readOnly" type="text" />
                                         </div>
                                     </div>
                                     <div className="form-group">
                                         <label className="col-md-2 col-sm-2 control-label">版本</label>
                                         <div className="col-md-6 col-sm-6">
                                             <input name="pkg_version" className="form-control" placeholder="模型版本号" id="pkg_version" type="text"/>
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="col-md-2 col-sm-2 control-label">上传部署包</label>
+                                        <div className="col-lg-10">
+                                            <input name="mupload" className="checkbox-inline" id="mupload" type="checkbox" />
                                         </div>
                                     </div>
                                     <div className="form-group">

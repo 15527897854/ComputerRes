@@ -7,6 +7,7 @@ var RouteBase = require('./routeBase');
 var registerCtrl = require('../control/registerCtrl');
 var sweCtrl = require('../control/softwareEnCtrl');
 var hweCtrl = require('../control/hardwareEnCtrl');
+var fs = require('fs');
 
 module.exports = function(app)
 {
@@ -271,5 +272,29 @@ module.exports = function(app)
     app.route('/token')
         .get(function(req, res, next){
             SysControl.getToken(req.query.ip, RouteBase.returnFunction(res, 'Error in getting token!'));
+        });
+    
+    //获取语言配置
+    app.route('/languages')
+        .get(function(req, res, next){
+            var path = __dirname + '/../public/languages/'
+            fs.readdir(path, function(err, files){
+                if(err){
+
+                }
+                var langConfigs = [];
+                files.forEach(function(item){
+                    var languagesJson = fs.readFileSync(path + item);
+                    try{
+                        languagesJson = JSON.parse(languagesJson);
+                        langConfigs.push(languagesJson);
+                    }
+                    catch(ex){
+                        return null;
+                    }
+                });
+                
+                res.end();
+            });
         });
 };

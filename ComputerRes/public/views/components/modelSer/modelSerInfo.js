@@ -73,7 +73,7 @@ var ModelSerInfo = React.createClass({
         if(this.state.ms.ms_model.m_url)
         {
             detail = (
-                <a style="more" href={ms.ms_model.m_url} >更多信息</a>
+                <a href={this.state.ms.ms_model.m_url} >更多信息</a>
             );
         }
         var img = (<img src="/images/modelImg/default.png" alt=""  />);

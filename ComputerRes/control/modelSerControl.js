@@ -766,66 +766,19 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
     });
 };
 
-// ModelSerControl.getMatchedByPid = function (pid, callback) {
-//     var url = 'http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetMDLFromPid?pid=' + pid;
-//     remoteReqCtrl.getByServer(url,null,function (err, res) {
-//         if(err){
-//             return callback(err);
-//         }
-//         else{
-//             res = JSON.parse(res);
-//             if(res.error && res.error != ''){
-//                 return callback('err on portal server!');
-//             }
-//             else if(res.result && res.result != ''){
-//                 ModelSerControl.parseMDLStr(res.result,function (err, mdl) {
-//                     if(err){
-//                         return callback(err);
-//                     }
-//                     else{
-//                         var softDemands = [],hardDemands = [];
-//                         var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
-//                         var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;
-//                         if(hardJSON == undefined)
-//                             hardJSON = [];
-//                         if(softJSON == undefined)
-//                             softJSON = [];
-//                         for(var i=0;i<hardJSON.length;i++){
-//                             hardDemands.push({name:hardJSON[i].$.name,value:hardJSON[i]._});
-//                         }
-//                         for(var j=0;j<softJSON.length;j++){
-//                             softDemands.push({
-//                                 name:softJSON[j].$.name,
-//                                 platform:softJSON[j].$.platform == undefined?'':softJSON[j].$.platform,
-//                                 version:softJSON[j]._
-//                             });
-//                         }
-//                         var matchedRst = {};
-//                         SWECtrl.ensMatched(softDemands,function (rst) {
-//                             rst = JSON.parse(rst);
-//                             matchedRst.swe = rst;
-//                             HWECtrl.ensMatched(hardDemands,function (rst) {
-//                                 rst = JSON.parse(rst);
-//                                 matchedRst.hwe = rst;
-//                                 callback(null,matchedRst);
-//                             })
-//                         })
-//                     }
-//                 });
-//             }
-//         }
-//     })
-// };
-
 //获取某一类别下的所有模型
-ModelSerControl.getCloudModelByCategoryId = function(id, callback){
-    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/modelItemServlet?uid=' + id + '&page=1&sortType=name&TagOrClass=class', function(err, items){
+ModelSerControl.getCloudModelByCategoryId = function(id, page, callback){
+    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/modelItemServlet?uid=' + id + '&page=' + page + '&sortType=name&TagOrClass=class', function(err, items){
         if(err){
             return callback(err);
         }
+        var itemsCount = items.count;
         items = items.modelItems;
         if(items.length == 0){
-            return callback(null, items);
+            return callback(null, {
+                count : 0,
+                items : []
+            });
         }
         var count = 0;
         var pending = function(index){
@@ -839,7 +792,10 @@ ModelSerControl.getCloudModelByCategoryId = function(id, callback){
                 }
                 count --;
                 if(count == 0){
-                    return callback(null, items);
+                    return callback(null, {
+                        count : itemsCount,
+                        items : items
+                    });
                 }
             }
 
@@ -851,7 +807,7 @@ ModelSerControl.getCloudModelByCategoryId = function(id, callback){
 };
 
 //上传模型部署包
-ModelSerControl.uploadPackage = function(msid, mid, pkg_name, pkg_version, pkg_des, portal_uname, portal_pwd, callback){
+ModelSerControl.uploadPackage = function(msid, mid, pkg_name, pkg_version, pkg_des, mupload, portal_uname, portal_pwd, callback){
     var pending = function(){
         SystemCtrl.loginPortal(portal_uname, portal_pwd, function(err, result){
             if(err){
@@ -891,29 +847,68 @@ ModelSerControl.uploadPackage = function(msid, mid, pkg_name, pkg_version, pkg_d
                             if(data.result == 'no'){
                                 return callback(new Error('Link fail in portal !'));
                             }
-                            ModelSerModel.getByOID(msid, function(err, item){
+                            ModelSerModel.getByOID(msid, function(err, ms){
                                 if(err){
                                     return callback(err);
                                 }
-                                item.ms_model.m_id = mid;
-                                item.ms_model.p_id = data.result;
-                                ModelSerModel.update(item, function(err, result){
+                                ms.ms_model.m_id = mid;
+                                ModelSerControl.update(ms, function(err, result){
                                     if(err){
                                         return callback(err);
                                     }
                                     return callback(null, {
-                                        fcid : resJson.fcId,
-                                        p_id : data
+                                        fcid : resJson.fcId
                                     });
-                                })
+                                });
                             });
                         });
                     });
                 };
-                if(!fs.existsSync(setting.modelpath + 'packages/' + msid + '.zip')){
-                    CommonMethod.compress(setting.modelpath + 'packages/' + msid + '.zip', setting.modelpath + msid);
+                if(mupload == 'on'){
+                    if(!fs.existsSync(setting.modelpath + 'packages/' + msid + '.zip')){
+                        CommonMethod.compress(setting.modelpath + 'packages/' + msid + '.zip', setting.modelpath + msid);
+                    }
+                    pending2();
                 }
-                pending2();
+                else{
+                    ModelSerControl.getByOID(msid, function(err, ms){
+                        if(err){
+                            return callback(err);
+                        }
+                        remoteReqCtrl.postRequestJSONWithForm('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/RegisterComputerServiceServlet', {
+                            port : setting.port,
+                            userid : portal_uname,
+                            password : portal_pwd,
+                            pinfo : JSON.stringify({
+                                name : pkg_name,
+                                desc : pkg_des,
+                                pid : ms.ms_model.p_id,
+                                mid : mid
+                            })
+                        }, function(err, result){
+                            if(err){
+                                return callback(err);
+                            }
+                            if(result.result == 'suc'){
+                                ms.ms_model.m_id = mid;
+                                ModelSerControl.update(ms, function(err, result){
+                                    if(err){
+                                        return callback(err);
+                                    }
+                                    return callback(null, {
+                                        fcid : 'virtual'
+                                    });
+                                });
+                            }
+                            else if(result == 'error'){
+                                return callback(new Error(result.message));
+                            }
+                            else{
+                                return callback(new Error('No Response!'));
+                            }
+                        });
+                    });
+                }
             }
             else{
                 return callback(new Error('Login fail!', -1));

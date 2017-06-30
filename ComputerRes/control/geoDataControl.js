@@ -34,6 +34,9 @@ GeoDataCtrl.getByKey = function (key, callback) {
         {
             return callback(err);
         }
+        //找到这个数据的权限信息
+
+
         return callback(null, data);
     });
 };

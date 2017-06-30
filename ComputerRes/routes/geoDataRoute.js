@@ -8,6 +8,7 @@ var fs = require('fs');
 var uuid = require('node-uuid');
 
 var GeoDataCtrl = require('../control/geoDataControl');
+var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var setting = require('../setting');
 var remoteReqCtrl = require('../control/remoteReqControl');
 var request = require('request');
@@ -242,38 +243,51 @@ module.exports = function (app) {
                 {
                     return res.end('No Data!');
                 }
-                var filename = gd.gd_id + '.xml';
-                if(gd.gd_type == 'FILE')
-                {
-                    fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
-                        if (err) {
-                            GeoDataCtrl.delete(gdid, function (err, reslut) {
-                                return res.end('Data file do not exist!')
-                            });
+                ModelSerRunCtrl.IsOutputData2BDestroyed(gd.gd_id, function(err, destroyed){
+                    if(err){
+                        return res.end('error');
+                    }
+                    var filename = gd.gd_id + '.xml';
+                    if(gd.gd_type == 'FILE')
+                    {
+                        fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                            if (err) {
+                                GeoDataCtrl.delete(gdid, function (err, reslut) {
+                                    return res.end('Data file do not exist!')
+                                });
+                            }
+                            else {
+                                fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                                    if(err)
+                                    {
+                                        return res.end('error');
+                                    }
+                                    res.set({
+                                        'Content-Type': 'file/xml',
+                                        'Content-Length': data.length });
+                                    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                                    res.end(data);
+                                    //销毁数据
+                                    if(destroyed){
+                                        GeoDataCtrl.delete(gd.gd_id, function(err, result){});
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    else if(gd.gd_type == 'STREAM')
+                    {
+                        res.set({
+                            'Content-Type': 'file/xml',
+                            'Content-Length': gd.gd_value.length });
+                        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                        res.end(gd.gd_value);
+                        //销毁数据
+                        if(destroyed){
+                            GeoDataCtrl.delete(gd.gd_id, function(err, result){});
                         }
-                        else {
-                            fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
-                                if(err)
-                                {
-                                    return res.end('error');
-                                }
-                                res.set({
-                                    'Content-Type': 'file/xml',
-                                    'Content-Length': data.length });
-                                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                                res.end(data);
-                            });
-                        }
-                    });
-                }
-                else if(gd.gd_type == 'STREAM')
-                {
-                    res.set({
-                        'Content-Type': 'file/xml',
-                        'Content-Length': gd.gd_value.length });
-                    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                    res.end(gd.gd_value);
-                }
+                    }
+                });
             });
         })
         .delete(function(req, res, next){

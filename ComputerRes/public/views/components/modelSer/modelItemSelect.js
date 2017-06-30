@@ -14,28 +14,43 @@ var ModelItemSelect = React.createClass({
             items : [],
             itemErr : null,
             init : false,
+            page : 1,
             cid : ''
         };
     },
 
-    getModelItems : function(cid){
+    getModelItems : function(cid, updatePage){
         if(cid == null){
             cid = this.state.cid
         }
         else {
-            this.setState({cid : cid});
+            this.state.cid = cid;
         }
-        Axios.get('/modelser/cloud/json/modelsers?cid=' + cid).then(
+        Axios.get('/modelser/cloud/json/modelsers?cid=' + cid + '&page=' + this.state.page).then(
             data => {
                 if(data.data.result == 'err') {
                     this.setState({itemErr : data.data.message});
                 }
                 else{
-                    this.setState({itemErr : null, items : data.data.data});
+                    var pagecount = this.state.page;
+                    if(updatePage){
+                        pagecount = 1;
+                    }
+                    this.setState({itemErr : null, items : data.data.data.items, count : data.data.data.count, page : pagecount});
                 }
             },
             err => {}
         );
+    },
+
+    changePage : function(e, page){
+        if(page == undefined){
+            this.state.page = parseInt(e.currentTarget.attributes['data-page'].nodeValue);
+        }
+        else{
+            this.state.page = page;
+        }
+        this.getModelItems(null, false);
     },
 
     onSelectedItem : function(e, item){
@@ -51,7 +66,7 @@ var ModelItemSelect = React.createClass({
             Items = (<span>Error : {JSON.stringify(this.state.itemErr)}</span>);
         }
         else{
-            var pages = parseInt(this.state.items.length / 10) + 1;
+            var pages = parseInt(this.state.count / 10) + 1;
             var count = 0;
 
             var buttonText = '详情';
@@ -79,15 +94,31 @@ var ModelItemSelect = React.createClass({
                 )
             }.bind(this));
             if(pages > 1){
+                var pre = null;
+                var last = null;
+                if(this.state.page != 1){
+                    pre = (<li><a href="#" onClick={ (e) => { this.changePage(e, this.state.page - 1) } } >«</a></li>);
+                }
+                if(this.state.page != pages){
+                    last = (<li><a href="#" onClick={ (e) => { this.changePage(e, this.state.page + 1) } } >»</a></li>);
+                }
+                Paging = (function(){
+                    var doms = [];
+                    for(var i = 1; i < pages + 1; i++){
+                        if(i == this.state.page){
+                            doms.push(<li  className="active"><a href="#" >{i}</a></li>);
+                        }
+                        else{
+                            doms.push(<li><a href="#" data-page={i} onClick={ (e) => { this.changePage(e) } } >{i}</a></li>);
+                        }
+                    }
+                    return doms;
+                }.bind(this))();
                 Paging = (
                     <ul className="pagination">
-                        <li><a href="#">«</a></li>
-                        <li className="active"><a href="#">1</a></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
-                        <li><a href="#">»</a></li>
+                        {pre}
+                        {Paging}
+                        {last}
                     </ul>);
             }
         }

@@ -26,8 +26,3 @@ var ModelSerAccessCtrl = require('./control/modelSerAccessControl');
 // var tokenJson = CommonMethod.decrypto(token, '222.192.7.75');
 
 // console.log(tokenJson);
-
-var a = {};
-if(a.b == undefined){
-    console.log(1);
-}

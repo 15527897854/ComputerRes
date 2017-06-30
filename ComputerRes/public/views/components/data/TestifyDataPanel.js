@@ -59,10 +59,22 @@ var TestifyDataPanel = React.createClass({
 
     loadTestData : function(e){
         var testData = this.state.data[this.state.index].inputs;
+        if(testData == undefined || testData == null){
+            return NoteDialog.openNoteDia('警告', '测试数据 : ' + this.state.data[this.state.index].tag + ' 加载失败!');
+        }
         for(var i = 0; i < testData.length; i++){
             window.addGeoData(testData[i].StateId, testData[i].Event, testData[i].DataId);
         }
         NoteDialog.openNoteDia('提示', '测试数据 : ' + this.state.data[this.state.index].tag + ' 加载成功!');
+    },
+
+    deleteTestData : function(e){
+        var testData = this.state.data[this.state.index].inputs;
+        Axios.delete(this.props['data-source']).then(
+            data => {},
+            err => {}
+        );
+        NoteDialog.openNoteDia('提示', '测试数据 : ' + this.state.data[this.state.index].tag + ' 删除成功!');
     },
     
     render : function(){
@@ -98,6 +110,12 @@ var TestifyDataPanel = React.createClass({
                 selectOptions = this.state.data.map(function(element) {
                     return (<option key={element.tag} >{element.tag}</option>);
                 });
+
+                var delButton = null;
+                if(this.props["data-type"] != 'custom'){
+                    delButton = (<input id="btn_testify_del" type="button" className="btn btn-danger" value="删除测试数据" onClick={this.deleteTestData} />);
+                }
+
                 body = (
                     <div id="testify-body" className="panel-body" >
                         <div className="form-horizontal adminex-form" >
@@ -117,7 +135,7 @@ var TestifyDataPanel = React.createClass({
                             </div>
                             <div className="text-center">
                                 <input id="btn_testify_load" type="button" className="btn btn-warning" value="加载测试数据" onClick={this.loadTestData} /> &nbsp;&nbsp;&nbsp;
-                                <input id="btn_testify_del" type="button" className="btn btn-danger" value="删除测试数据" />
+                                {delButton}
                             </div>
                         </div>
                     </div>

@@ -269,7 +269,11 @@ module.exports = function(app)
     app.route('/modelser/cloud/json/modelsers')
         .get(function(req, res, next){
             var cid = req.query.cid;
-            ModelSerCtrl.getCloudModelByCategoryId(cid, RouteBase.returnFunction(res, 'error in getting cloud modelsers!'));
+            var page = 1;
+            if(req.query.page){
+                page = parseInt(req.query.page);
+            }
+            ModelSerCtrl.getCloudModelByCategoryId(cid, page, RouteBase.returnFunction(res, 'error in getting cloud modelsers!'));
         });
 
     app.route('/modelser/cloud/category')
@@ -371,7 +375,8 @@ module.exports = function(app)
                     var pkg_name = req.query.pkg_name;
                     var pkg_version = req.query.pkg_version;
                     var pkg_des = req.query.pkg_des;
-                    ModelSerCtrl.uploadPackage(msid, mid, pkg_name, pkg_version, pkg_des, null, null, RouteBase.returnFunction(res, 'err in upload model package'));
+                    var m_upload = req.query.mupload;
+                    ModelSerCtrl.uploadPackage(msid, mid, pkg_name, pkg_version, pkg_des, m_upload, null, null, RouteBase.returnFunction(res, 'err in upload model package'));
                 }
                 //单个模型的详情页面
                 else
@@ -572,7 +577,7 @@ module.exports = function(app)
             });
         });
 
-    //get 所有测试数据
+    //删除所有测试数据
     app.route('/modelser/testify/:msid')
         .delete(function (req, res, next) {
             var msid = req.params.msid;

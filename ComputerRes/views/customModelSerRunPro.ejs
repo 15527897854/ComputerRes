@@ -50,37 +50,31 @@
         $(document).ready(function(){
             var msid = '<%=msid %>';
             $('#btn_run').click(function(e){
-                for(var i = 0; i < window.allInputData.length; i++)
-                {
-                    if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 )
-                    {
-                        return alert('数据未全准备！');
-                    }
+                var result = window.checkGeoData();
+                if(result.result == 'fail'){
+                    return alert(result.message);
                 }
-
-                for(var i = 0; i < window.allOutputData.length; i++)
-                {
-                    window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
+                else if(result.result == 'suc'){
+                    $.ajax({
+                        url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
+                        type:'GET',
+                        success : function(data){
+                            var resJson = JSON.parse(data);
+                            if(resJson.res == 'suc')
+                            {
+                                window.location.href = '/public/modelserrun/' + resJson.msr_id;
+                            }
+                            else{
+                                $.gritter.add({
+                                    // (string | mandatory) the heading of the notification
+                                    title: '调用失败!',
+                                    // (string | mandatory) the text inside the notification
+                                    text: resJson.message
+                                });
+                            }
+                        }
+                    });
                 }
-                $.ajax({
-                    url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
-                    type:'GET',
-                    success : function(data){
-                        var resJson = JSON.parse(data);
-                        if(resJson.res == 'suc')
-                        {
-                            window.location.href = '/public/modelserrun/' + resJson.msr_id;
-                        }
-                        else{
-                            $.gritter.add({
-                                // (string | mandatory) the heading of the notification
-                                title: '调用失败!',
-                                // (string | mandatory) the text inside the notification
-                                text: resJson.message
-                            });
-                        }
-                    }
-                });
             });
         });
     </script>

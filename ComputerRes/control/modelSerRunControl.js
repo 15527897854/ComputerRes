@@ -82,6 +82,22 @@ ModelSerRunCtrl.update = function (msr, callback) {
     });
 };
 
+//判断数据是否需要销毁
+ModelSerRunCtrl.IsOutputData2BDestroyed = function(DataId, callback){
+    ModelSerRun.getByOutputDataID(DataId, function(err, data){
+        if(err){
+            return callback(err);
+        }
+        if(!data){
+            return callback(null, false);
+        }
+        if(data.Destroyed){
+            return callback(null, true);
+        }
+        return callback(null, false);
+    });
+}
+
 /////////////////////远程
 
 ModelSerRunCtrl.getRmtModelSerRun = function (host, msrid, callback) {
