@@ -259,8 +259,7 @@ hardwareEnCtrl.enMatched = function (demand, cb) {
         else {
             var query = {
                 $text:{
-                    $search:demand.name,
-                    $caseSensitive:false
+                    $search:demand.name
                 }
             };
             hardwareEnCtrl.getByTextSearch(query,function (err, data) {
