@@ -287,13 +287,26 @@ module.exports = function(app)
                     var languagesJson = fs.readFileSync(path + item);
                     try{
                         languagesJson = JSON.parse(languagesJson);
+                        languagesJson['File'] = item;
                         langConfigs.push(languagesJson);
                     }
                     catch(ex){
                         return null;
                     }
                 });
-                
+
+                var configs = [];
+
+                for(var i = 0; i < langConfigs.length; i++){
+                    if(langConfigs[i].ConfigName){
+                        configs.push({
+                            ConfigName : langConfigs[i].ConfigName,
+                            File : langConfigs[i].File,
+                            SelectButton : langConfigs[i].SelectButton
+                        });   
+                    }
+                }
+
                 res.end();
             });
         });
