@@ -29,20 +29,18 @@
                     <span id="newsNum" class="badge"></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-head pull-right">
-                    <h5 class="title">消息</h5>
+                    <h5 class="title"><%=global.configLanguage.Heading.Notice %></h5>
                     <ul id="nav-news-ul" class="dropdown-list normal-list"></ul>
                 </div>
             </li>
             <li>
                 <a href="#"  class="btn btn-default dropdown-toggle info-number" data-toggle="dropdown">
-                    languages
+                    <%=global.configLanguage.SelectButton %>
                     <span id="newsNum" class="badge"></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-head pull-right">
                     <h5 class="title"></h5>
-                    <ul id="nav-news-ul" class="dropdown-list normal-list">
-                        <li><a href="#">中文</a></li>
-                        <li><a href="#">English</a></li>
+                    <ul id="nav-language-ul" class="dropdown-list normal-list">
                     </ul>
                 </div>
             </li>
@@ -65,6 +63,17 @@
 <!-- header section end-->
 
 <script type="text/javascript">
+    function setLanguage(language){
+        setCookie('language', language);
+        $.ajax({
+            url : '/languages',
+            method : 'PUT',
+            success : function(data){
+                
+            }
+        });
+    }
+
     $(document).ready(function () {
         window.Polling = function() {
             $.ajax({
@@ -103,12 +112,25 @@
             }
             else {
                 $('#nav-news-ul').html('');
-                $('#nav-news-ul').append('<li class="new"><a href="/note">没有未读消息</a></li>');
+                $('#nav-news-ul').append('<li class="new"><a href="/note">没有通知消息</a></li>');
             }
         }
 
         Polling();
 
-        timer = setInterval(Polling,600000);
+        timer = setInterval(Polling, 600000);
+
+        $.ajax({
+            url : '/languages',
+            success : function(data){
+                var resJson = JSON.parse(data);
+                if(resJson.result == 'suc'){
+                    var configs = resJson.data;
+                    for(var i = 0; i < configs.length; i++){
+                        $('#nav-language-ul').append('<li><a href="#" onClick="setLanguage(\'' + configs[i].File + '\')" >' + configs[i].ConfigName + '</a></li>');
+                    }
+                }
+            }
+        });
     });
 </script>

@@ -1,0 +1,60 @@
+{
+    "ConfigName" : "English",
+    "SelectButton" : "Languages",
+    "Name" : "Model Services Container",
+    "Heading" : {
+        "Administrator" : {
+            "Title" : "Administrator",
+            "Signature" : "I am Administrator"
+        },
+        "User" : {
+            "Info" : "Infomation",
+            "Settings"  : "Settings",
+            "SignOut" : "SignOut"
+        },
+        "Homepage" : "Homepage",
+        "Status" : "Status",
+        "Notice" : "Notice",
+        "LocalModelService" : {
+            "Title" : "Local Services",
+            "Checking" : "Checking",
+            "Instances" : "Instances",
+            "Records" : "Records",
+            "Deployment" : "Deployment"
+        },
+        "RemoteModelService" : {
+            "Title" : "Remote Services",
+            "Checking" : "Checking",
+            "Instances" : "Instances",
+            "Records" : "Records",
+            "Network" : "Network"
+        },
+        "CloudModelService" : "Cloud Services",
+        "DataCenter" : "Data Center",
+        "Settings" : {
+            "Title" : "Settings",
+            "General" : "General",
+            "Environment" : "Environment"
+        }
+    },
+    "Navigation" : {
+        "Notice" : {
+            "Title" : "Notice",
+            "NoMessage" : "No Notice"
+        },
+        "User" : {
+            "Info" : "Infomation",
+            "Settings"  : "Settings",
+            "SignOut" : "SignOut"
+        }
+    },
+    "Homepage" : {
+        "Welcome" : "Welcome to Model Services Container",
+        "ModelService" : "Local Services",
+        "Notice" : "Notice",
+        "Status" : "Status",
+        "Deployment" : "Deployment",
+        "ModelServiceRunningRecords" : "Records",
+        "Network" : "Network"
+    }
+}

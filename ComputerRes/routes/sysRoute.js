@@ -274,40 +274,4 @@ module.exports = function(app)
             SysControl.getToken(req.query.ip, RouteBase.returnFunction(res, 'Error in getting token!'));
         });
     
-    //获取语言配置
-    app.route('/languages')
-        .get(function(req, res, next){
-            var path = __dirname + '/../public/languages/'
-            fs.readdir(path, function(err, files){
-                if(err){
-
-                }
-                var langConfigs = [];
-                files.forEach(function(item){
-                    var languagesJson = fs.readFileSync(path + item);
-                    try{
-                        languagesJson = JSON.parse(languagesJson);
-                        languagesJson['File'] = item;
-                        langConfigs.push(languagesJson);
-                    }
-                    catch(ex){
-                        return null;
-                    }
-                });
-
-                var configs = [];
-
-                for(var i = 0; i < langConfigs.length; i++){
-                    if(langConfigs[i].ConfigName){
-                        configs.push({
-                            ConfigName : langConfigs[i].ConfigName,
-                            File : langConfigs[i].File,
-                            SelectButton : langConfigs[i].SelectButton
-                        });   
-                    }
-                }
-
-                res.end();
-            });
-        });
 };

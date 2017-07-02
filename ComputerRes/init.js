@@ -3,11 +3,11 @@
  */
 var SysCtrl = require('./control/sysControl');
 var FileOpera = require('./utils/fileOpera');
+var LanguageCtrl = require('./control/languagesCtrl');
 
 var Init = function(){
     console.log('Initializing...');
 
-    //Checking system fields is null
     var fields = [
         {
             name : 'portal_uname',
@@ -82,6 +82,14 @@ var Init = function(){
     for(var i = 0; i < directions.length; i++){
         FileOpera.BuildDir(directions[i], pending_directions(i));
     }
+
+    console.log('Checking language config...');
+    LanguageCtrl.updateLanguage('en.json', function(err, result){
+        if(err){
+            return console.log('Error in initailizing language configuration!');
+        }
+        console.log('initailizing language configuration finished !');
+    });
 };
 
 module.exports = Init;

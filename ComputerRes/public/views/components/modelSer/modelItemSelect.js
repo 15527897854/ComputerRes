@@ -124,7 +124,7 @@ var ModelItemSelect = React.createClass({
         }
         return (
                 <div className="row">
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                         <section className="panel" >
                             <header className="panel-heading">
                                 门户模型分类
@@ -132,7 +132,7 @@ var ModelItemSelect = React.createClass({
                             <ModelCategory data-source={this.props['data-source']} onSelectItem={this.getModelItems} />
                         </section>
                     </div>
-                    <div className="col-md-6">
+                    <div className="col-md-8">
                         <section className="panel" >
                             <header className="panel-heading">
                                 门户模型条目

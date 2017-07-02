@@ -11,8 +11,7 @@ var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelInsCtrl = require('../control/ModelInsCtrl');
 var TestifyCtrl = require('../control/testifyCtrl');
 var cp = require('../utils/child-process'); 
-
-var fs = require('fs');
+var languageCtrl = require('../control/languagesCtrl');
 
 module.exports = function(app){
     //客户端界面
@@ -453,5 +452,15 @@ module.exports = function(app){
                     return res.end(data);
                 }
             });
+        });
+
+    //// 公开API 系统设置类
+    //获取语言配置
+    app.route('/languages')
+        .get(function(req, res, next){
+            languageCtrl.getAllLanguageConfig(RouteBase.returnFunction(res, 'Error in getting All language configs'));
+        })
+        .put(function(req, res, next){
+            languageCtrl.updateLanguage(req.cookies.language, RouteBase.returnFunction(res, 'Error in updating language'));
         });
 }
