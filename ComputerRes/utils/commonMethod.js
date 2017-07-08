@@ -113,7 +113,7 @@ CommonMethod.Encode64 = function(a){
         d = enc2 = enc3 = enc4 = ""
     } while (i < a.length);
     return b;
-}
+};
 
 //启动一个Nodejs进程去执行JS文件 -- 一般用于高IO处理
 CommonMethod.childProcess = function(file, callback){
@@ -151,6 +151,7 @@ CommonMethod.getPort = function (cb) {
         cb(port);
     });
 };
+
 CommonMethod.getIP = function(request){
     var host = request.connection.remoteAddress;
     host = host.substr(host.lastIndexOf(':') + 1);

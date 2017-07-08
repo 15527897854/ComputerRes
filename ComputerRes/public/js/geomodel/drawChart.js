@@ -54,7 +54,7 @@ $(function drawDynamicLine() {
     chart1 = new Highcharts.Chart({
         chart: {
             renderTo: 'chart_line1', //图表放置的容器，DIV
-            backgroundColor:'#EFF0F4',
+            backgroundColor:'#FFF',
             defaultSeriesType: 'areaspline', //图表类型为曲线图
             events: {
                 load: function() {
@@ -93,7 +93,6 @@ $(function drawDynamicLine() {
                 fillOpacity: 0.3,
                 cursor: 'pointer',
                 pointStart: 1940,
-//                        color: '#923590',
                 marker: {
                     enabled: false,
                     symbol: 'circle',   //点形状
@@ -149,7 +148,7 @@ $(function drawPie() {
     new Highcharts.chart({
         chart: {
             renderTo:'chart_line2',
-            plotBackgroundColor: "#EFF0F4",
+            plotBackgroundColor: "#FFF",
             plotShadow: false,
             events: {
                 load: function() {

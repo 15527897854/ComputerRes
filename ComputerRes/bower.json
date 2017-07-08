@@ -1,0 +1,21 @@
+{
+  "name": "computerres",
+  "description": "",
+  "main": "app.js",
+  "authors": [
+    "linc212 <1374316846@qq.com>"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bpmn-js": "^0.20.6"
+  }
+}
