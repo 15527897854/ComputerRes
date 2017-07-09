@@ -1,58 +1,73 @@
 var setting = require('../setting');
+var Promise = require('bluebird');
 var remoteReqCtrl = require('./remoteReqControl');
+var modelserCtrl = require('./modelSerControl');
 
-var MS_AggreCtrl = function () {
-
-};
-module.exports = MS_AggreCtrl;
-
-MS_AggreCtrl.getAllMS = function () {
-
-};
-
-MS_AggreCtrl.prototype.getPortalMS = function () {
-
-};
-
-MS_AggreCtrl.getCloudMSTree = function(callback){
-    remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetClassServlet', function(err, categories){
-        if(err){
-            return callback(err);
-        }
-        for(var i = 0; i < categories.length; i++){
-            if(categories[i].children.length > 0){
-                categories[i]['nodes'] = [];
+var MS_AggreCtrl = (function () {
+    //region private
+    var __getCloudMS = function(cb){
+        remoteReqCtrl.getRequestJSON('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/GetClassServlet', function(err, categories){
+            if(err){
+                return cb(err);
             }
-            for(var j = 0; j < categories[i].children.length; j++){
-                var index = MS_AggreCtrl.getCategoryById(categories, categories[i].children[j]);
-                if(index != -1){
-                    categories[index]['backColor'] = '#FFFFFF';
-                    categories[index]['text'] = categories[index]['name'];
-                    if(categories[index]['isLeaf'] === 'true'){
-                        categories[index]['selectable'] = true;
-                        categories[index]['icon'] = "fa fa-book";
-                        categories[index]['selectedIcon'] = "fa fa-check";
+            var rst = [];
+            var getCategoryById = function(id){
+                for(var i = 0; i < categories.length; i++){
+                    if(categories[i].id == id){
+                        return i;
                     }
-                    else{
-                        categories[index]['selectable'] = false;
-                        categories[index]['state'] = {
-                            expanded : false
-                        };
+                }
+                return -1;
+            };
+            var addLeafCate = function (index) {
+                if(categories[index].children.length){
+                    categories[index].child_node = [];
+                    for(var j=0;j<categories[index].children.length;j++){
+                        var childIndex = getCategoryById(categories[index].children[j]);
+                        addLeafCate(childIndex);
+                        categories[index].child_node.push(categories[childIndex])
                     }
-                    categories[i].nodes.push(categories[index]);
+                }
+                else{
+
+                }
+                categories[index].hasAdded = true;
+            };
+            for(var i = 0; i < categories.length; i++) {
+                if (categories[i].hasAdded == undefined) {
+                    addLeafCate(i);
+                    rst.push(categories[i]);
                 }
             }
-        }
+            return cb(null, rst);
+        });
+    };
 
-        return callback(null, categories[0]);
-    });
-};
+    var __getChildMS = function (cb) {
 
-MS_AggreCtrl.getCategoryById = function(array, id){
-    for(var i = 0; i < array.length; i++){
-        if(array[i].id == id){
-            return i;
+    };
+
+    var __getLocalMS = function (cb) {
+        modelserCtrl.getLocalModelSer(function (err, mss) {
+            err?cb(err):cb(null,mss);
+        })
+    };
+
+    //endregion
+
+    //region public
+    return {
+        getAllMS : function (cb) {
+            __getLocalMS(function (err,mss) {
+                err?cb(err):cb(null,mss);
+            })
+        },
+
+        getPortalMS:function () {
+
         }
-    }
-    return -1;
-};
+    };
+    //endregion
+})();
+
+module.exports = MS_AggreCtrl;
