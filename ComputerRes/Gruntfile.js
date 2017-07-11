@@ -19,16 +19,37 @@ module.exports = function(grunt) {
 
         //把多个模块中用到的相同的东西放在这里，这样只用改一遍就行了
         config: {
-            sources: 'views/bpmn/app',
-            public:'public/js/bpmn'
+            sources: 'views',
+            public:'public'
         },
+
+        // uglify:{
+        //     options: {
+        //         banner: bannerContent,
+        //         sourceMapRoot: '../',
+        //         sourceMap: 'distrib/' + name + '.min.js.map',
+        //         sourceMapUrl: name + '.min.js.map'
+        //     },
+        //     target: {
+        //         expand: true,
+        //         cwd: '<%=config.sources %>',
+        //         src: '*.js',
+        //         dest: ''
+        //     }
+        // },
 
         jshint: {
             src: [
-                ['<%=config.sources %>']
+                ['<%=config.sources %>/**/*.js']
             ],
             options: {
                 jshintrc: true
+            }
+        },
+
+        csslint:{
+            all:{
+                src:['<%= config.sources %>/**/*.js']
             }
         },
 
@@ -54,59 +75,36 @@ module.exports = function(grunt) {
                     watch: true
                 },
                 files: {
-                    '<%= config.public %>/app.js': [ '<%= config.sources %>/**/*.js' ]
+                    '<%= config.public %>/js/browserBundle.js': [ '<%= config.sources %>/**/*.js' ]
                 }
             },
             app: {
                 files: {
-                    '<%= config.public %>/app.js': [ '<%= config.sources %>/**/*.js' ]
+                    '<%= config.public %>/js/browserBundle.js': [ '<%= config.sources %>/**/*.js' ]
                 }
             }
         },
 
         copy: {
-            diagram_js: {
-                files: [
-                    {
-                        src: resolvePath('diagram-js', 'assets/diagram-js.css'),
-                        dest: '<%= config.public %>/css/diagram-js.css'
-                    }
-                ]
-            },
-            bpmn_js: {
-                files: [
-                    {
-                        expand: true,
-                        cwd: resolvePath('bpmn-js', 'assets'),
-                        src: ['**/*.*', '!**/*.js'],
-                        dest: '<%= config.public %>/vendor'
-                    }
-                ]
-            },
-            public:{
+            js:{
                 files:[
                     {
                         expand:true,
                         cwd:'<%= config.sources %>',
                         src:['**/*.js'],
-                        dest:'<%= config.public %>'
+                        dest:'<%= config.public %>/js'
                     }
                 ]
-            }
-        },
-
-        less: {
-            options: {
-                dumpLineNumbers: 'comments',
-                paths: [
-                    'node_modules'
-                ]
             },
-
-            styles: {
-                files: {
-                    '<%= config.public %>/css/app.css': 'views/bpmn/styles/app.less'
-                }
+            css:{
+                files:[
+                    {
+                        expand:true,
+                        cwd:'<%= config.sources %>',
+                        src:['**/*.css'],
+                        dest:'<%= config.public %>/css'
+                    }
+                ]
             }
         },
 
@@ -114,28 +112,26 @@ module.exports = function(grunt) {
             options: {
                 livereload: 2345
             },
-
-            samples: {
-                files: [ '<%= config.sources %>/**/*.*' ],
+            js: {
+                files: [ '<%= config.sources %>/**/*.js'],
                 tasks: [ 'browserify:watch' ]
             },
-
-            less: {
-                files: [
-                    'views/bpmn/styles/**/*.less',
-                    'node_modules/bpmn-js-properties-panel/styles/**/*.less'
-                ],
-                tasks: [
-                    'less'
-                ]
+            css:{
+                files: [ '<%= config.sources %>/**/*.css' ],
+                tasks: [ 'copy:css']
             },
+            ejs:{
+                files: [ '<%= config.sources %>/**/*.ejs' ],
+                tasks: [ 'browserify:watch']
+            }
         },
     });
 
     // tasks
     grunt.registerTask('default', [
-        'copy',
-        'less',
+        // 'csslint',
+        'jshint',
+        'copy:css',
         'browserify:watch',
         'watch'
     ]);

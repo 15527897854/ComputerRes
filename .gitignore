@@ -34,3 +34,5 @@ redis.conf
 /ComputerRes/.vscode
 fancytree
 geojson
+/ComputerRes/control/test.js
+bpmn

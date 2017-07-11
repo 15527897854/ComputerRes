@@ -54,8 +54,10 @@
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-connect": "~1.0.2",
     "grunt-contrib-copy": "~1.0.0",
+    "grunt-contrib-csslint": "^2.0.0",
     "grunt-contrib-jshint": "~1.0.0",
     "grunt-contrib-less": "^1.0.1",
+    "grunt-contrib-uglify": "^3.0.1",
     "grunt-contrib-watch": "~1.0.0",
     "load-grunt-tasks": "~3.5.0"
   },

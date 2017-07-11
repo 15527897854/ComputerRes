@@ -126,7 +126,7 @@ SysControl.getState = function(callback) {
     }
 };
 
-SysControl.getIP = function (callback) {
+SysControl.getIP = function (cb) {
     var exec = require('child_process').exec;
     //windows disk
     if(setting.platform == 1)
@@ -134,15 +134,18 @@ SysControl.getIP = function (callback) {
         var interfaces = os.networkInterfaces();
         var IPv4 = '127.0.0.1';
         for (var key in interfaces) {
+            if(key.match(/\s*vmware\s*network\s*adapter/i))
+                continue;
             var alias = 0;
             interfaces[key].forEach(function(details){
                 if (details.family == 'IPv4') {
-                    if(details.address != '127.0.0.1')
+                    if(details.address != '127.0.0.1'){
                         IPv4 = details.address;
+                        cb(null,IPv4);
+                    }
                 }
             });
         }
-        callback(null,IPv4);
     }
     else if(setting.platform == 2)
     {

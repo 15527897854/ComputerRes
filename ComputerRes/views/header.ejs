@@ -64,7 +64,7 @@
                     <li><a href="/child-node/all">查看运算网络</a></li>
                 </ul>
             </li>
-            <li id="aggregation-li" class="menu-list">
+            <li id="aggregation-li" class="menu-list <% if(typeof openli !== 'undefined' && openli == 'aggregation-li'){%>nav-active<%} %>">
                 <a href="/aggregation">
                     <i class="fa fa-puzzle-piece"></i>
                     <span>服务聚合任务</span>
@@ -77,7 +77,7 @@
             </li>
             <li><a href="/modelser/cloud"><i class="fa fa-cloud-download"></i> <span>门户云模型</span></a></li>
             <li><a href="/geodata/all"><i class="fa fa-folder"></i> <span>数据中心</span></a></li>
-            <li id="setting-li" class="menu-list">
+            <li id="setting-li" class="menu-list ">
                 <a href="/setting">
                     <i class="fa fa-cogs"></i>
                     <span>设置</span>

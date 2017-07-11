@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>服务聚合</title>
+    <%- include ../headInclude.ejs %>
+    <link rel="stylesheet" type="text/css" href="/js/webix/webix.css" />
+    <link rel="stylesheet" type="text/css" href="/css/aggregation/aggregation.css"/>
+</head>
+<body class="left-side-collapsed">
+<section>
+    <%- include ../header.ejs %>
+    <div class="main-content row" style="">
+
+        <div aria-hidden="true" tabIndex="-1" id='ms-cart-modal' class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" id="close-modal" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">
+                            Add model services to aggregation task
+                        </h4>
+                    </div>
+                    <div id='ms-cart-modal-body' class="modal-body">
+                        <!--<div id="ms-tree-pager"></div>-->
+                        <div id="ms-tree"></div>
+                        <div id="ms-cart"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn-tt-submit btn btn-primary" disabled data-dismiss="modal">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-4 row" id="div-AggreMS">
+            <div id="div-AggreMS-header">
+                <h5 class="pull-left">Aggregation Services</h5>
+                <button id="webix-AggreMS-list-add" class="btn btn-default pull-right" data-toggle="modal" data-target="#ms-cart-modal">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+            <div id="webix-AggreMS-list"></div>
+        </div>
+
+        <div class="col-lg-9 col-md-8 col-sm-8 row" id="canvas-div">
+            <div class="btn-toolbar" role="toolbar" id="toolbar">
+                <div class="btn-group">
+                    <button id="select-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-mouse-pointer"></i></button>
+                    <button id="link-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-code-fork"></i></button>
+                    <button id="del-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-trash"></i></button>
+                    <button id="display-toggle-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-eye-slash"></i></button>
+                    <button id="del-all-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-refresh"></i></button>
+                </div>
+                <div class="btn-group pull-right">
+                    <button id="position-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-crosshairs"></i></button>
+                    <button id="move-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-arrows"></i></button>
+                    <button id="zoomIn-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-search-plus"></i></button>
+                    <button id="zoomOut-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-search-minus"></i></button>
+                </div>
+            </div>
+            <canvas  id="canvas"></canvas>
+            <ul class="list-group" id="contextMenu">
+                <li class="list-group-item"><a>upload data</a></li>
+                <li class="list-group-item"><a>set source from node</a></li>
+                <li class="list-group-item"><a>set source of node</a></li>
+            </ul>
+        </div>
+
+    </div>
+</section>
+<%- include ../footerInclude.ejs %>
+<script type="text/javascript" src="/js/webix/webix.js"></script>
+<script type="text/javascript" src="/js/jtopo/js/jtopo-0.4.8-min.js"></script>
+<script type="text/javascript" src="/js/browserBundle.js"></script>
+<script src="http://localhost:2345/livereload.js"></script>
+</body>
+</html>
