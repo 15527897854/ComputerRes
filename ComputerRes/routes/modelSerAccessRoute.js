@@ -42,6 +42,9 @@ module.exports = function(app){
         .get(function(req, res, next){
             var msid = req.params.msid;
             ModelSerCtrl.getByOID(msid, function(err, ms){
+                if(ms == null){
+                    res.end('Demo has been deleted!');
+                }
                 if(ms.ms_limited == 0){
                     return res.render('customModelSerRunPro', {
                         msid : msid
