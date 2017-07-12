@@ -60,20 +60,20 @@ var DataSelectTable = React.createClass({
                                 "bAutoWidth": true,
                                 //多语言配置
                                 "oLanguage": {
-                                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                                    "sInfoEmtpy": "找不到相关数据",
-                                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
-                                    "sProcessing": "正在加载中...",
-                                    "sSearch": "搜索",
+                                    "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
+                                    "sZeroRecords": window.LanguageConfig.TablePaging.ZeroRecords,
+                                    "sInfo": window.LanguageConfig.TablePaging.Info,
+                                    "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
+                                    "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
+                                    "sProcessing": window.LanguageConfig.TablePaging.Processing,
+                                    "sSearch": window.LanguageConfig.TablePaging.Search,
                                     //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
                                     "sUrl": "",
                                     "oPaginate": {
-                                        "sFirst":    "第一页",
-                                        "sPrevious": " 上一页 ",
-                                        "sNext":     " 下一页 ",
-                                        "sLast":     " 最后一页 "
+                                        "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
+                                        "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
+                                        "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
+                                        "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
                                     }
                                 }
                             }
@@ -92,7 +92,7 @@ var DataSelectTable = React.createClass({
         if(this.state.loading)
         {
             return (
-                <span>加载中...</span>
+                <span>Loading...</span>
             );
         }
         if(this.state.err)
@@ -118,9 +118,9 @@ var DataSelectTable = React.createClass({
                     <thead>
                     <tr>
                         <th> </th>
-                        <th>数据ID</th>
-                        <th>生成时间</th>
-                        <th>标签</th>
+                        <th>{window.LanguageConfig.DataTable.ID}</th>
+                        <th>{window.LanguageConfig.DataTable.DateTime}</th>
+                        <th>{window.LanguageConfig.DataTable.Tag}</th>
                     </tr>
                     </thead>
                     <tbody>

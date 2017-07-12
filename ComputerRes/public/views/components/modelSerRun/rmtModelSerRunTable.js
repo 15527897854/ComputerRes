@@ -53,20 +53,20 @@ var RmtModelSerRunTable = React.createClass({
                                 "bAutoWidth": true,
                                 //多语言配置
                                 "oLanguage": {
-                                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                                    "sInfoEmtpy": "找不到相关数据",
-                                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
-                                    "sProcessing": "正在加载中...",
-                                    "sSearch": "搜索",
+                                    "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
+                                    "sZeroRecords": window.LanguageConfig.TablePaging.ZeroRecords,
+                                    "sInfo": window.LanguageConfig.TablePaging.Info,
+                                    "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
+                                    "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
+                                    "sProcessing": window.LanguageConfig.TablePaging.Processing,
+                                    "sSearch": window.LanguageConfig.TablePaging.Search,
                                     //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
                                     "sUrl": "",
                                     "oPaginate": {
-                                        "sFirst":    "第一页",
-                                        "sPrevious": " 上一页 ",
-                                        "sNext":     " 下一页 ",
-                                        "sLast":     " 最后一页 "
+                                        "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
+                                        "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
+                                        "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
+                                        "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
                                     }
                                 }
                             }
@@ -95,7 +95,7 @@ var RmtModelSerRunTable = React.createClass({
         if(this.state.loading)
         {
             return (
-                <span>加载中...</span>
+                <span>Loading...</span>
             );
         }
         if(this.state.err)
@@ -115,15 +115,15 @@ var RmtModelSerRunTable = React.createClass({
                     var status = '';
                     if(item.msr_status == 0)
                     {
-                        status = '未完成';
+                        status = window.LanguageConfig.ModelServiceRecord.Unfinished;
                     }
                     if(item.msr_status == -1)
                     {
-                        status = '出现异常';
+                        status = window.LanguageConfig.ModelServiceRecord.Error;
                     }
                     if(item.msr_status == 1)
                     {
-                        status = '已完成';
+                        status = window.LanguageConfig.ModelServiceRecord.Finished;
                     }
                     return (
                         <tr key={host.host + item._id}>
@@ -134,7 +134,7 @@ var RmtModelSerRunTable = React.createClass({
                             <td>{status}</td>
                             <td>
                                 <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
-                            { this.openModelSerRunInfoHandle(e, host.host, item._id ) } }  ><i className="fa fa-book"></i>详情</button>&nbsp;
+                            { this.openModelSerRunInfoHandle(e, host.host, item._id ) } }  ><i className="fa fa-book"></i>{window.LanguageConfig.ModelServiceRecord.Detail}</button>&nbsp;
                             </td>
                         </tr>
                     );
@@ -147,15 +147,15 @@ var RmtModelSerRunTable = React.createClass({
                 var status = '';
                 if(item.msr_status == 0)
                 {
-                    status = '未完成';
+                    status = window.LanguageConfig.ModelServiceRecord.Unfinished;
                 }
                 if(item.msr_status == -1)
                 {
-                    status = '出现异常';
+                    status = window.LanguageConfig.ModelServiceRecord.Error;
                 }
                 if(item.msr_status == 1)
                 {
-                    status = '已完成';
+                    status = window.LanguageConfig.ModelServiceRecord.Finished;
                 }
                 return (
                     <tr key={item._id}>
@@ -166,7 +166,7 @@ var RmtModelSerRunTable = React.createClass({
                         <td>{status}</td>
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
-                            { this.openModelSerRunInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"></i>详情</button>&nbsp;
+                            { this.openModelSerRunInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"></i>{window.LanguageConfig.ModelServiceRecord.Detail}</button>&nbsp;
                         </td>
                     </tr>
                 );
@@ -176,12 +176,12 @@ var RmtModelSerRunTable = React.createClass({
             <table className="display table table-bordered table-striped" id="dynamic-table">
                 <thead>
                 <tr>
-                    <th>地址</th>
-                    <th>名称</th>
-                    <th>GUID</th>
-                    <th>调用时间</th>
-                    <th>状态</th>
-                    <th>操作</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Address}</th>
+                    <th>{window.LanguageConfig.ModelService.Name}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.InstanceID}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Operation}</th>
                 </tr>
                 </thead>
                 <tbody>

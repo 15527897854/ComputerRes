@@ -8,7 +8,7 @@
         }
     </style>
 
-    <title>通知</title>
+    <title><%=global.LanguageConfig.Notice.NoticeTable %></title>
     <link rel="stylesheet" href="/css/jqpagination.css" />
     <link rel="stylesheet" type="text/css" href="/js/gritter/css/jquery.gritter.css" />
     <%- include headInclude.ejs %>
@@ -42,17 +42,17 @@
 
             <div class="mail-box">
                 <aside class="mail-nav mail-nav-bg-color">
-                    <header class="header"> <h4>消息列表</h4> </header>
+                    <header class="header"> <h4><%=global.LanguageConfig.Notice.NoticeTable %></h4> </header>
                     <div class="mail-nav-body">
                         <div class="text-center">
-                            <a class="btn btn-compose" id="getbyclass" href="#" onmouseover="this.innerHTML = '查看全部'" onmouseout="this.innerHTML = '分类查看'">
-                                分类查看
+                            <a class="btn btn-compose" id="getbyclass" href="#" onmouseover="this.innerHTML = '<%=global.LanguageConfig.Notice.AllMessage %>'" onmouseout="this.innerHTML = '<%=global.LanguageConfig.Notice.Classify %>'">
+                                <%=global.LanguageConfig.Notice.Classify %>
                             </a>
                         </div>
                         <ul id="infoType" class="nav nav-pills nav-stacked mail-navigation">
-                            <li><a href="#" id="type-start-run"> <i class="fa fa-play"></i> 开始运行  <span id="startRun" class="label label-info pull-right inbox-notification"></span></a></li>
-                            <li><a href="#" id="type-stop-run"> <i class="fa fa-stop"></i> 停止运行 <span id="stopRun" class="label label-info pull-right inbox-notification"></span></a></li>
-                            <li><a href="#" id="type-del-ms"> <i class="fa fa-trash-o"></i> 删除服务 <span id="delServer" class="label label-danger pull-right inbox-notification"></span></a></li>
+                            <li><a href="#" id="type-start-run"> <i class="fa fa-play"></i> <%=global.LanguageConfig.Notice.Start %>  <span id="startRun" class="label label-info pull-right inbox-notification"></span></a></li>
+                            <li><a href="#" id="type-stop-run"> <i class="fa fa-stop"></i> <%=global.LanguageConfig.Notice.Stop %> <span id="stopRun" class="label label-info pull-right inbox-notification"></span></a></li>
+                            <li><a href="#" id="type-del-ms"> <i class="fa fa-trash-o"></i> <%=global.LanguageConfig.Notice.Delete %> <span id="delServer" class="label label-danger pull-right inbox-notification"></span></a></li>
                         </ul>
                     </div>
                 </aside>
@@ -73,18 +73,18 @@
 
                             <div class="btn-group select">
                                 <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle">
-                                    <span id="selectedType" style="width: 70px;" class="dropdown-label">所有</span>
+                                    <span id="selectedType" style="width: 70px;" class="dropdown-label"><%=global.LanguageConfig.Notice.AllMessage %></span>
                                     <span class="caret"></span>
                                 </button>
                                 <ul id="typeUL" class="dropdown-menu text-left text-sm">
-                                    <li><a href="#">所有</a></li>
-                                    <li><a href="#">未读</a></li>
-                                    <li><a href="#">已读</a></li>
+                                    <li><a href="#"><%=global.LanguageConfig.Notice.AllMessage %></a></li>
+                                    <li><a href="#"><%=global.LanguageConfig.Notice.AllReadMessage %></a></li>
+                                    <li><a href="#"><%=global.LanguageConfig.Notice.AllUnreadMessage %></a></li>
                                 </ul>
                             </div>
 
                             <div class="btn-group">
-                                <button id="btn-HasReaded" class="btn btn-sm btn-primary"><i class="fa fa-check"></i>&nbsp&nbsp全部标为已读</button>
+                                <button id="btn-HasReaded" class="btn btn-sm btn-primary"><i class="fa fa-check"></i>&nbsp;&nbsp;<%=global.LanguageConfig.Notice.MarkAllRead %></button>
                             </div>
                         </div>
 

@@ -1,5 +1,6 @@
 
 <script src="/js/jquery-1.10.2.min.js"></script>
+<script src="/js/jquery.cookies.js"></script>
 
 <script id="nav-news-li" type="text/html">
     <li class="new">
@@ -29,13 +30,13 @@
                     <span id="newsNum" class="badge"></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-head pull-right">
-                    <h5 class="title"><%=global.configLanguage.Heading.Notice %></h5>
+                    <h5 class="title"><%=global.LanguageConfig.Heading.Notice %></h5>
                     <ul id="nav-news-ul" class="dropdown-list normal-list"></ul>
                 </div>
             </li>
             <li>
                 <a href="#"  class="btn btn-default dropdown-toggle info-number" data-toggle="dropdown">
-                    <%=global.configLanguage.SelectButton %>
+                    <%=global.LanguageConfig.SelectButton %>
                     <span id="newsNum" class="badge"></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-head pull-right">
@@ -50,9 +51,9 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-usermenu pull-right">
-                    <li><a href="/admininfo"><i class="fa fa-user"></i>信息</a></li>
-                    <li><a href="/setting"><i class="fa fa-cog"></i>设置</a></li>
-                    <li><a href="/login"><i class="fa fa-sign-out"></i>登出</a></li>
+                    <li><a href="/admininfo"><i class="fa fa-user"></i><%=global.LanguageConfig.Navigation.User.Info %></a></li>
+                    <li><a href="/setting"><i class="fa fa-cog"></i><%=global.LanguageConfig.Navigation.User.Settings %></a></li>
+                    <li><a href="/login"><i class="fa fa-sign-out"></i><%=global.LanguageConfig.Navigation.User.SignOut %></a></li>
                 </ul>
             </li>
         </ul>
@@ -64,13 +65,13 @@
 
 <script type="text/javascript">
     function setLanguage(language){
-        setCookie('language', language);
-        $.ajax({
-            url : '/languages',
+        $.ajax({ 
+            url : '/languages?language=' + language,
             method : 'PUT',
             success : function(data){
-                
-            }
+                setCookie('language', language);
+                window.location.reload();
+            }.bind(this)
         });
     }
 

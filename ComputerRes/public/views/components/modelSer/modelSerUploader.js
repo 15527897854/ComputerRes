@@ -8,6 +8,7 @@ var Axios = require('axios');
 var ModelItemSelect = require('./modelItemSelect');
 var PortalInfo = require('../systemSetting/portalInfo');
 var NoteDialog = require('../../action/utils/noteDialog');
+var ModelSerFlowSelect = require('./modelSerFlowSelect')
 
 var ModelSerUploader = React.createClass({
     getInitialState : function () {
@@ -35,7 +36,7 @@ var ModelSerUploader = React.createClass({
                 Axios.get('/modelser/' + this.props['data-msid'] + '?ac=upload&' + formData).then(
                     data => {
                         if(data.data.result == 'suc'){
-                            NoteDialog.openNoteDia('模型注册成功！','模型包 ' + $('#pkg_name').val() + ' 上传成功！');
+                            NoteDialog.openNoteDia('模型注册成功！','模型 ' + $('#pkg_name').val() + ' 注册成功！');
                             setTimeout(function(){
                                 window.location.href = '/modelser/all';
                             }, 3000);
@@ -137,9 +138,9 @@ var ModelSerUploader = React.createClass({
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <label className="col-md-2 col-sm-2 control-label">上传部署包</label>
+                                        <label className="col-md-2 col-sm-2 control-label">选择框图模型</label>
                                         <div className="col-lg-10">
-                                            <input name="mupload" className="checkbox-inline" id="mupload" type="checkbox" />
+                                            <ModelSerFlowSelect />
                                         </div>
                                     </div>
                                     <div className="form-group">

@@ -2,6 +2,7 @@
  * Created by Franklin on 2017/7/1.
  */
 var fs = require('fs');
+var SystemSettingModel = require('../model/systemSetting');
 
 var LanguageCtrl = function (){}
 
@@ -44,14 +45,54 @@ LanguageCtrl.updateLanguage = function(file, callback){
     try{
         var path = __dirname + '/../public/languages/';
         var path = path + file;
-        configLanguage = fs.readFileSync(path);
+        var configLanguage = fs.readFileSync(path);
         configLanguage = JSON.parse(configLanguage);
-        global.configLanguage = configLanguage;
+        // global.configLanguage = configLanguage;
+        global.LanguageConfig = configLanguage;
         return callback(null, true);
     }
     catch(ex){
-        return callback(err);
+        return callback(ex);
     }
 }
+
+LanguageCtrl.getCurrentSetting = function(callback){
+    SystemSettingModel.getValueByIndex('language', function(err, ss){
+        if(err){
+            return callback(err);
+        }
+        if(ss){
+            return callback(null, ss.ss_value);
+        }
+        return callback(null, null);
+    });
+};
+
+LanguageCtrl.setCurrentSetting = function(language, callback){
+    var ss = {
+        ss_index : "language",
+        ss_value : language
+    }
+    SystemSettingModel.setValueByIndex(ss, function(err, result){
+        if(err){
+            return callback(err);
+        }
+        if(result.n == 1){
+            LanguageCtrl.updateLanguage(language, function(err, retult){
+                if(err){
+                    return callback(err);
+                }
+                return callback(null, result);
+            });
+        }
+        return callback(null, result);
+    });
+};
+
+LanguageCtrl.init = function(){
+    LanguageCtrl.getCurrentSetting(function(err, file){
+        
+    });
+};
 
 module.exports = LanguageCtrl;

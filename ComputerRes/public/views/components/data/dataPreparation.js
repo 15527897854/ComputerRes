@@ -98,14 +98,14 @@ var DataPreparation = React.createClass({
             {
                 return (
                     <p id={ 'data_pre_p_' + stateId + '_' + eventName }>
-                        <strong>数据准备情况&nbsp;:&nbsp;</strong><span className="label label-success">已准备</span>&nbsp;&nbsp;
+                        <strong>{window.LanguageConfig.InputData.Event.Ready}&nbsp;:&nbsp;</strong><span className="label label-success">{window.LanguageConfig.InputData.Event.DataReady}</span>&nbsp;&nbsp;
                         { this.state.allInputData[i].DataId }&nbsp;&nbsp;
-                        <button className="btn btn-danger btn-xs" onClick={(e) => { this.onRemoveData(e, stateId, eventName) }} >移除</button>
+                        <button className="btn btn-danger btn-xs" onClick={(e) => { this.onRemoveData(e, stateId, eventName) }} >{window.LanguageConfig.InputData.Event.DataRemove}</button>
                     </p>
                 );
             }
         }
-        return (<p id={ 'data_pre_p_' + stateId + '_' + eventName }><strong>数据准备情况&nbsp;:&nbsp;</strong><span className="label label-warning">未准备</span></p>);
+        return (<p id={ 'data_pre_p_' + stateId + '_' + eventName }><strong>{window.LanguageConfig.InputData.Event.Ready}&nbsp;:&nbsp;</strong><span className="label label-warning">{window.LanguageConfig.InputData.Event.DataNoReady}</span></p>);
     },
 
     checkGeoData : function(){
@@ -113,7 +113,7 @@ var DataPreparation = React.createClass({
             if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 ){
                 return {
                     result : 'fail',
-                    message : '数据未完全准备!'
+                    message : window.LanguageConfig.InputData.Event.DataNoReadyMessage
                 };
             }
             else{
@@ -145,7 +145,7 @@ var DataPreparation = React.createClass({
     render : function(){
         if(this.state.loading)
         {
-            return (<span>加载中...</span>);
+            return (<span>Loading...</span>);
         }
         var states = this.state.states.map(function(State){
             var mark = true;
@@ -180,7 +180,7 @@ var DataPreparation = React.createClass({
                     <div className="checkbox">
                         <label>
                             <input id={ 'dataDestroyed_' + State.$.id + '_' + Event.$.name} type="checkbox" value="" />
-                            使用后销毁
+                            {window.LanguageConfig.InputData.Event.Destoryed}
                         </label>
                     </div>
                 );    
@@ -195,15 +195,15 @@ var DataPreparation = React.createClass({
                                                 onFinish={ (gdid) => { this.onDataReady(State.$.id, Event.$.name, gdid) } } />);
                     dataReady = this.getDataState(State.$.id, Event.$.name);
                     if(Event.$.optional == '1'){
-                        optional = (<h4 style={{color : '#9AD717' }}><strong>可选参数</strong></h4>);
+                        optional = (<h4 style={{color : '#9AD717' }}><strong>{window.LanguageConfig.InputData.Event.Control}</strong></h4>);
                     }
                     else{
-                        optional = (<h4 style={{color : '#9AD717' }}><strong>必选参数</strong></h4>);
+                        optional = (<h4 style={{color : '#9AD717' }}><strong>{window.LanguageConfig.InputData.Event.Required}</strong></h4>);
                     }
                 }
                 else if(Event.$.type == 'noresponse'){
-                    optional = (<h4 style={{color : '#9AD717' }}><strong>输出参数</strong></h4>);
-                    dataReady = (<p><strong>结果数据标签:</strong></p>);
+                    optional = (<h4 style={{color : '#9AD717' }}><strong>{window.LanguageConfig.InputData.Event.Response}</strong></h4>);
+                    dataReady = (<p><strong>{window.LanguageConfig.InputData.Event.ResponseDataTag}:</strong></p>);
                     dataSelect = (<input id={'dataTag_' + State.$.id + '_' + Event.$.name } className="form-control" type="text" />);
                 }
                 var udxDec = null;
@@ -213,9 +213,9 @@ var DataPreparation = React.createClass({
                 return (
                     <div key={'body' + State.$.id + '_' + Event.$.name} className={ 'tab-pane ' + tag } id={State.$.id + '_' + Event.$.name}>
                         {optional}
-                        <p><strong>类型：</strong>{Event.$.type}</p>
-                        <p><strong>描述：</strong>{Event.$.description}</p>
-                        <p><strong>数据参考：</strong>{udxDec}</p>
+                        <p><strong>{window.LanguageConfig.InputData.Event.Type} : </strong>{Event.$.type}</p>
+                        <p><strong>{window.LanguageConfig.InputData.Event.Description} : </strong>{Event.$.description}</p>
+                        <p><strong>{window.LanguageConfig.InputData.Event.DataReference} : </strong>{udxDec}</p>
                         {dataReady}
                         {dataSelect}
                         {dataDestoryed}
@@ -225,13 +225,13 @@ var DataPreparation = React.createClass({
 
             return(
                 <div key={State.$.id} className="panel-body">
-                    <h4 style={{color : '#9ad717'}}><strong>状态信息</strong></h4>
-                    <p><strong>名称&nbsp;:&nbsp;</strong>{State.$.name}</p>
-                    <p><strong>ID&nbsp;:&nbsp;</strong>{State.$.id}</p>
-                    <p><strong>描述&nbsp;:&nbsp;</strong>{State.$.description}</p>
-                    <p><strong>类型&nbsp;:&nbsp;</strong>{State.$.type}</p>
+                    <h4 style={{color : '#9ad717'}}><strong>{window.LanguageConfig.InputData.State.Title}</strong></h4>
+                    <p><strong>{window.LanguageConfig.InputData.State.Name}&nbsp;:&nbsp;</strong>{State.$.name}</p>
+                    <p><strong>{window.LanguageConfig.InputData.State.ID}&nbsp;:&nbsp;</strong>{State.$.id}</p>
+                    <p><strong>{window.LanguageConfig.InputData.State.Description}&nbsp;:&nbsp;</strong>{State.$.description}</p>
+                    <p><strong>{window.LanguageConfig.InputData.State.Type}&nbsp;:&nbsp;</strong>{State.$.type}</p>
                     <br />
-                    <h4><strong>事件</strong></h4>
+                    <h4><strong>{window.LanguageConfig.InputData.Event.Title}</strong></h4>
                     <section className="panel">
                         <header className="panel-heading custom-tab ">
                             <ul className="nav nav-tabs">

@@ -1,6 +1,6 @@
-var CommonMethod = require('./utils/commonMethod');
-var uuid = require('node-uuid');
-var ModelSerAccessCtrl = require('./control/modelSerAccessControl');
+// var CommonMethod = require('./utils/commonMethod');
+// var uuid = require('node-uuid');
+// var ModelSerAccessCtrl = require('./control/modelSerAccessControl');
 
 // var path = uuid.v1();
 // var token = {
@@ -26,3 +26,21 @@ var ModelSerAccessCtrl = require('./control/modelSerAccessControl');
 // var tokenJson = CommonMethod.decrypto(token, '222.192.7.75');
 
 // console.log(tokenJson);
+
+
+var ModelServiceModel = require('./model/modelService');
+
+var pending = (function(index){
+    return function(err, data){
+        if(err){
+            return console.log(JSON.stringify(err));
+        }
+        else{
+            console.log('完成第' + index + '次查询!');
+        }
+    }
+});
+
+for(var i = 0; i < 30000; i++){
+    ModelServiceModel.getAll('ALL', pending(i));
+}

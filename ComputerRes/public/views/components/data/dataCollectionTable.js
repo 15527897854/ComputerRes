@@ -50,20 +50,20 @@ var DataCollectionTable = React.createClass({
                                 "bAutoWidth": true,
                                 //多语言配置
                                 "oLanguage": {
-                                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                                    "sInfoEmtpy": "找不到相关数据",
-                                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
-                                    "sProcessing": "正在加载中...",
-                                    "sSearch": "搜索",
+                                    "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
+                                    "sZeroRecords": window.LanguageConfig.TablePaging.ZeroRecords,
+                                    "sInfo": window.LanguageConfig.TablePaging.Info,
+                                    "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
+                                    "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
+                                    "sProcessing": window.LanguageConfig.TablePaging.Processing,
+                                    "sSearch": window.LanguageConfig.TablePaging.Search,
                                     //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
                                     "sUrl": "",
                                     "oPaginate": {
-                                        "sFirst":    "第一页",
-                                        "sPrevious": " 上一页 ",
-                                        "sNext":     " 下一页 ",
-                                        "sLast":     " 最后一页 "
+                                        "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
+                                        "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
+                                        "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
+                                        "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
                                     }
                                 }
                             }
@@ -87,12 +87,12 @@ var DataCollectionTable = React.createClass({
     },
 
     deleteData : function(e, gdid, gdtag){
-        if(confirm('确认删除此数据 - ' + gdid + ' - ' + gdtag))
+        if(confirm(window.LanguageConfig.DataTable.DeleteConfirm + ' - ' + gdid + ' - ' + gdtag))
         {
             Axios.delete('/geodata/' + gdid).then(
                 data => {
                     if(data.data.result == 'suc'){
-                        alert('删除成功！');
+                        alert(window.LanguageConfig.DataTable.DeleteFinished);
                         this.refresh();
                     } },
                 err => {  }
@@ -399,7 +399,7 @@ var DataCollectionTable = React.createClass({
         if(this.state.loading)
         {
             return (
-                <span>加载中...</span>
+                <span>Loading...</span>
             );
         }
         if(this.state.err)
@@ -412,11 +412,11 @@ var DataCollectionTable = React.createClass({
             var format = null;
             if(item.gd_type == 'FILE')
             {
-                format = (<span className="label label-info" ><i className="fa fa-file"></i> 文件</span>);
+                format = (<span className="label label-info" ><i className="fa fa-file"></i> {window.LanguageConfig.DataTable.File}</span>);
             }
             else if(item.gd_type == 'STREAM')
             {
-                format = (<span className="label label-info" ><i className="fa fa-ellipsis-v"></i> 数据流</span>);
+                format = (<span className="label label-info" ><i className="fa fa-ellipsis-v"></i> {window.LanguageConfig.DataTable.Stream}</span>);
             }
             return(
                 <tr key={item.gd_id}>
@@ -425,9 +425,9 @@ var DataCollectionTable = React.createClass({
                     <td>{item.gd_datetime}</td>
                     <td>{item.gd_tag}</td>
                     <td>
-                        <button className="btn btn-info btn-xs" onClick={(e) => {this.displayData(e, item.gd_id)} } ><i className="fa fa-book"> </i> 查看</button>&nbsp;
-                        <button className="btn btn-success btn-xs btn-lg" data-toggle="modal" data-target="#myModal"  onClick={(e) => {this.dataPreview(e, item.gd_id)} } ><i className="fa fa-picture-o"> </i> 渲染</button>&nbsp;
-                        <button className="btn btn-default btn-xs" onClick={(e) => {this.downloadData(e, item.gd_id)} } ><i className="fa fa-download"> </i> 下载</button>&nbsp;
+                        <button className="btn btn-info btn-xs" onClick={(e) => {this.displayData(e, item.gd_id)} } ><i className="fa fa-book"> </i> {window.LanguageConfig.DataTable.Check}</button>&nbsp;
+                        <button className="btn btn-success btn-xs btn-lg" data-toggle="modal" data-target="#myModal"  onClick={(e) => {this.dataPreview(e, item.gd_id)} } ><i className="fa fa-picture-o"> </i> {window.LanguageConfig.DataTable.Render}</button>&nbsp;
+                        <button className="btn btn-default btn-xs" onClick={(e) => {this.downloadData(e, item.gd_id)} } ><i className="fa fa-download"> </i> {window.LanguageConfig.DataTable.Download}</button>&nbsp;
                         <button className="btn btn-warning btn-xs" onClick={(e) => {this.deleteData(e, item.gd_id, item.gd_tag)} } ><i className="fa fa-trash-o"> </i></button>
                     </td>
                 </tr>
@@ -442,11 +442,11 @@ var DataCollectionTable = React.createClass({
                 <table className="display table table-bordered table-striped" id="dataCollection-table">
                     <thead>
                         <tr>
-                            <th>数据ID</th>
-                            <th>存储方式</th>
-                            <th>生成时间</th>
-                            <th>标签</th>
-                            <th>操作</th>
+                            <th>{window.LanguageConfig.DataTable.ID}</th>
+                            <th>{window.LanguageConfig.DataTable.Storage}</th>
+                            <th>{window.LanguageConfig.DataTable.DateTime}</th>
+                            <th>{window.LanguageConfig.DataTable.Tag}</th>
+                            <th>{window.LanguageConfig.DataTable.Operation}</th>
                         </tr>
                     </thead>
                     <tbody>

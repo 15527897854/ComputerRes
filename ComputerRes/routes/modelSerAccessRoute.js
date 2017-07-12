@@ -96,7 +96,6 @@ module.exports = function(app){
                         }
                         if(ms.ms_limited == 1){
                             if(req.session.user){
-                                //TODO 判读是否有权限
                                 ModelSerAccessCtrl.authMsrID(msrid, req.session.user, req.session.pwd, function(err, result){
                                     if(err){
                                         return res.end('Error : ' + err);
@@ -458,9 +457,26 @@ module.exports = function(app){
     //获取语言配置
     app.route('/languages')
         .get(function(req, res, next){
-            languageCtrl.getAllLanguageConfig(RouteBase.returnFunction(res, 'Error in getting All language configs'));
+            var type = req.query.type;
+            if(type == 'currect'){
+                var language = global.configLanguage;
+                if(language == undefined){
+                    return res.end(JSON.stringify({
+                        result : 'fail',
+                        message : 'language configuration is null!'
+                    }));
+                }
+                return res.end(JSON.stringify({
+                    result : 'suc',
+                    data : language
+                }));
+            }
+            else{
+                languageCtrl.getAllLanguageConfig(RouteBase.returnFunction(res, 'Error in getting All language configs'));
+            }
         })
         .put(function(req, res, next){
-            languageCtrl.updateLanguage(req.cookies.language, RouteBase.returnFunction(res, 'Error in updating language'));
+            var language = req.query.language;
+            languageCtrl.setCurrentSetting(language, RouteBase.returnFunction(res, 'Error in setting language config'));
         });
 }

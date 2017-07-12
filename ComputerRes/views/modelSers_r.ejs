@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>远程模型服务浏览</title>
+    <title><%=global.LanguageConfig.ModelServiceTable.RemoteTitle %></title>
     <%- include headInclude.ejs %>
     <!--dynamic table-->
     <link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />
@@ -17,7 +17,7 @@
         <%- include nav.ejs %>
         <section class="panel">
             <header class="panel-heading">
-                远程模型服务
+                <%=global.LanguageConfig.ModelServiceTable.RemoteTitle %>
             </header>
             <div class="panel-body">
                 <div id="rmtModelSerTable" data-source="/modelser/rmt/json/all" data-type="rmt" ></div>

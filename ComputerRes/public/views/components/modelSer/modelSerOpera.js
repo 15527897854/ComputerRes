@@ -66,10 +66,10 @@ var ModelSerOpera = React.createClass({
             return (
                 <div className="btn-group btn-group-justified">
                     <a href="#" className="btn btn-default" onClick={ this.onRun } >
-                        <i className="fa fa-retweet"></i>管理员调用
+                        <i className="fa fa-retweet"></i>&nbsp;{window.LanguageConfig.ModelServiceDetail.AdminInvoking}
                     </a>
                     <a href="#" className="btn btn-danger" onClick={this.onStopped} >
-                        <i className="fa fa-stop"></i>关闭服务
+                        <i className="fa fa-stop"></i>&nbsp;{window.LanguageConfig.ModelService.Stop}
                     </a>
                 </div>
             );
@@ -78,10 +78,10 @@ var ModelSerOpera = React.createClass({
             return (
                 <div className="btn-group btn-group-justified">
                     <a href="#" className="btn btn-success" onClick={this.onStarted} >
-                        <i className="fa fa-play"></i>启动服务
+                        <i className="fa fa-play"></i>&nbsp;{window.LanguageConfig.ModelService.Start}
                     </a>
                     <a href="#" className="btn btn-warning" onClick={this.onDeleted} >
-                        <i className="fa fa-trash-o"></i>删除服务
+                        <i className="fa fa-trash-o"></i>&nbsp;{window.LanguageConfig.ModelService.Delete}
                     </a>
                 </div>
             );

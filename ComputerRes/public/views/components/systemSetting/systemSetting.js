@@ -99,20 +99,20 @@ var SystemSetting = React.createClass({
             if(this.state.data.registered == 1)
                 state = '注销';
             else if(this.state.data.registered == 0)
-                state = '注册';
+                state = window.LanguageConfig.Settings.Register;
             register = (<button className="btn btn-success btn-sm" type="button" onClick={e => {this.changeRegisterState()}}><i className="fa fa-retweet"> </i>{state}</button>)
         }
         return (
             <div className="wrapper">
-                <p><strong>当前版本&nbsp;:&nbsp;</strong><span>v{this.state.data.version}</span> </p>
-                <p><strong>计算机资源OID&nbsp;:&nbsp;</strong><span>{this.state.data.oid}</span> </p>
-                <p><strong>开放端口&nbsp;:&nbsp;</strong><span>{this.state.data.port}</span> </p>
-                <p><strong>平台&nbsp;:&nbsp;</strong><span>{platform}</span> </p>
-                <p><strong>模型信息库&nbsp;:&nbsp;</strong><span>数据库名称&nbsp;:&nbsp;{this.state.data.mongodb.name}&nbsp;服务器&nbsp;:&nbsp;{this.state.data.mongodb.host}&nbsp;端口&nbsp;:&nbsp;{this.state.data.mongodb.port}</span> </p>
-                <p><strong>UDX数据库&nbsp;:&nbsp;</strong><span>服务器&nbsp;:&nbsp;{this.state.data.redis.host}&nbsp;端口&nbsp;:&nbsp;{this.state.data.redis.port}</span> </p>
-                <p><strong>Socket&nbsp;:&nbsp;</strong><span>服务器&nbsp;:&nbsp;{this.state.data.socket.host}&nbsp;端口&nbsp;:&nbsp;{this.state.data.socket.port}</span> </p>
-                <p><strong>数据分界点&nbsp;:&nbsp;</strong><span>{this.state.data.data_size}&nbsp;byte</span> </p>
-                <p><strong>调试状态&nbsp;:&nbsp;</strong><span>{ debug }</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.Version}&nbsp;:&nbsp;</strong><span>v{this.state.data.version}</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.OID}&nbsp;:&nbsp;</strong><span>{this.state.data.oid}</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.Port}&nbsp;:&nbsp;</strong><span>{this.state.data.port}</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.Platform}&nbsp;:&nbsp;</strong><span>{platform}</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.DBTitle}&nbsp;:&nbsp;</strong><span>{window.LanguageConfig.Settings.DBName}&nbsp;:&nbsp;{this.state.data.mongodb.name}&nbsp;{window.LanguageConfig.Settings.DBHost}&nbsp;:&nbsp;{this.state.data.mongodb.host}&nbsp;{window.LanguageConfig.Settings.DBPort}端口&nbsp;:&nbsp;{this.state.data.mongodb.port}</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.UDXDBTitle}&nbsp;:&nbsp;</strong><span>{window.LanguageConfig.Settings.UDXDBHost}&nbsp;:&nbsp;{this.state.data.redis.host}&nbsp;{window.LanguageConfig.Settings.UDXDBPort}&nbsp;:&nbsp;{this.state.data.redis.port}</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.SocketTitle}&nbsp;:&nbsp;</strong><span>{window.LanguageConfig.Settings.SocketHost}&nbsp;:&nbsp;{this.state.data.socket.host}&nbsp;{window.LanguageConfig.Settings.SocketPort}&nbsp;:&nbsp;{this.state.data.socket.port}</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.Demarcation}&nbsp;:&nbsp;</strong><span>{this.state.data.data_size}&nbsp;byte</span> </p>
+                <p><strong>{window.LanguageConfig.Settings.DebugMode}&nbsp;:&nbsp;</strong><span>{ debug }</span> </p>
                 {register}
             </div>
         );

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>模型服务运行实例</title>
+    <title><%=global.LanguageConfig.ModelInstancesTable.LocalTitle %></title>
     <%- include headInclude.ejs %>
 </head>
 <body class="sticky-header">
@@ -13,18 +13,18 @@
         <%- include nav.ejs %>
         <section class="panel">
             <header class="panel-heading">
-                本地模型运行实例
+                <%=global.LanguageConfig.ModelInstancesTable.LocalTitle %>
             </header>
             <div class="panel-body">
                 <table  class="display table table-bordered table-striped" id="dynamic-table">
                     <thead>
                         <tr>
-                            <td>GUID</td>
-                            <td>名称</td>
-                            <td>版本</td>
-                            <td>启动时间</td>
-                            <td>状态</td>
-                            <td>操作</td>
+                            <td><%=global.LanguageConfig.ModelInstancesTable.ID %></td>
+                            <td><%=global.LanguageConfig.ModelInstancesTable.ModelName %></td>
+                            <td><%=global.LanguageConfig.ModelInstancesTable.Version %></td>
+                            <td><%=global.LanguageConfig.ModelInstancesTable.StartTime %></td>
+                            <td><%=global.LanguageConfig.ModelInstancesTable.Status %></td>
+                            <td><%=global.LanguageConfig.ModelInstancesTable.Operation %></td>
                         </tr>
                     </thead>
                     <tbody id="tb_data"></tbody>
@@ -52,7 +52,7 @@
                                 '<td>' + resJson[i].ms.mv_num + '</td>' +
                                 '<td>' + resJson[i].start + '</td>' +
                                 '<td>' + resJson[i].state + '</td>' +
-                                '<td><button class="btn btn-sm btn-danger" onClick="kill(\'' + resJson[i].guid + '\')">停止</button</td>' +
+                                '<td><button class="btn btn-sm btn-danger" onClick="kill(\'' + resJson[i].guid + '\')">' + window.LanguageConfig.ModelInstancesTable.Kill + '</button</td>' +
                                 '</tr>');
                     }
                 }
@@ -67,7 +67,7 @@
             success:function (data) {
                 var resJson = JSON.parse(data);
                 if(resJson.res == 'suc'){
-                    alert('成功杀死!');
+                    alert(window.LanguageConfig.ModelInstancesTable.Killed);
                 }
             }
         });

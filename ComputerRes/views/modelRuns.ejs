@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>模型运行记录</title>
+    <title><%=global.LanguageConfig.Heading.LocalModelService.Records %></title>
     <%- include headInclude.ejs %>
     <!--dynamic table-->
     <link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />
@@ -18,7 +18,7 @@
 
         <section class="panel" >
             <header class="panel-heading">
-                本地模型运行记录
+                <%=global.LanguageConfig.Heading.LocalModelService.Records %>
             </header>
             <div class="panel-body">
                 <div id="rmtModelSerRunTable" data-source="/modelserrun/json/all" ></div>

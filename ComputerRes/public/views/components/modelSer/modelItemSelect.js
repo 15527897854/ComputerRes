@@ -69,7 +69,7 @@ var ModelItemSelect = React.createClass({
             var pages = parseInt(this.state.count / 10) + 1;
             var count = 0;
 
-            var buttonText = '详情';
+            var buttonText = window.LanguageConfig.CloudModelService.Detail;
             if(this.props['data-btn-text']){
                 buttonText = this.props['data-btn-text'];
             }
@@ -77,10 +77,10 @@ var ModelItemSelect = React.createClass({
                 count ++;
                 var pulled = null;
                 if(item.pulled){
-                    pulled = (<span className="label label-success">已拉取</span>);
+                    pulled = (<span className="label label-success">{window.LanguageConfig.CloudModelService.Pulled}</span>);
                 }
                 else{
-                    pulled = (<span className="label label-default">未拉取</span>);
+                    pulled = (<span className="label label-default">{window.LanguageConfig.CloudModelService.NotPulled}</span>);
                 }
                 return (
                     <div key={item.model_id} className="highlight">
@@ -127,7 +127,7 @@ var ModelItemSelect = React.createClass({
                     <div className="col-md-4">
                         <section className="panel" >
                             <header className="panel-heading">
-                                门户模型分类
+                                {window.LanguageConfig.CloudModelService.CloudModelServiceCategory}
                             </header>
                             <ModelCategory data-source={this.props['data-source']} onSelectItem={this.getModelItems} />
                         </section>
@@ -135,7 +135,7 @@ var ModelItemSelect = React.createClass({
                     <div className="col-md-8">
                         <section className="panel" >
                             <header className="panel-heading">
-                                门户模型条目
+                                {window.LanguageConfig.CloudModelService.CloudModelServiceItems}
                             </header>
                             <div className="panel-body" >
                                 <div className="input-group m-bot15">

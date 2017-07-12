@@ -15,7 +15,11 @@ var ModelSerRunInfo = React.createClass({
 
     componentDidMount : function () {
         Axios.get(this.props.source).then(
-            data => {  },
+            data => { 
+                if(data.data.result == 'suc'){
+                    this.setState({});
+                }
+             },
             err => {  }
         );
     },

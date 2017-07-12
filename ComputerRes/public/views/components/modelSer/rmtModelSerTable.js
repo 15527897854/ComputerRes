@@ -50,20 +50,20 @@ var RmtModelSerTable = React.createClass({
                                 "bAutoWidth": true,
                                 //多语言配置
                                 "oLanguage": {
-                                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                                    "sInfoEmtpy": "找不到相关数据",
-                                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
-                                    "sProcessing": "正在加载中...",
-                                    "sSearch": "搜索",
+                                    "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
+                                    "sZeroRecords": window.LanguageConfig.TablePaging.ZeroRecords,
+                                    "sInfo": window.LanguageConfig.TablePaging.Info,
+                                    "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
+                                    "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
+                                    "sProcessing": window.LanguageConfig.TablePaging.Processing,
+                                    "sSearch": window.LanguageConfig.TablePaging.Search,
                                     //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
                                     "sUrl": "",
                                     "oPaginate": {
-                                        "sFirst":    "第一页",
-                                        "sPrevious": " 上一页 ",
-                                        "sNext":     " 下一页 ",
-                                        "sLast":     " 最后一页 "
+                                        "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
+                                        "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
+                                        "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
+                                        "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
                                     }
                                 }
                             }
@@ -176,7 +176,7 @@ var RmtModelSerTable = React.createClass({
         if(this.state.loading)
         {
             return (
-                <span>加载中...</span>
+                <span>loading...</span>
                 );
         }
         if(this.state.err)
@@ -210,13 +210,13 @@ var RmtModelSerTable = React.createClass({
                     var button2;
                     if(item.ms_status == 1)
                     {
-                        status = (<span className="badge badge-success">可用</span>);
+                        status = (<span className="badge badge-success">{window.LanguageConfig.ModelService.Avai}</span>);
                         button = (
                             <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.openModelSerProHandle(e, host.host, item._id) }} >
-                                <i className="fa fa-retweet"> </i>调用
+                                <i className="fa fa-retweet"> </i>{window.LanguageConfig.ModelService.Invoking}
                             </button>);
                         button2 = (
-                            <button className="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="停止服务"
+                            <button className="btn btn-danger btn-xs tooltips" type="button" title={window.LanguageConfig.ModelService.Stop} 
                                     onClick={(e)=>{this.stopModelSerHandle(e, host.host, item._id)}} >
                                 <i className="fa fa-stop"> </i>
                             </button>
@@ -224,15 +224,15 @@ var RmtModelSerTable = React.createClass({
                     }
                     else
                     {
-                        status = (<span className="badge badge-defult">不可用</span>);
+                        status = (<span className="badge badge-defult">{window.LanguageConfig.ModelService.Unavai}</span>);
                         button = (
-                            <button className="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="启动服务"
+                            <button className="btn btn-success btn-xs tooltips" type="button" title={window.LanguageConfig.ModelService.Start} 
                                     onClick={(e)=>{this.startModelSerHandle(e, host.host, item._id)}} >
                                 <i className="fa fa-play"> </i>
                             </button>
                         );
                         button2 = (
-                            <button className="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="删除服务"
+                            <button className="btn btn-warning btn-xs tooltips" type="button" title={window.LanguageConfig.ModelService.Delete}
                                     onClick={(e) => { this.deleteModelSerHandle(e, host.host, item._id) }} >
                                 <i className="fa fa-trash-o"> </i>
                             </button>
@@ -248,7 +248,7 @@ var RmtModelSerTable = React.createClass({
                             <td>{host.host}</td>
                             <td>
                                 <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
-                            { this.openModelSerInfoHandle(e, host.host, item._id ) } }  ><i className="fa fa-book"> </i>详情</button>&nbsp;
+                            { this.openModelSerInfoHandle(e, host.host, item._id ) } }  ><i className="fa fa-book"> </i>{window.LanguageConfig.ModelServiceTable.Detail}</button>&nbsp;
                                 {button}&nbsp;{button2}
                             </td>
                         </tr>
@@ -276,19 +276,19 @@ var RmtModelSerTable = React.createClass({
                 var button;
                 if(item.ms_status == 1)
                 {
-                    status = (<span className="badge badge-success">可用</span>);
+                    status = (<span className="badge badge-success">{window.LanguageConfig.ModelService.Avai}</span>);
                     button = (
                         <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.openModelSerProHandle(e, 'custom', item._id) }} >
-                            <i className="fa fa-retweet"> </i>调用
+                            <i className="fa fa-retweet"> </i>{window.LanguageConfig.ModelService.Invoking}
                         </button>);
                 }
                 else
                 {
-                    status = (<span className="badge badge-defult">不可用</span>);
+                    status = (<span className="badge badge-defult">{window.LanguageConfig.ModelService.Unavai}</span>);
                 }
                 var limited = null;
                 if(item.ms_limited){
-                    limited = (<span className="label label-default tooltips" title="权限模型" ><i className="fa fa-lock" ></i></span>);
+                    limited = (<span className="label label-default tooltips" title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i></span>);
                 }
                 return (
                     <tr key={item._id}>
@@ -300,7 +300,7 @@ var RmtModelSerTable = React.createClass({
                         <td>127.0.0.1</td>
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
-                            { this.openModelSerInfoHandle(e, 'custom', item._id ) } }  ><i className="fa fa-book"> </i>详情</button>&nbsp;
+                            { this.openModelSerInfoHandle(e, 'custom', item._id ) } }  ><i className="fa fa-book"> </i>{window.LanguageConfig.ModelServiceTable.Detail}</button>&nbsp;
                             {button}
                         </td>
                     </tr>
@@ -329,18 +329,18 @@ var RmtModelSerTable = React.createClass({
                 if(!item.ms_model.m_id){
                     button3 = (
                         <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.uploadModelSer(e, null, item._id) }} >
-                            <i className="fa fa-cloud-upload"> </i>注册
+                            <i className="fa fa-cloud-upload"> </i>{window.LanguageConfig.ModelServiceTable.Register}
                         </button>);
                 }
                 if(item.ms_status == 1)
                 {
-                    status = (<span className="badge badge-success">可用</span>);
+                    status = (<span className="badge badge-success">{window.LanguageConfig.ModelService.Avai}</span>);
                     button = (
                         <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.openModelSerProHandle(e, null, item._id) }} >
-                            <i className="fa fa-retweet"> </i>调用
+                            <i className="fa fa-retweet"> </i>{window.LanguageConfig.ModelService.Invoking}
                         </button>);
                     button2 = (
-                        <button className="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="停止服务"
+                        <button className="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title={window.LanguageConfig.ModelService.Stop} data-original-title={window.LanguageConfig.ModelService.Stop}
                                 onClick={(e)=>{this.stopModelSerHandle(e, null, item._id)}} >
                             <i className="fa fa-stop"> </i>
                         </button>
@@ -348,15 +348,15 @@ var RmtModelSerTable = React.createClass({
                 }
                 else
                 {
-                    status = (<span className="badge badge-defult">不可用</span>);
+                    status = (<span className="badge badge-defult">{window.LanguageConfig.ModelService.Unavai}</span>);
                     button = (
-                        <button className="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="启动服务"
+                        <button className="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title={window.LanguageConfig.ModelService.Start} data-original-title={window.LanguageConfig.ModelService.Start}
                                 onClick={(e)=>{this.startModelSerHandle(e, null, item._id)}} >
                             <i className="fa fa-play"> </i>
                         </button>
                     );
                     button2 = (
-                        <button className="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title="" data-original-title="删除服务"
+                        <button className="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title={window.LanguageConfig.ModelService.Delete} data-original-title={window.LanguageConfig.ModelService.Delete}
                                 onClick={(e) => { this.deleteModelSerHandle(e, null, item._id) }} >
                             <i className="fa fa-trash-o"> </i>
                         </button>
@@ -364,7 +364,7 @@ var RmtModelSerTable = React.createClass({
                 }
                 var limited = null;
                 if(item.ms_limited){
-                    limited = (<span className="label label-default tooltips" title="权限模型" ><i className="fa fa-lock" ></i></span>);
+                    limited = (<span className="label label-default tooltips" title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i></span>);
                 }
                 return (
                     <tr key={item._id}>
@@ -376,7 +376,7 @@ var RmtModelSerTable = React.createClass({
                         <td>127.0.0.1</td>
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
-                            { this.openModelSerInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"> </i>详情</button>&nbsp;
+                            { this.openModelSerInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"> </i>{window.LanguageConfig.ModelServiceTable.Detail}</button>&nbsp;
                             {button}&nbsp;{button2}&nbsp;{button3}
                         </td>
                     </tr>
@@ -387,13 +387,13 @@ var RmtModelSerTable = React.createClass({
             <table className="display table table-bordered table-striped" id="dynamic-table">
                 <thead>
                 <tr>
-                    <th>模型服务名称</th>
-                    <th>版本</th>
-                    <th>平台</th>
-                    <th>状态</th>
-                    <th>应用池</th>
-                    <th>地址</th>
-                    <th>操作</th>
+                    <th>{window.LanguageConfig.ModelService.Name}</th>
+                    <th>{window.LanguageConfig.ModelService.Version}</th>
+                    <th>{window.LanguageConfig.ModelService.Platform}</th>
+                    <th>{window.LanguageConfig.ModelService.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceTable.Instances}</th>
+                    <th>{window.LanguageConfig.ModelService.Address}</th>
+                    <th>{window.LanguageConfig.ModelServiceTable.Operation}</th>
                 </tr>
                 </thead>
                 <tbody>

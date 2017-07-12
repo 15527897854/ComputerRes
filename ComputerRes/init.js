@@ -29,6 +29,10 @@ var Init = function(){
             name : 'adminPwd',
             value : 'e10adc3949ba59abbe56e057f20f883e'
         },
+        {
+            name : 'language',
+            value : 'en.json'
+        },
     ];
 
     var count_fields = 0;

@@ -15,87 +15,7 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                模型服务信息
-                <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
-                 </span>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="blog-img">
-                            <% if(host == 'localhost'){ %>
-                            <% if(msr.msr_ms == null || msr.msr_ms.ms_img == null || msr.msr_ms.ms_img == ''){
-                            %><img src="/images/modelImg/default.png" alt="" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="/images/modelImg/<%=msr.msr_ms.ms_img %>" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                            }%>
-                            <% }else{ %>
-                            <% if(msr.msr_ms_img == null || msr.msr_ms.ms_img == ''){
-                            %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=msr.msr_ms.ms_img %>" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                            }%>
-                            <% } %>
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <p style="font-size: 14px; color:#aaa" >
-                            <strong>模型名称&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_model.m_name  %>
-                            <br />
-                            <strong>模型类型&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_model.m_type %>
-                            <br />
-                            <strong>版本号&nbsp;:&nbsp;</strong><%=msr.msr_ms.mv_num %>
-                            <br />
-                            <strong>所在平台&nbsp;:&nbsp;</strong><%
-                            if(msr.msr_ms.ms_platform == 1)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-windows"></i>
-                                    windows
-                                </span><%
-                            }
-                            else if(msr.msr_ms.ms_platform == 2)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-linux"></i>
-                                    linux
-                                </span><%
-                            }
-                            else
-                            {
-                            %><span class="label label-info">
-                                    未知平台
-                                </span><%
-                            }
-                            %>
-                            <br />
-                            <strong>部署时间&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_update %>
-                            <br />
-                            <strong>状态&nbsp;:&nbsp;</strong><% if(msr.msr_ms.ms_status == 1){
-                            %><span class="badge badge-success">可用</span><%
-                            }else {
-                            %><span class="badge badge-defult">不可用</span><%
-                            }%>
-                            <br />
-                            <strong>描述&nbsp;:&nbsp;</strong>
-                            <br />
-                            <%=msr.msr_ms.ms_des %>
-                        </p>
-                        <% if(msr.msr_ms.ms_model.m_url != null)
-                        {
-                        %><a style="more" href="<%=msr.msr_ms.ms_model.m_url %>" >更多信息</a><%
-                        }%>
-                        <br />
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="modelserinfo" data-source="/modelser/json/<%=msr.msr_ms._id %>" ></div>
         <div class="panel panel-info">
             <div class="panel-heading">
                 模型运行信息
@@ -212,6 +132,9 @@
 <script type="text/javascript" src="/js/chart-js/data.js"></script>
 <!--gritter通知-->
 <script type="text/javascript" src="/js/gritter/js/jquery.gritter.js"></script>
+
+<script type="text/javascript" src="/js/output/bundle.js" ></script>
+
 <script type="text/javascript">
     var snapshotReq = function (gdid) {
         var nice = $("html").niceScroll();

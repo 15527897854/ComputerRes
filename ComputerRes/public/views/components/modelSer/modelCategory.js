@@ -49,7 +49,7 @@ var ModelCategory = React.createClass({
     render : function(){
         if(this.state.loading){
             return (
-                <span>加载中...</span>
+                <span>Loading...</span>
             );
         }
         if(this.state.err) {

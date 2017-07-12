@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>模型服务器</title>
+        <title><%=global.LanguageConfig.Name %></title>
         <%- include headInclude.ejs %>
     </head>
     <body class="sticky-header">
@@ -18,7 +18,7 @@
                         <!--<div class="col-sm-12">-->
                             <section class="panel">
                                 <header class="panel-heading" style="background: #D1D5E1;border-bottom: none;opacity:0.8;">
-                                    <h3 style="margin: 0;">欢迎来到模型容器！</h3>
+                                    <h3 style="margin: 0;"><%=global.LanguageConfig.Homepage.Welcome %></h3>
                                 </header>
                                 <div class="panel-body" id="panel-body">
                                     <div id="gallery" class="media-gal">
@@ -27,7 +27,7 @@
                                                 <img class="gallery-img" src="images/gallery/modelser_all.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/modelser/all">模型一览</a>
+                                                <a href="/modelser/all"><%=global.LanguageConfig.Homepage.ModelService %></a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image2">
@@ -35,7 +35,7 @@
                                                 <img class="gallery-img" src="images/gallery/note.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/note">本地消息</a>
+                                                <a href="/note"><%=global.LanguageConfig.Homepage.Notice %></a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image3">
@@ -43,7 +43,7 @@
                                                 <img class="gallery-img" src="images/gallery/status.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/status">服务器状态</a>
+                                                <a href="/status"><%=global.LanguageConfig.Homepage.Status %></a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image4">
@@ -51,7 +51,7 @@
                                                 <img class="gallery-img" src="images/gallery/modelser_new.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="modelser/new">模型部署</a>
+                                                <a href="modelser/new"><%=global.LanguageConfig.Homepage.Deployment %></a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image5">
@@ -59,7 +59,7 @@
                                                 <img class="gallery-img" src="images/gallery/modelserrun.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/modelserrun/all">模型运行</a>
+                                                <a href="/modelserrun/all"><%=global.LanguageConfig.Homepage.ModelServiceRunningRecords %></a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image6">
@@ -67,7 +67,7 @@
                                                 <img class="gallery-img" src="images/gallery/child.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/child-node/all">远程节点</a>
+                                                <a href="/child-node/all"><%=global.LanguageConfig.Homepage.Network %></a>
                                             </div>
                                         </div>
                                     </div>
