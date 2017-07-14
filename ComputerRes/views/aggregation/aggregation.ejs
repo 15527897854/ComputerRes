@@ -3,13 +3,20 @@
 <head>
     <title>服务聚合</title>
     <%- include ../headInclude.ejs %>
+
+    <link href="/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    <link href="/css/jquery-ui-1.10.3.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/js/bootstrap-fileinput/css/fileinput.min.css"/>
     <link rel="stylesheet" type="text/css" href="/js/webix/webix.css" />
     <link rel="stylesheet" type="text/css" href="/css/aggregation/aggregation.css"/>
+
 </head>
 <body class="left-side-collapsed">
 <section>
     <%- include ../header.ejs %>
-    <div class="main-content row" style="">
+    <div id="aggreDIV" class="main-content row" style="">
 
         <div aria-hidden="true" tabIndex="-1" id='ms-cart-modal' class="modal fade">
             <div class="modal-dialog">
@@ -46,34 +53,82 @@
         </div>
 
         <div class="col-lg-9 col-md-8 col-sm-8 row" id="canvas-div">
+
             <div class="btn-toolbar" role="toolbar" id="toolbar">
-                <div class="btn-group">
-                    <button id="select-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-mouse-pointer"></i></button>
-                    <button id="link-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-code-fork"></i></button>
-                    <button id="del-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-trash"></i></button>
-                    <button id="display-toggle-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-eye-slash"></i></button>
-                    <button id="del-all-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-refresh"></i></button>
+                <div id="mode-toolbar" class="btn-group toolbar">
+                    <button id="hand-tool" type="button" class="btn btn-default" title="pan mode" data-toggle="button"><i class="fa fa-hand-rock-o"></i></button>
+                    <button id="select-tool" type="button" class="btn btn-default" title="select mode" data-toggle="button"><i class="fa fa-mouse-pointer"></i></button>
+                    <button id="edit-tool" type="button" class="btn btn-default" title="edit mode" data-toggle="button"><i class="fa fa-pencil"></i></button>
+                    <button id="display-toggle-tool" type="button" class="btn btn-default" title="toggle whether to display IO" data-toggle="button"><i class="fa fa-eye-slash"></i></button>
+                    <button id="del-all-tool" type="button" class="btn btn-default" title="drop canvas"><i class="fa fa-refresh"></i></button>
                 </div>
-                <div class="btn-group pull-right">
-                    <button id="position-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-crosshairs"></i></button>
-                    <button id="move-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-arrows"></i></button>
-                    <button id="zoomIn-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-search-plus"></i></button>
-                    <button id="zoomOut-tool" type="button" class="btn btn-default" title="" data-toggle="button"><i class="fa fa-search-minus"></i></button>
+                <div id="base-toolbar" class="btn-group toolbar">
+                    <button id="back-pos-tool" type="button" class="btn btn-default" title="back to origin"><i class="fa fa-crosshairs"></i></button>
+                    <button id="zoomIn-tool" type="button" class="btn btn-default" title="zoom in" data-toggle="button"><i class="fa fa-search-plus"></i></button>
+                    <button id="zoomOut-tool" type="button" class="btn btn-default" title="zoom out" data-toggle="button"><i class="fa fa-search-minus"></i></button>
+                </div>
+                <div id="service-toolbar" class="btn-group toolbar">
+                    <button id="link-tool" type="button" class="btn btn-default" title="new link between two node" data-toggle="button"><i class="fa fa-code-fork"></i></button>
+                    <button id="del-tool" type="button" class="btn btn-default" title="delete service" data-toggle="button"><i class="fa fa-trash"></i></button>
+                </div>
+                <div id="aggre-toolbar" class="btn-group toolbar">
+                    <button id="run-tool" type="button" class="btn btn-default" title="run aggregation task"><i class="fa fa-play"></i></button>
+                    <button id="save-tool" type="button" class="btn btn-default" title="save aggregation task"><i class="fa fa-floppy-o"></i></button>
                 </div>
             </div>
+
             <canvas  id="canvas"></canvas>
-            <ul class="list-group" id="contextMenu">
-                <li class="list-group-item"><a>upload data</a></li>
-                <li class="list-group-item"><a>set source from node</a></li>
-                <li class="list-group-item"><a>set source of node</a></li>
+
+            <!-- ContextMenu -->
+            <ul class="list-group contextMenu" id="eventContextMenu">
+                <li id="upload-data-menu" class="list-group-item"><a>upload data</a></li>
+                <li id="configure-data-menu" class="list-group-item"><a>configure data on line</a></li>
+                <li id="" class="list-group-item"><a>set source from node</a></li>
+                <li id="" class="list-group-item"><a>set source of node</a></li>
+                <!--<li id="resize-node-menu" class="list-group-item"><a>resize</a></li>-->
             </ul>
+
+            <ul class="list-group contextMenu" id="stateContextMenu">
+                <li id="del-ms-menu" class="list-group-item"><a>delete model service</a></li>
+                <li id="check-ms-menu" class="list-group-item"><a>check configuration</a></li>
+                <!--<li id="resize-node-menu" class="list-group-item"><a>resize</a></li>-->
+            </ul>
+
+        </div>
+
+        <div aria-hidden="true" tabIndex="-1" id='save-aggre-modal' class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" id="close-modal" class="close" data-dismiss="modal" aria-hidden="true">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">
+                            Save this aggregation task
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn-tt-submit btn btn-primary" disabled data-dismiss="modal">提交</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
 </section>
 <%- include ../footerInclude.ejs %>
+
+<!--<script src="/js/jquery-ui-1.10.3.min.js"></script>-->
+
 <script type="text/javascript" src="/js/webix/webix.js"></script>
 <script type="text/javascript" src="/js/jtopo/js/jtopo-0.4.8-min.js"></script>
+<script type="text/javascript" src="/js/bootstrap-fileinput/js/fileinput.js"></script>
+<script type="text/javascript" src="/js/bootstrap-fileinput/js/locales/zh.js"></script>
+
 <script type="text/javascript" src="/js/browserBundle.js"></script>
 <script src="http://localhost:2345/livereload.js"></script>
 </body>

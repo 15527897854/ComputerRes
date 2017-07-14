@@ -1,7 +1,9 @@
 /**
  * Created by SCR on 2017/7/9.
  */
-var Promise = require('bluebird');
+/*jshint esversion: 6 */
+
+// var Promise = require('bluebird');
 var CanvasJS = require('./CanvasJS');
 
 var MSAggreJS = (function () {
@@ -127,8 +129,21 @@ var MSAggreJS = (function () {
                         else
                             $('#ms-cart-modal .btn-tt-submit').attr('disabled',false);
                     },
-                    'onSelectChange': function (ids) {
-                        this.checkItem(ids[0]);
+                    'onItemClick': function (id) {
+                        var hasChecked = false;
+                        var checked = this.getChecked();
+                        for(var i=0;i<checked.length;i++){
+                            if(checked[i] == id){
+                                hasChecked = true;
+                                break;
+                            }
+                        }
+                        if(!hasChecked){
+                            this.checkItem(id);
+                        }
+                        else{
+                            this.uncheckItem(id);
+                        }
                     }
                 }
             });
@@ -144,7 +159,9 @@ var MSAggreJS = (function () {
                     });
                 }
                 __getServiceDetail(mss, (err,mss)=> {
-                    this.buildMSDetailAccordion(mss)
+                    if(err)
+                        throw err;
+                    this.buildMSDetailAccordion(mss);
                 });
             });
             return cb(null,webixTree);
@@ -169,8 +186,8 @@ var MSAggreJS = (function () {
                 }
                 else{
                     accoData.push({
-                        header:msList[i].SADLService.ms_model.m_name,
-                        body:'<pre>'+JSON.stringify(msList[i].SADLService.states,null,4)+'</pre>',
+                        header:msList[i].SADLService.MS.ms_model.m_name,
+                        body:'<pre>'+JSON.stringify(msList[i].SADLService.MDL,null,4)+'</pre>',
                         collapsed:true,
                         scroll:'xy',
                         width:$('#webix-AggreMS-list').width(),
@@ -202,8 +219,7 @@ var MSAggreJS = (function () {
             var dnd = __Dnd();
             dnd.init();
         }
-    }
-
+    };
 })();
 
 module.exports = MSAggreJS;

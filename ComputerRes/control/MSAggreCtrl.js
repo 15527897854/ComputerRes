@@ -4,6 +4,7 @@ var remoteReqCtrl = require('./remoteReqControl');
 var modelSerCtrl = require('./modelSerControl');
 var modelBase = require('../model/modelBase');
 var sysCtrl = require('./sysControl');
+var ObjectID = require('mongodb').ObjectID;
 
 var MSAggreCtrl = (function () {
     //获取所有门户的ms
@@ -69,19 +70,24 @@ var MSAggreCtrl = (function () {
         })
     };
 
-    //将数据库中存储的ms转换为集成时需要的service结构,包括state、host、port
+    //将数据库中存储的ms转换为集成时需要的service结构,包括MDL、host、port
     var __getSADLService = function (ms, cb) {
         var url = 'http://'+ms.host+':'+ms.port+'/aggregation/SADL/getMSDetail';
         var form = {
             _id : ms._id
         };
         remoteReqCtrl.getByServer(url,form,function (err, res) {
-            if(err) return cb(err,ms);
-            if(res.error) return cb(res.error,ms);
+            // res:{
+            //     MS:Object,
+            //     MDL:Object
+            // }
+            if(err) return cb(err);
             res = JSON.parse(res);
-            res.ms.host = ms.host;
-            res.ms.port = ms.port;
-            return cb(null,res.ms);
+            if(res.error) return cb(res.error);
+            res.MSDetail.host = ms.host;
+            res.MSDetail.port = ms.port;
+            res.MSDetail._id = res.MSDetail.MS._id;
+            return cb(null,res.MSDetail);
         })
     };
 
@@ -122,32 +128,6 @@ var MSAggreCtrl = (function () {
             for(var i=0;i<mss.length;i++){
                 __getSADLService(mss[i],pending());
             }
-        },
-
-        //获取单个ms的详细信息，包括states
-        getMSDetail:function (_id, cb) {
-            new Promise((resolve,reject) => {
-                modelSerCtrl.getByOID(_id,function (err, ms) {
-                    if(err)
-                        return reject(err);
-                    return resolve(ms);
-                })
-            }).then((ms) => {
-                    return new Promise((resolve,reject) => {
-                        modelSerCtrl.getInputData(ms._id,function (err, states) {
-                            if(err)
-                                return reject(err);
-                            return resolve({ms:ms,states:states});
-                        })
-                    })
-                })
-                .then((rst) => {
-                    rst.ms.states = rst.states;
-                    return cb(JSON.stringify({error:null,ms:rst.ms}));
-                })
-                .catch((error) => {
-                    cb(JSON.stringify({error:error}));
-                });
         }
     };
 })();

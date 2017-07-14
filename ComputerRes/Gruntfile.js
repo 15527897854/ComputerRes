@@ -43,7 +43,8 @@ module.exports = function(grunt) {
                 ['<%=config.sources %>/**/*.js']
             ],
             options: {
-                jshintrc: true
+                jshintrc: true,
+                esversion: 6
             }
         },
 

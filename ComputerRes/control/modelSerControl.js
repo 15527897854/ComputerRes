@@ -1075,6 +1075,12 @@ ModelSerControl.readMDLByPath = function (path, callback) {
     })
 };
 
+ModelSerControl.getMSDetail = function (msid, cb) {
+    ModelSerModel.getMSDetail(msid,function (err, rst) {
+        err?cb(err):cb(null,rst);
+    })
+};
+
 ModelSerControl.parseMDLStr = function (mdlStr, callback) {
     ModelSerModel.parseMDLStr(mdlStr,function (err, json) {
         if(err){

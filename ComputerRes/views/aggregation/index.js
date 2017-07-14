@@ -1,3 +1,7 @@
+/**
+ * Created by SCR on 2017/7/9.
+ */
+/*jshint esversion: 6 */
 var MSAggreJS = require('./MSAggreJS');
 var CanvasJS = require('./CanvasJS');
 
@@ -5,13 +9,23 @@ $().ready(function () {
     CanvasJS.init();
     new Promise((resolve, reject)=> {
         MSAggreJS.getALLMS((err, mss)=> {
-            err?reject(err):resolve(mss);
+            if(err){
+                reject(err);
+            }
+            else{
+                resolve(mss);
+            }
         });
     })
         .then((mss)=> {
             return new Promise((resolve,reject)=> {
                 MSAggreJS.buildMSListModal(mss, (err, webixTree) => {
-                    err?reject(err):resolve(webixTree);
+                    if(err){
+                        reject(err);
+                    }
+                    else{
+                        resolve(webixTree);
+                    }
                 });
             });
         })

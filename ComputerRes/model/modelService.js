@@ -179,6 +179,22 @@ ModelService.readMDL = function (ms, callback) {
     }
 };
 
+ModelService.getMSDetail = function(msid, cb){
+    ModelService.getByOID(msid, function (err, ms) {
+        if (err) {
+            return cb(err);
+        }
+        ModelService.readMDL(ms,function (err, mdlJSON) {
+            if(err)
+                return cb(err);
+            return cb(null,{
+                MS:ms,
+                MDL:mdlJSON
+            });
+        })
+    });
+};
+
 ModelService.readMDLByPath = function (path, callback) {
     fs.readFile(path, function (err, data) {
         if(err)
