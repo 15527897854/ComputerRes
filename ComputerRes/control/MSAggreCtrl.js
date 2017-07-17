@@ -5,6 +5,12 @@ var modelSerCtrl = require('./modelSerControl');
 var modelBase = require('../model/modelBase');
 var sysCtrl = require('./sysControl');
 var ObjectID = require('mongodb').ObjectID;
+var AggreTaskModel = require('../model/aggreTask');
+var AggreSolutionModel = require('../model/aggreSolution');
+var ControlBase = require('./controlBase');
+var CommonMethod = require('../utils/commonMethod');
+
+var xmlBuilder = require('xml2js').Builder();
 
 var MSAggreCtrl = (function () {
     //获取所有门户的ms
@@ -84,9 +90,15 @@ var MSAggreCtrl = (function () {
             if(err) return cb(err);
             res = JSON.parse(res);
             if(res.error) return cb(res.error);
+            var MDL = res.MSDetail.MDL;
+            var strMDL = JSON.stringify(MDL);
+            strMDL = strMDL.replace(/\"\$\"/g,'"_$"');
+            MDL = JSON.parse(strMDL);
+
+            res.MSDetail.MDL = MDL;
             res.MSDetail.host = ms.host;
             res.MSDetail.port = ms.port;
-            res.MSDetail._id = res.MSDetail.MS._id;
+            // res.MSDetail._id = res.MSDetail.MS._id;
             return cb(null,res.MSDetail);
         })
     };
@@ -128,6 +140,90 @@ var MSAggreCtrl = (function () {
             for(var i=0;i<mss.length;i++){
                 __getSADLService(mss[i],pending());
             }
+        },
+
+        addAggreTask: function (task, cb) {
+            //! TODO json和xml的互转
+            // var serviceList = aggreCfg.serviceList;
+            // for(var i=0;i<serviceList.length;i++){
+            //     serviceList[i].MDL = xmlBuilder.buildObject(serviceList[i].MDL);
+            // }
+
+            AggreTaskModel.save(task, function (err, rst) {
+                if(err){
+                    return cb(err);
+                }
+                else{
+                    return cb(null,rst._doc._id);
+                }
+            })
+        },
+
+        saveAggreSolution: function (solution, cb) {
+            solution.time = new Date().getTime();
+            var solutionID = solution._id;
+            if(solutionID && solutionID != undefined){
+                AggreSolutionModel.update(solution,function (err,rst) {
+                    if(err){
+                        return cb(err);
+                    }
+                    else{
+                        return cb(null,solutionID);
+                    }
+                })
+            }
+            else{
+                AggreSolutionModel.save(solution,function (err, rst) {
+                    if(err){
+                        return cb(err);
+                    }
+                    else {
+                        return cb(null,rst._doc._id);
+                    }
+                })
+            }
+        },
+
+        getSolutionByID: function (_id, isComplete, cb) {
+            var where = {};
+            if(_id != 'all'){
+                where._id = _id;
+            }
+            AggreSolutionModel.getByWhere(where,function (err,solutions) {
+                if(err){
+                    return cb(err);
+                }
+                else {
+                    if(isComplete == 'true'){
+                        return cb(null,solutions);
+                    }
+                    else{
+                        var solutionsSegment = [];
+                        for(var i=0;i<solutions.length;i++){
+                            var timeStr = CommonMethod.timestamp2String(solutions[i].time);
+                            solutionsSegment.push({
+                                _id: solutions[i]._id,
+                                time: timeStr,
+                                name: solutions[i].solutionInfo.solutionName,
+                                desc: solutions[i].solutionInfo.solutionDesc,
+                                author: solutions[i].solutionInfo.solutionAuthor
+                            });
+                        }
+                        return cb(null,solutionsSegment);
+                    }
+                }
+            })
+        },
+
+        delSolutionByID: function (_id, cb) {
+            AggreSolutionModel.delete(_id,function (err, rst) {
+                if(err){
+                    return cb(err);
+                }
+                else{
+                    return cb(null,rst);
+                }
+            })
         }
     };
 })();

@@ -179,4 +179,14 @@ CommonMethod.createGUID = function () {
     return _p8() + _p8(true) + _p8(true) + _p8();
 };
 
+// 'yyyy-mm-dd hh:mm'
+CommonMethod.timestamp2String = function (timestamp) {
+    var date = new Date(timestamp);
+    return date.getFullYear() + '-' +
+        (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-' +
+        date.getDate() + ' ' +
+        (date.getHours() <10 ? '0' + date.getHours():date.getHours()) + ':' +
+        (date.getMinutes() < 10 ? '0' + (date.getMinutes()) : date.getMinutes());
+};
+
 module.exports = CommonMethod;

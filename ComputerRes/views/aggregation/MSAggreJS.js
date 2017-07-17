@@ -52,6 +52,7 @@ var MSAggreJS = (function () {
             }
         };
     };
+
     var __getServiceDetail = (mss, cb)=> {
         $.ajax({
             url:'/aggregation/SADL/getServices',

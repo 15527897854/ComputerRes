@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>服务聚合</title>
+    <title>Create aggregation solution</title>
     <%- include ../headInclude.ejs %>
 
     <link href="/css/jquery-ui.min.css" rel="stylesheet">
@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" type="text/css" href="/js/bootstrap-fileinput/css/fileinput.min.css"/>
     <link rel="stylesheet" type="text/css" href="/js/webix/webix.css" />
-    <link rel="stylesheet" type="text/css" href="/css/aggregation/aggregation.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/aggregation/newAggre.css"/>
 
 </head>
 <body class="left-side-collapsed">
@@ -26,7 +26,7 @@
                             &times;
                         </button>
                         <h4 class="modal-title">
-                            Add model services to aggregation task
+                            Add model services to aggregation solution
                         </h4>
                     </div>
                     <div id='ms-cart-modal-body' class="modal-body">
@@ -44,7 +44,7 @@
 
         <div class="col-lg-3 col-md-4 col-sm-4 row" id="div-AggreMS">
             <div id="div-AggreMS-header">
-                <h5 class="pull-left">Aggregation Services</h5>
+                <h5 class="pull-left">Aggregation services list</h5>
                 <button id="webix-AggreMS-list-add" class="btn btn-default pull-right" data-toggle="modal" data-target="#ms-cart-modal">
                     <i class="fa fa-plus"></i>
                 </button>
@@ -94,6 +94,12 @@
                 <!--<li id="resize-node-menu" class="list-group-item"><a>resize</a></li>-->
             </ul>
 
+            <div id="solution-info">
+                <input id="solutionID-input" style="display: none;" value="">
+                <span style="padding: 0 30px;"><span>Solution name: </span><span id="solution-name"></span></span>
+                <span><span>Author: </span><span id="solution-author"></span></span>
+            </div>
+
         </div>
 
         <div aria-hidden="true" tabIndex="-1" id='save-aggre-modal' class="modal fade">
@@ -104,16 +110,50 @@
                             &times;
                         </button>
                         <h4 class="modal-title">
-                            Save this aggregation task
+                            Save this aggregation solution
                         </h4>
                     </div>
                     <div class="modal-body">
-
+                        <form id="save-aggre-form" class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label for="solutionName" class="col-sm-2 control-label">Solution Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="solutionName"
+                                           placeholder="solution name" name="solutionName" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="desc" class="col-sm-2 control-label">Description</label>
+                                <div class="col-sm-10">
+                                    <textarea type="text" class="form-control" id="desc"
+                                              placeholder="input the description of the solution" roles="3" name="solutionDesc" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="author" class="col-sm-2 control-label">Author</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="author"
+                                           placeholder="please input your name" name="solutionAuthor" required>
+                                </div>
+                            </div>
+                            <div id="loading-div" style="display: none;text-align: center;">
+                                <i class="fa fa-spinner fa-spin fa-3x fa-fw" aria-hidden="true" style="margin: 2px auto;"></i>
+                            </div>
+                            <hr>
+                            <div class="form-group" style="">
+                                <div class="col-sm-offset-2 col-sm-4">
+                                    <button type="submit" class="btn btn-primary" id="submit-form-btn">Save</button>
+                                </div>
+                                <div class="col-sm-offset-2 col-sm-4">
+                                    <button type="button" class="btn btn-default" id="cancle-form-btn" data-dismiss="modal">Cancle</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        <button type="button" class="btn-tt-submit btn btn-primary" disabled data-dismiss="modal">提交</button>
-                    </div>
+                    <!--<div class="modal-footer">-->
+                        <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+                        <!--<button type="button" class="btn-tt-submit btn btn-primary" id="save-aggre-btn">Save</button>-->
+                    <!--</div>-->
                 </div>
             </div>
         </div>
@@ -124,8 +164,9 @@
 
 <!--<script src="/js/jquery-ui-1.10.3.min.js"></script>-->
 
+<script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="/js/webix/webix.js"></script>
-<script type="text/javascript" src="/js/jtopo/js/jtopo-0.4.8-min.js"></script>
+<script type="text/javascript" src="/js/jtopo/js/jtopo-0.4.8.js"></script>
 <script type="text/javascript" src="/js/bootstrap-fileinput/js/fileinput.js"></script>
 <script type="text/javascript" src="/js/bootstrap-fileinput/js/locales/zh.js"></script>
 

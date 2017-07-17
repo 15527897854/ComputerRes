@@ -76,12 +76,10 @@ module.exports = function(grunt) {
                     watch: true
                 },
                 files: {
-                    '<%= config.public %>/js/browserBundle.js': [ '<%= config.sources %>/**/*.js' ]
-                }
-            },
-            app: {
-                files: {
-                    '<%= config.public %>/js/browserBundle.js': [ '<%= config.sources %>/**/*.js' ]
+                    '<%= config.public %>/js/browserBundle.js': [
+                        '<%= config.sources %>/**/*.js',
+                        resolvePath('bson','lib/bson/objectid')
+                    ]
                 }
             }
         },

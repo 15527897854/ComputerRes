@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%=solutionName %></title>
+    <%- include ../headInclude.ejs %>
+
+    <link href="/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    <link href="/css/jquery-ui-1.10.3.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/js/bootstrap-fileinput/css/fileinput.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/js/webix/webix.css" />
+    <link rel="stylesheet" type="text/css" href="/css/aggregation/newAggre.css"/>
+
+</head>
+<body class="left-side-collapsed">
+<section>
+    <%- include ../header.ejs %>
+    <div id="aggreDIV" class="main-content row" style="">
+
+        <div class="col-lg-12 col-md-12 col-sm-12 row" id="canvas-div">
+
+            <div class="btn-toolbar" role="toolbar" id="toolbar">
+                <div id="mode-toolbar" class="btn-group toolbar">
+                    <button id="hand-tool" type="button" class="btn btn-default view-mode-tool" title="pan mode" data-toggle="button"><i class="fa fa-hand-rock-o"></i></button>
+                    <button id="select-tool" type="button" class="btn btn-default view-mode-tool" title="select mode" data-toggle="button"><i class="fa fa-mouse-pointer"></i></button>
+                    <button id="edit-tool" type="button" class="btn btn-default edit-mode-tool" title="edit mode" data-toggle="button"><i class="fa fa-pencil"></i></button>
+                    <button id="display-toggle-tool" type="button" class="btn btn-default view-mode-tool" title="toggle whether to display IO" data-toggle="button"><i class="fa fa-eye-slash"></i></button>
+                    <button id="del-all-tool" type="button" class="btn btn-default edit-mode-tool" title="drop canvas"><i class="fa fa-refresh"></i></button>
+                </div>
+                <div id="base-toolbar" class="btn-group toolbar">
+                    <button id="back-pos-tool" type="button" class="btn btn-default view-mode-tool" title="back to origin"><i class="fa fa-crosshairs"></i></button>
+                    <button id="zoomIn-tool" type="button" class="btn btn-default view-mode-tool" title="zoom in" data-toggle="button"><i class="fa fa-search-plus"></i></button>
+                    <button id="zoomOut-tool" type="button" class="btn btn-default view-mode-tool" title="zoom out" data-toggle="button"><i class="fa fa-search-minus"></i></button>
+                </div>
+                <div id="service-toolbar" class="btn-group toolbar">
+                    <button id="link-tool" type="button" class="btn btn-default edit-mode-tool" title="new link between two node" data-toggle="button"><i class="fa fa-code-fork"></i></button>
+                    <button id="del-tool" type="button" class="btn btn-default edit-mode-tool" title="delete service" data-toggle="button"><i class="fa fa-trash"></i></button>
+                </div>
+                <div id="aggre-toolbar" class="btn-group toolbar">
+                    <button id="run-tool" type="button" class="btn btn-default run-mode-tool" title="run aggregation task"><i class="fa fa-play"></i></button>
+                    <button id="save-tool" type="button" class="btn btn-default edit-mode-tool" title="save aggregation task"><i class="fa fa-floppy-o"></i></button>
+                </div>
+            </div>
+
+            <canvas  id="canvas"></canvas>
+
+            <!-- ContextMenu -->
+            <ul class="list-group contextMenu" id="eventContextMenu">
+                <li id="upload-data-menu" class="list-group-item"><a>upload data</a></li>
+                <li id="configure-data-menu" class="list-group-item"><a>configure data on line</a></li>
+                <li id="" class="list-group-item"><a>set source from node</a></li>
+                <li id="" class="list-group-item"><a>set source of node</a></li>
+                <!--<li id="resize-node-menu" class="list-group-item"><a>resize</a></li>-->
+            </ul>
+
+            <ul class="list-group contextMenu" id="stateContextMenu">
+                <li id="del-ms-menu" class="list-group-item"><a>delete model service</a></li>
+                <li id="check-ms-menu" class="list-group-item"><a>check configuration</a></li>
+                <!--<li id="resize-node-menu" class="list-group-item"><a>resize</a></li>-->
+            </ul>
+
+            <div id="solution-info">
+                <input id="solutionID-input" style="display: none;" value="">
+                <span style="padding: 0 30px;"><span>Solution name: </span><span id="solution-name"></span></span>
+                <span><span>Author: </span><span id="solution-author"></span></span>
+            </div>
+
+        </div>
+
+        <p id="solution-detail" style="display: none;">'<%=solution %>'</p>
+
+    </div>
+</section>
+<%- include ../footerInclude.ejs %>
+
+<script type="text/javascript" src="/js/webix/webix.js"></script>
+<script type="text/javascript" src="/js/jtopo/js/jtopo-0.4.8.js"></script>
+<script type="text/javascript" src="/js/browserBundle.js"></script>
+<script src="http://localhost:2345/livereload.js"></script>
+
+</body>
+</html>

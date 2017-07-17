@@ -70,6 +70,17 @@ ModelBase.save = function (item, callback) {
     });
 };
 
+ModelBase.upsert = function (where, update, cb) {
+    this.baseModel.update(where,update,true,function (err, rst) {
+        if(err){
+            return cb(err);
+        }
+        else {
+            return cb(null,rst);
+        }
+    })
+};
+
 //转为webix支持的json
 ModelBase.items2TableTree = function (srcItems,callback) {
     var ItemKeyConvertor = function (srcKey,srcItem) {

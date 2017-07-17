@@ -48,6 +48,11 @@ body{
     position: fixed;
     margin:10px;
 }
+#solution-info{
+    display: none;
+    position: fixed;
+    bottom:10px;
+}
 .toolbar{
     margin-left:20px;
 }
@@ -106,4 +111,7 @@ body{
 }
 .btn .btn-default .active{
     background:#d2d2d2;
+}
+.error{
+    color:red;
 }
