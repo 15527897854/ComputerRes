@@ -8,6 +8,13 @@ var Axios = require('axios');
 var Crypto = require('../../action/utils/crypto');
 
 var LoginPanel = React.createClass({
+    componentDidMount : function(){
+        document.addEventListener('keydown', function(key){
+            if(key.keyCode == 13){
+                this.login();
+            }
+        }.bind(this));
+    },
 
     login : function(e){
         if($('#adminname').val().trim() == ''){
@@ -28,11 +35,11 @@ var LoginPanel = React.createClass({
                         window.location.href = '/index';
                     }
                     else{
-                        alert('用户名或密码错误!');
+                        alert('Username or password is wrong!');
                     }
                 }
                 else{
-                    alert('访问出错!');
+                    alert('Error!');
                 }
             },
             err => {}
@@ -42,13 +49,13 @@ var LoginPanel = React.createClass({
         return (
             <div className="container">
                 <div className="form-signin-heading text-center" >
-                    <h1 className="sign-title">模型服务容器 - 登录</h1>
+                    <h1 className="sign-title">Model Service Container - Login</h1>
                     <img src="images/login-logo.png" style={ { "paddingTop" : "100px" } } alt=""/>
                 </div>
                 <form className="form-signin" id="form" style={ { "marginTop" : "35px" ,"marginBottom" : "5px"  }}>
                     <div className="login-wrap" style={{"paddingTop" : "50px"}} >
-                        <input type="text" id="adminname" name="adminname" className="form-control" placeholder="用户名" />
-                        <input type="password" id="adminpwd" name="adminpwd" className="form-control" placeholder="密码" />
+                        <input type="text" id="adminname" name="adminname" className="form-control" placeholder="username" />
+                        <input type="password" id="adminpwd" name="adminpwd" className="form-control" placeholder="password" />
 
                         <div id="error" style={{"color" : "#DE5130", "fontSize" : "12px", "fontWeight" : "normal"}}></div>
 

@@ -21,7 +21,9 @@ var DataPreparation = React.createClass({
             states : [],
             allInputData : [],
             allOutputData : [],
-            loading : true
+            loading : true,
+            limited : 0,
+            authToken : ''
         };
     },
 
@@ -30,7 +32,7 @@ var DataPreparation = React.createClass({
             data => {
                 if(data.data.result == 'suc')
                 {
-                    this.setState({states : data.data.data, loading : false});
+                    this.setState({states : data.data.data.States, loading : false, limited : data.data.data.Limited});
                     this.state.states.map(function(State){
                         State.Event.map(function(Event){
                             if(Event.$.type == 'response'){
@@ -54,6 +56,8 @@ var DataPreparation = React.createClass({
 
                         window.allInputData = this.state.allInputData;
                         window.allOutputData = this.state.allOutputData;
+                        window.authToken = this.state.authToken;
+                        window.limited = this.state.limited;
                         window.addGeoData = this.onDataReady;
                         window.checkGeoData = this.checkGeoData;
 
@@ -146,6 +150,16 @@ var DataPreparation = React.createClass({
         if(this.state.loading)
         {
             return (<span>Loading...</span>);
+        }
+        var authPanel = null;
+        if(this.state.limited == 1){
+            authPanel = (
+                <div className="form-group">
+                    <label className="col-md-1 col-sm-1 control-label" style={{"paddingTop" : "8px"}} >Auth Token</label>
+                    <div className="col-md-6 col-sm-6">
+                        <input name="authToken" type="text" id="authToken" className="form-control"  />
+                    </div>
+                </div>);
         }
         var states = this.state.states.map(function(State){
             var mark = true;
@@ -248,6 +262,9 @@ var DataPreparation = React.createClass({
         }.bind(this));
         return (
             <div>
+                {authPanel}
+                <br />
+                <br />
                 {states}
             </div>
         );

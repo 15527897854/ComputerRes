@@ -48,3 +48,17 @@ AuthCtrl.auth = function(req, ex){
         return 1;
     }
 }
+
+AuthCtrl.authByAdmin = function(req){
+    if(setting.auth){
+        if(req.session.admin){
+            return 1;
+        }
+        else{
+            return -1;
+        }
+    }
+    else{
+        return 1;
+    }
+}

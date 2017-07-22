@@ -28,19 +28,26 @@
 // console.log(tokenJson);
 
 
-var ModelServiceModel = require('./model/modelService');
+// var ModelServiceRunModel = require('./model/modelSerRun');
 
-var pending = (function(index){
-    return function(err, data){
-        if(err){
-            return console.log(JSON.stringify(err));
-        }
-        else{
-            console.log('完成第' + index + '次查询!');
-        }
-    }
-});
+// ModelServiceRunModel.getAllStatisticInfoByDate(new Date('2017-7-17 00:00:00'), new Date('2017-7-18 00:00:00'), function(err, data){
+//     if(err){
+//         return console.log('error');
+//     }
+//     console.log(data);
+// });
 
-for(var i = 0; i < 30000; i++){
-    ModelServiceModel.getAll('ALL', pending(i));
-}
+
+// ModelServiceModel.readMDLByPath('E:/DemoData/GeoModeling/Demo.mdl', function(err, mdl){
+//     if(err){
+//         return console.log(err);
+//     }
+//     console.log('suc');
+// });
+
+// var RequestCtrl = require('./control/remoteReqControl');
+// var formData = { 'id' : '123', 'computeCollection': '123', 'collName': '123' };
+
+// RequestCtrl.postRequestJSONWithFormData('http://223.2.40.81:8080/registerDataMappingServlet?collName=123', formData, function(err, data){
+    
+// });

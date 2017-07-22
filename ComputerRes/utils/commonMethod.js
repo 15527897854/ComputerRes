@@ -33,6 +33,14 @@ CommonMethod.getDateTimeNow = function()
     return currentdate;
 };
 
+//得到延后或者提前的零点数据
+CommonMethod.getStartDate = function(offset){
+    var date = new Date();
+    date = new Date( date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' 00:00:00');
+    date.setDate(date.getDate() + offset);
+    return date;
+}
+
 //解压
 CommonMethod.Uncompress = function(zip_file, file_path, callback){
     if(settings.platform == 2){

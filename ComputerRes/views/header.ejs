@@ -40,8 +40,6 @@
                     <span><%=global.LanguageConfig.Heading.Homepage %></span>
                 </a>
             </li>
-            <li><a href="/status"><i class="fa fa-laptop"></i> <span><%=global.LanguageConfig.Heading.Status %></span></a></li>
-            <li><a href="/note"><i class="fa fa-envelope"></i> <span><%=global.LanguageConfig.Heading.Notice %></span></a></li>
             <li class="menu-list
             <% if(typeof blmodelser !== 'undefined'){%>
             nav-active
@@ -59,12 +57,11 @@
                 <a href="/modelSer/all"><i class="fa fa-rss"></i> <span><%=global.LanguageConfig.Heading.RemoteModelService.Title %></span></a>
                 <ul class="sub-menu-list">
                     <li><a href="/modelser/rmt/all"><%=global.LanguageConfig.Heading.RemoteModelService.Checking %></a></li>
-                    <li><a href="/modelins/rmt/all"><%=global.LanguageConfig.Heading.RemoteModelService.Instances %></a></li>
-                    <li><a href="/modelserrun/rmt/all"><%=global.LanguageConfig.Heading.RemoteModelService.Records %></a></li>
                     <li><a href="/child-node/all"><%=global.LanguageConfig.Heading.RemoteModelService.Network %></a></li>
                 </ul>
             </li>
-            <li><a href="/modelser/cloud"><i class="fa fa-cloud-download"></i> <span><%=global.LanguageConfig.Heading.CloudModelService %></span></a></li>
+            <li><a href="/status"><i class="fa fa-laptop"></i> <span><%=global.LanguageConfig.Heading.Status %></span></a></li>
+            <li><a href="/note"><i class="fa fa-envelope"></i> <span><%=global.LanguageConfig.Heading.Notice %></span></a></li>
             <li><a href="/geodata/all"><i class="fa fa-folder"></i> <span><%=global.LanguageConfig.Heading.DataCenter %></span></a></li>
             <li id="setting-li" class="menu-list">
                 <a href="/setting">

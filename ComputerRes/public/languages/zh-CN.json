@@ -91,6 +91,7 @@
     "ModelService" : {
         "Name" : "名称",
         "Status" : "状态",
+        "Type" : "类型",
         "Version" : "版本",
         "Platform" : "平台",
         "Avai" : "可用",
@@ -101,6 +102,7 @@
         "Delete" : "删除",
         "Invoking" : "调用",
         "Auth" : "权限模型",
+        "Private" : "私人模型",
         "Public" : "公开模型"
     },
     "ModelServiceTable" : {
@@ -115,7 +117,6 @@
     "ModelServiceDetail" : {
         "Title" : "模型服务信息",
         "Deployer" : "部署人",
-        "Type" : "类型",
         "DeploymentTime" : "部署时间",
         "Limited" : "权限情况",
         "URLInvoking" : "调用地址",

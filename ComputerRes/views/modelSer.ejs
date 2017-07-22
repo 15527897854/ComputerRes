@@ -16,36 +16,6 @@
                 <!-- 上导航栏 -->
                 <%- include nav.ejs %>
                 <div id="ModelSerDetail" data-source="/modelser/json/<%=modelSer._id %>" data-type="admin" ></div>
-
-                <div class="panel panel-info">
-                    <div class="panel-heading" >
-                        模型运行记录
-                    </div>
-                    <div class="panel-body">
-                        <table class="display table table-bordred table-striped" id="tb_msr">
-                            <thead>
-                                <tr>
-                                    <th>记录ID</th>
-                                    <th>调用时间</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <% for(var i = 0; i < msrs.length; i++){%>
-                            <tr>
-                                <td><%= msrs[i]._id %></td>
-                                <td><%= msrs[i].msr_date%></td>
-                                <% if(host != 'localhost'){ %>
-                                    <td><a href="/modelserrun/rmt/<%= host %>/<%= msrs[i]._id %>" >查看详情</a></td>
-                                <% }else{ %>
-                                    <td><a href="/modelserrun/<%= msrs[i]._id %>" >查看详情</a></td>
-                                <% } %>
-                            </tr>
-                            <% }%>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
                 <%- include footer.ejs %>
             </div>
         </section>
@@ -54,6 +24,17 @@
         <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
         <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
         <script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
+
+        <!-- jQuery Flot Chart-->
+        <script src="/js/flot-chart/jquery.flot.js"></script>
+        <script src="/js/flot-chart/jquery.flot.tooltip.js"></script>
+        <script src="/js/flot-chart/jquery.flot.resize.js"></script>
+        <script src="/js/flot-chart/jquery.flot.pie.resize.js"></script>
+        <script src="/js/flot-chart/jquery.flot.selection.js"></script>
+        <script src="/js/flot-chart/jquery.flot.stack.js"></script>
+        <script src="/js/flot-chart/jquery.flot.time.js"></script>
+
         <script type="text/javascript" src="/js/output/bundle.js" ></script>
+
     </body>
 </html>

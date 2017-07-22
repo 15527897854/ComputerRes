@@ -73,7 +73,7 @@ var ModelSerInfo = React.createClass({
         if(this.state.ms.ms_model.m_url)
         {
             detail = (
-                <a href={this.state.ms.ms_model.m_url} >more</a>
+                <a href={this.state.ms.ms_model.m_url} >MORE</a>
             );
         }
         var img = (<img src="/images/modelImg/default.png" alt=""  />);
@@ -103,19 +103,12 @@ var ModelSerInfo = React.createClass({
                         </div>
                         <div className="col-md-7">
                             <p className="muted" >{window.LanguageConfig.ModelService.Name}&nbsp;:&nbsp;{this.state.ms.ms_model.m_name}</p>
-                            <p className="muted" >{window.LanguageConfig.ModelServiceDetail.Type}&nbsp;:&nbsp;{this.state.ms.ms_model.m_type}</p>
+                            <p className="muted" >{window.LanguageConfig.ModelService.Type}&nbsp;:&nbsp;{this.state.ms.ms_model.m_type}</p>
                             <p className="muted" >{window.LanguageConfig.ModelService.Version}&nbsp;:&nbsp;{this.state.ms.mv_num}</p>
                             <p className="muted" >{window.LanguageConfig.ModelService.Platform}&nbsp;:&nbsp;{platform}</p>
                             <p className="muted" >{window.LanguageConfig.ModelServiceDetail.DeploymentTime}&nbsp;:&nbsp;{this.state.ms.ms_update}</p>
                             <p className="muted" >{window.LanguageConfig.ModelService.Status}&nbsp;:&nbsp;{status}</p>
                             <p className="muted" >{window.LanguageConfig.ModelServiceDetail.Limited}&nbsp;:&nbsp;{limited}</p>
-                            {window.LanguageConfig.ModelServiceDetail.PublicInvoking}&nbsp;:&nbsp;
-                            <div className="input-group m-bot15">
-                                <span className="input-group-btn">
-                                    <button type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/public/modelser/preparation/' + this.state.ms._id) } } ><i className="fa fa-files-o"></i></button>
-                                </span>
-                                <input type="text" readOnly="readonly" className="form-control" value={url + '/public/modelser/preparation/' + this.state.ms._id} />
-                            </div>
                             <p  className="muted" >{window.LanguageConfig.ModelServiceDetail.Description}&nbsp;:&nbsp;{this.state.ms.ms_des}</p>
                             <br />{detail}
                             <br />

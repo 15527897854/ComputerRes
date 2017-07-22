@@ -50,4 +50,3 @@ var noteSchema = new mongoose.Schema({
 var Note = mongoose.model('notice',noteSchema);
 Notice.baseModel = Note;
 Notice.modelName = 'notice';
-

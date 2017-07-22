@@ -51,15 +51,8 @@ var CustomInfoPanel = React.createClass({
         }
         return (
             <div className="wrapper">
-                <p><strong>计算机名&nbsp;:&nbsp;</strong><span>{"123"}</span> </p>
-                <p><strong>是否注册&nbsp;:&nbsp;</strong><span>{"否"}</span> </p>
-                <p><strong>语言&nbsp;:&nbsp;</strong>
-                    <span>
-                        <select className="form-control col-md-6" value={this.state.currectLanguage} onChange={this.changeLanguage} >
-                            {langs}
-                        </select>
-                    </span>
-                </p>
+                <p><strong>Computer Node ID&nbsp;:&nbsp;</strong><span>{"123"}</span> </p>
+                <p><strong>Register&nbsp;:&nbsp;</strong><span>{"false"}</span> </p>
             </div>
         );
     }

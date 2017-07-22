@@ -92,8 +92,12 @@
                 return alert(result.message);
             }
             else if(result.result == 'suc'){
+                var auth = '&auth=';
+                if(window.limited == 1){
+                    auth = auth + $('#authToken').val();
+                }
                 $.ajax({
-                    url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
+                    url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData) + auth,
                     type:'GET',
                     success : function(data){
                         var resJson = JSON.parse(data);

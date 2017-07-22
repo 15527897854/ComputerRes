@@ -73,6 +73,24 @@ ModelInsCollection.prototype.getByGUID = function (guid) {
     return -1;
 }
 
+//根据GUID查询运行实例拷贝信息
+ModelInsCollection.prototype.getByGUIDCopy = function (guid) {
+    for(var i = 0 ; i < this.ModelInsArr.length; i++)
+    {
+        if(this.ModelInsArr[i].guid == guid)
+        {
+            var mis = {
+                guid : guid,
+                ms : this.ModelInsArr[i].ms,
+                start : this.ModelInsArr[i].start,
+                state : this.ModelInsArr[i].state
+            };
+            return mis;
+        }
+    }
+    return -1;
+}
+
 //根据Socket查询运行实例
 ModelInsCollection.prototype.getBySocekt = function (socket) {
     for(var i = 0 ; i < this.ModelInsArr.length; i++)

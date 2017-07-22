@@ -258,7 +258,9 @@ module.exports = function(app)
     ///////////云服务
     app.route('/modelser/cloud')
         .get(function(req, res, next){
-            res.render('cloudModelSers');
+            res.render('cloudModelSers', {
+                blmodelser : true
+            });
         });
 
     app.route('/modelser/cloud/modelsers')
@@ -342,34 +344,8 @@ module.exports = function(app)
             }
             else
             {
-                //点击运行操作
-                if(req.query.ac == 'run')
-                {
-                    //读取输入文件参数
-                    var inputData = JSON.parse(req.query.inputdata);
-                    var outputData = req.query.outputdata;
-                    
-                    var user = {
-                        u_name : '[匿名]',
-                        u_type : 2
-                    };
-                    if(req.session.admin){
-                        user = {
-                            u_name : req.session.admin,
-                            u_type : 0
-                        };
-                    }
-
-                    ModelSerCtrl.run(msid, inputData, outputData, user, function(err, msr){
-                        return res.end(JSON.stringify({
-                            res : 'suc',
-                            msr_id : msr._id
-                        }));
-                    });
-
-                }
                 //上传模型服务
-                else if(req.query.ac == 'upload')
+                if(req.query.ac == 'upload')
                 {
                     var mid = req.query.mid;
                     var pkg_name = req.query.pkg_name;
@@ -582,9 +558,7 @@ module.exports = function(app)
         .delete(function (req, res, next) {
             var msid = req.params.msid;
             var path = req.query.path;
-            testifyCtrl.delTestify(msid,path,function (data) {
-                res.end(data);
-            });
+            testifyCtrl.delTestify(msid, path, RouteBase.returnFunction(res, 'Error in deleting test data!'));
         });
     
     app.route('/modelser/enmatch/:pid')
@@ -612,7 +586,12 @@ module.exports = function(app)
             var msid = req.params.msid;
             if(msid == 'all')
             {
-                ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'Error in getting all local model services'));
+                if(req.query.type == 'admin'){
+                    next();
+                }
+                else{
+                    ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'Error in getting all local model services'));
+                }
             }
             else
             {

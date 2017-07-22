@@ -58,7 +58,7 @@ var msSchema = new mongoose.Schema({
     ms_path : String,
     ms_xml : String,
     ms_status : Number,
-    ms_limited : Number,    //权限：是否只能该节点可用，父节点不可用。
+    ms_limited : Number,
     ms_user : mongoose.Schema.Types.Mixed,
     ms_img : String
 },{collection:'modelservice'});
@@ -74,19 +74,13 @@ ModelService.getAll = function(flag, callback){
         if(flag == 'ALL'){
             where = {};
         }
-        else{
+        else if(flag == 'ADMIN'){
             where = { ms_status : { $ne : -1 }}
         }
+        else{
+            where = { ms_status : { $ne : -1 }, ms_limited : { $ne : -1 }}
+        }
         MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
-    }
-};
-
-//通过PID查询
-ModelService.getByPid = function (pid, callback) {
-    if(ParamCheck.checkParam(callback, pid))
-    {
-        var where = { "ms_model.p_id" : pid, "ms_status" : {$ne:-1}};
-        this.getByWhere(where, callback);
     }
 };
 
@@ -180,21 +174,23 @@ ModelService.readMDL = function (ms, callback) {
 };
 
 ModelService.readMDLByPath = function (path, callback) {
-    fs.readFile(path, function (err, data) {
-        if(err)
-        {
-            console.log('Error in read mdl file : ' + err);
-            return callback(err);
-        }
-        var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+    if(ParamCheck.checkParam(callback, path)){
+        fs.readFile(path, function (err, data) {
             if(err)
             {
-                console.log('Error in parse mdl file : ' + err);
+                console.log('Error in read mdl file : ' + err);
                 return callback(err);
             }
-            return callback(null, json);
+            var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+                if(err)
+                {
+                    console.log('Error in parse mdl file : ' + err);
+                    return callback(err);
+                }
+                return callback(null, json);
+            });
         });
-    })
+    }
 };
 
 ModelService.parseMDLStr = function (mdlStr, callback) {

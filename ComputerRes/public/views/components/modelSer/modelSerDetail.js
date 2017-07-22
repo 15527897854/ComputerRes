@@ -8,6 +8,8 @@ var CopyToClipBoard = require('copy-to-clipboard');
 
 var NoteDialog = require('../../action/utils/noteDialog');
 var ModelSerOpera = require('./modelSerOpera');
+var ModelSerRunTable = require('../modelSerRun/rmtModelSerRunTable');
+var ModelSerRunStatistic = require('../modelSerRun/modelSerRunStatistic');
 
 var ModelSerDetail = React.createClass({
     getInitialState : function(){
@@ -122,11 +124,14 @@ var ModelSerDetail = React.createClass({
         }
         var moreInfo = null;
         if(this.state.ms.ms_model.m_url && this.state.ms.ms_model.m_url.trim() != ''){
-            moreInfo = (<a href={this.state.ms.ms_model.m_url} >More</a>);
+            moreInfo = (<a href={this.state.ms.ms_model.m_url} >MORE</a>);
         }
         var limited = null;
         if(this.state.ms.ms_limited == 1){
             limited = (<span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}</span>);
+        }
+        else if(this.state.ms.ms_limited == -1){
+            limited = (<span className="label label-warning tooltips" title={window.LanguageConfig.ModelService.Private} ><i className="fa fa-user" ></i>&nbsp;{window.LanguageConfig.ModelService.Private}</span>);
         }
         else{
             limited = (<span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
@@ -140,6 +145,8 @@ var ModelSerDetail = React.createClass({
         var run = "/modelser/preparation/" + this.state.ms._id;
 
         var modelserOpera = null;
+        var records = null;
+        var statistic = null;
         if(this.props['data-type'] == 'admin'){
             modelserOpera = (<ModelSerOpera 
                                     data-status={opera_status} 
@@ -153,66 +160,92 @@ var ModelSerDetail = React.createClass({
                                         />);
         }
 
+        var invorkingURL = url + '/public/modelser/preparation/' + this.state.ms._id;
+        if(this.props['data-type'] == 'admin'){
+            invorkingURL = url + '/modelser/preparation/' + this.state.ms._id
+            records = (
+                <div className="panel panel-info">
+                    <div className="panel-heading" >
+                        Records
+                    </div>
+                    <div className="panel-body">
+                        <header className="panel-heading"> Statistic </header>
+                        <ModelSerRunStatistic data-source={"/modelserrun/json/all?type=statistic&msid=" + this.state.ms._id} />
+                        <br />
+                        <br />
+                        <br />
+                        <header className="panel-heading"> Records Table </header>
+                        <ModelSerRunTable 
+                            data-source={"/modelserrun/json/all?msid=" + this.state.ms._id}
+                            data-type="ms"
+                            />
+                    </div>
+                </div>
+            );
+        } 
         return (
-            <div className="panel panel-default">
-                <div className="panel-body">
-                    <div className="row">
-                        <div className="col-md-2">
-                            <div className="blog-img">
-                                {img}
+            <div>
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="row">
+                            <div className="col-md-2">
+                                <div className="blog-img">
+                                    {img}
+                                </div>
                             </div>
-                        </div>
-                        <div className="col-md-7">
-                            <h1 className="mtop35">{ this.state.ms.ms_model.m_name }</h1>
-                            <p className="muted" >
-                                {window.LanguageConfig.ModelServiceDetail.Deployer}&nbsp;:&nbsp;{ this.state.ms.ms_user.u_name }&nbsp;&nbsp;&nbsp;&nbsp;
-                                Email&nbsp;:&nbsp;{ this.state.ms.ms_user.u_email }
-                            </p>
-                            <p className="muted" >
-                                {window.LanguageConfig.ModelServiceDetail.Type}&nbsp;:&nbsp;{ this.state.ms.ms_model.m_type }
-                            </p >
-                            <p className="muted" >
-                                {window.LanguageConfig.ModelService.Version}&nbsp;:&nbsp;{ this.state.ms.mv_num }
-                            </p>
-                            <p className="muted" >
-                                {window.LanguageConfig.ModelService.Platform}&nbsp;:&nbsp;{platform}
-                            </p>
-                            <p className="muted" >
-                                {window.LanguageConfig.ModelServiceDetail.DeploymentTime}&nbsp;:&nbsp;{ this.state.ms.ms_update }
-                            </p>
-                            <p className="muted" >
-                                {window.LanguageConfig.ModelService.Status}&nbsp;:&nbsp;{status}
-                            </p>
-                            <p className="muted" >
-                                {window.LanguageConfig.ModelServiceDetail.Limited}&nbsp;:&nbsp;{limited}
-                            </p>
-                            {window.LanguageConfig.ModelServiceDetail.Limited}&nbsp;:&nbsp;
-                            <div className="input-group m-bot15">
-                                <span className="input-group-btn">
-                                    <button title={window.LanguageConfig.ModelServiceDetail.Copy} type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/public/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
-                                    <button title={window.LanguageConfig.ModelServiceDetail.PublicInvoking} type="button" className="btn btn-default" onClick={ (e) => { window.open(url + '/public/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-retweet"></i></button>
-                                </span>
-                                <input type="text" readOnly="readonly" className="form-control" value={url + '/public/modelser/preparation/' + this.state.ms._id} />
-                            </div>
-                            {window.LanguageConfig.ModelServiceDetail.API}&nbsp;:&nbsp;
-                            <div className="input-group m-bot15">
-                                <span className="input-group-btn">
-                                    <button title={window.LanguageConfig.ModelServiceDetail.Copy} type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
-                                </span>
-                                <input type="text" readOnly="readonly" className="form-control" value={url + '/modelser/' + this.state.ms._id + '?ac=run&inputdata=[]&outputdate=[]&auth={username:"",pwd:""}'} />
-                            </div>
-                            <p className="muted" >
-                                {window.LanguageConfig.ModelServiceDetail.Description}&nbsp;:&nbsp;
-                                { this.state.ms.ms_des }
+                            <div className="col-md-7">
+                                <h1 className="mtop35">{ this.state.ms.ms_model.m_name }</h1>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelServiceDetail.Deployer}&nbsp;:&nbsp;{ this.state.ms.ms_user.u_name }&nbsp;&nbsp;&nbsp;&nbsp;
+                                    Email&nbsp;:&nbsp;{ this.state.ms.ms_user.u_email }
+                                </p>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelService.Type}&nbsp;:&nbsp;{ this.state.ms.ms_model.m_type }
+                                </p >
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelService.Version}&nbsp;:&nbsp;{ this.state.ms.mv_num }
+                                </p>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelService.Platform}&nbsp;:&nbsp;{platform}
+                                </p>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelServiceDetail.DeploymentTime}&nbsp;:&nbsp;{ this.state.ms.ms_update }
+                                </p>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelService.Status}&nbsp;:&nbsp;{status}
+                                </p>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelServiceDetail.Limited}&nbsp;:&nbsp;{limited}
+                                </p>
+                                {window.LanguageConfig.ModelServiceDetail.PublicInvoking}&nbsp;:&nbsp;
+                                <div className="input-group m-bot15">
+                                    <span className="input-group-btn">
+                                        <button title={window.LanguageConfig.ModelServiceDetail.Copy} type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/public/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
+                                        <button title={window.LanguageConfig.ModelServiceDetail.PublicInvoking} type="button" className="btn btn-default" onClick={ (e) => { window.open(invorkingURL); } } ><i className="fa fa-retweet"></i></button>
+                                    </span>
+                                    <input type="text" readOnly="readonly" className="form-control" value={url + '/public/modelser/preparation/' + this.state.ms._id} />
+                                </div>
+                                {window.LanguageConfig.ModelServiceDetail.API}&nbsp;:&nbsp;
+                                <div className="input-group m-bot15">
+                                    <span className="input-group-btn">
+                                        <button title={window.LanguageConfig.ModelServiceDetail.Copy} type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
+                                    </span>
+                                    <input type="text" readOnly="readonly" className="form-control" value={url + '/modelser/' + this.state.ms._id + '?ac=run&inputdata=[]&outputdate=[]&auth="YOUR TOKEN"'} />
+                                </div>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelServiceDetail.Description}&nbsp;:&nbsp;
+                                    { this.state.ms.ms_des }
 
-                            </p>
-                            {moreInfo}
-                            <br />
-                            <br />
-                            {modelserOpera}
+                                </p>
+                                {moreInfo}
+                                <br />
+                                <br />
+                                
+                            </div>
                         </div>
                     </div>
                 </div>
+                {records}
             </div>
         );
     }

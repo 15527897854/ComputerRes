@@ -57,15 +57,31 @@ module.exports = function (app) {
             var msrid = req.params.msrid;
             if(msrid == 'all')
             {
-                ModelSerRunCtrl.getAll(RouteBase.returnFunction(res, 'Error in getting all model-service running json'));
-                // ModelSerRunCtrl.all2TableTree(function (err, data) {
-                //     if(err){
-                //         return res.end(JSON.stringify({status:0}))
-                //     }
-                //     else{
-                //         return res.end(JSON.stringify({status:1,enviro:data}));
-                //     }
-                // })
+                var type = req.query.type;
+                var msid = req.query.msid;
+                var days = req.query.days;
+                if(type == 'statistic'){
+                    if(!days){
+                        days = 7;
+                    }
+                    if(req.query.msid){
+                        ModelSerRunCtrl.getStatisticInfoRecent(req.query.msid, days, RouteBase.returnFunction(res, 'Error in getting model-service running records statistic info'));
+                    }
+                    else{
+                        ModelSerRunCtrl.getStatisticInfoRecent(null, days, RouteBase.returnFunction(res, 'Error in getting model-service running records statistic info'));
+                    }
+                }
+                else if(type == 'piestatistic'){
+                    ModelSerRunCtrl.getTimesStatisticInfo(RouteBase.returnFunction(res, 'Error in getting model-service running records pie statistic info'));
+                }
+                else{
+                    if(req.query.msid){
+                        ModelSerRunCtrl.getByMSID(req.query.msid, RouteBase.returnFunction(res, 'Error in getting model-service running records json by msid'))
+                    }
+                    else{
+                        ModelSerRunCtrl.getAll(RouteBase.returnFunction(res, 'Error in getting all model-service running records json'));
+                    }
+                }
             }
             else
             {

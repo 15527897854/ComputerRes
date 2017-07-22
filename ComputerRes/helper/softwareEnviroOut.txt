@@ -179,6 +179,18 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft
     NoModify    REG_DWORD    0x1
     NoRepair    REG_DWORD    0x1
 
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Visual J# 2.0 Redistributable Package - SE (x64)
+    DisplayIcon    REG_SZ    C:\WINDOWS\SysWOW64\msiexec.exe
+    DisplayName    REG_SZ    Microsoft Visual J# 2.0 Redistributable Package - SE (x64)
+    UninstallString    REG_SZ    C:\WINDOWS\Microsoft.NET\Framework64\v2.0.50727\Microsoft Visual J# 2.0 Redistributable Package - SE (x64)\install.exe
+    VersionMinor    REG_SZ    0
+    VersionMajor    REG_SZ    2
+    Publisher    REG_SZ    Microsoft Corporation
+    InstallLocation    REG_SZ    C:\WINDOWS\Microsoft.NET\Framework64\v2.0.50727\
+    UninstallPath    REG_SZ    C:\WINDOWS\Microsoft.NET\Framework64\v2.0.50727\Microsoft Visual J# 2.0 Redistributable Package - SE (x64)\install.exe
+    URLUpdateInfo    REG_SZ    http://go.microsoft.com/fwlink/?LinkId=45660
+    HelpLink    REG_SZ    http://go.microsoft.com/fwlink/?LinkId=45396
+
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Microsoft Visual Studio 2010 Tools for Office Runtime (x64)
     DisplayIcon    REG_SZ    msiexec.exe
     DisplayName    REG_SZ    Microsoft Visual Studio 2010 Tools for Office Runtime (x64)
@@ -6209,6 +6221,32 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{ADCD7107
     Language    REG_DWORD    0x804
     DisplayName    REG_SZ    SQL Server 2008 R2 Database Engine Services
     sEstimatedSize2    REG_DWORD    0x5726
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B0A5A6EE-F8BA-48B1-BB32-BAC17E96C2B4}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    2.0.50728
+    HelpLink    REG_SZ    
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170711
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    C:\Users\Franklin\AppData\Local\Temp\IXP000.TMP\
+    NoModify    REG_DWORD    0x1
+    NoRemove    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x13859
+    SystemComponent    REG_DWORD    0x1
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0x2
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0x200c628
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft Visual J# 2.0 Redistributable Package - SE (x64)
 
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{B0B8384B-ED91-4A76-99BF-59E0622AF84D}
     AuthorizedCDFPrefix    REG_SZ    

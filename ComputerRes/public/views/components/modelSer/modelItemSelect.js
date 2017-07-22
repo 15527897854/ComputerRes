@@ -76,11 +76,13 @@ var ModelItemSelect = React.createClass({
             Items = this.state.items.map(function(item){
                 count ++;
                 var pulled = null;
-                if(item.pulled){
-                    pulled = (<span className="label label-success">{window.LanguageConfig.CloudModelService.Pulled}</span>);
-                }
-                else{
-                    pulled = (<span className="label label-default">{window.LanguageConfig.CloudModelService.NotPulled}</span>);
+                if(this.props['data-pulltag'] != 'false'){
+                    if(item.pulled){
+                        pulled = (<span className="label label-success">{window.LanguageConfig.CloudModelService.Pulled}</span>);
+                    }
+                    else{
+                        pulled = (<span className="label label-default">{window.LanguageConfig.CloudModelService.NotPulled}</span>);
+                    }
                 }
                 return (
                     <div key={item.model_id} className="highlight">

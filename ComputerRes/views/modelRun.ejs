@@ -24,7 +24,7 @@
                  </span>
             </div>
             <div class="panel-body" id="msrInfo">
-                <p><strong>模型开始时间&nbsp;:&nbsp;</strong><%= msr.msr_date.toLocaleString() %></p>
+                <p><strong>模型开始时间&nbsp;:&nbsp;</strong><%= new Date(msr.msr_date).toLocaleString() %></p>
                 <p><strong>模型调用者&nbsp;:&nbsp;</strong><%if(msr.msr_user.u_type == 0){ %>本地调用者<% }
                     else {%>外部调用者<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
                 <p><strong>运行实例GUID&nbsp;:&nbsp;</strong><%= msr.msr_guid %></p>
@@ -443,82 +443,83 @@
                     url : '/modelins/json/<%=msr.msr_guid %>',
                     success : function (data) {
                         var resJson = JSON.parse(data);
-                        if(resJson.res == null)
+                        if(resJson.result == 'suc')
                         {
-                            blFinish = true;
-                            $.ajax({
-                                url : '/modelserrun/json/<%=msr._id %>',
-                                success : function (data) {
-                                    var jsItem = JSON.parse(data);
-                                    ProcessFinished(jsItem.msr.msr_status);
-                                    clearInterval(interval);
-                                    var descript = jsItem.msr.msr_des.replace(/\r\n/g, '<br />');
-                                    descript = descript.replace(/\\r\\n/g, '<br />');
-                                    descript = descript.replace(/\\n/g, '<br />');
-                                    descript = descript.replace(/\"/g, '');
-                                    descript = descript.replace(/Stand Output Message :/g, '<span class="label label-info" >模型程序标准输出</span><br />');
-                                    descript = descript.replace(/Stand Error Message :/g, '<span class="label label-warning" >模型程序错误信息</span><br />');
-                                    descript = descript.replace(/Error Message :/g, '<span class="label label-danger" >运行错误信息</span><br />');
-
-
-                                    $('#p_des').html('<strong>模型运行描述信息&nbsp;:&nbsp;</strong><br />' + descript);
-                                    $('#sp_time').html( jsItem.msr.msr_time + '&nbsp; s &nbsp;');
-                                    if(jsItem.msr.msr_status == 1)
-                                    {
-                                        var output = '';
-                                        for(var i = 0; i < jsItem.msr.msr_output.length; i++)
-                                        {
-                                            output += jsItem.msr.msr_output[i].StateId +
-                                                    '&nbsp;&nbsp;&nbsp;' + jsItem.msr.msr_output[i].Event +
-                                                    '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.msr.msr_output[i].DataId + '" >' +
-                                                    jsItem.msr.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
-                                                    '<a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="' + jsItem.msr.msr_output[i].DataId + '">Snapshot</span></a>' +
-                                                    '<br />';
-                                        }
-
-                                        $('#sp_dataoutput').html(output);
-                                    }
-                                }
-                            });
-                        }
-                        else if(resJson.res == 'suc')
-                        {
-                            switch (resJson.mis.state)
+                            if(resJson.data == null)
                             {
-                                case 'MC_ENTER':
+                                blFinish = true;
+                                $.ajax({
+                                    url : '/modelserrun/json/<%=msr._id %>',
+                                    success : function (data) {
+                                        var jsItem = JSON.parse(data);
+                                        ProcessFinished(jsItem.msr.msr_status);
+                                        clearInterval(interval);
+                                        var descript = jsItem.msr.msr_des.replace(/\r\n/g, '<br />');
+                                        descript = descript.replace(/\\r\\n/g, '<br />');
+                                        descript = descript.replace(/\\n/g, '<br />');
+                                        descript = descript.replace(/\"/g, '');
+                                        descript = descript.replace(/Stand Output Message :/g, '<span class="label label-info" >模型程序标准输出</span><br />');
+                                        descript = descript.replace(/Stand Error Message :/g, '<span class="label label-warning" >模型程序错误信息</span><br />');
+                                        descript = descript.replace(/Error Message :/g, '<span class="label label-danger" >运行错误信息</span><br />');
+
+                                        $('#p_des').html('<strong>模型运行描述信息&nbsp;:&nbsp;</strong><br />' + descript);
+                                        $('#sp_time').html( jsItem.msr.msr_time + '&nbsp; s &nbsp;');
+                                        if(jsItem.msr.msr_status == 1)
+                                        {
+                                            var output = '';
+                                            for(var i = 0; i < jsItem.msr.msr_output.length; i++)
+                                            {
+                                                output += jsItem.msr.msr_output[i].StateId +
+                                                        '&nbsp;&nbsp;&nbsp;' + jsItem.msr.msr_output[i].Event +
+                                                        '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.msr.msr_output[i].DataId + '" >' +
+                                                        jsItem.msr.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                                        '<a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="' + jsItem.msr.msr_output[i].DataId + '">Snapshot</span></a>' +
+                                                        '<br />';
+                                            }
+
+                                            $('#sp_dataoutput').html(output);
+                                        }
+                                    }
+                                });
+                            }
+                            else{
+                                switch (resJson.data.state)
                                 {
-                                    setProcess(10);
-                                    break;
-                                }
-                                case 'MC_REQUEST':
-                                {
-                                    setProcess(20);
-                                    break;
-                                }
-                                case 'MC_CHECKDATA':
-                                {
-                                    setProcess(35);
-                                    break;
-                                }
-                                case 'MC_CALCULATE':
-                                {
-                                    setProcess(50);
-                                    break;
-                                }
-                                case 'MC_CHECKRES':
-                                {
-                                    setProcess(75);
-                                    break;
-                                }
-                                case 'MC_RESPONSE':
-                                {
-                                    setProcess(90);
-                                    break;
-                                }
-                                case 'MC_EXIT':
-                                {
-                                    setProcess(100);
-                                    break;
+                                    case 'MC_ENTER':
+                                    {
+                                        setProcess(10);
+                                        break;
+                                    }
+                                    case 'MC_REQUEST':
+                                    {
+                                        setProcess(20);
+                                        break;
+                                    }
+                                    case 'MC_CHECKDATA':
+                                    {
+                                        setProcess(35);
+                                        break;
+                                    }
+                                    case 'MC_CALCULATE':
+                                    {
+                                        setProcess(50);
+                                        break;
+                                    }
+                                    case 'MC_CHECKRES':
+                                    {
+                                        setProcess(75);
+                                        break;
+                                    }
+                                    case 'MC_RESPONSE':
+                                    {
+                                        setProcess(90);
+                                        break;
+                                    }
+                                    case 'MC_EXIT':
+                                    {
+                                        setProcess(100);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -549,7 +550,7 @@
                     required: ''
                 }
             }
-    });
+        });
 
         $('#submitTestify').on('click',function () {
             if(!validator.form())
@@ -584,7 +585,7 @@
 
                 }
             });
-        })
+        });
     });
 
     function setProcess(per) {

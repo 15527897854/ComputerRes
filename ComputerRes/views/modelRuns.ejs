@@ -15,7 +15,15 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-
+        <section class="panel" >
+            <header class="panel-heading">
+                Model Service Running Records Statistic
+            </header>
+            <div class="panel-body" id="ModelSerRunStatistic" data-source="/modelserrun/json/all?type=statistic" ></div>
+            <br />
+            <br />
+            <div class="panel-body" id="ModelSerRunPieStatisitc" data-source="/modelserrun/json/all?type=piestatistic" ></div>
+        </section>
         <section class="panel" >
             <header class="panel-heading">
                 <%=global.LanguageConfig.Heading.LocalModelService.Records %>
@@ -31,6 +39,16 @@
 <%- include footerInclude.ejs %>
 <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+
+<!-- jQuery Flot Chart-->
+<script src="/js/flot-chart/jquery.flot.js"></script>
+<script src="/js/flot-chart/jquery.flot.tooltip.js"></script>
+<script src="/js/flot-chart/jquery.flot.resize.js"></script>
+<script src="/js/flot-chart/jquery.flot.pie.resize.js"></script>
+<script src="/js/flot-chart/jquery.flot.selection.js"></script>
+<script src="/js/flot-chart/jquery.flot.stack.js"></script>
+<script src="/js/flot-chart/jquery.flot.time.js"></script>
+
 <script type="text/javascript" src="/js/output/bundle.js" ></script>
 </body>
 </html>

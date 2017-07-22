@@ -40,7 +40,7 @@ var CustomIndexPanel = React.createClass({
                                 <i className="fa fa-tasks" ></i>
                             </div>
                             <div className="state-value">
-                                <div className="value">{window.LanguageConfig.CustomIndex.ModelService}</div>
+                                <div className="value">Model Services</div>
                             </div>
                         </div>
                     </div>
@@ -50,7 +50,7 @@ var CustomIndexPanel = React.createClass({
                                 <i className="fa fa-info"></i>
                             </div>
                             <div className="state-value">
-                                <div className="value">{window.LanguageConfig.CustomIndex.ComputerInfo}</div>
+                                <div className="value">Computer Information</div>
                             </div>
                         </div>
                     </div>
@@ -62,7 +62,7 @@ var CustomIndexPanel = React.createClass({
                                 <i className="fa fa-wrench" ></i>
                             </div>
                             <div className="state-value">
-                                <div className="value">{window.LanguageConfig.CustomIndex.Manager}</div>
+                                <div className="value">Manager</div>
                             </div>
                         </div>
                     </div>
@@ -72,7 +72,7 @@ var CustomIndexPanel = React.createClass({
                                 <i className="fa fa-eye"></i>
                             </div>
                             <div className="state-value">
-                                <div className="value">{window.LanguageConfig.CustomIndex.Help}</div>
+                                <div className="value">Help</div>
                             </div>
                         </div>
                     </div>
@@ -84,7 +84,7 @@ var CustomIndexPanel = React.createClass({
                                 <i className="fa fa-book" ></i>
                             </div>
                             <div className="state-value">
-                                <div className="value">{window.LanguageConfig.CustomIndex.Demo}</div>
+                                <div className="value">Demo</div>
                             </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@ var CustomIndexPanel = React.createClass({
                                 <i className="fa fa-check-circle"></i>
                             </div>
                             <div className="state-value">
-                                <div className="value">{window.LanguageConfig.CustomIndex.NewFeatures}</div>
+                                <div className="value">New Features</div>
                             </div>
                         </div>
                     </div>

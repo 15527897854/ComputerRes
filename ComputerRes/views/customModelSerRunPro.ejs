@@ -11,7 +11,7 @@
 <body>
     <div style="background:#eff0f4" >
         <div id="modelserinfo" data-source="/modelser/json/<%=msid %>" ></div>
-        <div id="TestifyDataPanel" data-source="/modelser/testify/<%=msid %>" ></div>
+        <div id="TestifyDataPanel" data-source="/modelser/testify/<%=msid %>" data-type="CUSTOM" ></div>
         <div class="panel panel-info">
             <div class="panel-heading" style="background-color: #5CB85C;border-color: #5CB85C; ">
                 数据输入
@@ -55,8 +55,12 @@
                     return alert(result.message);
                 }
                 else if(result.result == 'suc'){
+                    var auth = '&auth=';
+                    if(window.limited == 1){
+                        auth = auth + $('#authToken').val();
+                    }
                     $.ajax({
-                        url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
+                        url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData) + auth,
                         type:'GET',
                         success : function(data){
                             var resJson = JSON.parse(data);

@@ -9,6 +9,7 @@ var modelInsRoute = require('./modelInstanceRoute');
 var noticeRoute = require('./noticeRoute');
 var childRoute = require('./childRoute');
 var ModelSerAccessRoute = require('./modelSerAccessRoute');
+var AdminAccessRoute = require('./adminAccessRoute');
 
 var sysCtrl = require('../control/sysControl');
 var AuthCtrl = require('../control/authControl')
@@ -129,11 +130,37 @@ module.exports = function(app)
     //             }
     //         });
     //     });
-
     //Test
     app.route('/test')
         .get(function (req, res, next) {
-            
             res.render('test');
         });
+
+    app.route('*')
+        .get(function(req, res, next){
+            if(AuthCtrl.authByAdmin(req) == 1){
+                next();
+            }
+            else{
+                res.end(JSON.stringify({err : 'no auth!'}));
+            }
+        })
+        .post(function(req, res, next){
+            if(AuthCtrl.authByAdmin(req) == 1){
+                next();
+            }
+            else{
+                res.end(JSON.stringify({err : 'no auth!'}));
+            }
+        })
+        .put(function(req, res, next){
+            if(AuthCtrl.authByAdmin(req) == 1){
+                next();
+            }
+            else{
+                res.end(JSON.stringify({err : 'no auth!'}));
+            }
+        });
+
+    AdminAccessRoute(app);
 };

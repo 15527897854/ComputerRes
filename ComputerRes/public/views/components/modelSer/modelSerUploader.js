@@ -114,7 +114,11 @@ var ModelSerUploader = React.createClass({
                             <form id="stepy_form" className="form-horizontal left-align form-well" >
                                 <fieldset title="步骤 1">
                                     <legend>条目分类</legend>
-                                    <ModelItemSelect data-source={this.props['data-source-category']} data-btn-text="选择" onSelectedItem={ this.onSelectedModelItem } />
+                                    <ModelItemSelect 
+                                        data-source={this.props['data-source-category']} 
+                                        data-btn-text="选择" 
+                                        data-pulltag="false"
+                                        onSelectedItem={ this.onSelectedModelItem } />
                                 </fieldset>
                                 <fieldset title="步骤 2">
                                     <legend>信息确认</legend>

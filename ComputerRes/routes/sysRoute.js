@@ -219,7 +219,7 @@ module.exports = function(app)
                     }));
                 }
                 if(result){
-                    req.session.admin = true;
+                    req.session.admin = req.body.adminname;
                     return res.end(JSON.stringify({
                         result : 'suc',
                         data : true

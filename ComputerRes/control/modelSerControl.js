@@ -251,6 +251,11 @@ ModelSerControl.getLocalModelSer = function(callback){
     ModelSerModel.getAll('AVAI', this.returnFunction(callback, 'error in getting all model services'));
 };
 
+//搜寻本地可用模型信息(包括管理员私有)
+ModelSerControl.getLocalModelSerByAdmin = function(callback){
+    ModelSerModel.getAll('ADMIN', this.returnFunction(callback, 'error in getting all model services'));
+}
+
 //模型压缩包文件结构验证
 //成功返回 isValidate == true，失败返回 错误信息
 //status == 0 表示后台读取数据库或者文件出错
@@ -367,6 +372,10 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
         }
     }
 
+    if(!files.file_model){
+        return callback(new Error('No package file'));
+    }
+
     //产生新的OID
     var oid = new ObjectId();
 
@@ -382,8 +391,18 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
             if(err){
                 mid = null;
             }
+            fields.m_register = false;
+            if(mid != undefined || mid != null){
+                fields.m_register = true;
+                if(fields.m_id){
+                    mid = fields.m_id;
+                }
+            }
 
-            var afterUncompress = function(){
+            CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
+                if(err){
+                    return callback(err);
+                }
                 //文件验证
                 ModelSerControl.validate(model_path,function (rst){
                     if(!rst.status || !rst.isValidate){
@@ -410,56 +429,98 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                         }
 
                         //删除文件
-                        //FileOpera.rmdir(files.file_model.path);
-                        //转移模型包
-                        fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
-                                if(err){
-                                    console.log('err in moving package!');
-                                }
-                            });
-
-                        //生成新的纪录
-                        var newmodelser = {
-                            _id : oid,
-                            ms_model : Object.assign({
-                                m_name:fields.m_name,
-                                m_type:fields.m_type,
-                                m_url:fields.m_url,
-                                p_id : md5_value,
-                                m_id : mid
-                            }, fields.m_model_append),
-                            ms_limited:fields.ms_limited,
-                            mv_num:fields.mv_num,
-                            ms_des:fields.ms_des,
-                            ms_update:date.toLocaleString(),
-                            ms_platform:setting.platform,
-                            ms_path:oid.toString() + '/',
-                            ms_img:img,
-                            ms_xml:fields.ms_xml,
-                            ms_status:0,
-                            ms_user:{
-                                u_name:fields.u_name,
-                                u_email:fields.u_email
-                            }
-                        };
-
-                        var ms = new ModelSerModel(newmodelser);
-                        ModelSerModel.save(ms,function (err, data) {
+                        FileOpera.rmdir(files.file_model.path);
+                        // // 转移模型包
+                        // fs.rename(files.file_model.path, setting.modelpath + 'packages/' + oid + '.zip', function(err){
+                        //         if(err){
+                        //             console.log('err in moving package!');
+                        //         }
+                        //     });
+                        
+                        ModelSerModel.readCfgBypath(setting.modelpath + oid + '/package.config', function(err, cfg){
                             if(err){
-                                console.log(err);
-                                callback(null,{status:0});
+                                return callback(err);
                             }
-                            else{
-                                rst.data = data;
-                                callback(null,rst);
-                            }
+                            ModelSerModel.readMDLByPath(setting.modelpath + oid + '/' + cfg.mdl, function(err, mdl){
+                                if(err){
+                                    return callback(err);
+                                }
+                                
+                                try{
+                                    fields.m_name = mdl.ModelClass.$.name;
+                                    var category = mdl.ModelClass.AttributeSet.Categories.Category;
+                                    if(category.constructor == Array){
+                                        category = category[0];
+                                    }
+                                    else if(category.constructor == Object){
+                                        category = category;
+                                    }
+                                    fields.m_type = category.$.path + ' - ' + category.$.principle;
+                                    var attr = mdl.ModelClass.AttributeSet.LocalAttributes.LocalAttribute;
+                                    if(attr.constructor == Array){
+                                        var i;
+                                        for(i = 0; i < attr.length; i++){
+                                            if(attr[i].$.local == 'ZH_CN'){
+                                                attr = attr[i];
+                                                break;
+                                            }
+                                        }
+                                        if(i == attr.length){
+                                            attr = attr[0];
+                                        }
+                                    }
+                                    else if(attr.constructor == Object){
+                                        attr = attr;
+                                    }
+                                    fields.m_url = attr.$.wiki;
+                                    fields.ms_des = attr.Abstract;
+                                    fields.mv_num = mdl.ModelClass.Runtime.$.version;
+                                }
+                                catch(ex){
+                                    return callback(ex);
+                                }
+
+                                //生成新的纪录
+                                var newmodelser = {
+                                    _id : oid,
+                                    ms_model : Object.assign({
+                                        m_name : fields.m_name,
+                                        m_type : fields.m_type,
+                                        m_url : fields.m_url,
+                                        p_id : md5_value,
+                                        m_id : mid,
+                                        m_register : fields.m_register
+                                    }, fields.m_model_append),
+                                    ms_limited:fields.ms_limited,
+                                    mv_num:fields.mv_num,
+                                    ms_des:fields.ms_des,
+                                    ms_update:date.toLocaleString(),
+                                    ms_platform:setting.platform,
+                                    ms_path:oid.toString() + '/',
+                                    ms_img:img,
+                                    ms_xml:JSON.stringify(mdl),
+                                    ms_status:0,
+                                    ms_user:{
+                                        u_name:fields.u_name,
+                                        u_email:fields.u_email
+                                    }
+                                };
+
+                                var ms = new ModelSerModel(newmodelser);
+                                ModelSerModel.save(ms,function (err, data) {
+                                    if(err){
+                                        console.log(err);
+                                        callback(null,{status:0});
+                                    }
+                                    else{
+                                        rst.data = data;
+                                        callback(null,rst);
+                                    }
+                                });
+                            });
                         });
                     }
                 });
-            };
-
-            CommonMethod.Uncompress(files.file_model.path, model_path, function(err){
-                afterUncompress();
             });
         });
     });
@@ -761,7 +822,7 @@ ModelSerControl.getCloudModelPackageByMid = function(mid, callback){
 
         for(var i = 0; i < packages.length; i++){
             if(packages[i].id && packages[i].id != '')
-            ModelSerModel.getByPid(packages[i].id, pending(i));
+            ModelSerModel.getByPID(packages[i].id, pending(i));
         }
     });
 };
@@ -1019,7 +1080,10 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                             }
                         }
                     }
-                    return callback(null, state);
+                    return callback(null, {
+                        States : state,
+                        Limited : ms.ms_limited
+                    });
                 }
                 else {
                     for (var i = 0; i < state.Event.length; i++) {
@@ -1057,7 +1121,10 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                         }
                     }
                     var arr = [state];
-                    return callback(null, arr);
+                    return callback(null, {
+                        States : arr,
+                        Limited : ms.ms_limited
+                    });
                 }
             }
             catch (newerr) {
@@ -1180,7 +1247,8 @@ ModelSerControl.getRuntimeByPid = function (pid, place, cb) {
             }
                     };
 
-ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
+
+                    ModelSerControl.getRuntimeFromMDL = function (mdl, cb) {
     var softDemands = [],hardDemands = [];
     var hardJSON = mdl.ModelClass.Runtime.HardwareConfigures.INSERT;
     var softJSON = mdl.ModelClass.Runtime.SoftwareConfigures.INSERT;

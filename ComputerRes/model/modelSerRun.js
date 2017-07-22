@@ -50,7 +50,7 @@ module.exports = ModelSerRun;
 var MSRSchema = new mongoose.Schema({
     ms_id : mongoose.Schema.Types.ObjectId,
     msr_ms :  mongoose.Schema.Types.Mixed,
-    msr_date :  String,
+    msr_date :  Date,
     msr_time : Number,
     msr_user :  mongoose.Schema.Types.Mixed,
     msr_guid :  String,
@@ -103,6 +103,38 @@ ModelSerRun.getByOutputDataID = function(dataid, callback){
             return callback(null, null);
         });
     }
+};
+
+//得到全部数据的统计信息
+ModelSerRun.getStatisticInfoByDate = function(msid, start, end, callback){
+    if(CheckParam.checkParam(callback, start)){
+        if(CheckParam.checkParam(callback, end)){
+            if(msid){
+                msid = new ObjectId(msid);
+                MSR.find({"ms_id" : msid, "msr_date" : { "$gte" : start, "$lt" : end}}, this.returnFunction(callback, "Error in getting statistic info!"));
+            }
+            else{
+                MSR.find({"msr_date" : { "$gte" : start, "$lt" : end}}, this.returnFunction(callback, "Error in getting statistic info!"));
+            }
+        }
+    }
+}
+
+//得到全部数据的统计信息
+ModelSerRun.getStatisticInfoByMsidAndDate = function(msid, start, end, callback){
+    if(CheckParam.checkParam(callback, msid)){
+        if(CheckParam.checkParam(callback, start)){
+            if(CheckParam.checkParam(callback, end)){
+                msid = new ObjectId(msid);
+                MSR.find({ "ms_id" : msid ,"msr_date" : { "$gte" : start, "$lt" : end}}, this.returnFunction(callback, "Error in getting statistic info!"));
+            }
+        }
+    }
+}
+
+//
+ModelSerRun.getTimesStatisticInfoByMSID = function(callback){
+    MSR.aggregate([{$group : { _id : {"ms_id" : "$ms_id",}, count : {$sum:1} }}], this.returnFunction(callback, 'Error in getting times statistic info'));
 };
 
 //更新描述信息

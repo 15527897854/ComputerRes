@@ -3,9 +3,11 @@ var setting = require('../setting');
 var fs = require('fs');
 
 var ModelSerRun = require('../model/modelSerRun');
+var ModelSer = require('../model/modelService');
 var RemoteReqControl = require('./remoteReqControl');
 var Child = require('../model/child');
 var ParamCheck = require('../utils/paramCheck');
+var CommonMethod = require('../utils/commonMethod');
 var controlBase = require('./controlBase');
 
 function ModelSerRunCtrl()
@@ -95,6 +97,84 @@ ModelSerRunCtrl.IsOutputData2BDestroyed = function(DataId, callback){
             return callback(null, true);
         }
         return callback(null, false);
+    });
+}
+
+//统计模型运行记录信息
+ModelSerRunCtrl.getStatisticInfoRecent = function(msid, days, callback){
+    var date = [];
+    days = parseInt(days);
+    if(days < 1){
+        return callback(new Error('Days is illegal'));
+    }
+    for(var i = 0; i < (days + 1); i++){
+        date.push(CommonMethod.getStartDate(i - (days - 1)));
+    }
+    var statisticInfo = {
+        data : [],
+        ticks : [],
+    };
+    var count = 0;
+    var pending = (function(index){
+        count ++;
+        return function(err, data){
+            count--;
+            if(err){
+                return console.log('Error in getting statistic info of msr!')
+            }
+            else{
+                statisticInfo.data[index][1] = data.length;
+            }
+            if(count == 0){
+                return callback(null, statisticInfo);
+            }
+        }
+    });
+    for(var i = 0; i < date.length - 1; i++){
+        ModelSerRun.getStatisticInfoByDate(msid, date[i], date[i + 1], pending(i));
+        if(date.length > 40){
+            if(i%5 == 0){
+                statisticInfo.ticks.push([i, (date[i].getMonth() + 1) + '/' + date[i].getDate()]);
+            }
+        }
+        else{
+            statisticInfo.ticks.push([i, (date[i].getMonth() + 1) + '/' + date[i].getDate()]);
+        }
+        statisticInfo.data.push([i, 0]);
+    }
+}
+
+//统计模型运行记录信息
+ModelSerRunCtrl.getTimesStatisticInfo = function(callback){
+    ModelSerRun.getTimesStatisticInfoByMSID(function(err, data){
+        if(err){
+            return callback(err);
+        }
+        if(data.length == 0){
+            return callback(null, []);
+        }
+        var count = 0
+        var allcount = 0;
+        var pending = (function(index){
+            count ++;
+            return function(err, ms){
+                count --;
+                if(err){
+                    data[index].label = '[Unknown]';
+                }
+                else{
+                    data[index].label = ms.ms_model.m_name;
+                }
+                data[index].data = data[index].count*100/allcount;
+                if(count == 0){
+                    return callback(null, data);
+                }
+            }
+        });
+        for(var i = 0; i < data.length; i++){
+            ModelSer.getByOID(data[i]._id.ms_id, pending(i));
+            allcount = allcount + data[i].count;
+        }
     });
 }
 

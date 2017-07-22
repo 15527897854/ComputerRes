@@ -23,6 +23,12 @@ var TestifyDataPanel = require('../components/data/TestifyDataPanel');
 var ModelSerDetail = require('../components/modelSer/modelSerDetail');
 var CustomIndexPanel = require('../components/systemSetting/customIndex');
 var CustomInfoPanel = require('../components/systemSetting/customInfo');
+var ModelSerRunInfo = require('../components/modelSerRun/modelSerRunInfo');
+var ModelSerDeployment = require('../components/modelSer/modelSerDeployment');
+var ModelSerTransform = require('../components/modelSer/modelserTranform');
+var ModelInsTable = require('../components/modelSer/modelInsTable');
+var ModelSerRunStatistic = require('../components/modelSerRun/modelSerRunStatistic');
+var ModelSerRunPieStatisitc = require('../components/modelSerRun/modelSerRunPieStatistic');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -52,6 +58,13 @@ if(document.getElementById('rmtModelSerRunTable') != null) {
         data-type={ document.getElementById('rmtModelSerRunTable').getAttribute('data-type') }
     />,
         document.getElementById('rmtModelSerRunTable'));
+}
+
+if(document.getElementById('ModelSerRunInfo') != null) {
+    ReactDOM.render(<ModelSerRunInfo
+        data-source={ document.getElementById('ModelSerRunInfo').getAttribute('data-source') }
+    />,
+        document.getElementById('ModelSerRunInfo'));
 }
 
 if(document.getElementById('settingPage') != null) {
@@ -106,6 +119,13 @@ if(document.getElementById('modelSerUploader') != null) {
         document.getElementById('modelSerUploader'));
 }
 
+if(document.getElementById('ModelSerTransform') != null) {
+    ReactDOM.render(<ModelSerTransform 
+    data-source-category="/modelser/cloud/category"
+    /> ,
+        document.getElementById('ModelSerTransform'));
+}
+
 if(document.getElementById('DataPreparation') != null) {
     ReactDOM.render(<DataPreparation
         data-source={document.getElementById('DataPreparation').getAttribute('data-source') }
@@ -116,7 +136,9 @@ if(document.getElementById('DataPreparation') != null) {
 
 if(document.getElementById('TestifyDataPanel') != null ){
     ReactDOM.render(<TestifyDataPanel 
-    data-source={document.getElementById('TestifyDataPanel').getAttribute('data-source') } />,
+        data-source={document.getElementById('TestifyDataPanel').getAttribute('data-source') } 
+        data-type={document.getElementById('TestifyDataPanel').getAttribute('data-type') } 
+    />,
     document.getElementById('TestifyDataPanel'));
 }
 
@@ -209,4 +231,28 @@ if(document.getElementById('enMatchModal')!=null){
         place= 'local'
         css={css}
     />,document.getElementById('enMatchModal'));
+}
+
+if(document.getElementById('ModelSerDeployment') != null){
+    ReactDOM.render(<ModelSerDeployment
+    data-source-category="/modelser/cloud/category"
+    />,document.getElementById('ModelSerDeployment'));
+}
+
+if(document.getElementById('ModelInsTable') != null){
+    ReactDOM.render(<ModelInsTable
+        data-source={document.getElementById('ModelInsTable').getAttribute('data-source') }
+        />,document.getElementById('ModelInsTable'));
+}
+
+if(document.getElementById('ModelSerRunStatistic') != null){
+    ReactDOM.render(<ModelSerRunStatistic
+        data-source={document.getElementById('ModelSerRunStatistic').getAttribute('data-source') }
+        />,document.getElementById('ModelSerRunStatistic'));
+}
+
+if(document.getElementById('ModelSerRunPieStatisitc') != null){
+    ReactDOM.render(<ModelSerRunPieStatisitc
+        data-source={document.getElementById('ModelSerRunPieStatisitc').getAttribute('data-source') }
+        />,document.getElementById('ModelSerRunPieStatisitc'));
 }

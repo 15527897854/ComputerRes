@@ -8,12 +8,12 @@
 
     <!--<link href="/css/bootstrap.css" rel="stylesheet" />-->
 
+    <link rel="stylesheet" href="/css/uploadfile.css" />
+    <link rel="stylesheet" href="/css/jquery.stepy.css">
     <link href="/js/treeview/css/bootstrap-treeview.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="/js/webix/webix.css" />
-    <link href="/css/prettify.css" rel="stylesheet" />
-    <link href="/css/bootstrap-modal-bs3patch.css" rel="stylesheet" />
-    <link href="/css/bootstrap-modal.css" rel="stylesheet" />
-    <link href="/js/webix/web.css" rel="stylesheet" />
+
+    <!--file upload-->
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-fileupload.min.css" />
 
     <style>
         .webix-list-header{
@@ -98,22 +98,32 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div id="cloudModelSerTable" data-source="/modelser/cloud/category"></div>
+        <section class="panel">
+            <header class="panel-heading" >
+                Deployment From Portal
+            </header>
+            <div class="panel-body" id="ModelSerTransform" ></div>
+        </section>
         <%- include footer.ejs %>
     </div>
 </section>
 
 <%- include footerInclude.ejs %>
 
-<!--dynamic table-->
-<!--<script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>-->
-<!--<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>-->
-<script type="text/javascript" src="/js/treeview/js/bootstrap-treeview.js"></script>
-<script type="text/javascript" src="/js/prettify.js"></script>
-<script type="text/javascript" src="/js/bootstrap-modalmanager.js"></script>
-<script type="text/javascript" src="/js/bootstrap-modal.js"></script>
+<script src="/js/jquery.validate.min.js"></script>
+<script src="/js/jquery.stepy.js"></script>
 
-<script type="text/javascript" src="/js/webix/webix.js"></script>
-<script src="/js/output/bundle.js" ></script>
+<!--file upload-->
+<script type="text/javascript" src="/js/bootstrap-fileupload.min.js"></script>
+
+<script type="text/javascript" src="/js/jquery.form.js" ></script>
+<script type="text/javascript" src="/js/jquery.uploadfile.min.js" ></script>
+
+<script type="text/javascript" src="/js/treeview/js/bootstrap-treeview.js"></script>
+
+<script type="text/javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
+<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+
+<script type="text/javascript" src="/js/output/bundle.js" ></script>
 </body>
 </html>

@@ -91,6 +91,7 @@
     "ModelService" : {
         "Name" : "Name",
         "Status" : "Status",
+        "Type" : "Type",
         "Version" : "Version",
         "Platform" : "Platform",
         "Avai" : "Avai",
@@ -101,6 +102,7 @@
         "Delete" : "Delete",
         "Invoking" : "Invoking",
         "Auth" : "Auth",
+        "Private" : "Private",
         "Public" : "Public"
     },
     "ModelServiceTable" : {
@@ -115,8 +117,7 @@
     "ModelServiceDetail" : {
         "Title" : "Model Service Detail",
         "Deployer" : "Deployer",
-        "Type" : "Type",
-        "DeploymentTime" : "DeploymentTime",
+        "DeploymentTime" : "Deployment Time",
         "Limited" : "Limited",
         "URLInvoking" : "URLInvoking",
         "API" : "API",

@@ -32,6 +32,13 @@ var RmtModelSerRunTable = React.createClass({
                     this.setState({loading : false, err : false, data : data.data.data});
                     if(this.state.init)
                     {
+                        var sortIndex = 2;
+                        if(this.props['data-type'] == 'rmt'){
+                            sortIndex = 3;
+                        }
+                        else if(this.props['data-type'] == 'ms'){
+                            sortIndex = 0;
+                        }
                         //初始化完成
                         $('#dynamic-table').dataTable(
                             {
@@ -48,7 +55,7 @@ var RmtModelSerRunTable = React.createClass({
                                 //排序
                                 "bSort": true,
                                 //排序配置
-                                "aaSorting": [[3, "desc"]],
+                                "aaSorting": [[sortIndex, "desc"]],
                                 //自适应宽度
                                 "bAutoWidth": true,
                                 //多语言配置
@@ -105,6 +112,16 @@ var RmtModelSerRunTable = React.createClass({
             );
         }
         var MsrItems = [];
+        var Heading = (
+            <tr>
+                <th>{window.LanguageConfig.ModelServiceRecord.Address}</th>
+                <th>{window.LanguageConfig.ModelService.Name}</th>
+                <th>{window.LanguageConfig.ModelServiceRecord.InstanceID}</th>
+                <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
+                <th>{window.LanguageConfig.ModelServiceRecord.Status}</th>
+                <th>{window.LanguageConfig.ModelServiceRecord.Operation}</th>
+            </tr>
+        );
         if(this.state.type == 'rmt'){
             MsrItems = this.state.data.map(function(host){
                 if(host.ping == 'err')
@@ -142,7 +159,14 @@ var RmtModelSerRunTable = React.createClass({
                 return msrs;
             }.bind(this));
         }
-        else{
+        if(this.state.type == 'ms'){
+            Heading = (
+                <tr>
+                    <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Operation}</th>
+                </tr>
+            );
             MsrItems = this.state.data.map(function (item) {
                 var status = '';
                 if(item.msr_status == 0)
@@ -157,12 +181,49 @@ var RmtModelSerRunTable = React.createClass({
                 {
                     status = window.LanguageConfig.ModelServiceRecord.Finished;
                 }
+                var date = new Date(item.msr_date).toLocaleString();
                 return (
                     <tr key={item._id}>
-                        <td>127.0.0.1</td>
+                        <td>{date}</td>
+                        <td>{status}</td>
+                        <td>
+                            <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
+                            { this.openModelSerRunInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"></i>{window.LanguageConfig.ModelServiceRecord.Detail}</button>&nbsp;
+                        </td>
+                    </tr>
+                );
+            }.bind(this));
+        }
+        else{
+            Heading = (
+                <tr>
+                    <th>{window.LanguageConfig.ModelService.Name}</th>
+                    <th>{window.LanguageConfig.ModelService.Type}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Operation}</th>
+                </tr>
+            );
+            MsrItems = this.state.data.map(function (item) {
+                var status = '';
+                if(item.msr_status == 0)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Unfinished;
+                }
+                if(item.msr_status == -1)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Error;
+                }
+                if(item.msr_status == 1)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Finished;
+                }
+                var date = new Date(item.msr_date).toLocaleString();
+                return (
+                    <tr key={item._id}>
                         <td>{item.msr_ms.ms_model.m_name}</td>
-                        <td>{item.msr_guid}</td>
-                        <td>{item.msr_date}</td>
+                        <td>{item.msr_ms.ms_model.m_type}</td>
+                        <td>{date}</td>
                         <td>{status}</td>
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
@@ -175,17 +236,10 @@ var RmtModelSerRunTable = React.createClass({
         return (
             <table className="display table table-bordered table-striped" id="dynamic-table">
                 <thead>
-                <tr>
-                    <th>{window.LanguageConfig.ModelServiceRecord.Address}</th>
-                    <th>{window.LanguageConfig.ModelService.Name}</th>
-                    <th>{window.LanguageConfig.ModelServiceRecord.InstanceID}</th>
-                    <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
-                    <th>{window.LanguageConfig.ModelServiceRecord.Status}</th>
-                    <th>{window.LanguageConfig.ModelServiceRecord.Operation}</th>
-                </tr>
+                    {Heading}
                 </thead>
                 <tbody>
-                {MsrItems}
+                    {MsrItems}
                 </tbody>
             </table>
         );

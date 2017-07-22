@@ -18,6 +18,10 @@ var TestifyDataPanel = React.createClass({
     },
 
     componentDidMount : function () {
+        this.refresh();
+    },
+
+    refresh : function(){
         Axios.get(this.props['data-source']).then(
             data => {
                 if(data.data.status == 1){
@@ -70,11 +74,22 @@ var TestifyDataPanel = React.createClass({
 
     deleteTestData : function(e){
         var testData = this.state.data[this.state.index].inputs;
-        Axios.delete(this.props['data-source']).then(
-            data => {},
+        Axios.delete(this.props['data-source'] + "?path=" + this.state.data[this.state.index].path).then(
+            data => {
+                if(data.data.result == 'suc'){
+                    if(data.data.data == 'true'){
+                        NoteDialog.openNoteDia(window.LanguageConfig.Notice.InfoTitle, this.state.data[this.state.index].tag + window.LanguageConfig.TestData.DeleteTestDataSuccessfully);
+                        this.refresh();
+                    }
+                    else{
+
+                        NoteDialog.openNoteDia(window.LanguageConfig.Notice.InfoTitle, this.state.data[this.state.index].tag + ' delete failed');
+                        this.refresh();
+                    }
+                }
+            },
             err => {}
         );
-        NoteDialog.openNoteDia(window.LanguageConfig.Notice.InfoTitle, this.state.data[this.state.index].tag + window.LanguageConfig.TestData.DeleteTestDataSuccessfully);
     },
     
     render : function(){
@@ -101,7 +116,7 @@ var TestifyDataPanel = React.createClass({
             if(this.state.data.length == 0){
                 body = (
                     <div id="testify-body" className="panel-body" >
-                        <h4>{window.LanguageConfig.Notice.NoTestData}</h4>
+                        <h4>{window.LanguageConfig.TestData.NoTestData}</h4>
                     </div>
                 );
             }
@@ -112,7 +127,7 @@ var TestifyDataPanel = React.createClass({
                 });
 
                 var delButton = null;
-                if(this.props["data-type"] != 'custom'){
+                if(this.props["data-type"] != 'CUSTOM'){
                     delButton = (<input id="btn_testify_del" type="button" className="btn btn-danger" value={window.LanguageConfig.TestData.DeleteTestData} onClick={this.deleteTestData} />);
                 }
 
@@ -144,15 +159,15 @@ var TestifyDataPanel = React.createClass({
         }
 
         return (
-        <div className="panel panel-info" id="testify-panel">
-            <div className="panel-heading" style={ { "backgroundColor" :"#46B8DA" , "bordeColor" : "#46B8DA" } }>
-                {window.LanguageConfig.TestData.Title}
-                <span className="tools pull-right">
-                    <a href="javascript:;" className="fa fa-chevron-down"></a>
-                 </span>
+            <div className="panel panel-info" id="testify-panel">
+                <div className="panel-heading" style={ { "backgroundColor" :"#46B8DA" , "bordeColor" : "#46B8DA" } }>
+                    {window.LanguageConfig.TestData.Title}
+                    <span className="tools pull-right">
+                        <a href="javascript:;" className="fa fa-chevron-down"></a>
+                    </span>
+                </div>
+                {body}
             </div>
-            {body}
-        </div>
         );
     }
 });

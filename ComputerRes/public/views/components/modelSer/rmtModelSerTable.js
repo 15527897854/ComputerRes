@@ -45,7 +45,7 @@ var RmtModelSerTable = React.createClass({
                                 //排序
                                 "bSort": true,
                                 //排序配置
-                                "aaSorting": [[3, "desc"]],
+                                "aaSorting": [[0, "desc"]],
                                 //自适应宽度
                                 "bAutoWidth": true,
                                 //多语言配置
@@ -100,7 +100,7 @@ var RmtModelSerTable = React.createClass({
     },
 
     stopModelSerHandle : function (e, host, msid) {
-        if(confirm('确定关闭模型?') == true)
+        if(confirm('Close this model service?') == true)
         {
             if(host){
                 Axios.put('/modelser/rmt/' + host + '/' + msid + '?ac=stop').then(
@@ -120,7 +120,7 @@ var RmtModelSerTable = React.createClass({
     },
 
     deleteModelSerHandle : function(e, host, msid) {
-        if(confirm('确定删除模型?') == true)
+        if(confirm('Delete this model service?') == true)
         {
             if(host){
                 Axios.delete('/modelser/rmt/' + host + '/' + msid ).then(
@@ -186,7 +186,20 @@ var RmtModelSerTable = React.createClass({
             );
         }
         var MsItems = [];
+        var Heading = null;
+        //! reomote model services
         if(this.state.type == 'rmt'){
+            Heading = (
+                <tr>
+                    <th>{window.LanguageConfig.ModelService.Name}</th>
+                    <th>{window.LanguageConfig.ModelService.Version}</th>
+                    <th>{window.LanguageConfig.ModelService.Type}</th>
+                    <th>{window.LanguageConfig.ModelService.Platform}</th>
+                    <th>{window.LanguageConfig.ModelService.Status}</th>
+                    <th>{window.LanguageConfig.ModelService.Address}</th>
+                    <th>{window.LanguageConfig.ModelServiceTable.Operation}</th>
+                </tr>
+            );
             MsItems = this.state.data.map(function(host){
                 if(host.ping == 'err'){
                     return;
@@ -240,11 +253,11 @@ var RmtModelSerTable = React.createClass({
                     }
                     return (
                         <tr>
-                            <td>{item.ms_model.m_name}</td>
+                            <td  title={item.ms_des} >{item.ms_model.m_name}</td>
                             <td>{item.mv_num}</td>
+                            <td>{item.ms_model.m_type}</td>
                             <td>{platform}</td>
                             <td>{status}</td>
-                            <td>0/1</td>
                             <td>{host.host}</td>
                             <td>
                                 <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
@@ -257,21 +270,19 @@ var RmtModelSerTable = React.createClass({
                 return mss;
             }.bind(this));
         }
+        //! custom model services
         else if(this.state.type == 'custom'){
+            Heading = (
+                <tr>
+                    <th>{window.LanguageConfig.ModelService.Name}</th>
+                    <th>{window.LanguageConfig.ModelService.Version}</th>
+                    <th>{window.LanguageConfig.ModelService.Type}</th>
+                    <th>{window.LanguageConfig.ModelServiceDetail.Limited}</th>
+                    <th>{window.LanguageConfig.ModelService.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceTable.Operation}</th>
+                </tr>
+            );
             MsItems = this.state.data.map(function (item) {
-                var platform;
-                if(item.ms_platform == 1)
-                {
-                    platform = (<span className="label label-info"><i className="fa fa-windows"> </i> windows</span>);
-                }
-                else if(item.ms_platform == 2)
-                {
-                    platform = (<span className="label label-info"><i className="fa fa-linux"> </i> linux</span>);
-                }
-                else
-                {
-                    platform = (<span className="label label-info">Unknown</span>);
-                }
                 var status;
                 var button;
                 if(item.ms_status == 1)
@@ -287,17 +298,22 @@ var RmtModelSerTable = React.createClass({
                     status = (<span className="badge badge-defult">{window.LanguageConfig.ModelService.Unavai}</span>);
                 }
                 var limited = null;
-                if(item.ms_limited){
-                    limited = (<span className="label label-default tooltips" title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i></span>);
+                if(item.ms_limited == 1){
+                    limited = (<span className="label label-default tooltips" title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}</span>);
+                }
+                else if(this.ms_limited == -1){
+                    limited = (<span className="label label-warning tooltips" title={window.LanguageConfig.ModelService.Private} ><i className="fa fa-user" ></i>&nbsp;{window.LanguageConfig.ModelService.Private}</span>);
+                }
+                else{
+                    limited = (<span className="label label-success tooltips" title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
                 }
                 return (
                     <tr key={item._id}>
-                        <td>{item.ms_model.m_name}&nbsp;{limited}</td>
+                        <td>{item.ms_model.m_name}</td>
                         <td>{item.mv_num}</td>
-                        <td>{platform}</td>
+                        <td>{item.ms_model.m_type}</td>
+                        <td>{limited}</td>
                         <td>{status}</td>
-                        <td>0/1</td>
-                        <td>127.0.0.1</td>
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
                             { this.openModelSerInfoHandle(e, 'custom', item._id ) } }  ><i className="fa fa-book"> </i>{window.LanguageConfig.ModelServiceTable.Detail}</button>&nbsp;
@@ -307,7 +323,18 @@ var RmtModelSerTable = React.createClass({
                 );
             }.bind(this));
         }
+        //! local model services
         else {
+            Heading = (
+                <tr>
+                    <th>{window.LanguageConfig.ModelService.Name}</th>
+                    <th>{window.LanguageConfig.ModelService.Version}</th>
+                    <th>{window.LanguageConfig.ModelService.Type}</th>
+                    <th>{window.LanguageConfig.ModelServiceDetail.Limited}</th>
+                    <th>{window.LanguageConfig.ModelService.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceTable.Operation}</th>
+                </tr>
+            );
             MsItems = this.state.data.map(function (item) {
                 var platform;
                 if(item.ms_platform == 1)
@@ -326,7 +353,7 @@ var RmtModelSerTable = React.createClass({
                 var button;
                 var button2;
                 var button3 = null;
-                if(!item.ms_model.m_id){
+                if(!item.ms_model.m_register){
                     button3 = (
                         <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.uploadModelSer(e, null, item._id) }} >
                             <i className="fa fa-cloud-upload"> </i>{window.LanguageConfig.ModelServiceTable.Register}
@@ -342,7 +369,7 @@ var RmtModelSerTable = React.createClass({
                     button2 = (
                         <button className="btn btn-danger btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title={window.LanguageConfig.ModelService.Stop} data-original-title={window.LanguageConfig.ModelService.Stop}
                                 onClick={(e)=>{this.stopModelSerHandle(e, null, item._id)}} >
-                            <i className="fa fa-stop"> </i>
+                            <i className="fa fa-stop"> </i>&nbsp;Stop
                         </button>
                     );
                 }
@@ -352,28 +379,33 @@ var RmtModelSerTable = React.createClass({
                     button = (
                         <button className="btn btn-success btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title={window.LanguageConfig.ModelService.Start} data-original-title={window.LanguageConfig.ModelService.Start}
                                 onClick={(e)=>{this.startModelSerHandle(e, null, item._id)}} >
-                            <i className="fa fa-play"> </i>
+                            <i className="fa fa-play"> </i>&nbsp;Start
                         </button>
                     );
                     button2 = (
                         <button className="btn btn-warning btn-xs tooltips" type="button" data-toggle="tooltip" data-placement=" bottom" title={window.LanguageConfig.ModelService.Delete} data-original-title={window.LanguageConfig.ModelService.Delete}
                                 onClick={(e) => { this.deleteModelSerHandle(e, null, item._id) }} >
-                            <i className="fa fa-trash-o"> </i>
+                            <i className="fa fa-trash-o"> </i>&nbsp;Delete
                         </button>
                     );
                 }
                 var limited = null;
-                if(item.ms_limited){
-                    limited = (<span className="label label-default tooltips" title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i></span>);
+                if(item.ms_limited == 1){
+                    limited = (<span className="label label-default tooltips" title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}</span>);
+                }
+                else if(item.ms_limited == -1){
+                    limited = (<span className="label label-warning tooltips" title={window.LanguageConfig.ModelService.Private} ><i className="fa fa-user" ></i>&nbsp;{window.LanguageConfig.ModelService.Private}</span>);
+                }
+                else{
+                    limited = (<span className="label label-success tooltips" title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
                 }
                 return (
-                    <tr key={item._id}>
-                        <td>{item.ms_model.m_name}&nbsp;{limited}</td>
+                    <tr key={item._id} >
+                        <td title={item.ms_des}>{item.ms_model.m_name}</td>
                         <td>{item.mv_num}</td>
-                        <td>{platform}</td>
+                        <td>{item.ms_model.m_type}</td>
+                        <td>{limited}</td>
                         <td>{status}</td>
-                        <td>0/1</td>
-                        <td>127.0.0.1</td>
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
                             { this.openModelSerInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"> </i>{window.LanguageConfig.ModelServiceTable.Detail}</button>&nbsp;
@@ -386,15 +418,7 @@ var RmtModelSerTable = React.createClass({
         return (
             <table className="display table table-bordered table-striped" id="dynamic-table">
                 <thead>
-                <tr>
-                    <th>{window.LanguageConfig.ModelService.Name}</th>
-                    <th>{window.LanguageConfig.ModelService.Version}</th>
-                    <th>{window.LanguageConfig.ModelService.Platform}</th>
-                    <th>{window.LanguageConfig.ModelService.Status}</th>
-                    <th>{window.LanguageConfig.ModelServiceTable.Instances}</th>
-                    <th>{window.LanguageConfig.ModelService.Address}</th>
-                    <th>{window.LanguageConfig.ModelServiceTable.Operation}</th>
-                </tr>
+                    {Heading}
                 </thead>
                 <tbody>
                     {MsItems}

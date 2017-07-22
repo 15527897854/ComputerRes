@@ -2,6 +2,7 @@
  * Created by Franklin on 2016/8/6.
  */
 var ModelSerCtrl = require('../control/modelSerControl');
+var ModelSerRunCtrl = require('../control/modelSerRunControl');
 
 module.exports = function (app) {
     //模型实例页面
@@ -13,6 +14,27 @@ module.exports = function (app) {
         });
 
     app.route('/modelins/:guid')
+        .get(function(req, res, next){
+            var ac = req.query.ac;
+            var guid = req.params.guid;
+            if(ac == 'detail'){
+                ModelSerRunCtrl.getByGUID(guid, function(err, msr){
+                    if(err){
+                        return res.redirect('/modelins/all');
+                    }
+                    if(msr == null){
+                        return res.redirect('/modelins/all');
+                    }
+                    return res.redirect('/modelserrun/' + msr._id);
+                });
+            }
+            else{
+                return res.end(JSON.stringify({
+                    result : 'err',
+                    message : 'Unknown cmd!'
+                }));
+            }
+        })
         .put(function(req, res, next){
             var ac = req.query.ac;
             var guid = req.params.guid;
@@ -22,43 +44,28 @@ module.exports = function (app) {
                     return res.end(JSON.stringify({
                         result : 'suc',
                         data : 1
-                    }))
-                }
-            }
-        });
-
-    //得到模型实例的JSON数据
-    app.route('/modelins/json/:guid')
-        .get(function (req, res, next) {
-            var guid = req.params.guid;
-            if(guid == 'all')
-            {
-                var miss = app.modelInsColl.getAllIns();
-                miss = JSON.stringify(miss);
-                res.end(miss);
-            }
-            else
-            {
-                var mis = app.modelInsColl.getByGUID(guid);
-                if(mis != -1)
-                {
-                    mismodel = {
-                        state : mis.state,
-                        guid : mis.guid
-                    };
-                    return res.end(JSON.stringify({
-                        'res' : 'suc',
-                        'mis' : mismodel
                     }));
                 }
-                else
-                {
-                    return res.end(JSON.stringify({
-                        res : null,
-                        mis : null
-                    }));
-                }
+                return res.end(JSON.stringify({
+                    result : 'fail',
+                    data : 1
+                }));
             }
+            if(ac == 'detail'){
+                ModelSerRunCtrl.getByGUID(guid, function(err, msr){
+                    if(err){
+                        return res.redirect('/modelins/all');
+                    }
+                    if(msr == null){
+                        return res.redirect('/modelins/all');
+                    }
+                    res.redirect('/modelserrun/' + msr._id);
+                });
+            }
+            return res.end(JSON.stringify({
+                result : 'err',
+                message : 'Unknown cmd!'
+            }));
         });
 
     //请求转发 获取远程的模型实例

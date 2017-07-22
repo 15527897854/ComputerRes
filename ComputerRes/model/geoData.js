@@ -33,7 +33,6 @@ GeoData.prototype.save = function (callback) {
     {
         "gd_tag" : this.gd_tag,
         "gd_datetime" : this.gd_datetime,
-        "gd_destroyed" : this.gd_destroyed,
         "gd_type" : this.gd_type,
         "gd_value" : this.gd_value
     };

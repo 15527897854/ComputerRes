@@ -12,6 +12,7 @@ var ModelInsCtrl = require('../control/ModelInsCtrl');
 var TestifyCtrl = require('../control/testifyCtrl');
 var cp = require('../utils/child-process'); 
 var languageCtrl = require('../control/languagesCtrl');
+var utils = require('../utils/commonMethod');
 
 module.exports = function(app){
     //客户端界面
@@ -41,26 +42,29 @@ module.exports = function(app){
     app.route('/public/modelser/preparation/:msid')
         .get(function(req, res, next){
             var msid = req.params.msid;
-            ModelSerCtrl.getByOID(msid, function(err, ms){
-                if(ms == null){
-                    res.end('Demo has been deleted!');
-                }
-                if(ms.ms_limited == 0){
-                    return res.render('customModelSerRunPro', {
-                        msid : msid
-                    });
-                }
-                else{
-                    if(req.session.user){
-                        return res.render('customModelSerRunPro', {
-                            msid : msid
-                        });
-                    }
-                    else{
-                        return res.render('customLogin');
-                    }
-                }
+            return res.render('customModelSerRunPro', {
+                msid : msid
             });
+            // ModelSerCtrl.getByOID(msid, function(err, ms){
+            //     if(ms == null){
+            //         res.end('Demo has been deleted!');
+            //     }
+            //     if(ms.ms_limited != 1){
+            //         return res.render('customModelSerRunPro', {
+            //             msid : msid
+            //         });
+            //     }
+            //     else{
+            //         if(req.session.user){
+            //             return res.render('customModelSerRunPro', {
+            //                 msid : msid
+            //             });
+            //         }
+            //         else{
+            //             return res.render('customLogin');
+            //         }
+            //     }
+            // });
         })
         .post(function(req, res, next){
             var msid = req.params.msid;
@@ -161,7 +165,12 @@ module.exports = function(app){
         .get(function(req, res, next){
             var msid = req.params.msid;
             if(msid == 'all'){
-                return ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'error in getting all model servicess!'));
+                if(req.query.type == 'admin'){
+                    next();
+                }
+                else{
+                    return ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'error in getting all model servicess!'));
+                }
             }
             else{
                 return ModelSerCtrl.getByOID(msid, RouteBase.returnFunction(res, 'error in getting model servicess!'));
@@ -188,74 +197,63 @@ module.exports = function(app){
                 //读取输入文件参数
                 var inputData = JSON.parse(req.query.inputdata);
                 var outputData = req.query.outputdata;
-                
                 ModelSerCtrl.getByOID(msid, function(err, ms){
+                    if(err){
+                        return res.end(
+                            JSON.stringify({
+                                res : 'fail',
+                                message : err
+                            })
+                        );
+                    }
+                    if(ms == null){
+                        return res.end(
+                            JSON.stringify({
+                                res : 'fail',
+                                message : 'No model service'
+                            })
+                        );
+                    }
+                    var user = {
+                        u_name : '[匿名]',
+                        u_ip : utils.getIP(req),
+                        u_type : 2
+                    };
+                    if(req.session.admin){
+                        user = {
+                            u_name : req.session.admin,
+                            u_type : 0
+                        };
+                    }
                     if(ms.ms_limited == 1){
-                        var authRunCb = (function(err, result){
-                            if(err){
-                                return res.end(JSON.stringify(err));
-                            }
-                            if(result.auth){
-                                return res.end(JSON.stringify({
-                                    res : 'suc',
-                                    msr_id : result.msr._id
-                                }));
-                            }
-                            else{ 
-                                return res.end(JSON.stringify({
-                                    res : 'fail',
-                                    message : result.message
-                                }));
-                            }
-                        });
-                        if(req.session.user){
-                            user = {
-                                username : req.session.user,
-                                pwd : req.session.pwd
-                            };
-                            ModelSerAccessCtrl.run(msid, inputData, outputData, user, authRunCb);
-                        }
-                        else if(req.query.auth){
-                            var auth = {};
-                            try{
-                                auth = JSON.parse(req.query.auth);
-                            }
-                            catch(ex){
-                                return res.end(JSON.stringify({
-                                    res : 'fail',
-                                    message : '验证失败!'
-                                }));
-                            }
-                            user = {
-                                username : auth.username,
-                                pwd : auth.pwd
-                            };
-                            ModelSerAccessCtrl.run(msid, inputData, outputData, user, authRunCb);
+                        if(req.query.auth){
+                            var auth = req.query.auth;
+                            ModelSerAccessCtrl.run(ms.ms_model.p_id, inputData, outputData, user, auth, function(err, result){
+                                if(err){
+                                    return res.end(JSON.stringify(err));
+                                }
+                                if(result.auth){
+                                    return res.end(JSON.stringify({
+                                        res : 'suc',
+                                        msr_id : result.msr._id
+                                    }));
+                                }
+                                else{ 
+                                    return res.end(JSON.stringify({
+                                        res : 'fail',
+                                        message : result.message
+                                    }));
+                                }
+                            });
                         }
                         else{
                             return res.end(JSON.stringify({
                                 res : 'fail',
-                                message : '无权限访问此模型!'
+                                message : 'No right to invoke this model service!'
                             }));
                         }
                     }
                     else{
-                        var user = {
-                            u_name : '[匿名]',
-                            u_type : 2
-                        };
-                        if(req.session.admin){
-                            user = {
-                                u_name : req.session.admin,
-                                u_type : 0
-                            };
-                        }
-                        if(req.session.user){
-                            user = {
-                                u_name : req.session.user,
-                                u_type : 1
-                            };
-                        }
                         ModelSerCtrl.run(msid, inputData, outputData, user, function(err, msr){
                             return res.end(JSON.stringify({
                                 res : 'suc',
@@ -307,31 +305,31 @@ module.exports = function(app){
 
     //获取单个模型实例
     app.route('/modelins/json/:guid')
-        .get(function(req, res, next){
+        .get(function (req, res, next) {
             var guid = req.params.guid;
             if(guid == 'all')
             {
-                next();
+                var miss = app.modelInsColl.getAllIns();
+                res.end(JSON.stringify({
+                    result : "suc",
+                    data : miss
+                }));
             }
             else
             {
-                var mis = app.modelInsColl.getByGUID(guid);
+                var mis = app.modelInsColl.getByGUIDCopy(guid);
                 if(mis != -1)
                 {
-                    mismodel = {
-                        state : mis.state,
-                        guid : mis.guid
-                    };
                     return res.end(JSON.stringify({
-                        'res' : 'suc',
-                        'mis' : mismodel
+                        result : "suc",
+                        data : mis
                     }));
                 }
                 else
                 {
                     return res.end(JSON.stringify({
-                        res : null,
-                        mis : null
+                        result : "suc",
+                        data : null
                     }));
                 }
             }
