@@ -2,26 +2,28 @@
  * Created by Administrator on 4.19.
  */
 
-var mongoose = require('./mongooseModel');
+var mongoose = require('../mongooseModel');
 
-var mongodb = require('./mongoDB');
+var mongodb = require('../mongoDB');
 var ObjectId = require('mongodb').ObjectID;
-var ModelBase = require('./modelBase');
+var ModelBase = require('../modelBase');
 
 function AggreTask(aggreTask){
     if(aggreTask){
-        this._id = aggreTask._id;
-        this.aggreCfg = aggreTask.aggreCfg;
-        this.taskInfo = aggreTask.taskInfo;
-        this.execStatus = aggreTask.execStatus;
-        this.time = aggreTask.time;
+        for(var key in aggreTask){
+            this[key] = aggreTask[key];
+        }
+        if(!taskInstance._id){
+            this._id = new ObjectId();
+        }
     }
     else{
         this._id = new ObjectId();
-        this.aggreCfg = {};
+        this.taskCfg = {};
         this.taskInfo = {};
-        this.execStatus = {};
-        this.time = new Date();
+        this.taskState = {};
+        this.MSState = [];
+        this.time = (new Date()).getTime();
     }
 }
 
@@ -29,10 +31,11 @@ AggreTask.__proto__ = ModelBase;
 module.exports = AggreTask;
 
 var taskSchema = new mongoose.Schema({
-    aggreCfg:mongoose.Schema.Types.Mixed,
+    taskCfg:mongoose.Schema.Types.Mixed,
     taskInfo:mongoose.Schema.Types.Mixed,
-    execStatus:mongoose.Schema.Types.Mixed,
-    time:Date
+    taskState:String,
+    MSState:Array,
+    time:Number
 },{collection:'aggreTask'});
 
 var taskModel = mongoose.model('aggreTask',taskSchema);

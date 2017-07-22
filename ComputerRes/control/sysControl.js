@@ -131,6 +131,7 @@ SysControl.getIP = function (cb) {
     //windows disk
     if(setting.platform == 1)
     {
+        var hasFind = false;
         var interfaces = os.networkInterfaces();
         var IPv4 = '127.0.0.1';
         for (var key in interfaces) {
@@ -141,10 +142,14 @@ SysControl.getIP = function (cb) {
                 if (details.family == 'IPv4') {
                     if(details.address != '127.0.0.1'){
                         IPv4 = details.address;
-                        cb(null,IPv4);
+                        hasFind = true;
+                        return cb(null,IPv4);
                     }
                 }
             });
+        }
+        if(!hasFind){
+            return cb('can\'t find local IP!');
         }
     }
     else if(setting.platform == 2)

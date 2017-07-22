@@ -1,11 +1,12 @@
 /**
  * Created by SCR on 2017/7/17.
  */
+/*jshint esversion: 6 */
 
-var SolutionLibrary = (function () {
-    var __url = '/aggregation/solution/getByID';
-    var __webixSolutionTable = null;
-    var __solutionsSegment = null;
+var TaskList = (function () {
+    var __url = '/aggregation/task/getByID';
+    var __webixTaskTable = null;
+    var __tasksSegment = null;
 
     return {
         init: function () {
@@ -23,28 +24,36 @@ var SolutionLibrary = (function () {
                     if(res.error){
                         $.gritter.add({
                             title: 'Warning:',
-                            text: 'Get solution library failed!<br><pre>' + JSON.stringify(res.error,null,4) + '</pre>',
+                            text: 'Get task list failed!<br><pre>' + JSON.stringify(res.error,null,4) + '</pre>',
                             sticky: false,
                             time: 2000
                         });
                     }
                     else{
-                        __solutionsSegment = res.solutionsSegment;
-                        self.__buildSolutionList();
+                        __tasksSegment = res.tasksSegment;
+
+                        self.__buildTasksList();
                     }
                 })
                 .fail(function (error) {
                     $.gritter.add({
                         title: 'Warning:',
-                        text: 'Get solution library failed!<br><pre>' + JSON.stringify(error,null,4) + '</pre>',
+                        text: 'Get task list failed!<br><pre>' + JSON.stringify(error,null,4) + '</pre>',
                         sticky: false,
                         time: 2000
                     });
                 });
         },
 
-        __buildSolutionList: function () {
-            var width = $('#solution-list').width()-50;
+        __buildTasksList: function () {
+            for(let i=0;i<__tasksSegment.length;i++){
+                __tasksSegment[i].name = __tasksSegment[i].taskInfo.taskName;
+                __tasksSegment[i].author = __tasksSegment[i].taskInfo.taskAuthor;
+                __tasksSegment[i].desc = __tasksSegment[i].taskInfo.taskDesc;
+                __tasksSegment[i].time = __tasksSegment[i].taskInfo.time;
+            }
+
+            var width = $('#task-list').width()-50;
             var height = 600;
             var columns = [
                 {
@@ -82,10 +91,9 @@ var SolutionLibrary = (function () {
                 header: 'Operate',
                 template: function (obj) {
                     return "<div>" +
-                        "<button class='btn btn-default btn-xs solution-operation-btn solution-detail-btn' title='solution detail'><i class='fa fa-info'></i></button>" +
-                        "<button class='btn btn-default btn-xs solution-operation-btn solution-edit-btn' title='edit solution'><i class='fa fa-pencil-square'></i></button>" +
-                        "<button class='btn btn-default btn-xs solution-operation-btn solution-configure-btn' title='configure this solution as a task'><i class='fa fa-cogs'></i></button>" +
-                        "<button class='btn btn-default btn-xs solution-operation-btn solution-delete-btn' title='delete solution'><i class='fa fa-trash'></i></button>" +
+                        "<button class='btn btn-default btn-xs task-operation-btn task-detail-btn' title='task detail'><i class='fa fa-info'></i></button>" +
+                        "<button class='btn btn-default btn-xs task-operation-btn task-edit-btn' title='edit task'><i class='fa fa-pencil-square'></i></button>" +
+                        "<button class='btn btn-default btn-xs task-operation-btn task-delete-btn' title='delete task'><i class='fa fa-trash'></i></button>" +
                         "</div>";
                 },
                 width: width/5
@@ -97,12 +105,12 @@ var SolutionLibrary = (function () {
                 next: ">",
                 prev: "<"
             };
-            __webixSolutionTable = webix.ui({
-                container: 'solution-list',
+            __webixTaskTable = webix.ui({
+                container: 'task-list',
                 view: 'datatable',
                 pager:{
                     template: "{common.first()} {common.prev()} {common.pages()} {common.next()} {common.last()}",
-                    container: 'solution-list-pager',
+                    container: 'task-list-pager',
                     size: 10,
                     group: 5,
                     level: 1,
@@ -116,47 +124,39 @@ var SolutionLibrary = (function () {
                 select: false,
                 editable: false,
                 columns: columns,
-                data:__solutionsSegment
+                data:__tasksSegment
             });
             this.__bindDetailBtnEvent();
             this.__bindEditBtnEvent();
             this.__bindDeleteBtnEvent();
-            this.__bindConfigureBtnEvent();
         },
 
         __bindDetailBtnEvent: function () {
-            __webixSolutionTable.on_click['solution-detail-btn'] = function (e, obj, trg) {
-                var solutionSegment = this.getItem(obj.row);
-                window.open('/aggregation/solution/detail?_id='+solutionSegment._id);
+            __webixTaskTable.on_click['task-detail-btn'] = function (e, obj, trg) {
+                var taskSegment = this.getItem(obj.row);
+                window.open('/aggregation/task/detail?_id='+taskSegment._id);
             };
         },
 
         __bindEditBtnEvent: function () {
-            __webixSolutionTable.on_click['solution-edit-btn'] = function (e, obj, trg) {
-                var solutionSegment = this.getItem(obj.row);
-                window.open('/aggregation/solution/edit?_id='+solutionSegment._id);
-            };
-        },
-
-        __bindConfigureBtnEvent: function () {
-            __webixSolutionTable.on_click['solution-configure-btn'] = function (e, obj, trg) {
-                var solutionSegment = this.getItem(obj.row);
-                window.open('/aggregation/task/new?solutionID='+solutionSegment._id);
+            __webixTaskTable.on_click['task-edit-btn'] = function (e, obj, trg) {
+                var taskSegment = this.getItem(obj.row);
+                window.open('/aggregation/task/edit?_id='+taskSegment._id);
             };
         },
 
         __bindDeleteBtnEvent: function () {
             var self = this;
-            __webixSolutionTable.on_click['solution-delete-btn'] = function (e, obj, trg) {
-                if(!confirm('Are you sure to delete this solution?')){
+            __webixTaskTable.on_click['task-delete-btn'] = function (e, obj, trg) {
+                if(!confirm('Are you sure to delete this task?')){
                     return ;
                 }
-                var solutionSegment = this.getItem(obj.row);
+                var taskSegment = this.getItem(obj.row);
                 var rowID = obj.row;
                 $.ajax({
-                    url: '/aggregation/solution/delete',
+                    url: '/aggregation/task/delete',
                     data: {
-                        _id: solutionSegment._id
+                        _id: taskSegment._id
                     },
                     type: 'DELETE',
                     dataType: 'json'
@@ -165,16 +165,16 @@ var SolutionLibrary = (function () {
                         if(res.error){
                             $.gritter.add({
                                 title: 'Warning:',
-                                text: 'Delete solution failed!<br><pre>' + JSON.stringify(res.error,null,4) + '</pre>',
+                                text: 'Delete task failed!<br><pre>' + JSON.stringify(res.error,null,4) + '</pre>',
                                 sticky: false,
                                 time: 2000
                             });
                         }
                         else{
-                            self.__deleteSolutionTableByID(rowID);
+                            self.__deleteTaskTableByID(rowID);
                             $.gritter.add({
                                 title: 'Notice:',
-                                text: 'Delete solution success!',
+                                text: 'Delete task success!',
                                 sticky: false,
                                 time: 2000
                             });
@@ -184,7 +184,7 @@ var SolutionLibrary = (function () {
                     .fail(function (error) {
                         $.gritter.add({
                             title: 'Warning:',
-                            text: 'Delete solution failed!<br><pre>' + JSON.stringify(error,null,4) + '</pre>',
+                            text: 'Delete task failed!<br><pre>' + JSON.stringify(error,null,4) + '</pre>',
                             sticky: false,
                             time: 2000
                         });
@@ -192,10 +192,10 @@ var SolutionLibrary = (function () {
             };
         },
 
-        __deleteSolutionTableByID: function (rowID) {
-            __webixSolutionTable.remove(rowID);
+        __deleteTaskTableByID: function (rowID) {
+            __webixTaskTable.remove(rowID);
         }
     };
 })();
 
-module.exports = SolutionLibrary;
+module.exports = TaskList;

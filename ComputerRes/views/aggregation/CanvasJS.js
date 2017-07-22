@@ -54,9 +54,9 @@ var CanvasJS = (()=> {
         var state = null;
         var event = null;
         if(states instanceof Array){
-            for(var i=0;i<states.length;i++){
-                if(states[i]._$.id == __stateID){
-                    state = states[i];
+            for(let m=0;m<states.length;m++){
+                if(states[m]._$.id == __stateID){
+                    state = states[m];
                 }
             }
         }
@@ -132,11 +132,11 @@ var CanvasJS = (()=> {
     var __myLayout = function (role) {
         var rst = {};
         if(role.elementType == 'container'){
-            for(var key in role){
-                if(typeof role[key] != 'function' &&
-                    key != 'childs' &&
-                    key != 'messageBus'){
-                    rst[key] = role[key];
+            for(var key1 in role){
+                if(typeof role[key1] != 'function' &&
+                    key1 != 'childs' &&
+                    key1 != 'messageBus'){
+                    rst[key1] = role[key1];
                 }
             }
             rst.childsID = [];
@@ -147,48 +147,48 @@ var CanvasJS = (()=> {
             }
         }
         else if(role.elementType == 'link'){
-            for(var key in role){
-                if(typeof role[key] != 'function' &&
-                    key != 'messageBus'){
-                    if(key == 'nodeA'){
-                        rst.nodeAID = role[key]._id;
+            for(var key2 in role){
+                if(typeof role[key2] != 'function' &&
+                    key2 != 'messageBus'){
+                    if(key2 == 'nodeA'){
+                        rst.nodeAID = role[key2]._id;
                     }
-                    else if(key == 'nodeZ'){
-                        rst.nodeZID = role[key]._id;
+                    else if(key2 == 'nodeZ'){
+                        rst.nodeZID = role[key2]._id;
                     }
                     else{
-                        rst[key] = role[key];
+                        rst[key2] = role[key2];
                     }
                 }
             }
         }
         else if(role.elementType == 'node'){
-            for(var key in role){
-                if(typeof role[key] != 'function' &&
-                    key != 'messageBus' &&
-                    key != 'inLinks' &&
-                    key != 'outLinks'){
-                    rst[key] = role[key];
+            for(var key3 in role){
+                if(typeof role[key3] != 'function' &&
+                    key3 != 'messageBus' &&
+                    key3 != 'inLinks' &&
+                    key3 != 'outLinks'){
+                    rst[key3] = role[key3];
                 }
             }
         }
         else if(role.elementType == 'scene'){
-            for(var key in role){
-                if(typeof role[key] != 'function' &&
-                    key != 'stage' &&
-                    key != 'childs' &&
-                    key != 'currentElement' &&
-                    key != 'selectedElements' &&
-                    key != 'messageBus' &&
-                    key != 'mouseOverelement' &&
-                    key != 'mousecoord' &&
-                    key != 'operations' &&
-                    key != 'propertiesStack' &&
-                    key != 'serializedProperties' &&
-                    key != 'zIndexArray' &&
-                    key != 'mouseDownEvent' &&
-                    key != 'zIndexMap'){
-                    rst[key] = role[key];
+            for(var key4 in role){
+                if(typeof role[key4] != 'function' &&
+                    key4 != 'stage' &&
+                    key4 != 'childs' &&
+                    key4 != 'currentElement' &&
+                    key4 != 'selectedElements' &&
+                    key4 != 'messageBus' &&
+                    key4 != 'mouseOverelement' &&
+                    key4 != 'mousecoord' &&
+                    key4 != 'operations' &&
+                    key4 != 'propertiesStack' &&
+                    key4 != 'serializedProperties' &&
+                    key4 != 'zIndexArray' &&
+                    key4 != 'mouseDownEvent' &&
+                    key4 != 'zIndexMap'){
+                    rst[key4] = role[key4];
                 }
             }
         }
@@ -203,19 +203,40 @@ var CanvasJS = (()=> {
         return _p8() + _p8(true) + _p8(true) + _p8();
     };
 
+    var __getMaxZIndex = function (){
+        var maxZ = Math.max.apply(null, $.map($('body > *'), function (e, n) {
+            if ($(e).css('position') == 'absolute'||$(e).css('position') == 'relative'||$(e).css('position') == 'fixed')
+                return parseInt($(e).css('z-index')) || 1;
+            })
+        );
+        return maxZ;
+    };
+
     return {
+        // canvas element
         __stage: null,
         __scene: null,
         __toolMode: null,   // normal zoomIn zoomOut delete
         __mode: 'view',     // view edit run
 
+        // solution
+        __solution: null,
+        __task: null,
+
+        // solutionCfg
         __serviceList: [],
         __relationList: [],
-        __dataList: [],
+        // taskCfg
+        __dataList: [],             // gdid MSID stateID eventName TODO 应该加上 host port 两个字段，表示数据是以服务的形式接入进来的
 
+        // canvas role
         __nodeList: [],
         __linkList: [],
         __containerList: [],
+
+        // temp
+        __currentNode: null,
+        __isValid: true,
 
         init: function(mode) {
             var self = this;
@@ -225,23 +246,25 @@ var CanvasJS = (()=> {
             this.__stage = new JTopo.Stage($('#canvas')[0]);
             this.__scene = new JTopo.Scene();
             this.__stage.add(this.__scene);
+            this.__stage.setCenter(0,0);
             this.__stage.wheelZoom = 0.85;
             this.__scene.mode = 'normal';
 
             this.__bindStageEvent(this.__stage);
             this.__bindSceneEvent(this.__scene);
             this.__bindToolbarEvent();
+            this.__bindMenuEvent();
             this.addLinkRoleManuel();
 
             if(mode == 'view'){
-                $('.edit-mode-tool').css('display','none');
-                $('.run-mode-tool').css('display','none');
+                $('#edit-mode-toolbar').remove();
+                $('#configure-mode-toolbar').remove();
             }
             else if(mode == 'edit'){
-                $('.run-mode-tool').css('display','none');
+                $('#configure-mode-toolbar').remove();
             }
-            else if(mode == 'run'){
-
+            else if(mode == 'configure'){
+                $('#edit-mode-toolbar').remove();
             }
         },
 
@@ -360,30 +383,32 @@ var CanvasJS = (()=> {
                     case 'run-tool':
                         self.run();
                         break;
-                    case 'save-tool':
-                        $('#save-aggre-modal').modal('show');
-                        self.__bindSaveEvent();
+                    case 'save-solution-tool':
+                        $('#save-aggre-solution-modal').modal('show');
+                        self.__bindSaveSolutionEvent();
                         break;
+                    case 'save-task-tool':
+                        $('#save-aggre-task-modal').modal('show');
+                        self.__bindSaveTaskEvent();
                 }
             });
 
             $('#hand-tool').click();
         },
 
-        __bindMenuEvent: function (node) {
+        __bindMenuEvent: function () {
             var self = this;
-            var type = node.__nodeType;
-            if(type == 'STATES'){
-                $('#del-ms-menu').on('click',function (e) {
-                    self.removeServiceRole(node);
-                    __hideContextMenu();
-                });
-            }
-            else{
-                $('#upload-data-menu').on('click',function (e) {
-                    self.__uploadData(node);
-                });
-            }
+
+            $('#del-ms-menu').on('click',function (e) {
+                self.removeServiceRole(self.__currentNode);
+                __hideContextMenu();
+            });
+
+            $('#upload-data-menu').on('click',function (e) {
+                self.__buildEventDetail();
+                __hideContextMenu();
+            });
+
         },
 
         __bindStageEvent: function (stage) {
@@ -400,6 +425,9 @@ var CanvasJS = (()=> {
                         }
                     }
                 }
+                else if(e.button == 2){
+                    __hideContextMenu();
+                }
             });
         },
 
@@ -411,7 +439,7 @@ var CanvasJS = (()=> {
                 }
                 else if(e.button == 2){
                     var target = e.target;
-                    if( self.__mode != 'view' && target && target.elementType == 'link' && target.__linkType == 'CUSTOM'){
+                    if( self.__mode == 'edit' && target && target.elementType == 'link' && target.__linkType == 'CUSTOM'){
                         self.removeRelationByJTopoID(self.__scene, e.target._id);
                         self.__removeJTopoElementByID(self.__scene, e.target._id);
                     }
@@ -427,29 +455,32 @@ var CanvasJS = (()=> {
             var self = this;
             var type = node.__nodeType;
 
-            node.addEventListener('mouseup',function (e) {
-                if(e.button == 2 && self.__mode != 'view'){
-                    __hideContextMenu();
-                    __showContextMenu(node.__nodeType);
-                    self.__bindMenuEvent(node);
-                }
-                else if(e.button == 0){
-                    if(node.__nodeType == 'STATES'){
-                        if(self.__toolMode == 'delete')
-                            self.removeServiceRole(e.target);
+            if(self.__mode != 'view'){
+                node.addEventListener('mouseup',function (e) {
+                    if(e.button == 2){
+                        __hideContextMenu();
+                        __showContextMenu(node.__nodeType);
+                        self.__currentNode = node;
                     }
-                }
-            });
+                    else if(e.button == 0){
+                        if(node.__nodeType == 'STATES'){
+                            if(self.__toolMode == 'delete')
+                                self.removeServiceRole(e.target);
+                        }
+                    }
+                });
+            }
 
             if(type == 'INPUT' || type == 'OUTPUT' || type == 'CONTROL'){
                 // 双击上传数据
                 node.addEventListener('dbclick',function (e) {
-                    self.__uploadData(node);
+                    self.__currentNode = node;
+                    self.__buildEventDetail();
                 });
             }
         },
 
-        __bindSaveEvent: function () {
+        __bindSaveSolutionEvent: function () {
             var self = this;
             $('#save-aggre-form').validate({
                 onfocusout:true,
@@ -488,7 +519,7 @@ var CanvasJS = (()=> {
                             else {
                                 $('#loading-div').hide();
                                 $('#submit-form-btn').attr('disabled',false);
-                                $('#save-aggre-modal').modal('hide');
+                                $('#save-aggre-solution-modal').modal('hide');
 
                                 $('#solutionID-input').attr('value',res._id);
                                 $('#solution-name').empty();
@@ -519,6 +550,67 @@ var CanvasJS = (()=> {
             });
         },
 
+        __bindSaveTaskEvent: function () {
+            var self = this;
+            $('#save-aggre-form').validate({
+                onfocusout:true,
+                focusInvalid:true,
+                submitHandler:function (form) {
+                    var data = self.exportTask();
+                    $('#loading-div').show();
+                    $('#submit-form-btn').attr('disabled',true);
+                    $.ajax( {
+                        url: '/aggregation/task/save',
+                        data: JSON.stringify(data),
+                        contentType: "application/json;charset=utf-8",
+                        type: 'POST',
+                        dataType: 'json'
+                    })
+                        .done(function (res) {
+                            if (res.error) {
+                                $('#loading-div').hide();
+                                $('#submit-form-btn').attr('disabled',false);
+                                $.gritter.add({
+                                    title: 'Warning：',
+                                    text: 'Save task failed!<br><pre>' + JSON.stringify(res.error, null, 4) + '</pre>',
+                                    sticky: false,
+                                    time: 2000
+                                });
+                            }
+                            else {
+                                $('#loading-div').hide();
+                                $('#submit-form-btn').attr('disabled',false);
+                                $('#save-aggre-task-modal').modal('hide');
+
+                                $('#taskID-input').attr('value',res._id);
+                                $('#task-name').empty();
+                                $('#task-author').empty();
+                                $('#task-name').append(data.taskInfo.taskName);
+                                $('#task-author').append(data.taskInfo.taskAuthor);
+                                $('#task-info').css('display','block');
+
+                                $.gritter.add({
+                                    title: 'Notice:',
+                                    text: 'Save task success!',
+                                    sticky: false,
+                                    time: 2000
+                                });
+                            }
+                        })
+                        .fail(function (err) {
+                            $('#loading-div').hide();
+                            $('#submit-form-btn').attr('disabled',false);
+                            $.gritter.add({
+                                title: 'Warning:',
+                                text: 'Save task failed!<br><pre>' + JSON.stringify(err, null, 4) + '</pre>',
+                                sticky: false,
+                                time: 2000
+                            });
+                        });
+                }
+            });
+        },
+
         // 两种node，附加信息有：
         // {
         //     __nodeType:'STATES',
@@ -532,9 +624,7 @@ var CanvasJS = (()=> {
         //     __eventName:String
         // }
         // 创建时只添加jTopo自带的属性，额外属性在调用端添加
-        __addJTopoNode: function(layerX, layerY, text, type, scale) {
-            var x = layerX - this.__scene.translateX;
-            var y = layerY - this.__scene.translateY;
+        __addJTopoNode: function(x, y, text, type, scale) {
             var node = null;
             var linkScale = scale == 1?1:(2-scale);
             if(type == 'STATES'){
@@ -608,11 +698,14 @@ var CanvasJS = (()=> {
                 for(var key in roleJSON){
                     role[key] = roleJSON[key];
                 }
+                // if(this.__mode == 'edit'){
+                //     this.__bindNodeEvent(role);
+                // }
                 this.__linkList.push(role);
             }
             else if(roleJSON.elementType == 'container'){
                 role = new JTopo.Container();
-                for(var key in roleJSON){
+                for(let key in roleJSON){
                     role[key] = roleJSON[key];
                 }
                 if(roleJSON.childsID && roleJSON.childsID != undefined){
@@ -626,16 +719,14 @@ var CanvasJS = (()=> {
             }
             else if(roleJSON.elementType == 'node'){
                 role = new JTopo.Node();
-                for(var key in roleJSON){
+                for(let key in roleJSON){
                     role[key] = roleJSON[key];
                 }
-                if(role.__nodeType == 'INPUT' || role.__nodeType == 'OUTPUT' || role.__nodeType == 'CONTROL'){
-                    this.__bindNodeEvent(role);
-                }
+                this.__bindNodeEvent(role);
                 this.__nodeList.push(role);
             }
             else if(roleJSON.elementType == 'scene'){
-                for(var key in roleJSON){
+                for(let key in roleJSON){
                     this.__scene[key] = roleJSON[key];
                 }
                 return ;
@@ -687,13 +778,16 @@ var CanvasJS = (()=> {
             return null;
         },
 
+        // TODO 数据不一定必须要上传，也有可能是以服务的形式接入进来
         // 上传数据，会添加到 __dataList 中
-        __uploadData: function (node) {
+        __buildEventDetail: function () {
+            var node = this.__currentNode;
             var self = this;
             var type = node.__nodeType;
             var id = node.__MSID + '___' + node.__stateID + '___' + node.__eventName;
             if($('#'+id).length){
                 $('#'+id).parent().show();
+                $('#'+id).parent().css('z-index',__getMaxZIndex()+1);
             }
             else{
                 var eventDetail = __getEventDetail(node.__stateID,node.__eventName,node.__MSID, self.__serviceList);
@@ -722,13 +816,21 @@ var CanvasJS = (()=> {
 
                 $dataInfoDialog.appendTo($('#aggreDIV'));
                 $dataInfoDialog.dialog({});
+                $('#'+id).parent().addClass('dataInfo-ui-dialog');
 
-                if(this.__mode == 'run'){
+                if(this.__mode == 'configure'){
                     if(node.__nodeType == 'INPUT' || node.__nodeType == 'CONTROL'){
                         $(
                             '<p><b>Upload data: </b></p>' +
                             '<input id="' + id + '-upload-data" name="myfile" type="file" class="file" data-show-preview="false">'
                         ).appendTo($dataInfoDialog);
+
+                        if(node.__gdid && node.__gdid != undefined){
+                            $('<button id="' + id + '-download-data " onclick="window.open(\'/geodata/'+node.__gdid+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download data</button>')
+                                .appendTo($dataInfoDialog);
+                        }
+
+                        // TODO 验证数据合法性
                         $('#'+id+'-upload-data').fileinput({
                             uploadUrl:'/geodata/file',
                             allowedFileExtensions:['xml','zip'],
@@ -740,8 +842,8 @@ var CanvasJS = (()=> {
                             .on('fileuploaded',function (e, data, previewId, index) {
                                 if(data.response.res != 'suc'){
                                     $.gritter.add({
-                                        title: '警告：',
-                                        text: '上传数据失败！',
+                                        title: 'Warning:',
+                                        text: 'Upload data failed!',
                                         sticky: false,
                                         time: 2000
                                     });
@@ -752,11 +854,15 @@ var CanvasJS = (()=> {
                                     gdid: gdid,
                                     MSID: node.__MSID,
                                     stateID: node.__stateID,
-                                    eventName: node.__eventName
+                                    eventName: node.__eventName,
+                                    state: 'READY'
                                 };
                                 var hasInserted = false;
                                 for(var i=0;i<self.__dataList.length;i++){
-                                    if(self.__dataList[i].gdid == gdid){
+                                    // 已经上传过，重新上传替换
+                                    if(self.__dataList[i].MSID == node.__MSID &&
+                                    self.__dataList[i].stateID == node.__stateID &&
+                                    self.__dataList[i].eventName == node.__eventName){
                                         self.__dataList[i] = inputData;
                                         hasInserted = true;
                                         break;
@@ -767,10 +873,25 @@ var CanvasJS = (()=> {
                                 }
                                 node.__gdid = gdid;
                                 node.shadow = true;
+                                node.shadowColor = 'rgba(0,0,0,1)';
+
+                                // 添加数据下载链接
+                                // TODO 下载链接不对，有可能会跨域请求别的节点上的数据
+                                $('#'+ id +' .down-event-btn').remove();
+                                $('<button id="' + id + '-download-data " onclick="window.open(\'/geodata/'+node.__gdid+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download data</button>')
+                                    .appendTo($dataInfoDialog);
+
+                                $.gritter.add({
+                                    title: 'Notice:',
+                                    text: 'Upload data success!' ,
+                                    sticky: false,
+                                    time: 2000
+                                });
+                                return ;
                             })
                             .on('fileerror',function (e, data) {
                                 $.gritter.add({
-                                    title: '警告：',
+                                    title: 'Warning:',
                                     text: '<pre>'+JSON.stringify(error, null, 4)+'</pre>',
                                     sticky: false,
                                     time: 2000
@@ -827,6 +948,7 @@ var CanvasJS = (()=> {
                 if(self.__toolMode != 'link')
                     return;
                 if(e.button == 2){
+                    beginNode = null;
                     scene.remove(link);
                     return;
                 }
@@ -845,7 +967,8 @@ var CanvasJS = (()=> {
                         tempNodeZ.setLocation(e.x, e.y);
                     }
                     else if(beginNode !== e.target){
-                        // TODO 验证添加规则
+                        var endNode = e.target;
+                        //  region 验证添加规则
                         if(e.target.__nodeType == 'STATES'){
                             $.gritter.add({
                                 title: '警告：',
@@ -857,8 +980,17 @@ var CanvasJS = (()=> {
                             scene.remove(link);
                             return;
                         }
-
-                        var endNode = e.target;
+                        if(!self.validateLink(beginNode,endNode)){
+                            beginNode = null;
+                            $.gritter.add({
+                                title: 'Warning:',
+                                text: 'Invalid link between node with different schema!',
+                                sticky: false,
+                                time: 2000
+                            });
+                            return ;
+                        }
+                        // endregion
                         var relation = self.__addRelation(beginNode,endNode);
                         var l = new JTopo.Link(beginNode, endNode);
                         l.arrowsRadius = 7;
@@ -929,7 +1061,11 @@ var CanvasJS = (()=> {
             var eventCount = event.length;
             var scale = eventCount<=4?1:Math.pow(0.99,eventCount);
             var linkScale = (scale === 1)?1:(2-scale);
-            var stateNode = this.__addJTopoNode(window.event.layerX, window.event.layerY, SADLService.MS.ms_model.m_name, 'STATES', scale);
+            var stateNodeX = window.event.layerX  - this.__scene.translateX;
+            var stateNodeY = window.event.layerY  - this.__scene.translateY;
+            // var stateNodeX = (window.event.layerX - this.__scene.getCenterLocation().x) * this.__scene.scaleX - this.__scene.translateX;
+            // var stateNodeY = (window.event.layerY - this.__scene.getCenterLocation().y) * this.__scene.scaleY - this.__scene.translateY;
+            var stateNode = this.__addJTopoNode(stateNodeX, stateNodeY, SADLService.MS.ms_model.m_name, 'STATES', scale);
             // 有可能会出现一个服务使用多次的情况，所以_id得在前台生成
             var __service = JSON.parse(JSON.stringify(SADLService));
             __service._id = ObjectID().str;
@@ -967,8 +1103,8 @@ var CanvasJS = (()=> {
                     type = 'OUTPUT';
                 }
                 else {
-                    x = window.event.layerX - dx;
-                    y = window.event.layerY - ((inputCount + controlCount - 1) / 2 - k) * dy;
+                    x = window.event.layerX - dx - this.__scene.translateX;
+                    y = window.event.layerY - ((inputCount + controlCount - 1) / 2 - k) * dy - this.__scene.translateY;
                     if(typeof event[i].ResponseParameter !== 'undefined'){
                         type = 'INPUT';
                     }
@@ -1046,18 +1182,30 @@ var CanvasJS = (()=> {
             };
         },
 
-        __getTaskCfg: function () {
-            return {
-                serviceList: this.__serviceList,
-                relationList: this.__relationList,
-                dataList: this.__dataList
-            };
-        },
-
         __importRoleByJSON: function (roleList) {
             for(var i = 0;i<roleList.length;i++){
                 this.__addJTopoElementByJSON(roleList[i]);
             }
+        },
+
+        __importDataList: function () {
+            var dataList = this.__dataList;
+            var roleList = this.__scene.childs;
+            for(let i=0;i<roleList.length;i++){
+                let role = roleList[i];
+                if(role.elementType == 'node'){
+                    for(let j=0;j<dataList.length;j++){
+                        var data = dataList[j];
+                        if(role.__MSID == data.MSID && role.__stateID == data.stateID && role.__eventName == data.eventName){
+                            role.shadow = true;
+                            role.shadowColor = 'rgba(0,0,0,1)';
+                            role.__gdid = data.gdid;
+                            // 设置上传按钮的显示，添加下载链接
+                        }
+                    }
+                }
+            }
+            this.__stage.paint();
         },
 
         exportSolution: function () {
@@ -1067,14 +1215,9 @@ var CanvasJS = (()=> {
             };
         },
 
-        importSolution: function (solution) {
+        importSolution: function () {
+            var solution = this.__solution;
             var self = this;
-            $('#solutionID-input').attr('value',solution._id);
-            $('#solution-name').empty();
-            $('#solution-author').empty();
-            $('#solution-name').append(solution.solutionInfo.solutionName);
-            $('#solution-author').append(solution.solutionInfo.solutionAuthor);
-
             this.__serviceList = solution.solutionCfg.serviceList;
             this.__relationList = solution.solutionCfg.relationList;
 
@@ -1089,47 +1232,151 @@ var CanvasJS = (()=> {
             self.__stage.paint();
         },
 
-        // TODO
-        run: function () {
-            // var self = this;
-            // $.ajax({
-            //     url:'/aggregation/run',
-            //     data: {aggreCfg: self.__getSolutionCfg()},
-            //     contentType:"application/json;charset=utf-8",
-            //     type:'POST',
-            //     dataType:'json',
-            // })
-            //     .done(function (res) {
-            //         if(res.error){
-            //             $.gritter.add({
-            //                 title: '警告：',
-            //                 text: '服务聚合失败！<br><pre>'+JSON.stringify(res.error,null,4)+'</pre>',
-            //                 sticky: false,
-            //                 time: 2000
-            //             });
-            //         }
-            //         else {
-            //
-            //         }
-            //     })
-            //     .fail(function (err) {
-            //         $.gritter.add({
-            //             title: '警告：',
-            //             text: '服务聚合失败！<br><pre>'+JSON.stringify(err,null,4)+'</pre>',
-            //             sticky: false,
-            //             time: 2000
-            //         });
-            //     });
+        initImport: function (type, data) {
+            if(type == 'SOLUTION'){
+                this.__solution = data;
+                let solution = this.__solution;
+
+                // bottom label
+                $('#config-tag').css('display','block');
+                if($('#task-info').length){
+                    $('#task-info').css('display','none');
+                }
+
+                $('#solution-name').empty();
+                $('#solution-author').empty();
+                $('#solution-name').append(solution.solutionInfo.solutionName);
+                $('#solution-author').append(solution.solutionInfo.solutionAuthor);
+                $('#solutionID-input').attr('value',solution._id);
+                // modal input text
+                $('#solutionName').attr('value',solution.solutionInfo.solutionName);
+                $('#solutionDesc').attr('value',solution.solutionInfo.solutionDesc);
+                $('#solutionAuthor').attr('value',solution.solutionInfo.solutionAuthor);
+            }
+            else if(type == 'TASK'){
+                this.__task = data;
+                this.__solution = data.solutionDetail;
+                this.__dataList = data.taskCfg.dataList;
+                let task = this.__task;
+                let solution = this.__solution;
+
+                // bottom label
+                $('#config-tag').css('display','block');
+
+                $('#solution-name').empty();
+                $('#solution-author').empty();
+                $('#solution-name').append(solution.solutionInfo.solutionName);
+                $('#solution-author').append(solution.solutionInfo.solutionAuthor);
+                $('#solutionID-input').attr('value',solution._id);
+                $('#taskID-info').css('display','block');
+
+                $('#task-name').empty();
+                $('#task-author').empty();
+                $('#task-name').append(task.taskInfo.taskName);
+                $('#task-author').append(task.taskInfo.taskAuthor);
+                $('#taskID-input').attr('value',task._id);
+                // modal input text
+                $('#taskName').attr('value',task.taskInfo.taskName);
+                $('#taskDesc').attr('value',task.taskInfo.taskDesc);
+                $('#taskAuthor').attr('value',task.taskInfo.taskAuthor);
+            }
         },
 
-        // TODO 当有数据上传时调用，更新所有服务的准备状态
+        exportTask: function () {
+            var taskInfo = {};
+            var saveTag = $('#save-aggre-form').serializeArray();
+            for(var i=0;i<saveTag.length;i++){
+                taskInfo[saveTag[i].name] = saveTag[i].value;
+            }
+
+            // var MSState = [];
+            // for(let i=0;i<this.__serviceList.length;i++){
+            //     MSState.push({
+            //         MSID: this.__serviceList[i]._id,
+            //         state: 'READY'
+            //     });
+            // }
+
+            var task = {
+                taskCfg:{
+                    dataList: this.__dataList,
+                    solutionID: this.__solution._id,
+                    driver: 'DataDriver'
+                },
+                taskState:'CONFIGURED',
+                taskInfo: taskInfo
+                // MSState: MSState
+            };
+            if($('#taskID-input').length && $('#taskID-input').attr('value') && $('#taskID-input').attr('value') != undefined){
+                task._id = $('#taskID-input').attr('value');
+            }
+            return task;
+        },
+
+        importTask: function () {
+            this.importSolution();
+            this.__importDataList();
+        },
+
+        run: function () {
+            // TODO 再点击运行前要有一些其他交互
+
+            if(!this.__isValid){
+                $.gritter.add({
+                    title: 'Warning:',
+                    text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(res.error,null,4)+'</pre>',
+                    sticky: false,
+                    time: 2000
+                });
+            }
+            $.ajax({
+                url:'/aggregation/task/run',
+                data: JSON.stringify(this.exportTask()),
+                contentType:"application/json;charset=utf-8",
+                type:'POST',
+                dataType:'json',
+            })
+                .done(function (res) {
+                    if(res.error){
+                        $.gritter.add({
+                            title: 'Warning:',
+                            text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(res.error,null,4)+'</pre>',
+                            sticky: false,
+                            time: 2000
+                        });
+                    }
+                    else {
+                        $.gritter.add({
+                            title: 'Notice:',
+                            text: 'Start aggregation task successed, please check the run state at times!',
+                            sticky: false,
+                            time: 2000
+                        });
+                    }
+                })
+                .fail(function (err) {
+                    $.gritter.add({
+                        title: 'Warning:',
+                        text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(err,null,4)+'</pre>',
+                        sticky: false,
+                        time: 2000
+                    });
+                });
+        },
+
+        // TODO 当上传数据时调用，更新所有服务的准备状态，显示在界面上
         updateServiceState: function () {
 
         },
 
-        // TODO 验证数据配置状态和服务连接关系
-        validateAggreCfg: function () {
+        // TODO 当上传数据时调用，验证上传数据与schema 是否匹配
+        validateEvent: function () {
 
+        },
+
+        // TODO 当在不同模型之间建立连接时，验证link 是否合法
+        validateLink: function (nodeA, nodeZ) {
+            return true;
         }
     };
 })();

@@ -64,16 +64,20 @@
                     <li><a href="/child-node/all">查看运算网络</a></li>
                 </ul>
             </li>
-            <li id="aggregation-li" class="menu-list <% if(typeof openli !== 'undefined' && openli == 'aggregation-li'){%>nav-active<%} %>">
+            <li id="aggregation-li" class="menu-list
+<% if(typeof openli !== 'undefined' && openli == 'aggregation-li'){%>
+nav-active
+<%} %>
+">
                 <a href="/aggregation">
                     <i class="fa fa-puzzle-piece"></i>
                     <span>服务聚合任务</span>
                 </a>
                 <ul class="sub-menu-list">
-                    <li><a href="/aggregation/solution/new">create solution</a></li>
-                    <li><a href="/aggregation/solution/query">solution library</a></li>
-                    <li><a href="/aggregation/instance?ac=query">instance task</a></li>
-                    <li><a href="/aggregation/task?ac=query">history task</a></li>
+                    <li><a href="/aggregation/solution/new">Create solution</a></li>
+                    <li><a href="/aggregation/solution/query">Solution library</a></li>
+                    <li><a href="/aggregation/instance/query">Instance task</a></li>
+                    <li><a href="/aggregation/task/query">Task list</a></li>
                 </ul>
             </li>
             <li><a href="/modelser/cloud"><i class="fa fa-cloud-download"></i> <span>门户云模型</span></a></li>

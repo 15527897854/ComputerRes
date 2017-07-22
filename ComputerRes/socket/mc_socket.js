@@ -9,6 +9,8 @@ var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var GeoDataCtrl = require('../control/geoDataControl');
 var NoticeCtrl = require('../control/noticeCtrl');
 var ModelInsCtrl = require('../control/ModelInsCtrl');
+var DataDriver = require('../control/Integrate/DataDriver');
+var SysCtrl = require('../control/sysControl');
 
 function SocketTrans(app)
 {
@@ -92,31 +94,79 @@ function SocketTrans(app)
                 {
                     msr.msr_status = -1;
                 }
-                ModelSerRunCtrl.update(msr, function (err2, data) {
-                    if(err2)
-                    {
-                        return console.log('Error in removing modelIns and updating MSR');
-                    }
 
-                    if(!setting.debug){
-                        //移除该实例
-                        app.modelInsColl.removeBySocekt(socket);
-                    }
-
-                    //通知消息数据
-                    var noticeData = {
-                        time : new Date(),
-                        title : msr.msr_ms.ms_model.m_name + '停止运行！',
-                        detail : '',
-                        type : 'stop-run',
-                        hasRead : false
-                    };
-                    NoticeCtrl.save(noticeData,function (err, data) {
+                // region integrate scr
+                if(mi.isIntegrate){
+                    var dataDriver = new DataDriver();
+                    dataDriver.init(mi.taskID,function (err) {
                         if(err){
-                            return console.log('Error in addNotice');
+                            // TODO
+                            return
                         }
+                        else{
+                            SysCtrl.getIP(function (err, ip) {
+                                if(err){
+                                    //
+                                }
+                                else {
+                                    var finishedInfo = {
+                                        centerHost: mi.centerHost,
+                                        centerPort: mi.centerPort,
+                                        taskID: mi.taskID,
+                                        MSinsID: mi.MSinsID,
+                                        outputData: msr.msr_output,
+                                        host: ip,
+                                        port: setting.port
+                                    };
+                                    if(finished) {
+                                        finishedInfo.MSState = 'FINISHED';
+                                    }
+                                    else {
+                                        finishedInfo.MSState = 'COLLAPSED';
+                                    }
+                                    dataDriver.emitMSFinished(finishedInfo,function (err, rst) {
+                                        if(err){
+                                            console.log(err);
+                                            //
+                                        }
+                                        else{
+
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+                // endregion scr
+                else{
+                    ModelSerRunCtrl.update(msr, function (err2, data) {
+                        if(err2)
+                        {
+                            return console.log('Error in removing modelIns and updating MSR');
+                        }
+
+                        if(!setting.debug){
+                            //移除该实例
+                            app.modelInsColl.removeBySocekt(socket);
+                        }
+
+                        //通知消息数据
+                        var noticeData = {
+                            time : new Date(),
+                            title : msr.msr_ms.ms_model.m_name + '停止运行！',
+                            detail : '',
+                            type : 'stop-run',
+                            hasRead : false
+                        };
+                        NoticeCtrl.save(noticeData,function (err, data) {
+                            if(err){
+                                return console.log('Error in addNotice');
+                            }
+                        });
                     });
-                });
+                }
+
             });
             console.log('CLOSED: ' + socket.remoteAddress + ' ' + socket.remotePort);
         });

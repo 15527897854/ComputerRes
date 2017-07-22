@@ -2,11 +2,11 @@
  * Created by Administrator on 4.19.
  */
 
-var mongoose = require('./mongooseModel');
+var mongoose = require('../mongooseModel');
 
-var mongodb = require('./mongoDB');
+var mongodb = require('../mongoDB');
 var ObjectId = require('mongodb').ObjectID;
-var ModelBase = require('./modelBase');
+var ModelBase = require('../modelBase');
 
 function AggreSolution(aggreSolution){
     if(aggreSolution){

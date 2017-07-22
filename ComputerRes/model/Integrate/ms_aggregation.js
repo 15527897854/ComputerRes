@@ -1,11 +1,11 @@
 /**
  * Created by SCR on 2017/7/8.
  */
-var mongoose = require('./mongooseModel');
+var mongoose = require('../mongooseModel');
 
-var mongodb = require('./mongoDB');
+var mongodb = require('../mongoDB');
 var ObjectId = require('mongodb').ObjectID;
-var ModelBase = require('./modelBase');
+var ModelBase = require('../modelBase');
 
 function Aggregation(aggre){
     if(aggre){

@@ -43,10 +43,17 @@ RemoteReqControl.postByServer = function (url, form, callback) {
         options = {
             method:'POST',
             uri:url,
-            formData:form,
-            headers:{
-                'Content-Type': 'multipart/form-data'
-            }
+            // 两种写法
+            // 写法1
+            // body:JSON.stringify(form),
+            // headers:{    // 设置这个是为了让服务端能够解析发过去的信息，没有这个会出错，req.body中没有值
+            //     'Content-Type': 'application/json;charset=utf-8'
+            // },
+            // 写法2
+            // 同样的json会自动把form格式化为string，并设置content-type
+            // body:form,
+            formData:JSON.stringify(form),
+            json:true
         };
     }
     else{

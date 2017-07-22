@@ -14,11 +14,14 @@ function ModelInstance(mis) {
     }
     else
     {
-        this.guid = mis.guid;
-        this.socket = mis.socket;
-        this.ms = mis.ms;
-        this.start = mis.start;
-        this.state = mis.state;
+        // this.guid = mis.guid;
+        // this.socket = mis.socket;
+        // this.ms = mis.ms;
+        // this.start = mis.start;
+        // this.state = mis.state;
+        for(var key in mis){
+            this[key] = mis[key];
+        }
     }
     return this;
 }

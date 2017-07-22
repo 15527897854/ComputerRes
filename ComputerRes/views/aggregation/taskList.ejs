@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task list</title>
+    <%- include ../headInclude.ejs %>
+
+    <link href="/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    <link href="/css/jquery-ui-1.10.3.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="/js/webix/webix.css" />
+    <link rel="stylesheet" type="text/css" href="/css/aggregation/taskList.css"/>
+
+</head>
+<body class="left-side-collapsed">
+<section>
+    <%- include ../header.ejs %>
+    <div class="main-content row" style="">
+
+        <%- include ../nav.ejs %>
+
+        <h3 style="margin: 10px 20px;" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">Task List</h3>
+
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div id="task-list-pager"></div>
+            <div id="task-list"></div>
+        </div>
+
+        <%- include ../footer.ejs %>
+
+    </div>
+</section>
+<%- include ../footerInclude.ejs %>
+
+<script type="text/javascript" src="/js/webix/webix.js"></script>
+
+<script type="text/javascript" src="/js/browserBundle.js"></script>
+
+<script src="http://localhost:2345/livereload.js"></script>
+</body>
+</html>

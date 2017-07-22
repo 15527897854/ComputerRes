@@ -39,7 +39,7 @@
     "request-promise": "^4.2.1",
     "rimraf": "^2.5.4",
     "serve-favicon": "^2.3.2",
-    "socket.io": "^1.4.6",
+    "socket.io": "^1.7.4",
     "tiny-svg": "^0.1.1",
     "unzip": "^0.1.11",
     "uploadify": "^1.0.7",

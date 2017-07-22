@@ -2,8 +2,6 @@
  * Created by SCR on 2017/7/9.
  */
 /*jshint esversion: 6 */
-
-// var Promise = require('bluebird');
 var CanvasJS = require('./CanvasJS');
 
 var MSAggreJS = (function () {
@@ -77,6 +75,8 @@ var MSAggreJS = (function () {
     };
 
     return {
+        __webixTree: null,
+
         getALLMS: (cb) => {
             $.ajax({
                 url:'/aggregation/ms/all',
@@ -108,7 +108,7 @@ var MSAggreJS = (function () {
                 });
         },
 
-        buildMSListModal: function(msTreeData,cb) {
+        buildMSListModal: function(msTreeData, showModal,cb) {
             var webixTree = webix.ui({
                 container: 'ms-tree',
                 view: 'tree',
@@ -122,33 +122,35 @@ var MSAggreJS = (function () {
                 autoheight: true,
                 editable: false,
                 data: msTreeData,
-                template: "{common.icon()} {common.checkbox()} {common.folder()} <span>#ms_model.m_name#</span>",
-                on: {
-                    'onItemCheck':function (id) {
-                        if(this.getChecked().length == 0)
-                            $('#ms-cart-modal .btn-tt-submit').attr('disabled',true);
-                        else
-                            $('#ms-cart-modal .btn-tt-submit').attr('disabled',false);
-                    },
-                    'onItemClick': function (id) {
-                        var hasChecked = false;
-                        var checked = this.getChecked();
-                        for(var i=0;i<checked.length;i++){
-                            if(checked[i] == id){
-                                hasChecked = true;
-                                break;
-                            }
-                        }
-                        if(!hasChecked){
-                            this.checkItem(id);
-                        }
-                        else{
-                            this.uncheckItem(id);
-                        }
+                template: "{common.icon()} {common.checkbox()} {common.folder()} <span>#ms_model.m_name#</span>"
+            });
+
+            // onItemClick onItemCheck 是为了动态更新 submit 按钮的 disabled 属性
+            webixTree.attachEvent('onItemClick',function (id) {
+                var hasChecked = false;
+                var checked = this.getChecked();
+                for(var i=0;i<checked.length;i++){
+                    if(checked[i] == id){
+                        hasChecked = true;
+                        break;
                     }
                 }
+                if(!hasChecked){
+                    this.checkItem(id);
+                }
+                else{
+                    this.uncheckItem(id);
+                }
             });
-            $('#ms-cart-modal').modal('show');
+            webixTree.attachEvent('onItemCheck', function (id) {
+                if(this.getChecked().length == 0)
+                    $('#ms-cart-modal .btn-tt-submit').attr('disabled',true);
+                else
+                    $('#ms-cart-modal .btn-tt-submit').attr('disabled',false);
+            });
+
+            if(showModal && showModal != undefined)
+                $('#ms-cart-modal').modal('show');
             $('#ms-cart-modal .btn-tt-submit').click((e) => {
                 var Aggre_MS = webixTree.getChecked();
                 var mss = [];
@@ -165,7 +167,22 @@ var MSAggreJS = (function () {
                     this.buildMSDetailAccordion(mss);
                 });
             });
-            return cb(null,webixTree);
+            this.__webixTree = webixTree;
+            return cb(null);
+        },
+
+        __checkWebixTree: function (msIDList) {
+            var treeItemID = this.__webixTree.getFirstId();
+            while (treeItemID){
+                var treeItem = this.__webixTree.getItem(treeItemID);
+                for(var i=0;i<msIDList.length;i++){
+                    if(treeItem._id == msIDList[i]){
+                        this.__webixTree.checkItem(treeItemID);
+                    }
+                }
+                treeItemID = this.__webixTree.getNextId(treeItemID,1);
+            }
+            $('#ms-cart-modal .btn-tt-submit').click();
         },
 
         buildMSDetailAccordion: (msList) => {
@@ -219,6 +236,52 @@ var MSAggreJS = (function () {
 
             var dnd = __Dnd();
             dnd.init();
+        },
+
+        importLayoutBySolution: function (solution) {
+            var self = this;
+            return new Promise(function (resolve, reject) {
+                self.getALLMS(function (err, mss) {
+                    if(err){
+                        return reject(err);
+                    }
+                    else {
+                        return resolve(mss);
+                    }
+                });
+            })
+                .then(function (mss) {
+                    return new Promise(function (resolve, reject) {
+                        self.buildMSListModal(mss,false,function (err) {
+                            if(err){
+                                return reject(err);
+                            }
+                            else {
+                                return resolve();
+                            }
+                        });
+                    });
+                })
+                .then(function () {
+                    var msIDList = [];
+                    var serviceList = solution.solutionCfg.serviceList;
+                    if(serviceList && serviceList != undefined){
+                        for(var i=0;i < serviceList.length;i++){
+                            msIDList.push(serviceList[i].MS._id);
+                        }
+                    }
+                    self.__checkWebixTree(msIDList);
+                })
+                .catch(function (err) {
+                    var errMsg = '<pre>'+JSON.stringify(err,null,4)+'</pre>';
+                    $.gritter.add({
+                        title: 'Warning:',
+                        text: errMsg,
+                        sticky: false,
+                        time: 2000
+                    });
+                    return;
+                });
         }
     };
 })();

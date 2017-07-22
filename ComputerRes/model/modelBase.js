@@ -26,6 +26,14 @@ ModelBase.getByOID = function(_oid,callback){
         var oid = new ObjectId(_oid);
         this.baseModel.findOne({'_id' : oid}, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by id'));
     }
+    // this.baseModel.findOne({'_id': _oid},function (err, rst) {
+    //     if(err){
+    //         return callback(err);
+    //     }
+    //     else {
+    //         return callback(null,rst);
+    //     }
+    // })
 };
 
 ModelBase.getByWhere = function (where, callback) {
