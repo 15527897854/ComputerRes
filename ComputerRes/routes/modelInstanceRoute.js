@@ -67,7 +67,15 @@ module.exports = function (app) {
                 message : 'Unknown cmd!'
             }));
         });
-
+    //模型运行实例信息
+    app.route('/modelins/json/all')
+        .get(function (req, res, next) {
+            var miss = app.modelInsColl.getAllIns();
+            res.end(JSON.stringify({
+                result : "suc",
+                data : miss
+            }));
+        });
     //请求转发 获取远程的模型实例
     app.route('/modelins/rmt/all')
         .get(function (req, res, next) {
@@ -99,12 +107,25 @@ module.exports = function (app) {
         {
             var host = req.params.host;
             var guid = req.params.guid;
-            ModelSerCtrl.getRmtMis(host, guid, function(err, data){
-                if(err)
-                {
-                    return res.end('error : ' + JSON.stringify(err));
-                }
-                return res.end(JSON.stringify(data));
-            });
+            if(guid == 'all'){
+                ModelSerCtrl.getAllRmtMisByHost(host, function(err, data){
+                    if(err){
+                        return res.end(JSON.stringify({
+                            result : 'err',
+                            message : err
+                        }));
+                    }
+                    return res.end(JSON.stringify(data));
+                });
+            }
+            else{
+                ModelSerCtrl.getRmtMis(host, guid, function(err, data){
+                    if(err)
+                    {
+                        return res.end('error : ' + JSON.stringify(err));
+                    }
+                    return res.end(JSON.stringify(data));
+                });
+            }
         });
 };

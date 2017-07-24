@@ -23,7 +23,7 @@ var RmtModelSerRunTable = React.createClass({
     refresh : function () {
         Axios.get(this.props['data-source']).then(
             data => {
-                if(data.data.res == 'err')
+                if(data.data.result == 'err')
                 {
                     this.setState({loading : false, err : data.data.message});
                 }
@@ -189,6 +189,80 @@ var RmtModelSerRunTable = React.createClass({
                         <td>
                             <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
                             { this.openModelSerRunInfoHandle(e, null, item._id ) } }  ><i className="fa fa-book"></i>{window.LanguageConfig.ModelServiceRecord.Detail}</button>&nbsp;
+                        </td>
+                    </tr>
+                );
+            }.bind(this));
+        }
+        if(this.state.type == 'rms'){
+            Heading = (
+                <tr>
+                    <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Operation}</th>
+                </tr>
+            );
+            MsrItems = this.state.data.map(function (item) {
+                var status = '';
+                if(item.msr_status == 0)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Unfinished;
+                }
+                if(item.msr_status == -1)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Error;
+                }
+                if(item.msr_status == 1)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Finished;
+                }
+                var date = new Date(item.msr_date).toLocaleString();
+                return (
+                    <tr key={item._id}>
+                        <td>{date}</td>
+                        <td>{status}</td>
+                        <td>
+                            <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
+                            { this.openModelSerRunInfoHandle(e, this.props['data-host'], item._id ) } }  ><i className="fa fa-book"></i>{window.LanguageConfig.ModelServiceRecord.Detail}</button>&nbsp;
+                        </td>
+                    </tr>
+                );
+            }.bind(this));
+        }
+        if(this.state.type == 'rmthost'){
+            Heading = (
+                <tr>
+                    <th>{window.LanguageConfig.ModelService.Name}</th>
+                    <th>{window.LanguageConfig.ModelService.Type}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceRecord.Operation}</th>
+                </tr>
+            );
+            MsrItems = this.state.data.map(function (item) {
+                var status = '';
+                if(item.msr_status == 0)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Unfinished;
+                }
+                if(item.msr_status == -1)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Error;
+                }
+                if(item.msr_status == 1)
+                {
+                    status = window.LanguageConfig.ModelServiceRecord.Finished;
+                }
+                var date = new Date(item.msr_date).toLocaleString();
+                return (
+                    <tr key={item._id}>
+                        <td>{item.msr_ms.ms_model.m_name}</td>
+                        <td>{item.msr_ms.ms_model.m_type}</td>
+                        <td>{date}</td>
+                        <td>{status}</td>
+                        <td>
+                            <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
+                            { this.openModelSerRunInfoHandle(e, this.props['data-host'], item._id ) } }  ><i className="fa fa-book"></i>{window.LanguageConfig.ModelServiceRecord.Detail}</button>&nbsp;
                         </td>
                     </tr>
                 );

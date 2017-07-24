@@ -322,7 +322,7 @@ module.exports = function (app) {
                     }));
                 }
                 var port = child.port;
-                var url = 'http://' + host + ':' + port + '/geodata/file';
+                var url = 'http://' + host + ':' + port + '/geodata?type=file';
                 remoteReqCtrl.postRequest(req,url,function (err, data) {
                     if(err){
                         console.log('---------------------err--------------------\n'+err);
@@ -348,7 +348,7 @@ module.exports = function (app) {
                     }));
                 }
                 var port = child.port;
-                req.pipe(request.post('http://' + host + ':' + port +'/geodata/stream',function (err, respose, body) {
+                req.pipe(request.post('http://' + host + ':' + port +'/geodata?type=stream',function (err, respose, body) {
                     if(err){
                         console.log('---------------------err--------------------\n'+err);
                         return res.end(JSON.stringify({

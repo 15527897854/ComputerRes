@@ -180,28 +180,6 @@ ModelSerRunCtrl.getTimesStatisticInfo = function(callback){
 
 /////////////////////远程
 
-ModelSerRunCtrl.getRmtModelSerRun = function (host, msrid, callback) {
-    if(ParamCheck.checkParam(callback, host)){
-        if(ParamCheck.checkParam(callback, msrid)){
-            Child.getByHost(host, function (err, child) {
-                if(err)
-                {
-                    return callback(err);
-                }
-                if(ParamCheck.checkParam(callback, child))
-                {
-                    RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/' + msrid + '?token=' + child.access_token, function (err, data) {
-                        if(err)
-                        {
-                            return callback(err);
-                        }
-                        return callback(null, data);
-                    });
-                }
-            });
-        }
-    }
-};
 
 ModelSerRunCtrl.getAllRmtModelSerRun = function (callback) {
     Child.getAll(function(err, children){
@@ -242,4 +220,86 @@ ModelSerRunCtrl.getAllRmtModelSerRun = function (callback) {
             RemoteReqControl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelserrun/json/all?token=' + children[i].access_token, pending(i));
         }
     });
+};
+
+ModelSerRunCtrl.getRmtModelSerRun = function(host, msrid, callback){
+    if(ParamCheck.checkParam(callback, host)){
+        if(ParamCheck.checkParam(callback, msrid)){
+            Child.getByHost(host, function(err, child){
+                if(err){
+                    return callback(err);
+                }
+                if(child){
+                    return RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/' + msrid + '?token=' + child.access_token, 
+                        this.returnRemoteFunction(callback, 'Error in getting rmt model serivce running records by Host and Msrid'));
+                }
+                else{
+                    return callback(new Error('No child!'))
+                }
+            }.bind(this));
+        }
+    }
+};
+
+ModelSerRunCtrl.getRmtModelSerRunsByHost = function (host, callback) {
+    Child.getByHost(host, function(err, child){
+        if(err){
+            return callback(err);
+        }
+        if(child){
+            return RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/all?token=' + child.access_token, 
+                this.returnRemoteFunction(callback, 'Error in getting rmt model serivce running records by Host'));
+        }
+        else{
+            return callback(new Error('No child!'))
+        }
+    }.bind(this));
+};
+
+ModelSerRunCtrl.getRmtModelSerRunsByHostAndMsid = function (host, msid, callback) {
+    Child.getByHost(host, function(err, child){
+        if(err){
+            return callback(err);
+        }
+        if(child){
+            return RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/all?token=' + child.access_token + '&msid=' + msid, 
+                this.returnRemoteFunction(callback, 'Error in getting rmt model serivce running records by Host and Msid'));
+        }
+        else{
+            return callback(new Error('No child!'))
+        }
+    }.bind(this));
+};
+
+ModelSerRunCtrl.getRmtModelSerRunsStatisticByHost = function (host, days, callback) {
+    Child.getByHost(host, function(err, child){
+        if(err){
+            return callback(err);
+        }
+        if(child){
+            return RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/all?type=statistic&token=' + child.access_token + '&days=' + days,  
+                this.returnRemoteFunction(callback, 'Error in getting rmt model serivce running statistic info by Host'));
+        }
+        else{
+            return callback(new Error('No child!'))
+        }
+    }.bind(this));
+};
+
+ModelSerRunCtrl.getRmtModelSerRunsStatisticByHostAndMsid = function (host, msid, days, callback) {
+    if(ParamCheck.checkParam(callback, host)){
+        if(ParamCheck.checkParam(callback, msid)){
+            Child.getByHost(host, function (err, child) {
+                if(err)
+                {
+                    return callback(err);
+                }
+                if(ParamCheck.checkParam(callback, child))
+                {
+                    RemoteReqControl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelserrun/json/all?token=' + child.access_token + '&msid=' + msid + '&type=statistic&days=' + days,  
+                        this.returnRemoteFunction(callback, 'Error in getting rmt model serivce running statistic info by Host and Msid'));
+                }
+            }.bind(this));
+        }
+    }
 };

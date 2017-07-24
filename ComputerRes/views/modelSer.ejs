@@ -15,7 +15,11 @@
             <div class="main-content">
                 <!-- 上导航栏 -->
                 <%- include nav.ejs %>
-                <div id="ModelSerDetail" data-source="/modelser/json/<%=modelSer._id %>" data-type="admin" ></div>
+                <div id="ModelSerDetail" 
+                    data-source="/modelser/json/<%=modelSer._id %>"
+                    data-source-msr="/modelserrun/json/all?msid=<%=modelSer._id %>"
+                    data-source-msrstatistic="/modelserrun/json/all?type=statistic&msid=<%=modelSer._id %>"
+                    data-type="admin" ></div>
                 <%- include footer.ejs %>
             </div>
         </section>

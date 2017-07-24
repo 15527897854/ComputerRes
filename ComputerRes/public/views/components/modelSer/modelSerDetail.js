@@ -159,6 +159,15 @@ var ModelSerDetail = React.createClass({
                                     onDeleted={this.onDeleted}
                                         />);
         }
+        
+        var host = null;
+        if(this.props['data-host']){
+            host = (
+                <p className="muted" >
+                    Host&nbsp;:&nbsp;{this.props['data-host']}
+                </p>
+            );
+        }
 
         var invorkingURL = url + '/public/modelser/preparation/' + this.state.ms._id;
         if(this.props['data-type'] == 'admin'){
@@ -170,14 +179,17 @@ var ModelSerDetail = React.createClass({
                     </div>
                     <div className="panel-body">
                         <header className="panel-heading"> Statistic </header>
-                        <ModelSerRunStatistic data-source={"/modelserrun/json/all?type=statistic&msid=" + this.state.ms._id} />
+                        <ModelSerRunStatistic 
+                            data-source={this.props['data-source-msrstatistic']}
+                            />
                         <br />
                         <br />
                         <br />
                         <header className="panel-heading"> Records Table </header>
                         <ModelSerRunTable 
-                            data-source={"/modelserrun/json/all?msid=" + this.state.ms._id}
-                            data-type="ms"
+                            data-source={this.props['data-source-msr']}
+                            data-type="rms"
+                            data-host={this.props['data-host']}
                             />
                     </div>
                 </div>
@@ -205,6 +217,7 @@ var ModelSerDetail = React.createClass({
                                 <p className="muted" >
                                     {window.LanguageConfig.ModelService.Version}&nbsp;:&nbsp;{ this.state.ms.mv_num }
                                 </p>
+                                {host}
                                 <p className="muted" >
                                     {window.LanguageConfig.ModelService.Platform}&nbsp;:&nbsp;{platform}
                                 </p>

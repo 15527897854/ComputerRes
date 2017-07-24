@@ -78,6 +78,18 @@ ModelSerControl.getChildModelSer = function(callback){
     });
 };
 
+//搜索单个子节点模型服务信息
+ModelSerControl.getChildModelSerByHost = function(host, callback){
+    if(ParamCheck.checkParam(callback, host)){
+        Child.getByHost(host, function(err, child){
+            if(err){
+                return callback(err);
+            }
+            remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelser/json/all?token=' + child.access_token, this.returnFunction(callback, 'Error in getting rmt model services by host!'));
+        }.bind(this));
+    }
+}
+
 //查询子节点的所有模型服务运行实例
 ModelSerControl.getAllRmtMis = function (headers, callback) {
     Child.getAllAvai(function (err, children) {
@@ -103,6 +115,18 @@ ModelSerControl.getAllRmtMis = function (headers, callback) {
             remoteReqCtrl.getRequestJSON('http://' + children[i].host + ':' + children[i].port + '/modelins/json/all?token=' + children[i].access_token, pending(i));
         }
     });
+};
+//查询子节点的所有模型服务运行实例
+ModelSerControl.getAllRmtMisByHost = function (host, callback) {
+    if(ParamCheck.checkParam(callback, host)){
+        Child.getByHost(host, function (err, child) {
+            if (err) {
+                return callback(err);
+            }
+            remoteReqCtrl.getRequestJSON('http://' + child.host + ':' + child.port + '/modelins/json/all?token=' + child.access_token, 
+                this.returnFunction(callback, 'error in getting rmt model service instances'));
+        }.bind(this));
+    }
 };
 
 //查询某个子节点某个模型服务运行实例

@@ -32,7 +32,7 @@ var RmtModelSerTable = React.createClass({
                     if(this.state.init)
                     {
                         //初始化完成
-                        $('#dynamic-table').dataTable(
+                        $('#modelservice-table').dataTable(
                             {
                                 //数据URL
                                 "data": "/modelser/json/rmtall",
@@ -231,7 +231,7 @@ var RmtModelSerTable = React.createClass({
                         button2 = (
                             <button className="btn btn-danger btn-xs tooltips" type="button" title={window.LanguageConfig.ModelService.Stop} 
                                     onClick={(e)=>{this.stopModelSerHandle(e, host.host, item._id)}} >
-                                <i className="fa fa-stop"> </i>
+                                <i className="fa fa-stop"> </i> {window.LanguageConfig.ModelService.Stop} 
                             </button>
                         );
                     }
@@ -241,7 +241,7 @@ var RmtModelSerTable = React.createClass({
                         button = (
                             <button className="btn btn-success btn-xs tooltips" type="button" title={window.LanguageConfig.ModelService.Start} 
                                     onClick={(e)=>{this.startModelSerHandle(e, host.host, item._id)}} >
-                                <i className="fa fa-play"> </i>
+                                <i className="fa fa-play"> </i> {window.LanguageConfig.ModelService.Start} 
                             </button>
                         );
                         button2 = (
@@ -416,7 +416,7 @@ var RmtModelSerTable = React.createClass({
             }.bind(this));
         }
         return (
-            <table className="display table table-bordered table-striped" id="dynamic-table">
+            <table className="display table table-bordered table-striped" id="modelservice-table">
                 <thead>
                     {Heading}
                 </thead>

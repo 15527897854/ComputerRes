@@ -214,19 +214,11 @@
                             },
                             title: {
                                 text: (function () {
-//                                    var title = $('#x-axis option:selected').text()
-//                                            + ' - '
-//                                            + $('#y-axis option:selected').text()
-//                                            + ' '
-//                                            + $('#chartType :radio:checked')[0].value + ' chart';
                                     var title = 'table data chart'
                                     return title;
                                 })()
                             },
                             xAxis: (function () {
-//                                var title;
-//                                if($('#x-axis option:selected').text() == 'NULL'){ title = 'num' }
-//                                else{ title = $('#x-axis option:selected').text();}
                                 return {title:{text:'num'}};
                             })(),
                             yAxis: {
@@ -261,26 +253,6 @@
                                 }
                                 return series;
                             })()
-//                            data:{
-//                                columns:(function () {
-//                                    var firstCol = [];
-//                                    firstCol.push(null);
-//                                    for(var i=0;i<rst.series[$('#y-axis option:selected')[0].index].data.length;i++){
-//                                        if($('#x-axis option:selected')[0].value == 'NULL'){
-//                                            firstCol.push(i+1);
-//                                        }
-//                                        else{
-//                                            firstCol.push(rst.series[$('#x-axis option:selected')[0].index-1].data[i]);
-//                                        }
-//                                    }
-//                                    var secondCol = [];
-//                                    secondCol.push(rst.series[$('#y-axis option:selected')[0].index].name);
-//                                    for(var i=0;i<rst.series[$('#y-axis option:selected')[0].index].data.length;i++){
-//                                        secondCol.push(rst.series[$('#y-axis option:selected')[0].index].data[i]);
-//                                    }
-//                                    return [firstCol,secondCol];
-//                                })()
-//                            }
                         });
                         Highcharts.setOptions({
                             global: {
@@ -289,7 +261,6 @@
                         });
                         //改变图表类型
                         $('#chartType input[name="ct"]').change(function () {
-                            //alert($('#chartType input[name="ct"]:checked')[0].value);
                             for(var k=0;k<myChart.series.length;k++){
                                 myChart.series[k].update({
                                     type:$('#chartType input[name="ct"]:checked')[0].value
@@ -337,9 +308,7 @@
                             ]
                         });
                         map = new ol.Map({
-//                        controls: ol.control.defaults().extend([
-//                            new ol.control.ZoomToExtent({})
-//                        ]),
+
                             layers: [overlayGroup],
                             target: 'map',
                             view: myView
@@ -367,10 +336,7 @@
                         else if(rst.dataType == 'shp'){
                             //经纬度
                             //考虑一个问题：geojosn的坐标和openlayers的坐标之间的关系
-//                        ENCorner = proj4('EPSG:4326').forward(ENCorner);
-//                        WSCorner = proj4('EPSG:4326').forward(WSCorner);
-//                        imageExtent = [WSCorner[0],WSCorner[1],ENCorner[0],ENCorner[1]];
-//                        projection = 'EPSG:4326';
+
                             overlayGroup.getLayers().push(new ol.layer.Vector({
                                 ratio: 1,
                                 params: {'LAYERS': 'show:0'},
@@ -452,9 +418,9 @@
                                     url : '/modelserrun/json/<%=msr._id %>',
                                     success : function (data) {
                                         var jsItem = JSON.parse(data);
-                                        ProcessFinished(jsItem.msr.msr_status);
+                                        ProcessFinished(jsItem.data.msr_status);
                                         clearInterval(interval);
-                                        var descript = jsItem.msr.msr_des.replace(/\r\n/g, '<br />');
+                                        var descript = jsItem.data.msr_des.replace(/\r\n/g, '<br />');
                                         descript = descript.replace(/\\r\\n/g, '<br />');
                                         descript = descript.replace(/\\n/g, '<br />');
                                         descript = descript.replace(/\"/g, '');
@@ -463,17 +429,17 @@
                                         descript = descript.replace(/Error Message :/g, '<span class="label label-danger" >运行错误信息</span><br />');
 
                                         $('#p_des').html('<strong>模型运行描述信息&nbsp;:&nbsp;</strong><br />' + descript);
-                                        $('#sp_time').html( jsItem.msr.msr_time + '&nbsp; s &nbsp;');
-                                        if(jsItem.msr.msr_status == 1)
+                                        $('#sp_time').html( jsItem.data.msr_time + '&nbsp; s &nbsp;');
+                                        if(jsItem.data.msr_status == 1)
                                         {
                                             var output = '';
-                                            for(var i = 0; i < jsItem.msr.msr_output.length; i++)
+                                            for(var i = 0; i < jsItem.data.msr_output.length; i++)
                                             {
-                                                output += jsItem.msr.msr_output[i].StateId +
-                                                        '&nbsp;&nbsp;&nbsp;' + jsItem.msr.msr_output[i].Event +
-                                                        '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.msr.msr_output[i].DataId + '" >' +
-                                                        jsItem.msr.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
-                                                        '<a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="' + jsItem.msr.msr_output[i].DataId + '">Snapshot</span></a>' +
+                                                output += jsItem.data.msr_output[i].StateId +
+                                                        '&nbsp;&nbsp;&nbsp;' + jsItem.data.msr_output[i].Event +
+                                                        '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.data.msr_output[i].DataId + '" >' +
+                                                        jsItem.data.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                                        '<a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="' + jsItem.data.msr_output[i].DataId + '">Snapshot</span></a>' +
                                                         '<br />';
                                             }
 

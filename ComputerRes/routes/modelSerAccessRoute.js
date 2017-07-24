@@ -289,15 +289,7 @@ module.exports = function(app){
                 next();
             }
             else{
-                ModelSerRunCtrl.getByOID(msrid, function (err, msr) {
-                    if(err)
-                    {
-                        return res.end('Error : ' + err);
-                    }
-                    return res.end(JSON.stringify({
-                        msr : msr
-                    }));
-                });
+                ModelSerRunCtrl.getByOID(msrid, RouteBase.returnFunction(res, 'Error in getting MSR!'));
             }
             
         });
@@ -309,11 +301,7 @@ module.exports = function(app){
             var guid = req.params.guid;
             if(guid == 'all')
             {
-                var miss = app.modelInsColl.getAllIns();
-                res.end(JSON.stringify({
-                    result : "suc",
-                    data : miss
-                }));
+                next();
             }
             else
             {

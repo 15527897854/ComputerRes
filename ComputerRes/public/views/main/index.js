@@ -47,7 +47,10 @@ if(document.getElementById('modelserinfo') != null) {
 if(document.getElementById('ModelSerDetail') != null) {
     ReactDOM.render(<ModelSerDetail 
     data-source={ document.getElementById('ModelSerDetail').getAttribute('data-source') }
+    data-source-msr={ document.getElementById('ModelSerDetail').getAttribute('data-source-msr') }
+    data-source-msrstatistic={ document.getElementById('ModelSerDetail').getAttribute('data-source-msrstatistic') }
     data-type={ document.getElementById('ModelSerDetail').getAttribute('data-type') }
+    data-host={ document.getElementById('ModelSerDetail').getAttribute('data-host') }
       />,
         document.getElementById('ModelSerDetail'));
 }
@@ -56,6 +59,7 @@ if(document.getElementById('rmtModelSerRunTable') != null) {
     ReactDOM.render(<RmtModelSerRunTable
         data-source={ document.getElementById('rmtModelSerRunTable').getAttribute('data-source') }
         data-type={ document.getElementById('rmtModelSerRunTable').getAttribute('data-type') }
+        data-host={ document.getElementById('rmtModelSerRunTable').getAttribute('data-host') }
     />,
         document.getElementById('rmtModelSerRunTable'));
 }
@@ -242,6 +246,7 @@ if(document.getElementById('ModelSerDeployment') != null){
 if(document.getElementById('ModelInsTable') != null){
     ReactDOM.render(<ModelInsTable
         data-source={document.getElementById('ModelInsTable').getAttribute('data-source') }
+        data-type={document.getElementById('ModelInsTable').getAttribute('data-type') }
         />,document.getElementById('ModelInsTable'));
 }
 

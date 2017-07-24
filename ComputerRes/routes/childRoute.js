@@ -54,7 +54,9 @@ module.exports = function (app) {
                   }
                   else
                   {
-                      res.render('');
+                      res.render('child-node',{
+                          host : cld.host
+                      });
                   }
               });
           }
