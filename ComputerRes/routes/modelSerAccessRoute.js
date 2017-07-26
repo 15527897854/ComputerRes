@@ -13,6 +13,7 @@ var TestifyCtrl = require('../control/testifyCtrl');
 var cp = require('../utils/child-process'); 
 var languageCtrl = require('../control/languagesCtrl');
 var utils = require('../utils/commonMethod');
+var fs = require('fs');
 
 module.exports = function(app){
     //客户端界面

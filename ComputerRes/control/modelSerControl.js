@@ -1028,6 +1028,66 @@ ModelSerControl.uploadPackage = function(msid, mid, pkg_name, pkg_version, pkg_d
     }
 };
 
+//登记模型服务
+ModelSerControl.RegisterModelService = function(msid, callback){
+    ModelSerModel.getByOID(msid, function(err, ms){
+        if(err){
+            return callback(err);
+        }
+        if(ms == null){
+            return callback(new Error('Can not find model service'));
+        }
+        SystemCtrl.getPortalToken(function(err, token){
+            if(err){
+                return callback(err);
+            }
+            portal_uname = token['portal_uname'];
+            portal_pwd = token['portal_pwd'];
+            SystemCtrl.loginPortal(portal_uname, portal_pwd, function(err, result){
+                if(err){
+                    return callback(new Error('Can not login Portal'));
+                }
+                ModelSerModel.readCfg(ms, function(err, cfg){
+                    if(err){
+                        return callback(err);
+                    }
+                    
+                    var mdlPath = __dirname + '/../geo_model/' + ms._id + '/' + cfg.mdl;
+
+                    remoteReqCtrl.postRequestJSONWithFormData('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/RegisterComputerServiceServlet', {
+                        name : ms.ms_model.m_name,
+                        description : ms.ms_des,
+                        id : ms.ms_model.p_id,
+                        port : setting.port,
+                        platform : setting.platform,
+                        mdl : fs.createReadStream(mdlPath)
+                    }, function(err, data){
+                        if(err){
+                            return callback(err);
+                        }
+                        if(data.result == 'suc'){
+                            ms.ms_model.m_register = true;
+                            ModelSerModel.update(ms, function(err, result){
+                                if(err){
+                                    return callback(err);
+                                }
+                                return callback(null, true);
+                            });
+                        }
+                        else if(data.res == 'error'){
+                            return callback(new Error('Error : ' + data.message));
+                        }
+                        else{
+                            return callback(new Error('Unknown Error '));
+                        }
+                    });
+                });
+                
+            });
+        });
+    });
+};
+
 //根据OID更新门户的ModelItemID
 ModelSerControl.getMIDByOID = function(oid, callback){
     if(ParamCheck.checkParam(callback, oid)){

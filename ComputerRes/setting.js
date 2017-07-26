@@ -38,8 +38,8 @@ module.exports =  {
     },
     portal:
     {
-        host:'222.192.7.74',
-        port:'80'
+        host:'223.2.33.35',
+        port:'8080'
     },
     // portal:{
     //     host:'223.2.33.35',
