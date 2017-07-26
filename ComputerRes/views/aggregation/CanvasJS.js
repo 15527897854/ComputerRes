@@ -18,15 +18,36 @@ var CanvasJS = (()=> {
     var __beginNode = null;
     var __tempLink = null;
 
+    const StatesColor = {
+        unready: '#60A7FF',
+        pending: '#A3D39B',
+        pause: '#78F5DD',
+        running: '#FF8034',
+        collapsed: '#E05B45',
+        finished: '#3AEB7C'
+    };
+
+    // 包括角色和状态
+    const EventColor = {
+        ready: '#FF8034',
+        pending: '#A3D39B',
+        received: '#3AEB7C',
+        failed: '#E05B45',
+        // mid: '#3AEB7C',
+        origin: '#60A7FF',
+        input: '#FFE16C',
+        output: '#3AEB7C'
+    };
+
     // 数据角色和状态
     const DataState = {
         // unready: 'UNREADY',      // DataState表示的是已经上传过的数据的状态，没有 unready这一种
         ready: 'READY',             // 准备好，表示初始状态，将要分发的状态，before dispatch
         pending: 'PENDING',         // 正在传输 dispatching
         received: 'RECEIVED',       // 计算节点接受成功 after dispatch
-        failed: 'FAILED',           // 计算节点接受失败 failed
-        mid: 'MID',                 // 计算中间产物
-        result: 'RESULT'            // 输出数据的状态，是最终计算结果数据（没有流向下个模型） is result
+        failed: 'FAILED'            // 计算节点接受失败 failed
+        // mid: 'MID',                 // 计算中间产物
+        // result: 'RESULT'            // 输出数据的状态，是最终计算结果数据（没有流向下个模型） is result
         // used: 'USED'                // 模型已经跑完，使用过该数据 is used
     };
 
@@ -45,6 +66,33 @@ var CanvasJS = (()=> {
         running: 'RUNNING',         // 现在默认准备好数据就开始运行
         collapsed: 'COLLAPSED',     // 运行失败，两种情况：调用出错；运行失败
         finished: 'FINISHED'        // 运行成功且结束
+    };
+
+    var __getRGB = function (color) {
+        var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+        var hex2RGB = function(hexStr){
+            var sColor = hexStr.toLowerCase();
+            if(sColor && reg.test(sColor)){
+                if(sColor.length === 4){
+                    var sColorNew = "#";
+                    for(var i=1; i<4; i+=1){
+                        sColorNew += sColor.slice(i,i+1).concat(sColor.slice(i,i+1));
+                    }
+                    sColor = sColorNew;
+                }
+                //处理六位的颜色值
+                var sColorChange = [];
+                for(var i=1; i<7; i+=2){
+                    sColorChange.push(parseInt("0x"+sColor.slice(i,i+2)));
+                }
+                return "RGB(" + sColorChange.join(",") + ")";
+            }else{
+                return sColor;
+            }
+        };
+        var rgbStr = hex2RGB(color);
+        var group = rgbStr.match(/RGB\((.+)\)/);
+        return group[1];
     };
 
     var __showContextMenu = function (type) {
@@ -319,7 +367,8 @@ var CanvasJS = (()=> {
         __serviceList: [],
         __relationList: [],
         // taskCfg
-        __dataList: [],             // gdid MSID stateID eventName TODO 接入数据服务时应该加上 host port 两个字段
+        __dataList: [],             // gdid MSID stateID eventName isInput isOutput TODO 接入数据服务时应该加上 host port 两个字段
+        __inputDataList: [],
 
         // canvas role
         __nodeList: [],
@@ -551,6 +600,9 @@ var CanvasJS = (()=> {
                     }
                 }
                 else if(e.button == 2){
+                    if(!e.target && !__beginNode){
+                        $('#hand-tool').click();
+                    }
                     __hideContextMenu();
                 }
             });
@@ -559,14 +611,17 @@ var CanvasJS = (()=> {
         __bindSceneEvent: function (scene) {
             var self = this;
             scene.addEventListener('mouseup',function (e) {
+                var target = e.target;
+                if(!e.target){
+                    __beginNode = null;
+                }
                 if(e.button == 0){
 
                 }
                 else if(e.button == 2){
-                    var target = e.target;
                     if( self.__type == 'solution' && self.__mode == 'edit' && target && target.elementType == 'link' && target.__linkType == 'CUSTOM'){
-                        self.removeRelationByJTopoID(self.__scene, e.target._id);
-                        self.__removeJTopoElementByID(self.__scene, e.target._id);
+                        self.removeRelationByJTopoID(self.__scene, target._id);
+                        self.__removeJTopoElementByID(self.__scene, target._id);
                     }
                 }
             });
@@ -581,6 +636,7 @@ var CanvasJS = (()=> {
             var type = node.__nodeType;
 
             if(self.__mode == 'configure'){
+                $('#del-ms-menu').hide();
                 node.addEventListener('mouseup',function (e) {
                     if(e.button == 2){
                         __hideContextMenu();
@@ -695,10 +751,13 @@ var CanvasJS = (()=> {
             });
         },
 
+        // task 的保存和solution不是一个套路，只用保存最新的datalist就行，其他状态由后台维护
         __bindSaveTaskEvent: function () {
             var self = this;
             $('#save-aggre-form').validate({
-                onfocusout:true,
+                onfocusout:function(element) {
+                    $(element).valid();
+                },
                 focusInvalid:true,
                 submitHandler:function (form) {
                     var data = self.exportTask();
@@ -821,6 +880,7 @@ var CanvasJS = (()=> {
                 //     this.paintText(g);
                 // };
             }
+            // node.fillColor = '129, 194, 255';
             if(x && y)
                 node.setCenterLocation(x,y);
             node.alpha = 1;
@@ -1102,7 +1162,8 @@ var CanvasJS = (()=> {
                                     MSID: node.__MSID,
                                     stateID: node.__stateID,
                                     eventName: node.__eventName,
-                                    state: 'READY'
+                                    state: 'READY',
+                                    isInput: true
                                 };
                                 var hasInserted = false;
                                 for(var i=0;i<self.__dataList.length;i++){
@@ -1117,9 +1178,10 @@ var CanvasJS = (()=> {
                                 }
                                 if(!hasInserted){
                                     self.__dataList.push(inputData);
+                                    self.__inputDataList.push(inputData);
                                 }
                                 node.__gdid = gdid;
-                                node.fillColor = '0, 103, 229';
+                                node.fillColor = __getRGB(EventColor.ready);
                                 // node.shadow = true;
                                 // node.shadowColor = 'rgba(0,0,0,1)';
 
@@ -1281,7 +1343,7 @@ var CanvasJS = (()=> {
         addLinkRoleManuel: function () {
             var self = this;
             var scene = this.__scene;
-            var beginNode = null;
+            // var __beginNode = null;
             var tempNodeA = new JTopo.Node('tempA');
             tempNodeA.setSize(1, 1);
 
@@ -1295,52 +1357,53 @@ var CanvasJS = (()=> {
                 if(self.__toolMode != 'link')
                     return;
                 if(e.button == 2){
-                    beginNode = null;
+                    __beginNode = null;
                     scene.remove(link);
                     return;
                 }
                 if(e.target != null && e.target instanceof JTopo.Node){
-                    if(beginNode == null){
+                    if(__beginNode == null){
                         // TODO 验证添加规则
                         if(e.target.__nodeType == 'STATES'){
-                            beginNode = null;
+                            __beginNode = null;
                             scene.remove(link);
                             return;
                         }
 
-                        beginNode = e.target;
+                        __beginNode = e.target;
                         scene.add(link);
                         tempNodeA.setLocation(e.x, e.y);
                         tempNodeZ.setLocation(e.x, e.y);
                     }
-                    else if(beginNode !== e.target){
+                    else if(__beginNode !== e.target){
                         var endNode = e.target;
-                        if(!self.validateLink(beginNode,endNode)){
-                            beginNode = null;
+                        if(!self.validateLink(__beginNode,endNode)){
+                            __beginNode = null;
                             scene.remove(link);
                             return ;
                         }
                         // endregion
-                        var relation = self.__addRelation(beginNode,endNode);
-                        var l = new JTopo.Link(beginNode, endNode);
+                        var relation = self.__addRelation(__beginNode,endNode);
+                        var l = new JTopo.Link(__beginNode, endNode);
                         l.arrowsRadius = 7;
                         l.lineWidth = 2;
                         l.bundleOffset = 60;
                         l.bundleGap = 15;
                         l.strokeColor = '72,152,255';
-                        l._id = beginNode._id + '__' + endNode._id;
+                        l._id = __beginNode._id + '__' + endNode._id;
                         l.__linkType = 'CUSTOM';
                         l.__relationID = relation._id;
 
 
                         scene.add(l);
-                        beginNode = null;
+                        __beginNode = null;
                         scene.remove(link);
                     }
                     else{
-                        beginNode = null;
+                        __beginNode = null;
                     }
                 }else{
+                    __beginNode = null;
                     scene.remove(link);
                 }
             });
@@ -1348,7 +1411,7 @@ var CanvasJS = (()=> {
             scene.mousedown(function(e){
                 if(self.__toolMode != 'link')
                     return;
-                if(e.target == null || e.target === beginNode || e.target === link){
+                if(e.target == null || e.target === __beginNode || e.target === link){
                     scene.remove(link);
                 }
             });
@@ -1531,9 +1594,42 @@ var CanvasJS = (()=> {
                         if(role.__MSID == data.MSID && role.__stateID == data.stateID && role.__eventName == data.eventName){
                             // role.shadow = true;
                             // role.shadowColor = 'rgba(0,0,0,1)';
-                            role.fillColor = '0, 103, 229';
+                            if(data.state){
+                                if(data.isInput){
+                                    role.fillColor = __getRGB(EventColor.ready);
+                                }
+                                else if(data.state == DataState.failed){
+                                    role.fillColor = __getRGB(EventColor.failed);
+                                }
+                                else if(data.state == DataState.pending){
+                                    role.fillColor = __getRGB(EventColor.pending);
+                                }
+                                else if(data.state == DataState.received){
+                                    role.fillColor = __getRGB(EventColor.received);
+                                }
+                                role.fillColor = __getRGB(EventColor[data.state.toLowerCase()]);
+                            }
                             role.__gdid = data.gdid;
                             // 设置上传按钮的显示，添加下载链接
+                        }
+                    }
+                }
+            }
+            this.__stage.paint();
+        },
+
+        __importStatesState: function () {
+            var MSState = this.__task.MSState;
+            var roleList = this.__scene.childs;
+            for(let i=0;i<roleList.length;i++){
+                let role = roleList[i];
+                if(role.elementType == 'node' && role.__nodeType == 'STATES'){
+                    for(let j=0;j<MSState.length;j++){
+                        var service = MSState[j];
+                        if(role.__MSID == service.MSID){
+                            if(service.state){
+                                role.fillColor = __getRGB(StatesColor[service.state.toLowerCase()]);
+                            }
                         }
                     }
                 }
@@ -1568,6 +1664,7 @@ var CanvasJS = (()=> {
         importTask: function () {
             this.importSolution();
             this.__importDataList();
+            this.__importStatesState();
         },
 
         // 给私有变量赋值，添加solution或task的基本信息到modal和input中
@@ -1629,24 +1726,14 @@ var CanvasJS = (()=> {
             for(var i=0;i<saveTag.length;i++){
                 taskInfo[saveTag[i].name] = saveTag[i].value;
             }
-
-            var MSState = [];
-            for(let i=0;i<this.__serviceList.length;i++){
-                MSState.push({
-                    MSID: this.__serviceList[i]._id,
-                    state: 'UNREADY'
-                });
-            }
-
             __task = {
                 taskCfg:{
-                    dataList: this.__dataList,
+                    dataList: this.__inputDataList,
                     solutionID: this.__solution._id,
                     driver: 'DataDriver'
                 },
                 taskState:'CONFIGURED',
-                taskInfo: taskInfo,
-                MSState: MSState
+                taskInfo: taskInfo
             };
             if($('#taskID-input').length && $('#taskID-input').attr('value') && $('#taskID-input').attr('value') != undefined){
                 __task._id = $('#taskID-input').attr('value');
@@ -1740,39 +1827,11 @@ var CanvasJS = (()=> {
         // 其他信息也都复制到node里了
         __updateNodeState: function (node) {
             if(node.__nodeType == 'STATES'){
-                if(node.__state == MSState.pending){
-                    node.fillColor = '255, 0, 0';
-                }
-                else if(node.__state == MSState.running){
-                    node.fillColor = '0, 255, 0';
-                }
-                else if(node.__state == MSState.pause){
-                    node.fillColor = '0, 0, 255';
-                }
-                else if(node.__state == MSState.finished){
-                    node.fillColor = '255, 0, 255';
-                }
-                else if(node.__state == MSState.collapsed){
-                    node.fillColor = '0, 255, 255';
-                }
+                node.fillColor = __getRGB(StatesColor[node.__state.toLowerCase()]);
             }
             else{
                 // update ui, and download link(update when db click)
-                if(node.__state == DataState.pending){
-                    node.fillColor = '255, 0, 0';
-                }
-                else if(node.__state == DataState.received){
-                    node.fillColor = '0, 255, 0';
-                }
-                else if(node.__state == DataState.mid){
-                    node.fillColor = '0, 0, 255';
-                }
-                else if(node.__state == DataState.result){
-                    node.fillColor = '255, 0, 255';
-                }
-                else if(node.__state == DataState.failed){
-                    node.fillColor = '0, 255, 255';
-                }
+                node.fillColor = __getRGB(EventColor[node.__state.toLowerCase()]);
             }
             this.__stage.paint();
         },

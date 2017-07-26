@@ -25,18 +25,19 @@ var Path = require('path');
 var fs = require('fs');
 
 // 数据角色和状态
-global.DataState = {
+const DataState = {
     // unready: 'UNREADY',      // DataState表示的是已经上传过的数据的状态，没有 unready这一种
     ready: 'READY',             // 准备好，表示初始状态，将要分发的状态，before dispatch
     pending: 'PENDING',         // 正在传输 dispatching
     received: 'RECEIVED',       // 计算节点接受成功 after dispatch
-    failed: 'FAILED',           // 计算节点接受失败 failed
-    mid: 'MID',                 // 计算中间产物
-    result: 'RESULT'            // 输出数据的状态，是最终计算结果数据（没有流向下个模型） is result
+    failed: 'FAILED'            // 计算节点接受失败 failed
+    // mid: 'MID',                 // 计算中间产物
+    // result: 'RESULT'            // 输出数据的状态，是最终计算结果数据（没有流向下个模型） is result
     // used: 'USED'                // 模型已经跑完，使用过该数据 is used
+
 };
 
-global.TaskState = {
+const TaskState = {
     configured: 'CONFIGURED',
     collapsed: 'COLLAPSED',
     end: 'END',
@@ -44,7 +45,7 @@ global.TaskState = {
     running: 'RUNNING'
 };
 
-global.MSState = {
+const MSState = {
     unready: 'UNREADY',         // 初始状态，前台创建task时默认是这种
     pending: 'PENDING',         // 正在发送运行指令
     pause: 'PAUSE',             // 允许用户给准备好的模型打断点
@@ -52,6 +53,12 @@ global.MSState = {
     collapsed: 'COLLAPSED',     // 运行失败，两种情况：调用出错；运行失败
     finished: 'FINISHED'        // 运行成功且结束
 };
+
+global.StatesColor = StatesColor;
+global.EventColor = EventColor;
+global.DataState = DataState;
+global.TaskState = TaskState;
+global.MSState = MSState;
 
 module.exports = (function () {
 

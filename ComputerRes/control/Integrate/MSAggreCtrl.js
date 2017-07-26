@@ -227,9 +227,7 @@ var MSAggreCtrl = (function () {
                 })
             })
                 .then(function (ip) {
-                    if(!task.MSState || task.MSState == undefined){
-                        task.MSState = [];
-                    }
+                    // TODO data service
                     for(let i=0;i<task.taskCfg.dataList.length;i++){
                         if(task.taskCfg.dataList[i].host == undefined || !task.taskCfg.dataList[i].host){
                             task.taskCfg.dataList[i].host = ip;
@@ -238,17 +236,43 @@ var MSAggreCtrl = (function () {
                     }
                     task.time = new Date().getTime();
                     var taskID = task._id;
+                    // update
                     if(taskID && taskID != undefined){
-                        AggreTaskModel.update(task,function (err,rst) {
+                        AggreTaskModel.getByOID(taskID,function (err, oldTask) {
                             if(err){
                                 return cb(err);
                             }
                             else{
-                                return cb(null,taskID);
+                                oldTask.taskInfo = task.taskInfo;
+                                oldTask.time = task.time;
+                                var oldDataList = oldTask.taskCfg.dataList;
+                                var newDataList = task.taskCfg.dataList;
+                                for(let j=0;j<newDataList.length;j++){
+                                    var hasInserted = false;
+                                    for(let i=0;i<oldDataList.length;i++){
+                                        if(newDataList[j].gdid == oldDataList[i].gdid){
+                                            hasInserted = true;
+                                            break;
+                                        }
+                                    }
+                                    if(!hasInserted){
+                                        oldDataList.push(newDataList[j])
+                                    }
+                                }
+                                AggreTaskModel.update(oldTask,function (err, rst) {
+                                    if(err){
+                                        return cb(err);
+                                    }
+                                    else{
+                                        return cb(null,taskID);
+                                    }
+                                })
                             }
-                        })
+                        });
                     }
+                    // save
                     else{
+                        task.MSState = [];
                         AggreTaskModel.save(task,function (err, rst) {
                             if(err){
                                 return cb(err);
