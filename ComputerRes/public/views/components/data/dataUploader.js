@@ -28,6 +28,7 @@ var DataUploader = React.createClass({
         return {
             isCtrl: isCtrl,
             id : id,
+            tag : '',
             gdid : '',
             fileUrl : fileUrl,
             streamUrl : streamUrl,
@@ -55,8 +56,16 @@ var DataUploader = React.createClass({
             maxFileSize:100*1024*1024,
             //动态表单
             dynamicFormData : function(){
+                var tag = '';
+                if($('#fileuploaderTag_' + this.state.id).val() == ''){
+                    tag = this.state.uploader.existingFileNames[0];
+                }
+                else{
+                    tag = $('#fileuploaderTag_' + this.state.id).val();
+                }
+                this.state.tag = tag;
                 var formData = {
-                    gd_tag : $('#fileuploaderTag_' + this.state.id).val()
+                    gd_tag : tag
                 };
                 return formData;
             }.bind(this),
@@ -87,6 +96,7 @@ var DataUploader = React.createClass({
                 data => {
                     if(data.data.res == 'suc'){
                         this.state.gdid = data.data.gd_id;
+                        this.state.tag = $('#dataInputTag_' + this.state.id).val();
                         this.onUploadStreamFinished(data.data.gd_id);
                     }
                 },
@@ -100,6 +110,7 @@ var DataUploader = React.createClass({
 
     onSelectSubmit : function(e){
         var gdid = this.refs.selectedTB.getSelectedGDID();
+        var tag = this.refs.selectedTB.getSelectedTAG();
         if(gdid == undefined)
         {
             alert(window.LanguageConfig.InputData.Data.PleaseChooseData);
@@ -107,6 +118,7 @@ var DataUploader = React.createClass({
         else
         {
             this.state.gdid = gdid;
+            this.state.tag = tag;
             this.onSelectFinished();
         }
     },
@@ -140,16 +152,12 @@ var DataUploader = React.createClass({
     onFinished : function () {
         if(this.props.onFinish)
         {
-            this.props.onFinish(this.state.gdid);
+            this.props.onFinish(this.state.gdid, this.state.tag);
         }
     },
 
     getGDID : function(){
         return this.state.gdid;
-    },
-
-    onGenerateSubmit : function () {
-
     },
     
     render : function(){

@@ -45,7 +45,7 @@ var RmtModelSerTable = React.createClass({
                                 //排序
                                 "bSort": true,
                                 //排序配置
-                                "aaSorting": [[0, "desc"]],
+                                //"aaSorting": [[0, "desc"]],
                                 //自适应宽度
                                 "bAutoWidth": true,
                                 //多语言配置
@@ -80,7 +80,7 @@ var RmtModelSerTable = React.createClass({
     },
 
     startModelSerHandle : function (e, host, msid) {
-        if(confirm('确定开启模型?') == true)
+        if(confirm('Open this model service?') == true)
         {
             if(host){
                 Axios.put('/modelser/rmt/' + host + '/' + msid + '?ac=start').then(
@@ -356,7 +356,7 @@ var RmtModelSerTable = React.createClass({
                 if(!item.ms_model.m_register){
                     button3 = (
                         <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.uploadModelSer(e, null, item._id) }} >
-                            <i className="fa fa-cloud-upload"> </i>{window.LanguageConfig.ModelServiceTable.Register}
+                            <i className="fa fa-cloud-upload"> </i>&nbsp;{window.LanguageConfig.ModelServiceTable.Register}
                         </button>);
                 }
                 if(item.ms_status == 1)

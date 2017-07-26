@@ -41,3 +41,18 @@ ModelNoticeCtrl.updateState = function (where, callback) {
         });
     }
 };
+
+//添加模型启动消息
+ModelNoticeCtrl.addModelStartNotice = function(){
+    
+}
+
+//添加模型启动消息
+ModelNoticeCtrl.addModelStopNotice = function(){
+
+}
+
+//添加模型启动消息
+ModelNoticeCtrl.addModelDeleteNotice = function(){
+
+}

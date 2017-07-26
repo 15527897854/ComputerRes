@@ -40,6 +40,7 @@ var DataPreparation = React.createClass({
                                     StateId : State.$.id,
                                     Event : Event.$.name,
                                     DataId : '',
+                                    Tag : '',
                                     Destroyed : false,
                                     Optional : Event.$.optional
                                 });
@@ -68,12 +69,13 @@ var DataPreparation = React.createClass({
         );
     },
 
-    onDataReady : function(stateId, eventName, gdid){
+    onDataReady : function(stateId, eventName, gdid, tag){
         for(var i = 0; i < this.state.allInputData.length; i++)
         {
             if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName)
             {
                 this.state.allInputData[i].DataId = gdid;
+                this.state.allInputData[i].Tag = tag;
                 break;
             }
         }
@@ -81,7 +83,7 @@ var DataPreparation = React.createClass({
     },
 
     onRemoveData : function(e, stateId, eventName){
-        if(confirm("确认移除数据?"))
+        if(confirm("Remove this data?"))
         {
             for(var i = 0; i < this.state.allInputData.length; i++)
             {
@@ -149,7 +151,7 @@ var DataPreparation = React.createClass({
     render : function(){
         if(this.state.loading)
         {
-            return (<span>Loading...</span>);
+            return (<span>loading...</span>);
         }
         var authPanel = null;
         if(this.state.limited == 1){
@@ -206,7 +208,7 @@ var DataPreparation = React.createClass({
                                                 data-type={dataType}
                                                 data-rmt={this.state.rmt}
                                                 data-host={this.state.host}
-                                                onFinish={ (gdid) => { this.onDataReady(State.$.id, Event.$.name, gdid) } } />);
+                                                onFinish={ (gdid, tag) => { this.onDataReady(State.$.id, Event.$.name, gdid, tag) } } />);
                     dataReady = this.getDataState(State.$.id, Event.$.name);
                     if(Event.$.optional == '1'){
                         optional = (<h4 style={{color : '#9AD717' }}><strong>{window.LanguageConfig.InputData.Event.Control}</strong></h4>);

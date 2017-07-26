@@ -39,8 +39,7 @@ Notice.__proto__ = ModelBase;
 module.exports = Notice;
 
 var noteSchema = new mongoose.Schema({
-    // time : {type:Date, index: { unique: true, expires: '3600*24*14' }},
-    time : {type:Date, index: { unique: true,type:-1}},
+    time : Date,
     title : String,
     detail : String,
     type : String,
@@ -50,3 +49,10 @@ var noteSchema = new mongoose.Schema({
 var Note = mongoose.model('notice',noteSchema);
 Notice.baseModel = Note;
 Notice.modelName = 'notice';
+
+Notice.getByWhere = function (where, callback) {
+    if(ParamCheck.checkParam(callback, where))
+    {
+        this.baseModel.find(where).sort({'time':1}).exec(this.returnFunction(callback, 'Error in getting notices by where'));
+    }
+};

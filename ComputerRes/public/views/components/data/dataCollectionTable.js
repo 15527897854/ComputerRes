@@ -5,6 +5,7 @@ var React = require('react');
 var Axios = require('axios');
 
 var DataUploader = require('./dataUploader');
+var NoteDialog = require('../../action/utils/noteDialog');
 
 var DataCollectionTable = React.createClass({
     getInitialState : function () {
@@ -45,7 +46,7 @@ var DataCollectionTable = React.createClass({
                                 //排序
                                 "bSort": true,
                                 //排序配置
-                                "aaSorting": [[2, "desc"]],
+                                "aaSorting": [[3, "desc"]],
                                 //自适应宽度
                                 "bAutoWidth": true,
                                 //多语言配置
@@ -92,7 +93,22 @@ var DataCollectionTable = React.createClass({
             Axios.delete('/geodata/' + gdid).then(
                 data => {
                     if(data.data.result == 'suc'){
-                        alert(window.LanguageConfig.DataTable.DeleteFinished);
+                        NoteDialog.openNoteDia('Info', 'Detele this data successfully!');
+                        this.refresh();
+                    } },
+                err => {  }
+            );
+        }
+    },
+
+    clearCache : function(e){
+        var length = $('#selCacheLength').val();
+        if(confirm('Clear data cache of ' + length + ' months ago?'))
+        {
+            Axios.delete('/geodata/all?month=' + length).then(
+                data => {
+                    if(data.data.result == 'suc'){
+                        NoteDialog.openNoteDia('Info', 'Detele data cache successfully!');
                         this.refresh();
                     } },
                 err => {  }
@@ -408,6 +424,7 @@ var DataCollectionTable = React.createClass({
                 <span>Error:{JSON.stringify(this.state.err)}</span>
             );
         }
+        var allSize = 0;
         var dataItems = this.state.data.map(function(item){
             var format = null;
             if(item.gd_type == 'FILE')
@@ -418,34 +435,73 @@ var DataCollectionTable = React.createClass({
             {
                 format = (<span className="label label-info" ><i className="fa fa-ellipsis-v"></i> {window.LanguageConfig.DataTable.Stream}</span>);
             }
+            var size = item.gd_size - 16;
+            allSize = allSize + size;
+            size = (size/1024).toFixed(2);
+            var unit = 'KB';
+            if(size > 1024){
+                size = (size/1024).toFixed(2);
+                unit = 'MB';
+            }
+            if(size > 1024){
+                size = (size/1024).toFixed(2);
+                unit = 'GB';
+            }
             return(
                 <tr key={item.gd_id}>
-                    <td>{item.gd_id}</td>
+                    <td title={item.gd_id} >{item.gd_tag}</td>
                     <td>{format}</td>
+                    <td>{size + ' ' + unit} </td>
                     <td>{item.gd_datetime}</td>
-                    <td>{item.gd_tag}</td>
                     <td>
                         <button className="btn btn-info btn-xs" onClick={(e) => {this.displayData(e, item.gd_id)} } ><i className="fa fa-book"> </i> {window.LanguageConfig.DataTable.Check}</button>&nbsp;
                         <button className="btn btn-success btn-xs btn-lg" data-toggle="modal" data-target="#myModal"  onClick={(e) => {this.dataPreview(e, item.gd_id)} } ><i className="fa fa-picture-o"> </i> {window.LanguageConfig.DataTable.Render}</button>&nbsp;
                         <button className="btn btn-default btn-xs" onClick={(e) => {this.downloadData(e, item.gd_id)} } ><i className="fa fa-download"> </i> {window.LanguageConfig.DataTable.Download}</button>&nbsp;
-                        <button className="btn btn-warning btn-xs" onClick={(e) => {this.deleteData(e, item.gd_id, item.gd_tag)} } ><i className="fa fa-trash-o"> </i></button>
+                        <button className="btn btn-warning btn-xs" onClick={(e) => {this.deleteData(e, item.gd_id, item.gd_tag)} } ><i className="fa fa-trash-o"> </i> Delete</button>
                     </td>
                 </tr>
             );
         }.bind(this));
+    
+        allSize = (allSize / 1024).toFixed(2);
+        allUnit = 'KB'
+
+        if(allSize > 1024){
+            allSize = (allSize / 1024).toFixed(2);
+            allUnit = 'MB'
+        }
+        if(allSize > 1024){
+            allSize = (allSize / 1024).toFixed(2);
+            allUnit = 'GB'
+        }
 
         return (
             <div>
-                <div>
-                    <DataUploader onFinish={this.refresh} />
+                <div className="panel-body">
+                    <div className="col-lg-12" >
+                        <p className="muted" >All Data Size : {allSize + ' ' + allUnit}</p>
+                    </div>
+                    <div className="col-lg-3">
+                        Clear Data Cache : 
+                        <div className="input-group m-bot15">
+                            <select id="selCacheLength" className="form-control" >
+                                <option value="1" >one month ago</option>
+                                <option value="3" >three months ago</option>
+                                <option value="12" >one year ago</option>
+                            </select>
+                            <span className="input-group-btn">
+                                <button className="btn btn-default" type="button" onClick={ this.clearCache } >Clear</button>
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <table className="display table table-bordered table-striped" id="dataCollection-table">
                     <thead>
                         <tr>
-                            <th>{window.LanguageConfig.DataTable.ID}</th>
-                            <th>{window.LanguageConfig.DataTable.Storage}</th>
-                            <th>{window.LanguageConfig.DataTable.DateTime}</th>
                             <th>{window.LanguageConfig.DataTable.Tag}</th>
+                            <th>{window.LanguageConfig.DataTable.Storage}</th>
+                            <th>Size</th>
+                            <th>{window.LanguageConfig.DataTable.DateTime}</th>
                             <th>{window.LanguageConfig.DataTable.Operation}</th>
                         </tr>
                     </thead>

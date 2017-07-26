@@ -253,6 +253,19 @@ ModelSerControl.postRmtModelSer = function(req, host, callback){
     }
 };
 
+//远程上传模型进度
+ModelSerControl.getRmtModelSerProgress = function(req, host, callback){
+    if (ParamCheck.checkParam(callback, host)) {
+        Child.getByHost(host, function (err, child) {
+            if (err) {
+                return callback(err);
+            }
+            var url = 'http://' + host + ':' + child.port + '/modelser/file/' + req.sessionID + '?token=' + child.access_token;
+            remoteReqCtrl.getRequest(req, url, this.returnFunction(callback, "error in get rmt model service file progress"));
+        }.bind(this));
+    }
+};
+
 //远程查看图像
 ModelSerControl.getRmtImg = function(host, imgname, res, callback){
     if (ParamCheck.checkParam(callback, host)) {
@@ -759,7 +772,6 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
         for(var k = 0; k < outputData.length; k++) {
             var dataid = 'gd_' + uuid.v1();
             outputData[k]['DataId'] = dataid;
-            outputData[k]['Ready'] = false;
         }
 
         run_next();

@@ -12,6 +12,7 @@ function GeoData(gd) {
         this.gd_tag = '';
         this.gd_datetime = '';
         this.gd_type = '';
+        this.gd_size = 0;
         this.gd_value = '';
     }
     else {
@@ -19,6 +20,7 @@ function GeoData(gd) {
         this.gd_tag = gd.gd_tag;
         this.gd_datetime = gd.gd_datetime;
         this.gd_type = gd.gd_type;
+        this.gd_size = gd.gd_size;
         this.gd_value = gd.gd_value;
     }
     return this;
@@ -34,6 +36,7 @@ GeoData.prototype.save = function (callback) {
         "gd_tag" : this.gd_tag,
         "gd_datetime" : this.gd_datetime,
         "gd_type" : this.gd_type,
+        "gd_size" : this.gd_size,
         "gd_value" : this.gd_value
     };
     client.SELECT(setting.redis.dbIndex, function (err) {

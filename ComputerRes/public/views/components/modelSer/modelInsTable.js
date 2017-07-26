@@ -39,7 +39,7 @@ var ModelInsTable = React.createClass({
 
     kill : function(e, guid, mname){
         if(confirm('kill this model instance [' + mname + '], ID : [' + guid + '] ?')){
-            Axios.get('/modelins/' + guid + '?ac=kill').then(
+            Axios.put('/modelins/' + guid + '?ac=kill').then(
                 data => {
                     if(data.data.result == 'suc'){
                         NoteDialog.openNoteDia('Info', 'Model instance ' + mname + ', ID : ' + guid + ' has been killed!');
@@ -65,7 +65,6 @@ var ModelInsTable = React.createClass({
                         <td>{ item.start }</td>
                         <td>{ item.state }</td>
                         <td>
-                            <button className="btn btn-danger btn-xs" onClick={(e) => {this.kill(e, item.guid, item.ms.ms_model.m_name)}} ><i className="fa fa-times-circle" ></i>&nbsp;kill</button>&nbsp;
                             <button className="btn btn-info btn-xs" onClick={(e) => {this.openDetail(e, item.guid)}} ><i className="fa fa-book" ></i>&nbsp;detail</button>
                         </td>
                     </tr>
@@ -81,6 +80,7 @@ var ModelInsTable = React.createClass({
                         <td>{ item.start }</td>
                         <td>{ item.state }</td>
                         <td>
+                            <button className="btn btn-danger btn-xs" onClick={(e) => {this.kill(e, item.guid, item.ms.ms_model.m_name)}} ><i className="fa fa-times-circle" ></i>&nbsp;kill</button>&nbsp;
                             <button className="btn btn-info btn-xs" onClick={(e) => {this.openDetail(e, item.guid)}} ><i className="fa fa-book" ></i>&nbsp;detail</button>
                         </td>
                     </tr>

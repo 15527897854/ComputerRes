@@ -9,6 +9,7 @@ var RemoteReqControl = require('./remoteReqControl');
 var CommonMethod = require('../utils/commonMethod');
 var FileOpera = require('../utils/fileOpera');
 var Settings = require('../setting');
+var fs = require('fs');
 
 function GeoDataCtrl() {}
 
@@ -81,6 +82,37 @@ GeoDataCtrl.delete = function(key, callback){
         });
     });
 };
+
+//删除月份之前的数据
+GeoDataCtrl.deleteByMonth = function(month, callback){
+    if(ParamCheck.checkParam(callback, month)){
+        var date_now = new Date();
+        date_now.setMonth(date_now.getMonth() - month);
+        GeoDataCtrl.getAllData(function(err, data){
+            if(err){
+                return callback(err);
+            }
+            var count = data.length;
+            for(var i = 0; i < data.length; i++){
+                var date = new Date(data[i].gd_datetime);
+                if(date < date_now){
+                    GeoDataCtrl.delete(data[i].gd_id, function(err, data){
+                        count = count - 1;
+                        if(count == 0){
+                            return callback(null, true);
+                        }
+                    });
+                }
+                else{
+                    count = count - 1;
+                    if(count == 0){
+                        return callback(null, true);
+                    }
+                }
+            }
+        });
+    }
+}
 
 //获取全部数据
 GeoDataCtrl.getAllData = function(callback){

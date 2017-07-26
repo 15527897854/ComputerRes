@@ -10,7 +10,20 @@ var NoteDialog = require('../../action/utils/noteDialog');
 
 var ModelSerDeployment = React.createClass({
     getInitialState : function(){
+        var urlUpload = '/modelser';
+        var urlFile = '/modelser/file';
+        var urlFinished = '/modelser/';
+        var host = null;
+        if(this.props['data-type'] == 'rmt'){
+            host = this.props['data-host'];
+            urlUpload = '/modelser/rmt/' + host;
+            urlFile = '/modelser/rmt/file/' + host;
+            urlFinished = '/modelser/rmt/' + host + '/';
+        }
         return {
+            urlUpload : urlUpload,
+            urlFile : urlFile,
+            urlFinished : urlFinished,
             progressbar : false,
             progresspercet : 0,
             fileFinished : false,
@@ -45,7 +58,7 @@ var ModelSerDeployment = React.createClass({
         // var formdata = new FormData($('#stepy_form')[0]);
         var formdata = new FormData($('#deployForm')[0]);
         $.ajax({
-            url:'/modelser',
+            url: this.state.urlUpload,
             method:'POST',
             data: formdata,
             processData: false,
@@ -53,7 +66,7 @@ var ModelSerDeployment = React.createClass({
             success: this.onFieldFinished
         });
         var fileInsterval = setInterval(function () {
-            Axios.get('/modelser/file').then(
+            Axios.get(this.state.urlFile).then(
                 data => {
                     this.setState({progresspercet : data.data.value});
                     if(data.data.value == 100){
@@ -121,7 +134,7 @@ var ModelSerDeployment = React.createClass({
 
     checkFinished : function(){
         if(this.state.fileFinished && this.state.fieldFinished){
-            window.location.href = '/modelser/' + this.state.oid;
+            window.location.href = this.state.urlFinished + this.state.oid;
         }
     },
 
@@ -142,11 +155,22 @@ var ModelSerDeployment = React.createClass({
             );
             btnEnable = 'disable';
         }
+        var transform = null;
+        if(this.props['data-type'] != 'rmt'){
+            transform = (<button className="btn btn-link btn-sm" type="button" onClick={ (e) => { window.location.href="/modelser/cloud" }}  >Deployment from portal</button>);
+        }
+        var host = null;
+        if(this.props['data-host']){
+            host = " To " + this.props['data-host'];
+        }
+        var limited
+        if(this.props['data-type'] == 'rmt'){
+        }
         return (
             <section className="panel" >
                 <header className="panel-heading">
-                    Deployment &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button className="btn btn-info btn-sm" type="button" onClick={ (e) => { window.location.href="/modelser/cloud" }}  >Deployment from portal</button>
+                    Deployment &nbsp;{host}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {transform}
                 </header>
                 <div className="panel-body">
                     <form id="deployForm" className="form-horizontal left-align form-well" action="/modelser" method="post" encType="multipart/form-data" >

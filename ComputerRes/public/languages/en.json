@@ -82,7 +82,7 @@
         "AllUnreadMessage" : "Unread",
         "MarkAllRead " : "Mark All As Read",
         "InfoTitle" : "Info",
-        "AllMessageMarkedRead" : "All message has marked read!",
+        "AllMessageMarkedRead" : "All messages have marked read!",
         "MessageMarkedRead" : "Message has marked read!",
         "WarningTitle" : "Warning",
         "MessageMarkedReadFailed" : "Message marked as read failed!",

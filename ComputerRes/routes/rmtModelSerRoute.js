@@ -13,18 +13,24 @@ module.exports = function(app)
     app.route('/modelser/rmt/file/:host')
         .get(function (req, res, next) {
             var host = req.params.host;
-            childCtrl.getByWhere({host:host}, function (error, child) {
-                if(error){
-                    return res.end(JSON.stringify(error));
+            ModelSerControl.getRmtModelSerProgress(req, host, function(err, data){
+                if(err){
+                    return res.end(JSON.stringify(err));
                 }
-                var url = 'http://' + host + ':' + child.port + '/modelser/file/'+req.sessionID;
-                remoteReqCtrl.getRequest(req,url,function (err, data) {
-                    if(err){
-                        return res.end(JSON.stringify(err));
-                    }
-                    return res.end(data);
-                });
+                return res.end(data);
             });
+            // childCtrl.getByWhere({host:host}, function (error, child) {
+            //     if(error){
+            //         return res.end(JSON.stringify(error));
+            //     }
+            //     var url = 'http://' + host + ':' + child.port + '/modelser/file/'+req.sessionID;
+            //     remoteReqCtrl.getRequest(req,url,function (err, data) {
+            //         if(err){
+            //             return res.end(JSON.stringify(err));
+            //         }
+            //         return res.end(data);
+            //     });
+            // });
         });
 
     //请求转发 上传文件

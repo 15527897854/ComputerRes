@@ -66,11 +66,15 @@ ModelSerMid.NewRmtModelSer = function (req, callback) {
     form.uploadDir = Setting.modelpath + 'tmp/';	//设置上传目录
     form.keepExtensions = true;                     //保留后缀
     form.maxFieldsSize = 500 * 1024 * 1024;         //文件大小
+    
     //解析请求
     form.parse(req, function (err, fields, files) {
         if (err) {
             return callback(err);
         }
+        
+        fields.u_name = CommonMethod.getIP(req);
+        fields.u_email = '[Unknown]';
         ModelSerControl.addNewModelSer(fields, files, this.returnFunction(callback, "err in new a service"));
 
     }.bind(this));

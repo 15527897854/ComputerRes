@@ -292,7 +292,16 @@ module.exports = function (app) {
         })
         .delete(function(req, res, next){
             var gdid = req.params.gdid;
-            GeoDataCtrl.delete(gdid, RouteBase.returnFunction(res, 'Error in delete a geo-data!'));
+            if(gdid == 'all'){
+                if(req.query.month){
+                    var month = req.query.month;
+                    month = parseInt(month);
+                    GeoDataCtrl.deleteByMonth(month, RouteBase.returnFunction(res, 'Error in delete geo-data by month'));
+                }
+            }
+            else{
+                GeoDataCtrl.delete(gdid, RouteBase.returnFunction(res, 'Error in delete a geo-data!'));
+            }
         });
 
     app.route('/geodata/snapshot/:gdid')

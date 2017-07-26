@@ -25,7 +25,15 @@ var DataSelectTable = React.createClass({
     },
 
     getSelectedGDID : function(){
-        return $("input[name='rd_GDID']:checked").val();
+        var value =  $("input[name='rd_GDID']:checked").val();
+        var guid = value.substr(0, value.indexOf('\t\t\t'));
+        return guid;
+    },
+
+    getSelectedTAG : function(){
+        var value =  $("input[name='rd_GDID']:checked").val();
+        var tag = value.substr(value.indexOf('\t\t\t') + 3);
+        return tag;
     },
 
     refresh : function () {
@@ -105,7 +113,7 @@ var DataSelectTable = React.createClass({
 
             return(
                 <tr key={item.gd_id}>
-                    <td><input className="radio " name="rd_GDID" type="radio" value={item.gd_id} /></td>
+                    <td><input className="radio " name="rd_GDID" type="radio" value={item.gd_id + '\t\t\t' + item.gd_tag} /></td>
                     <td>{item.gd_id}</td>
                     <td>{item.gd_datetime}</td>
                     <td>{item.gd_tag}</td>

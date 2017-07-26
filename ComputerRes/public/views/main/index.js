@@ -240,6 +240,8 @@ if(document.getElementById('enMatchModal')!=null){
 if(document.getElementById('ModelSerDeployment') != null){
     ReactDOM.render(<ModelSerDeployment
     data-source-category="/modelser/cloud/category"
+    data-type={document.getElementById('ModelSerDeployment').getAttribute('data-type') }
+    data-host={document.getElementById('ModelSerDeployment').getAttribute('data-host') }
     />,document.getElementById('ModelSerDeployment'));
 }
 
