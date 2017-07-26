@@ -10,6 +10,8 @@ var AggreSolutionModel = require('../../model/Integrate/aggreSolution');
 var ControlBase = require('../controlBase');
 var CommonMethod = require('../../utils/commonMethod');
 var DataDriver = require('./DataDriver');
+var TaskInstanceManager = require('../../model/Integrate/TaskInstanceManager');
+var WebSocketCtrl = require('./WebSocketCtrl');
 
 var xmlBuilder = require('xml2js').Builder();
 
@@ -267,7 +269,7 @@ var MSAggreCtrl = (function () {
                     return cb(err);
                 }
                 else {
-                    var tasksSegment = [];
+                    var tasksSegment = new Array(tasks.length,null);
                     var count = 0;
                     var pending = function (i) {
                         count++;
@@ -283,17 +285,18 @@ var MSAggreCtrl = (function () {
                                 if(solution){
                                     var solutionInfo = solution.solutionInfo;
                                     solutionInfo.time = CommonMethod.timestamp2String(solution.time);
-                                    tasksSegment.push({
+                                    // 这样写排序不会出错
+                                    tasksSegment[i] = {
                                         _id: tasks[i]._id,
                                         taskInfo: taskInfo,
                                         solutionInfo: solutionInfo
-                                    });
+                                    };
                                 }
                                 else{
-                                    tasksSegment.push({
+                                    tasksSegment[i] = {
                                         _id:tasks[i]._id,
                                         taskInfo:taskInfo
-                                    });
+                                    };
                                 }
                                 if(count == 0){
                                     return cb(null,tasksSegment);
@@ -341,6 +344,7 @@ var MSAggreCtrl = (function () {
             })
         },
 
+        // TODO 运行前的检查
         runTask: function (task, cb) {
             var self = this;
             new Promise(function (resolve, reject) {
@@ -361,21 +365,32 @@ var MSAggreCtrl = (function () {
                 })
             })
                 .then(function (task) {
-                    var dataDriver = new DataDriver();
-                    dataDriver.init(task._id,function (err) {
+                    // 添加task instance
+                    TaskInstanceManager.add(task);
+                    // 更新task state，更新失败时将错误给前台
+                    TaskInstanceManager.updateTaskState(task._id, 'RUNNING', function (err, rst) {
                         if(err){
-                            return cb(err);
-                        }
-                        else{
-                            dataDriver.distributeDataListLocation();
-                            return cb(null);
+                            return WebSocketCtrl.emit(_id, 'error', JSON.stringify({error:err}));
                         }
                     });
+                    // 分发完数据，将分发结果给前台
+                    DataDriver.dispatchDataListPosition(task);
+                    return cb(null);
                 })
                 .catch(function (err) {
                     console.log(err);
                     return cb(err);
                 });
+        },
+        // endregion
+
+        // region data ctrl
+        getData: function (query, cb) {
+            var gdid = query.gdid;
+            var msid = query.msid;
+            var stateID = query.stateID;
+            var eventName = query.eventName;
+
         }
         // endregion
     };

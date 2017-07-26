@@ -9,6 +9,7 @@ var debug = require('debug')('ComputerRes:server');
 var http = require('http');
 var setting = require('../setting');
 var io = require('socket.io');
+var WebSocketCtrl = require('../control/Integrate/WebSocketCtrl');
 
 /**
  * Get port from environment and store in Express.
@@ -23,8 +24,7 @@ app.set('port', port);
 
 var server = http.createServer(app);
 // region scr
-io.listen(server);
-io.on('connection',);
+WebSocketCtrl(server);
 // endregion
 
 /**

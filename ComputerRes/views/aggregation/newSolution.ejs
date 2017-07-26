@@ -4,9 +4,8 @@
     <title>Create aggregation solution</title>
     <%- include ../headInclude.ejs %>
 
-    <link href="/css/jquery-ui.min.css" rel="stylesheet">
     <link href="/css/bootstrap.css" rel="stylesheet">
-    <link href="/css/jquery-ui-1.10.3.css" rel="stylesheet">
+    <link href="/js/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="/js/bootstrap-fileinput/css/fileinput.min.css"/>
     <link rel="stylesheet" type="text/css" href="/js/webix/webix.css" />
@@ -63,14 +62,14 @@
                     <button id="select-tool" type="button" class="btn btn-default view-mode-tool" title="select mode" data-toggle="button"><i class="fa fa-mouse-pointer"></i></button>
                     <button id="display-toggle-tool" type="button" class="btn btn-default view-mode-tool" title="toggle whether to display IO" data-toggle="button"><i class="fa fa-eye-slash"></i></button>
                     <button id="back-pos-tool" type="button" class="btn btn-default view-mode-tool" title="back to origin"><i class="fa fa-crosshairs"></i></button>
-                    <!--<button id="zoomIn-tool" type="button" class="btn btn-default view-mode-tool" title="zoom in" data-toggle="button"><i class="fa fa-search-plus"></i></button>-->
-                    <!--<button id="zoomOut-tool" type="button" class="btn btn-default view-mode-tool" title="zoom out" data-toggle="button"><i class="fa fa-search-minus"></i></button>-->
+                    <button id="zoomIn-tool" type="button" class="btn btn-default view-mode-tool" title="zoom in" data-toggle="button"><i class="fa fa-search-plus"></i></button>
+                    <button id="zoomOut-tool" type="button" class="btn btn-default view-mode-tool" title="zoom out" data-toggle="button"><i class="fa fa-search-minus"></i></button>
                 </div>
                 <div id="edit-mode-toolbar" class="btn-group toolbar">
                     <button id="edit-tool" type="button" class="btn btn-default edit-mode-tool" title="edit mode" data-toggle="button"><i class="fa fa-pencil"></i></button>
                     <button id="link-tool" type="button" class="btn btn-default edit-mode-tool" title="new link between two node" data-toggle="button"><i class="fa fa-code-fork"></i></button>
                     <button id="del-tool" type="button" class="btn btn-default edit-mode-tool" title="delete service" data-toggle="button"><i class="fa fa-trash"></i></button>
-                    <button id="del-all-tool" type="button" class="btn btn-default edit-mode-tool" title="drop canvas"><i class="fa fa-refresh"></i></button>
+                    <button id="del-all-tool" type="button" class="btn btn-default edit-mode-tool" title="drop canvas"><i class="fa fa-file-o"></i></button>
                     <button id="save-solution-tool" type="button" class="btn btn-default edit-mode-tool" title="save aggregation solution"><i class="fa fa-floppy-o"></i></button>
                 </div>
                 <div id="configure-mode-toolbar" class="btn-group toolbar">
@@ -82,12 +81,12 @@
             <canvas  id="canvas"></canvas>
 
             <!-- event context menu -->
-            <div class="list-group contextMenu" id="eventContextMenu">
-                <span id="upload-data-menu" class="list-group-item"><a>upload data</a></span>
-                <span id="configure-data-menu" class="list-group-item"><a>configure data on line</a></span>
-                <span id="" class="list-group-item"><a>set source from node</a></span>
-                <span id="" class="list-group-item"><a>set source of node</a></span>
-            </div>
+            <ul class="list-group contextMenu" id="eventContextMenu">
+                <li id="upload-data-menu" class="list-group-item"><a>upload data</a></li>
+                <li id="configure-data-menu" class="list-group-item"><a>configure data on line</a></li>
+                <!--<li id="" class="list-group-item"><a>set source from node</a></li>-->
+                <!--<li id="" class="list-group-item"><a>set source of node</a></li>-->
+            </ul>
 
             <!-- states context menu -->
             <ul class="list-group contextMenu" id="stateContextMenu">
@@ -168,6 +167,8 @@
 
     </div>
 </section>
+<script type="text/javascript" src="/js/jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
 <%- include ../footerInclude.ejs %>
 
 <!--<script src="/js/jquery-ui-1.10.3.min.js"></script>-->

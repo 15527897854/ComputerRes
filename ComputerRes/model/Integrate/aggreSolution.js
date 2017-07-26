@@ -38,3 +38,21 @@ var solutionSchema = new mongoose.Schema({
 var solutionModel = mongoose.model('aggreSolution',solutionSchema);
 AggreSolution.baseModel = solutionModel;
 AggreSolution.modelName = 'aggreSolution';
+
+AggreSolution.getServiceByMSID = function (_id, MSID, cb) {
+    AggreSolution.getByOID(_id,function (err, solution) {
+        if(err){
+            return cb(err);
+        }
+        else{
+            var serviceList = solution.solutionCfg.serviceList;
+            for(let i=0;i<serviceList.length;i++){
+                var service = serviceList[i];
+                if(service._id == MSID){
+                    return cb(null,service);
+                }
+            }
+            return cb(null,null);
+        }
+    })
+};

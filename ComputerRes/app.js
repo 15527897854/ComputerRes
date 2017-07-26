@@ -11,6 +11,7 @@ var ModelInsCollection = require('./model/modelInsCollection');
 var FileUploadRecord = require('./model/fileUpload');
 var init = require('./init');
 var settings = require('./setting');
+var SysCtrl = require('./control/sysControl');
 
 var routes = require('./routes/index');
 
@@ -101,8 +102,13 @@ if(settings.debug)
   var modelIns = new ModelIns(mis);
   app.modelInsColl.addIns(modelIns);
   global.debug = '调试模式';
+}
 
-  app.taskInstanceColl = [];
+app.taskInstanceColl = [];
+var ip = SysCtrl.getIPSync();
+if(ip){
+    app.centerHost = SysCtrl.getIPSync();
+    app.centerPort = settings.port;
 }
 
 module.exports = app;

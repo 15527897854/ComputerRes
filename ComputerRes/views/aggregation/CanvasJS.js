@@ -3,6 +3,7 @@
  */
 /*jshint esversion: 6 */
 var ObjectID = require('bson-objectid');
+var io = require('socket.io-client');
 
 var CanvasJS = (()=> {
     var __STATES_WIDTH = 80;
@@ -16,6 +17,35 @@ var CanvasJS = (()=> {
     var __tempNodeZ = null;
     var __beginNode = null;
     var __tempLink = null;
+
+    // 数据角色和状态
+    const DataState = {
+        // unready: 'UNREADY',      // DataState表示的是已经上传过的数据的状态，没有 unready这一种
+        ready: 'READY',             // 准备好，表示初始状态，将要分发的状态，before dispatch
+        pending: 'PENDING',         // 正在传输 dispatching
+        received: 'RECEIVED',       // 计算节点接受成功 after dispatch
+        failed: 'FAILED',           // 计算节点接受失败 failed
+        mid: 'MID',                 // 计算中间产物
+        result: 'RESULT'            // 输出数据的状态，是最终计算结果数据（没有流向下个模型） is result
+        // used: 'USED'                // 模型已经跑完，使用过该数据 is used
+    };
+
+    const TaskState = {
+        configured: 'CONFIGURED',
+        collapsed: 'COLLAPSED',
+        end: 'END',
+        finished: 'FINISHED',
+        running: 'RUNNING'
+    };
+
+    const MSState = {
+        unready: 'UNREADY',         // 初始状态，前台创建task时默认是这种
+        pending: 'PENDING',         // 正在发送运行指令
+        pause: 'PAUSE',             // 允许用户给准备好的模型打断点
+        running: 'RUNNING',         // 现在默认准备好数据就开始运行
+        collapsed: 'COLLAPSED',     // 运行失败，两种情况：调用出错；运行失败
+        finished: 'FINISHED'        // 运行成功且结束
+    };
 
     var __showContextMenu = function (type) {
         var id = null;
@@ -118,6 +148,64 @@ var CanvasJS = (()=> {
         }
     };
 
+    // 返回states的信息和attributeset信息
+    var __getServiceDetail = function (__MSID,serviceList) {
+        var service = null;
+        for(var i=0;i<serviceList.length;i++){
+            if(serviceList[i]._id == __MSID){
+                service = serviceList[i];
+                break;
+            }
+        }
+        if(!service)
+            return null;
+
+        var states = [];
+        var mdl = service.MDL;
+        var statesNode = mdl.ModelClass.Behavior.StateGroup.States.State;
+        var attributeSetNode = mdl.ModelClass.AttributeSet;
+        if(statesNode){
+            if(statesNode instanceof Array){
+                for(let i=0;i<statesNode.length;i++){
+                    states.push(statesNode[i]._$);
+                }
+            }
+            else{
+                states.push(statesNode._$);
+            }
+        }
+        var categoriesNode = attributeSetNode.Categories.Category;
+        var categories = {
+            principle: categoriesNode._$.principle,
+            path: categoriesNode._$.path
+        };
+        var LocalAttributesNode = attributeSetNode.LocalAttributes.LocalAttribute;
+        var localAttributes = null;
+        if(LocalAttributesNode){
+            if(LocalAttributesNode instanceof Array){
+                localAttributes = LocalAttributesNode;
+                // for(let i=0;i<LocalAttributesNode.length;i++){
+                //     var localAttributeNode = LocalAttributesNode[i];
+                //     localAttributes.push(localAttributeNode[i]);
+                // }
+            }
+            else{
+                localAttributes = [LocalAttributesNode];
+                // localAttributes.push(LocalAttributesNode)
+            }
+        }
+        // TODO 添加runtime
+        var runtimeNode = mdl.ModelClass.Runtime;
+
+        return {
+            attributeSet: {
+                categories: categories,
+                localAttributes: localAttributes
+            },
+            states:states
+        };
+    };
+
     var __getRoleByID = function (roleList, _id) {
         for(var i=0;i<roleList.length;i++){
             if(roleList[i]._id == _id){
@@ -170,6 +258,9 @@ var CanvasJS = (()=> {
                     key3 != 'outLinks'){
                     rst[key3] = role[key3];
                 }
+                if(key3 == 'paint'){
+                    rst[key3] = role[key3];
+                }
             }
         }
         else if(role.elementType == 'scene'){
@@ -217,7 +308,8 @@ var CanvasJS = (()=> {
         __stage: null,
         __scene: null,
         __toolMode: null,   // normal zoomIn zoomOut delete
-        __mode: 'view',     // view edit run
+        __mode: 'view',     // view edit configure
+        __type: null,
 
         // solution
         __solution: null,
@@ -227,7 +319,7 @@ var CanvasJS = (()=> {
         __serviceList: [],
         __relationList: [],
         // taskCfg
-        __dataList: [],             // gdid MSID stateID eventName TODO 应该加上 host port 两个字段，表示数据是以服务的形式接入进来的
+        __dataList: [],             // gdid MSID stateID eventName TODO 接入数据服务时应该加上 host port 两个字段
 
         // canvas role
         __nodeList: [],
@@ -238,9 +330,10 @@ var CanvasJS = (()=> {
         __currentNode: null,
         __isValid: true,
 
-        init: function(mode) {
+        init: function(mode, type) {
             var self = this;
             this.__mode = mode;
+            this.__type = type;
             $('#canvas').attr('height',$('#canvas-div').height());
             $('#canvas').attr('width',$('#canvas-div').width());
             this.__stage = new JTopo.Stage($('#canvas')[0]);
@@ -282,26 +375,47 @@ var CanvasJS = (()=> {
                 switch ($(this).attr('id')){
                     //清空场景
                     case 'del-all-tool':
-                        self.__serviceList = [];
-                        self.__relationList = [];
-                        self.__dataList = [];
-                        self.__scene.clear();
+                        if(self.__type == 'solution' && self.__mode == 'edit'){
+                            self.__serviceList = [];
+                            self.__relationList = [];
+                            self.__dataList = [];
+                            self.__scene.clear();
 
-                        self.__toolMode = 'normal';
-                        self.__scene.mode = 'normal';
+                            self.__toolMode = 'normal';
+                            self.__scene.mode = 'normal';
+                            $('#toolbar button').removeClass('active');
+                            $('#hand-tool').addClass('active');
+                        }
                         break;
                     //回到初始位置
                     case 'back-pos-tool':
                         // self.__stage.centerAndZoom(1);
                         // self.__stage.setCenter(0,0);
                         // self.__stage.zoom(1);
-                        // TODO 缩放恢复
-                        self.__scene.translateX = 0;
-                        self.__scene.translateY = 0;
+
+                        self.__scene.scaleX = 1;
+                        self.__scene.scaleY = 1;
+
+                        self.__scene.translateX = $('#canvas-div').width()/2;
+                        self.__scene.translateY = $('#canvas-div').height()/2;
                         self.__stage.paint();
 
                         self.__toolMode = 'normal';
                         self.__scene.mode = 'normal';
+                        $('#toolbar button').removeClass('active');
+                        $('#hand-tool').addClass('active');
+                        break;
+                    case 'display-toggle-tool':
+                        if(!$(this).hasClass('active')){
+                            self.__scene.mode = 'select';
+                            self.__toolMode = 'normal';
+                        }
+                        else {
+                            self.__scene.mode = 'normal';
+                            self.__toolMode = 'normal';
+                            $('#toolbar button').removeClass('active');
+                            $('#hand-tool').addClass('active');
+                        }
                         break;
                     //放大
                     case 'zoomIn-tool':
@@ -312,6 +426,8 @@ var CanvasJS = (()=> {
                         else {
                             self.__toolMode = 'normal';
                             self.__scene.mode = 'normal';
+                            $('#toolbar button').removeClass('active');
+                            $('#hand-tool').addClass('active');
                         }
                         break;
                     //缩小
@@ -323,6 +439,8 @@ var CanvasJS = (()=> {
                         else {
                             self.__toolMode = 'normal';
                             self.__scene.mode = 'normal';
+                            $('#toolbar button').removeClass('active');
+                            $('#hand-tool').addClass('active');
                         }
                         break;
                     //拖动模式
@@ -345,6 +463,8 @@ var CanvasJS = (()=> {
                         else {
                             self.__scene.mode = 'normal';
                             self.__toolMode = 'normal';
+                            $('#toolbar button').removeClass('active');
+                            $('#hand-tool').addClass('active');
                         }
                         break;
                     //编辑模式
@@ -356,6 +476,8 @@ var CanvasJS = (()=> {
                         else {
                             self.__scene.mode = 'normal';
                             self.__toolMode = 'normal';
+                            $('#toolbar button').removeClass('active');
+                            $('#hand-tool').addClass('active');
                         }
                         break;
                     //删除模式
@@ -367,6 +489,8 @@ var CanvasJS = (()=> {
                         else {
                             self.__toolMode = 'normal';
                             self.__scene.mode = 'normal';
+                            $('#toolbar button').removeClass('active');
+                            $('#hand-tool').addClass('active');
                         }
                         break;
                     //创建连接线模式
@@ -378,6 +502,8 @@ var CanvasJS = (()=> {
                         else {
                             self.__toolMode = 'normal';
                             self.__scene.mode = 'normal';
+                            $('#toolbar button').removeClass('active');
+                            $('#hand-tool').addClass('active');
                         }
                         break;
                     case 'run-tool':
@@ -408,7 +534,6 @@ var CanvasJS = (()=> {
                 self.__buildEventDetail();
                 __hideContextMenu();
             });
-
         },
 
         __bindStageEvent: function (stage) {
@@ -439,7 +564,7 @@ var CanvasJS = (()=> {
                 }
                 else if(e.button == 2){
                     var target = e.target;
-                    if( self.__mode == 'edit' && target && target.elementType == 'link' && target.__linkType == 'CUSTOM'){
+                    if( self.__type == 'solution' && self.__mode == 'edit' && target && target.elementType == 'link' && target.__linkType == 'CUSTOM'){
                         self.removeRelationByJTopoID(self.__scene, e.target._id);
                         self.__removeJTopoElementByID(self.__scene, e.target._id);
                     }
@@ -455,12 +580,23 @@ var CanvasJS = (()=> {
             var self = this;
             var type = node.__nodeType;
 
-            if(self.__mode != 'view'){
+            if(self.__mode == 'configure'){
                 node.addEventListener('mouseup',function (e) {
                     if(e.button == 2){
                         __hideContextMenu();
                         __showContextMenu(node.__nodeType);
                         self.__currentNode = node;
+                    }
+                    else if(e.button == 0){
+
+                    }
+                });
+            }
+
+            if(self.__mode == 'edit' && self.__type == 'solution'){
+                node.addEventListener('mouseup',function (e) {
+                    if(e.button == 2){
+
                     }
                     else if(e.button == 0){
                         if(node.__nodeType == 'STATES'){
@@ -478,12 +614,21 @@ var CanvasJS = (()=> {
                     self.__buildEventDetail();
                 });
             }
+            else if(type == 'STATES'){
+                node.addEventListener('dbclick',function (e) {
+                    self.__currentNode = node;
+                    self.__buildStatesDetail();
+                });
+            }
+
         },
 
         __bindSaveSolutionEvent: function () {
             var self = this;
             $('#save-aggre-form').validate({
-                onfocusout:true,
+                onfocusout:function(element) {
+                    $(element).valid();
+                },
                 focusInvalid:true,
                 submitHandler:function (form) {
                     var data = self.exportSolution();
@@ -631,8 +776,9 @@ var CanvasJS = (()=> {
                 node = new JTopo.Node(text);
                 node.setSize(__STATES_WIDTH,__STATES_HEIGHT);
                 node.borderRadius = 5;
-                node.borderWidth = 1;
+                node.borderWidth = 0;
                 node.borderColor = '0,0,0';
+                node.fillColor = '96, 168, 255';
                 node.layout = {
                     type:'tree',
                     direction:'right',
@@ -643,13 +789,41 @@ var CanvasJS = (()=> {
             else{
                 node = new JTopo.CircleNode(text);
                 node.radius = __DATA_RADIUS;
-                node.borderRadius = __DATA_RADIUS;
-                node.borderWidth = 1;
+                // node.borderRadius = __DATA_RADIUS;
+                node.borderWidth = 0;
                 node.borderColor = '0,0,0';
+                node.fillColor = '96, 168, 255';
+
+                // node = new JTopo.Node(text);
+                // node.beginDegree = 0;
+                // node.percent = 1;
+                // node.setCenterLocation(x,y);
+                // node.width = node.height = __DATA_RADIUS*2;
+                // node.paint = function (g) {
+                //     g.beginPath();
+                //     g.moveTo(0,0);
+                //     g.fillStyle = 'rgba(0,0,0,1)';
+                //     g.arc(0, 0, this.width/2, this.beginDegree, this.beginDegree + 2*Math.PI*this.percent);
+                //     g.fill();
+                //     g.closePath();
+                //
+                //     g.save();
+                //     g.beginPath();
+                //     g.fillStyle = 'rgba(255,255,255,1)';
+                //     g.moveTo(0,0);
+                //     var radius =  this.width/2;
+                //     radius = radius>20?radius:20;
+                //     g.arc(0, 0, radius-1, this.beginDegree, this.beginDegree + 2*Math.PI);
+                //     g.fill();
+                //     g.closePath();
+                //     g.restore();
+                //
+                //     this.paintText(g);
+                // };
             }
             if(x && y)
                 node.setCenterLocation(x,y);
-            node.fillColor = '255,255,255';
+            node.alpha = 1;
             node.textPosition = 'Middle_Center';
             node.font = '微软雅黑';
             node.fontColor = '0,0,0';
@@ -672,10 +846,10 @@ var CanvasJS = (()=> {
             var link = new JTopo.Link(nodeA, nodeZ);
             // link.direction = direction || 'horizontal';
             link.arrowsRadius = 7;
-            link.lineWidth = 1;
+            link.lineWidth = 2;
             link.bundleOffset = 60;
             link.bundleGap = 15;
-            link.strokeColor = '0,0,0';
+            link.strokeColor = '96, 168, 255';
             link._id = nodeA._id + '__' + nodeZ._id;
             this.__scene.add(link);
             return link;
@@ -718,10 +892,38 @@ var CanvasJS = (()=> {
                 this.__containerList.push(role);
             }
             else if(roleJSON.elementType == 'node'){
-                role = new JTopo.Node();
+                if(roleJSON.__nodeType == 'STATES'){
+                    role = new JTopo.Node();
+                }
+                else{
+                    role = new JTopo.CircleNode();
+                }
                 for(let key in roleJSON){
                     role[key] = roleJSON[key];
                 }
+                // if(role.__nodeType != 'STATES'){
+                //     role.paint = function (g) {
+                //         g.beginPath();
+                //         g.moveTo(0,0);
+                //         g.fillStyle = 'rgba(0,0,0,1)';
+                //         g.arc(0, 0, this.width/2, this.beginDegree, this.beginDegree + 2*Math.PI*this.percent);
+                //         g.fill();
+                //         g.closePath();
+                //
+                //         g.save();
+                //         g.beginPath();
+                //         g.fillStyle = 'rgba(255,255,255,1)';
+                //         g.moveTo(0,0);
+                //         var radius =  this.width/2;
+                //         radius = radius>20?radius:20;
+                //         g.arc(0, 0, radius-1, this.beginDegree, this.beginDegree + 2*Math.PI);
+                //         g.fill();
+                //         g.closePath();
+                //         g.restore();
+                //
+                //         this.paintText(g);
+                //     };
+                // }
                 this.__bindNodeEvent(role);
                 this.__nodeList.push(role);
             }
@@ -786,6 +988,20 @@ var CanvasJS = (()=> {
             var type = node.__nodeType;
             var id = node.__MSID + '___' + node.__stateID + '___' + node.__eventName;
             if($('#'+id).length){
+                // update download link
+                if(node.__gdid){
+                    var dataURL = '/aggregation/data?gdid='+node.__gdid+'&msid='+node.__MSID +'&stateID=' + node.__stateID + '&eventName=' + node.__eventName;
+                    if($('#' + id + '-download-data').length){
+                        $('#' + id + '-download-data').attr('onclick','window.open(\''+dataURL+'\')');
+                    }
+                    else{
+                        $('#'+ id +' .down-event-btn').remove();
+                        $(  '<p><b>Download data: </b></p>' +
+                            '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download</button>')
+                            .appendTo($('#' + id));
+                    }
+                }
+
                 $('#'+id).parent().show();
                 $('#'+id).parent().css('z-index',__getMaxZIndex()+1);
             }
@@ -815,30 +1031,61 @@ var CanvasJS = (()=> {
                 }
 
                 $dataInfoDialog.appendTo($('#aggreDIV'));
-                $dataInfoDialog.dialog({});
+                $dataInfoDialog.dialog({
+                    width: 350,
+                    // maxHeight: 550,
+                    modal: false,
+                    create: function () {
+                        $(this).css('maxHeight',500);
+                    }
+                });
                 $('#'+id).parent().addClass('dataInfo-ui-dialog');
 
                 if(this.__mode == 'configure'){
                     if(node.__nodeType == 'INPUT' || node.__nodeType == 'CONTROL'){
                         $(
                             '<p><b>Upload data: </b></p>' +
-                            '<input id="' + id + '-upload-data" name="myfile" type="file" class="file" data-show-preview="false">'
+                            '<input id="' + id + '-upload-data" name="myfile" type="file" class="file">'
                         ).appendTo($dataInfoDialog);
 
                         if(node.__gdid && node.__gdid != undefined){
-                            $('<button id="' + id + '-download-data " onclick="window.open(\'/geodata/'+node.__gdid+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download data</button>')
+                            let dataURL = '/aggregation/data?gdid='+node.__gdid+'&msid='+node.__MSID +'&stateID=' + node.__stateID + '&eventName=' + node.__eventName;
+                            $('<button id="' + id + '-download-data " onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download data</button>')
                                 .appendTo($dataInfoDialog);
                         }
 
                         // TODO 验证数据合法性
                         $('#'+id+'-upload-data').fileinput({
-                            uploadUrl:'/geodata/file',
-                            allowedFileExtensions:['xml','zip'],
-                            // showUpload:true,
-                            // showRemove:true,
-                            showUploadedThumbs:false,
-                            autoReplace:true,
+                            uploadUrl: '/geodata/file',
+                            allowedFileExtensions: ['xml','zip'],
+                            aploadAsync: true,
+                            showPreview: false,
+                            showUpload: true,
+                            showRemove: true,
+                            showClose: false,
+                            showUploadedThumbs: false,
+                            autoReplace: true,
+                            maxFileCount: 1,
+                            uploadLabel: '',
+                            removeLabel: '',
+                            cancelLabel: '',
+                            browseLabel: '',
+                            removeIcon: '<i class="glyphicon glyphicon-trash text-danger"></i>',
+                            uploadIcon: '<i class="glyphicon glyphicon-upload text-info"></i>'
                         })
+                            .on('fileselect',function (event) {
+                                // if($('#'+id+' .fileinput-remove-button')[0].tagName == 'BUTTON'){
+                                //     var tmpDIV = $('<div>');
+                                //     tmpDIV.append($('#'+id+' .fileinput-remove-button'));
+                                //     var buttonStr = tmpDIV.html();
+                                //     var str = buttonStr.match(/<button(.+)<\/button>/i);
+                                //     if(str.length>=2){
+                                //         str = '<a '+ str[1] + '</a>';
+                                //         $(str).prependTo($('#' + id + ' .input-group-btn'));
+                                //     }
+                                //
+                                // }
+                            })
                             .on('fileuploaded',function (e, data, previewId, index) {
                                 if(data.response.res != 'suc'){
                                     $.gritter.add({
@@ -872,13 +1119,16 @@ var CanvasJS = (()=> {
                                     self.__dataList.push(inputData);
                                 }
                                 node.__gdid = gdid;
-                                node.shadow = true;
-                                node.shadowColor = 'rgba(0,0,0,1)';
+                                node.fillColor = '0, 103, 229';
+                                // node.shadow = true;
+                                // node.shadowColor = 'rgba(0,0,0,1)';
 
                                 // 添加数据下载链接
-                                // TODO 下载链接不对，有可能会跨域请求别的节点上的数据
+                                // 不能通过原来的链接下载，有可能会跨域请求别的节点上的数据
+                                let dataURL = '/aggregation/data?gdid='+node.__gdid+'&msid='+node.__MSID +'&stateID=' + node.__stateID + '&eventName=' + node.__eventName;
                                 $('#'+ id +' .down-event-btn').remove();
-                                $('<button id="' + id + '-download-data " onclick="window.open(\'/geodata/'+node.__gdid+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download data</button>')
+                                $(  '<p><b>Download data: </b></p>' +
+                                    '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download</button>')
                                     .appendTo($dataInfoDialog);
 
                                 $.gritter.add({
@@ -906,6 +1156,103 @@ var CanvasJS = (()=> {
             }
 
             this.updateServiceState();
+        },
+
+        __buildStatesDetail: function () {
+            var node = this.__currentNode;
+            var self = this;
+            var type = node.__nodeType;
+            var id = node.__MSID + '-states-dialog';
+            if($('#'+id).length){
+                $('#'+id).parent().show();
+                $('#'+id).parent().css('z-index',__getMaxZIndex()+1);
+            }
+            else{
+                var serviceDetail = __getServiceDetail(node.__MSID, self.__serviceList);
+                var $serviceInfoDialog = null;
+                if(serviceDetail == null){
+                    $serviceInfoDialog = $(
+                        '<div id="'+id+'" class="service-info-dialog" title="Service Information">' +
+                        'Parse model service language failed!'+
+                        '</div>'
+                    );
+                }
+                else{
+                    var category = serviceDetail.attributeSet.categories;
+                    var localAttributes = serviceDetail.attributeSet.localAttributes;
+                    var states = serviceDetail.states;
+
+                    $serviceInfoDialog = $(
+                        '<div id="'+id+'" class="service-info-dialog" title="Service Information">' +
+                        '<div id="'+id +'-Categories">' +
+                        '<h4>Categories:</h4>' +
+                        '<p><b>Principle: </b><span>' + category.principle + '</span></p>' +
+                        '<p><b>Path: </b><span>' + category.path + '</span></p>' +
+                        '</div>' +
+                        '<hr>' +
+                        '<div id="'+id +'-LocalAttributes"><h4>LocalAttributes:</h4>' +
+                        '<ul id="'+id+'-tab" class="nav nav-tabs"></ul>' +
+                        '<div id="'+id+'-tab-content" class="tab-content"></div>' +
+                        '</div>' +
+                        '<hr>' +
+                        '<div id="'+id +'-States"><h4>State list:</h4>' +
+                        '<div id="'+ id + '-states-div"></div>' +
+                        '</div>' +
+                        '</div>'
+                    );
+                    $serviceInfoDialog.appendTo($('#aggreDIV'));
+                    for(let i=0;i<localAttributes.length;i++){
+                        if(localAttributes[i].Keywords && localAttributes[i].Abstract){
+                            var tabTitle = localAttributes[i]._$.localName == ''?'Undefined':localAttributes[i]._$.localName;
+                            $('#'+id + '-tab').append($(
+                                '<li>' +
+                                '<a href="'+localAttributes[i]._$.local+'" data-toggle="tab">' + tabTitle + '</a>' +
+                                '</li>'
+                            ));
+                            $('#' + id + '-tab-content').append($(
+                                '<div class="tab-pane fade" id="'+localAttributes[i]._$.local+'"></div>'
+                            ));
+                            if(localAttributes[i].Keywords){
+                                $('#'+localAttributes[i]._$.local).append('<p style="padding-top: 10px"><b>Keywords: </b><span>'+localAttributes[i].Keywords+'</span></p>');
+                            }
+                            if(localAttributes[i].Abstract){
+                                $('#'+localAttributes[i]._$.local).append('<p><b>Abstract: </b><span>'+localAttributes[i].Abstract+'</span></p>');
+                            }
+                        }
+                    }
+                    var $a = $('#' + id + '-tab li a');
+                    for(let i=0;i<$a.length;i++){
+                        $a[i].blur();
+                    }
+                    if($('#'+id + '-tab').children().length == 0){
+                        $('#' + '-LocalAttributes').empty();
+                    }
+                    $($('#' + id + '-tab').children()[0]).addClass('active');
+                    $($('#' + id + '-tab-content').children()[0]).addClass('in active');
+                    for(let i=0;i<states.length;i++){
+                        $('#' + id + '-states-div').append($(
+                            '<p><b>State name: </b>'+states[i].name+'</p>' +
+                            '<p><b>State type: </b>'+states[i].type+'</p>' +
+                            '<p><b>State description: </b>'+states[i].description+'</p>'
+                        ));
+                        // if(i!=states.length-1){
+                        //     $('#' + id + '-states-div').append($('<hr>'));
+                        // }
+                    }
+                }
+                $serviceInfoDialog.dialog({
+                    width: 350,
+                    modal: false,
+                    create: function () {
+                        $(this).css('maxHeight',500);
+                    }
+                });
+                $('#' + id).parent().find('.ui-dialog-title').css('font-size','18px');
+                $('#'+id).parent().addClass('dataInfo-ui-dialog');
+                $('.ui-dialog-titlebar-close').click(function (e) {
+                    $(this).parent().parent().hide();
+                });
+            }
         },
 
         __addRelation: function (nodeA, nodeZ) {
@@ -942,7 +1289,7 @@ var CanvasJS = (()=> {
             tempNodeZ.setSize(1, 1);
 
             var link = new JTopo.Link(tempNodeA, tempNodeZ);
-            link.lineWidth = 1;
+            link.lineWidth = 2;
 
             scene.mouseup(function(e){
                 if(self.__toolMode != 'link')
@@ -968,33 +1315,16 @@ var CanvasJS = (()=> {
                     }
                     else if(beginNode !== e.target){
                         var endNode = e.target;
-                        //  region 验证添加规则
-                        if(e.target.__nodeType == 'STATES'){
-                            $.gritter.add({
-                                title: '警告：',
-                                text: '不能连接到服务！',
-                                sticky: false,
-                                time: 2000
-                            });
-                            beginNode = null;
-                            scene.remove(link);
-                            return;
-                        }
                         if(!self.validateLink(beginNode,endNode)){
                             beginNode = null;
-                            $.gritter.add({
-                                title: 'Warning:',
-                                text: 'Invalid link between node with different schema!',
-                                sticky: false,
-                                time: 2000
-                            });
+                            scene.remove(link);
                             return ;
                         }
                         // endregion
                         var relation = self.__addRelation(beginNode,endNode);
                         var l = new JTopo.Link(beginNode, endNode);
                         l.arrowsRadius = 7;
-                        l.lineWidth = 1;
+                        l.lineWidth = 2;
                         l.bundleOffset = 60;
                         l.bundleGap = 15;
                         l.strokeColor = '72,152,255';
@@ -1061,10 +1391,12 @@ var CanvasJS = (()=> {
             var eventCount = event.length;
             var scale = eventCount<=4?1:Math.pow(0.99,eventCount);
             var linkScale = (scale === 1)?1:(2-scale);
-            var stateNodeX = window.event.layerX  - this.__scene.translateX;
-            var stateNodeY = window.event.layerY  - this.__scene.translateY;
-            // var stateNodeX = (window.event.layerX - this.__scene.getCenterLocation().x) * this.__scene.scaleX - this.__scene.translateX;
-            // var stateNodeY = (window.event.layerY - this.__scene.getCenterLocation().y) * this.__scene.scaleY - this.__scene.translateY;
+            var canvasW = $('#canvas-div').width()/2;
+            var canvasH = $('#canvas-div').height()/2;
+            var stateNodeX = (window.event.layerX  - canvasW)/this.__scene.scaleX - this.__scene.translateX + canvasW;
+            var stateNodeY = (window.event.layerY  - canvasH)/this.__scene.scaleY - this.__scene.translateY + canvasH;
+
+            // this.__addJTopoNode(0,0,'aaa','INPUT',1);
             var stateNode = this.__addJTopoNode(stateNodeX, stateNodeY, SADLService.MS.ms_model.m_name, 'STATES', scale);
             // 有可能会出现一个服务使用多次的情况，所以_id得在前台生成
             var __service = JSON.parse(JSON.stringify(SADLService));
@@ -1090,8 +1422,8 @@ var CanvasJS = (()=> {
                     controlCount++;
                 }
             }
-            var dx = __DATA_RADIUS*4*linkScale;
-            var dy = __DATA_RADIUS*2*linkScale;
+            var dx = __DATA_RADIUS*4*linkScale*this.__scene.scaleX;
+            var dy = __DATA_RADIUS*2*linkScale*this.__scene.scaleY;
             var k = 0;
             for(var i=0;i<eventCount;i++){
                 var nodeA = null;
@@ -1103,8 +1435,8 @@ var CanvasJS = (()=> {
                     type = 'OUTPUT';
                 }
                 else {
-                    x = window.event.layerX - dx - this.__scene.translateX;
-                    y = window.event.layerY - ((inputCount + controlCount - 1) / 2 - k) * dy - this.__scene.translateY;
+                    x = (window.event.layerX - dx  - canvasW)/this.__scene.scaleX - this.__scene.translateX + canvasW;
+                    y = (window.event.layerY - ((inputCount + controlCount - 1) / 2 - k) * dy  - canvasH)/this.__scene.scaleY - this.__scene.translateY + canvasH;
                     if(typeof event[i].ResponseParameter !== 'undefined'){
                         type = 'INPUT';
                     }
@@ -1197,8 +1529,9 @@ var CanvasJS = (()=> {
                     for(let j=0;j<dataList.length;j++){
                         var data = dataList[j];
                         if(role.__MSID == data.MSID && role.__stateID == data.stateID && role.__eventName == data.eventName){
-                            role.shadow = true;
-                            role.shadowColor = 'rgba(0,0,0,1)';
+                            // role.shadow = true;
+                            // role.shadowColor = 'rgba(0,0,0,1)';
+                            role.fillColor = '0, 103, 229';
                             role.__gdid = data.gdid;
                             // 设置上传按钮的显示，添加下载链接
                         }
@@ -1232,6 +1565,12 @@ var CanvasJS = (()=> {
             self.__stage.paint();
         },
 
+        importTask: function () {
+            this.importSolution();
+            this.__importDataList();
+        },
+
+        // 给私有变量赋值，添加solution或task的基本信息到modal和input中
         initImport: function (type, data) {
             if(type == 'SOLUTION'){
                 this.__solution = data;
@@ -1279,6 +1618,8 @@ var CanvasJS = (()=> {
                 $('#taskName').attr('value',task.taskInfo.taskName);
                 $('#taskDesc').attr('value',task.taskInfo.taskDesc);
                 $('#taskAuthor').attr('value',task.taskInfo.taskAuthor);
+
+                this.registerSocket();
             }
         },
 
@@ -1289,33 +1630,28 @@ var CanvasJS = (()=> {
                 taskInfo[saveTag[i].name] = saveTag[i].value;
             }
 
-            // var MSState = [];
-            // for(let i=0;i<this.__serviceList.length;i++){
-            //     MSState.push({
-            //         MSID: this.__serviceList[i]._id,
-            //         state: 'READY'
-            //     });
-            // }
+            var MSState = [];
+            for(let i=0;i<this.__serviceList.length;i++){
+                MSState.push({
+                    MSID: this.__serviceList[i]._id,
+                    state: 'UNREADY'
+                });
+            }
 
-            var task = {
+            __task = {
                 taskCfg:{
                     dataList: this.__dataList,
                     solutionID: this.__solution._id,
                     driver: 'DataDriver'
                 },
                 taskState:'CONFIGURED',
-                taskInfo: taskInfo
-                // MSState: MSState
+                taskInfo: taskInfo,
+                MSState: MSState
             };
             if($('#taskID-input').length && $('#taskID-input').attr('value') && $('#taskID-input').attr('value') != undefined){
-                task._id = $('#taskID-input').attr('value');
+                __task._id = $('#taskID-input').attr('value');
             }
-            return task;
-        },
-
-        importTask: function () {
-            this.importSolution();
-            this.__importDataList();
+            return __task;
         },
 
         run: function () {
@@ -1369,14 +1705,301 @@ var CanvasJS = (()=> {
 
         },
 
-        // TODO 当上传数据时调用，验证上传数据与schema 是否匹配
+        // TODO 当上传数据时调用，验证上传数据与schema 是否匹配，先不做
         validateEvent: function () {
 
         },
 
         // TODO 当在不同模型之间建立连接时，验证link 是否合法
         validateLink: function (nodeA, nodeZ) {
+            // 只能由输出连向输入
+            if(nodeZ.__nodeType == 'OUTPUT'){
+                $.gritter.add({
+                    title: 'Warning:',
+                    text: 'To node must be input!',
+                    sticky: false,
+                    time: 2000
+                });
+                return false;
+            }
+            if(nodeA.__nodeType != 'OUTPUT'){
+                $.gritter.add({
+                    title: 'Warning:',
+                    text: 'From node must be output!',
+                    sticky: false,
+                    time: 2000
+                });
+                return false;
+            }
+
+            // 在不同模型之间添加连线时，检查他的schema是否相同
+
             return true;
+        },
+
+        // 其他信息也都复制到node里了
+        __updateNodeState: function (node) {
+            if(node.__nodeType == 'STATES'){
+                if(node.__state == MSState.pending){
+                    node.fillColor = '255, 0, 0';
+                }
+                else if(node.__state == MSState.running){
+                    node.fillColor = '0, 255, 0';
+                }
+                else if(node.__state == MSState.pause){
+                    node.fillColor = '0, 0, 255';
+                }
+                else if(node.__state == MSState.finished){
+                    node.fillColor = '255, 0, 255';
+                }
+                else if(node.__state == MSState.collapsed){
+                    node.fillColor = '0, 255, 255';
+                }
+            }
+            else{
+                // update ui, and download link(update when db click)
+                if(node.__state == DataState.pending){
+                    node.fillColor = '255, 0, 0';
+                }
+                else if(node.__state == DataState.received){
+                    node.fillColor = '0, 255, 0';
+                }
+                else if(node.__state == DataState.mid){
+                    node.fillColor = '0, 0, 255';
+                }
+                else if(node.__state == DataState.result){
+                    node.fillColor = '255, 0, 255';
+                }
+                else if(node.__state == DataState.failed){
+                    node.fillColor = '0, 255, 255';
+                }
+            }
+            this.__stage.paint();
+        },
+
+        __getEventNode: function (__MSID, __stateID, __eventName) {
+            for(let i=0;i<this.__nodeList.length;i++){
+                let node = this.__nodeList[i];
+                if(node.__MSID == __MSID && node.__stateID == __stateID && node.__eventName == __eventName){
+                    return node;
+                }
+            }
+            return null;
+        },
+
+        __getStatesNode: function (MSinsID) {
+            for(let i=0;i<this.__nodeList.length;i++){
+                let node = this.__nodeList[i];
+                if(node.__MSID == MSinsID && node.__nodeType == 'STATES'){
+                    return node;
+                }
+            }
+            return null;
+        },
+
+        __updateDataListState: function (dispatchRst) {
+            for(let i=0;i<dispatchRst.length;i++){
+                for(let j=0;j<this.__task.taskCfg.dataList.length;j++){
+                    var data = this.__task.taskCfg.dataList[j];
+                    if(data.gdid == dispatchRst[i].gdid){
+                        if(dispatchRst[i].error){
+                            data.state = DataState.failed;
+                            let node = this.__getEventNode(data.MSID,data.stateID,data.eventName);
+                            node.__state = data.state;
+                            node.__gdid = null;
+                            // node.__host = null;  // 不要也行，后台查找可以得到
+                            // node.__port = null;
+                            this.__updateNodeState(node);
+                            $.gritter.add({
+                                title: 'Warning:',
+                                text: 'Dispatch data failed!<br><pre>'+JSON.stringify(dispatchRst[i].error,null,4)+'</pre>',
+                                sticky: false,
+                                time: 2000
+                            });
+                        }
+                        else{
+                            // if(data.state == DataState.ready)
+                            data.state = DataState.pending;
+                            let node = this.__getEventNode(data.MSID,data.stateID,data.eventName);
+                            node.__state = data.state;
+                            node.__gdid = data.gdid;
+                            // node.__host = data.host;
+                            // node.__port = data.port;
+                            this.__updateNodeState(node);
+                        }
+                        break;
+                    }
+                }
+            }
+        },
+        
+        __updateDataState: function (downloadRst) {
+            for(let j=0;j<this.__task.taskCfg.dataList.length;j++){
+                var data = this.__task.taskCfg.dataList[j];
+                if(data.MSID == downloadRst.MSID && downloadRst.stateID == data.stateID && downloadRst.eventName == data.eventName && data.state!= DataState.mid){
+                    data.state = downloadRst.err?DataState.failed:DataState.received;
+                    let node = this.__getEventNode(data.MSID,data.stateID,data.eventName);
+                    node.__state = data.state;
+                    node.__gdid = data.gdid;
+                    this.__updateNodeState(node);
+                    break;
+                }
+            }
+        },
+
+        __updateByDispatchedRst: function (dispatchRst) {
+
+        },
+
+        __updateByDownloadedRst: function (downloadRst) {
+
+        },
+
+        registerSocket: function () {
+            var self = this;
+            socket = io('/integrate/task');
+
+            socket.on('connect', function(){
+                console.log('socket connected to server');
+                // 按照taskID 给room命名，后台有状态更新时，更新所有该task对应的client
+                socket.emit('dispatch room',self.__task._id);
+            });
+
+            socket.on('disconnect', function(){
+                console.log('disconnected');
+            });
+
+            socket.on('message',function (msg) {
+                console.log(msg);
+            });
+
+            socket.on('error',function (msg) {
+                console.log(JSON.parse(msg));
+            });
+            ////////////////////////////////////////////////////////////////////////////////
+
+            // {
+            //     error:err,
+            //     dispatchRst:dispatchRst      // gdid, MSID, stateID, eventName, error
+            // }
+            socket.on('data dispatched',function (msg) {
+                msg = JSON.parse(msg);
+                console.log('data dispatched', msg);
+                if(msg.error){
+                    $.gritter.add({
+                        title: 'Warning:',
+                        text: 'Dispatch data failed!<br><pre>'+JSON.stringify(msg.error,null,4)+'</pre>',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+                else{
+                    self.__updateDataListState(msg.dispatchRst);
+                }
+            });
+
+            // {
+            //     error:err,
+            //     downloadRst:replyData
+            // }
+            // downloadRst:
+            // {
+            //     taskID: dataPosition.taskID,
+            //     gdid: dataPosition.gdid,
+            //     MSID: dataPosition.MSID,
+            //     stateID: dataPosition.stateID,
+            //     eventName: dataPosition.eventName,
+            //     err: err
+            // }
+            socket.on('data downloaded',function (msg) {
+                msg = JSON.parse(msg);
+                console.log('data downloaded', msg);
+                if(msg.error){
+                    $.gritter.add({
+                        title: 'Warning:',
+                        text: 'Download data failed!<br><pre>'+JSON.stringify(msg.error,null,4)+'</pre>',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+                else{
+                    self.__updateDataState(msg.downloadRst);
+                }
+            });
+
+            // {
+            //     error:null,
+            //     MSinsID: MSinsID
+            // }
+            socket.on('service starting',function (msg) {
+                msg = JSON.parse(msg);
+                console.log('service starting', msg);
+                if(msg.error){
+                    $.gritter.add({
+                        title: 'Warning:',
+                        text: 'Start service failed!<br><pre>'+JSON.stringify(msg.error,null,4)+'</pre>',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+                else{
+                    var statesNode = self.__getStatesNode(msg.MSinsID);
+                    statesNode.__state = MSState.pending;
+                    self.__updateNodeState(statesNode);
+                }
+            });
+
+            // {
+            //     error:res.error,
+            //     MSinsID: MSinsID
+            // }
+            socket.on('service started',function (msg) {
+                msg = JSON.parse(msg);
+                console.log('service started', msg);
+                let statesNode = self.__getStatesNode(msg.MSinsID);
+                if(msg.error){
+                    statesNode.__state = MSState.collapsed;
+                    self.__updateNodeState(statesNode);
+                    $.gritter.add({
+                        title: 'Warning:',
+                        text: 'Dispatch data failed!<br><pre>'+JSON.stringify(msg.error,null,4)+'</pre>',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+                else{
+                    statesNode.__state = MSState.running;
+                    self.__updateNodeState(statesNode);
+                }
+            });
+
+            // {
+            //     error:null,
+            //     MSinsID: MSinsID,
+            //     MSState: finishedInfo.MSState,
+            //     task: task
+            // }
+            socket.on('service stoped',function (msg) {
+                msg = JSON.parse(msg);
+                console.log('service stoped', msg);
+                if(msg.error){
+                    $.gritter.add({
+                        title: 'Warning:',
+                        text: 'Dispatch data failed!<br><pre>'+JSON.stringify(msg.error,null,4)+'</pre>',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+                else{
+                    var statesNode = self.__getStatesNode(msg.MSinsID);
+                    statesNode.__state = msg.MSState;
+                    self.__updateNodeState(statesNode);
+                    self.__dataList = self.__dataList.concat(msg.newDataList);
+                    for(let i=0;i<msg.newDataList.length;i++){
+                        self.__updateDataState(msg.newDataList[i]);
+                    }
+                }
+            });
         }
     };
 })();

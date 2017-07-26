@@ -11,8 +11,18 @@ $().ready(function () {
     var url = location.href;
     var solution = null;
     var task = null;
+    var socket = null;
+    // var serverHost = 'localhost';
+    // var serverPort = '8060';
+    // var socketUrl = null;
+    // if($('#serverHost').length && $('#serverPort').length) {
+    //     serverHost = $('#serverHost').text().slice(1,-1);
+    //     serverPort = $('#serverPort').text().slice(1,-1);
+    //     socketUrl = 'http://' + serverHost + ':' + serverPort;
+    // }
+
     if(url.indexOf('aggregation/solution/new') != -1){
-        CanvasJS.init('edit');
+        CanvasJS.init('edit','solution');
 
         new Promise((resolve, reject)=> {
             MSAggreJS.getALLMS((err, mss)=> {
@@ -48,7 +58,7 @@ $().ready(function () {
         SolutionLibraryJS.init();
     }
     else if(url.indexOf('aggregation/solution/detail') != -1){
-        CanvasJS.init('view');
+        CanvasJS.init('view','solution');
 
         solution = $('#solution-detail').text().slice(1,-1);
         if(!solution || solution == ''){
@@ -66,7 +76,7 @@ $().ready(function () {
         CanvasJS.importSolution();
     }
     else if(url.indexOf('aggregation/solution/edit') != -1){
-        CanvasJS.init('edit');
+        CanvasJS.init('edit','solution');
 
         solution = $('#solution-detail').text().slice(1,-1);
         if(!solution || solution == ''){
@@ -84,8 +94,11 @@ $().ready(function () {
         CanvasJS.initImport('SOLUTION',solution);
         CanvasJS.importSolution();
     }
+    else if(url.indexOf('aggregation/task/query') != -1){
+        TaskListJS.init();
+    }
     else if(url.indexOf('aggregation/task/new') != -1){
-        CanvasJS.init('configure');
+        CanvasJS.init('configure','task');
 
         solution = $('#solution-detail').text().slice(1,-1);
         if(!solution || solution == ''){
@@ -102,11 +115,8 @@ $().ready(function () {
         CanvasJS.initImport('SOLUTION',solution);
         CanvasJS.importSolution();
     }
-    else if(url.indexOf('aggregation/task/query') != -1){
-        TaskListJS.init();
-    }
     else if(url.indexOf('aggregation/task/detail') != -1){
-        CanvasJS.init('view');
+        CanvasJS.init('view','task');
 
         task = $('#task-detail').text().slice(1,-1);
         if(!task || task == ''){
@@ -124,7 +134,7 @@ $().ready(function () {
         CanvasJS.importTask();
     }
     else if(url.indexOf('aggregation/task/edit') != -1){
-        CanvasJS.init('configure');
+        CanvasJS.init('configure','task');
 
         task = $('#task-detail').text().slice(1,-1);
         if(!task || task == ''){

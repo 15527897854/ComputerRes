@@ -51,8 +51,7 @@ RemoteReqControl.postByServer = function (url, form, callback) {
             // },
             // 写法2
             // 同样的json会自动把form格式化为string，并设置content-type
-            // body:form,
-            formData:JSON.stringify(form),
+            body:form,
             json:true
         };
     }

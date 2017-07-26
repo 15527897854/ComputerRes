@@ -57,7 +57,7 @@ ModelBase.findBase = function (query, options, sort, cb) {
 ModelBase.update = function (newItem, callback) {
     var where = {'_id':newItem._id};
     var toUpdate = newItem;
-    delete toUpdate['_id'];
+    // delete toUpdate['_id'];
     this.baseModel.update(where,toUpdate,this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
 };
 

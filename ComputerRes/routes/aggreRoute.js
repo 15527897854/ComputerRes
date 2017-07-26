@@ -6,7 +6,8 @@ var ModelSerCtrl = require('../control/modelSerControl');
 var formidable = require('formidable');
 var AggreSolutionModel = require('../model/Integrate/aggreSolution');
 var DataDriver = require('../control/Integrate/DataDriver');
-var DataDriverFunc = new DataDriver();
+var SysCtrl = require('../control/sysControl');
+var setting = require('../setting');
 
 module.exports = function (app) {
     //region render
@@ -334,27 +335,38 @@ module.exports = function (app) {
 
     // endregion
 
+    // region data
+    app.route('/aggregation/data')
+        .get(function (req, res, next) {
+            MSAggreCtrl.getData(req.query,function (err, msg) {
+                if(err){
+                    return res.end(JSON.stringify({error:err}));
+                }
+                else{
+
+                }
+            })
+        });
+    // endregion
+
     ////////////////////////////////////////////////////////////////////////////////////
     // region aggregation
 
     // region computer node router
     // 接收到数据坐标
-    app.route('/aggregation/onReceivedDataLocation')
+    app.route('/aggregation/onReceivedDataPosition')
         .post(function (req, res, next) {
+            // var centerHost = ;
+            // var centerPort = ;
             var dataLocation = req.body;
             // 两种选择：应该选择第二种，第一种可以会断开连接
             // 数据下载完成时在 response，数据下载完成后发送请求更新数据准备状态为 RECEIVED
-            // 立即回复，数据状态更新为 PENDING
-            var dataDriver = new DataDriver();
-            dataDriver.init(dataLocation.taskID,function (err) {
-                if(err){
-                    return res.end(JSON.stringify({error:err}));
-                }
-                else{
-                    dataDriver.onReceivedDataLocation(dataLocation);
-                    return res.end(JSON.stringify({dataState:'PENDING'}));
-                }
-            });
+            // 立即回复，收到回复后数据状态将更新为 PENDING
+
+            // 收到数据坐标，开始请求数据
+            DataDriver.onReceivedDataPosition(dataLocation);
+
+            res.end('');
         });
 
     // 数据准备完成，可以触发运行事件了
@@ -388,7 +400,7 @@ module.exports = function (app) {
                 };
             }
 
-            DataDriverFunc.onReceivedMSReady(runCfg,user,function (err, msr) {
+            DataDriver.onReceivedMSReady(runCfg,user,function (err, msr) {
                 if(err){
                     return res.end(JSON.stringify({error:err}));
                 }
@@ -406,43 +418,14 @@ module.exports = function (app) {
     app.route('/aggregation/onReceivedDataDownloaded')
         .post(function (req, res, next) {
             var replyData = req.body;
-            var dataDriver = new DataDriver();
-            dataDriver.init(replyData.taskID,function (err) {
-                if(err){
-                    return res.end(JSON.stringify({error:err}));
-                }
-                else{
-                    dataDriver.onReceivedDataDownloaded(replyData, function (err) {
-                        if(err){
-                            return res.end(JSON.stringify({error:err}));
-                        }
-                        else{
-                            return res.end(JSON.stringify({error:null}));
-                        }
-                    })
-                }
-            });
+            DataDriver.onReceivedDataDownloaded(replyData);
+            return res.end('');
         });
 
     app.route('/aggregation/onReceivedMSFinished')
         .post(function (req, res, next) {
             var finishedInfo = req.body;
-            var dataDriver = new DataDriver();
-            dataDriver.init(finishedInfo.taskID,function (err) {
-                if(err){
-                    return res.end(JSON.stringify({error:err}));
-                }
-                else{
-                    dataDriver.onReceivedMSFinished(finishedInfo, function (err) {
-                        if(err){
-                            return res.end(JSON.stringify({error:err}));
-                        }
-                        else{
-                            return res.end(JSON.stringify({error:null}));
-                        }
-                    })
-                }
-            });
+            DataDriver.onReceivedMSFinished(finishedInfo)
         })
 
     // endregion

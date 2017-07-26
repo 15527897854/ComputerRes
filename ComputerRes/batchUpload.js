@@ -10,7 +10,7 @@ fs.readFile(__dirname + '/upload/dps.json', 'utf-8', function(err, data){
     data = JSON.parse(data).dps;
 
     var count = 0;
-    var penging = (function(index){
+    var penging = function(index){
         count ++;
         return function(err, item){
             count --;
@@ -24,7 +24,7 @@ fs.readFile(__dirname + '/upload/dps.json', 'utf-8', function(err, data){
                 console.log('Model-packages batch upload have finished!');
             }
         }
-    });
+    };
 
     for(var i = 0; i < data.length; i++){
         var modelName = data[i].fileName.substr(data[i].fileName.indexOf('/') + 1);

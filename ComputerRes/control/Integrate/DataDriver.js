@@ -1,6 +1,10 @@
 /**
  * Created by SCR on 2017/7/19.
  */
+// 数据驱动的模型集成
+
+// 这里所有的MSID都是MSInstanceID，只有运行时传过去的那个才是真正的MSID
+
 var SysCtrl = require('../sysControl');
 var RmtReqCtrl = require('../remoteReqControl');
 var AggreSolutionModel = require('../../model/Integrate/aggreSolution');
@@ -14,157 +18,53 @@ var ModelSerRunCtrl = require('../modelSerRunControl');
 var ModelSerRunModel = require('../../model/modelSerRun');
 var NoticeCtrl = require('../noticeCtrl');
 var uuid = require('node-uuid');
+var WebSocketCtrl = require('./WebSocketCtrl');
+var TaskInstanceManager = require('../../model/Integrate/TaskInstanceManager');
 
 var Path = require('path');
 var fs = require('fs');
 
-// 导出的是一个构造函数
-module.exports = function (task) {
-    return (function () {
-        // private
-        var __task = null;
-        var __solution = null;
+// 数据角色和状态
+global.DataState = {
+    // unready: 'UNREADY',      // DataState表示的是已经上传过的数据的状态，没有 unready这一种
+    ready: 'READY',             // 准备好，表示初始状态，将要分发的状态，before dispatch
+    pending: 'PENDING',         // 正在传输 dispatching
+    received: 'RECEIVED',       // 计算节点接受成功 after dispatch
+    failed: 'FAILED',           // 计算节点接受失败 failed
+    mid: 'MID',                 // 计算中间产物
+    result: 'RESULT'            // 输出数据的状态，是最终计算结果数据（没有流向下个模型） is result
+    // used: 'USED'                // 模型已经跑完，使用过该数据 is used
+};
 
-        if(task){
-            __task = task;
-        }
+global.TaskState = {
+    configured: 'CONFIGURED',
+    collapsed: 'COLLAPSED',
+    end: 'END',
+    finished: 'FINISHED',
+    running: 'RUNNING'
+};
 
-        var __centerHost = null;
+global.MSState = {
+    unready: 'UNREADY',         // 初始状态，前台创建task时默认是这种
+    pending: 'PENDING',         // 正在发送运行指令
+    pause: 'PAUSE',             // 允许用户给准备好的模型打断点
+    running: 'RUNNING',         // 现在默认准备好数据就开始运行
+    collapsed: 'COLLAPSED',     // 运行失败，两种情况：调用出错；运行失败
+    finished: 'FINISHED'        // 运行成功且结束
+};
 
-        const DataState = {
-            ready: 'READY',
-            pending: 'PENDING',
-            received: 'RECEIVED',
-            failed: 'FAILED'
-        };
+module.exports = (function () {
 
-        const TaskState = {
-            configured: 'CONFIGURED',
-            collapsed: 'COLLAPSED',
-            end: 'END',
-            finished: 'FINISHED',
-            running: 'RUNNING',
-            distributing: 'DISTRIBUTING'
-        };
+    var __getServiceStates = function (service) {
+        return service.MDL.ModelClass.Behavior.StateGroup.States.State;
+    };
 
-        const MSState = {
-            ready: 'READY',
-            running: 'RUNNING',
-            collapsed: 'COLLAPSED',
-            finished: 'FINISHED'
-        };
-
-        var __updateTask = function (cb) {
-            AggreTaskModel.update(__task,function (err, rst) {
-                if(err){
-                    return cb(err);
-                }
-                else {
-                    return cb(null,rst)
-                }
-            })
-        };
-
-        var __updateTaskState = function (state,cb) {
-            __task.taskState = state;
-            __updateTask(function (err, rst) {
-                if(err){
-                    return cb(err);
-                }
-                else {
-                    return cb(null,rst);
-                }
-            });
-        };
-
-        var __updateDataState = function (gdid, state, cb) {
-            var dataList = __task.taskCfg.dataList;
-            for(let i=0;i<dataList.length;i++){
-                let data = dataList[i];
-                if(data.gdid == gdid){
-                    data.state = state;
-                    break;
-                }
-            }
-            __updateTask(function (err, rst) {
-                if(err){
-                    return cb(err);
-                }
-                else {
-                    return cb(null,rst);
-                }
-            });
-        };
-
-        var __updateMSState = function (MSID, state, cb) {
-            let MSStateList = __task.MSState;
-            var hasFound = false;
-            for(let i=0;i<MSStateList.length;i++){
-                var msState = MSStateList[i];
-                if(msState.MSID == MSID){
-                    hasFound = true;
-                    msState.state = state;
-                    break;
-                }
-            }
-            if(!hasFound){
-                MSStateList.push({
-                    MSID: MSID,
-                    state: MSState.running
-                });
-            }
-            if(state == MSState.running){
-                __task.taskState = TaskState.running;
-            }
-            __updateTask(function (err, rst) {
-                if(err){
-                    return cb(err);
-                }
-                else {
-                    return cb(null,rst);
-                }
-            });
-        };
-
-        var __getSolutionServiceByID = function (MSID, cb) {
-            if(__solution){
-                for(let i=0;i<__solution.solutionCfg.serviceList.length;i++){
-                    var service = __solution.solutionCfg.serviceList[i];
-                    if(service._id == MSID){
-                        return cb(null,service);
-                        break;
-                    }
-                }
-            }
-            return cb(null,null);
-        };
-
-        var __getServiceStates = function (service) {
-            return service.MDL.ModelClass.Behavior.StateGroup.States.State;
-        };
-
-        var __getServiceEvents = function (service) {
-            var states = __getServiceStates(service);
-            var eventList = [];
-            if(states instanceof Array){
-                for(let i=0;i<states.length;i++){
-                    let state = states[i];
-                    let stateID = state._$.id;
-                    let events = state.Event;
-                    if(events instanceof Array){
-                        for(let j=0;j<events.length;j++){
-                            events[j].stateID = stateID;
-                            eventList.push(events[j]);
-                        }
-                    }
-                    else{
-                        events.stateID = stateID;
-                        eventList.push(events);
-                    }
-                }
-            }
-            else{
-                let state = states;
+    var __getServiceEvents = function (service) {
+        var states = __getServiceStates(service);
+        var eventList = [];
+        if(states instanceof Array){
+            for(let i=0;i<states.length;i++){
+                let state = states[i];
                 let stateID = state._$.id;
                 let events = state.Event;
                 if(events instanceof Array){
@@ -178,382 +78,435 @@ module.exports = function (task) {
                     eventList.push(events);
                 }
             }
-            return eventList;
-        };
+        }
+        else{
+            let state = states;
+            let stateID = state._$.id;
+            let events = state.Event;
+            if(events instanceof Array){
+                for(let j=0;j<events.length;j++){
+                    events[j].stateID = stateID;
+                    eventList.push(events[j]);
+                }
+            }
+            else{
+                events.stateID = stateID;
+                eventList.push(events);
+            }
+        }
+        return eventList;
+    };
 
-        var __aggreRun = function (runCfg, user, cb) {
-            var msid = runCfg.msid;
-            var inputData = runCfg.inputData;
-            var outputData = runCfg.outputData;
+    var __aggreRun = function (runCfg, user, cb) {
+        var msid = runCfg.msid;
+        var inputData = runCfg.inputData;
+        var outputData = runCfg.outputData;
 
-            var run_next = function (){
-                //生成唯一字符串GUID
-                var guid = uuid.v4();
+        var run_next = function (){
+            //生成唯一字符串GUID
+            var guid = uuid.v4();
 
-                //向内存中添加模型运行记录条目
-                var date = new Date();
-                var mis = {
-                    guid : guid,
-                    socket : null,
-                    ms : null,
-                    start : date.toLocaleString(),
-                    state : 'MC_READY',
+            //向内存中添加模型运行记录条目
+            var date = new Date();
+            var mis = {
+                guid : guid,
+                socket : null,
+                ms : null,
+                start : date.toLocaleString(),
+                state : 'MC_READY',
 
-                    isIntegrate: true,
-                    centerHost: runCfg.centerHost,
-                    centerPort: runCfg.centerPort,
-                    taskID: runCfg.taskID,
-                    MSinsID: runCfg.MSinsID
-                };
-                var modelIns = new ModelIns(mis);
-                app.modelInsColl.addIns(modelIns);
-
-                ModelSerModel.getByOID(msid, function(err, ms){
-                    //添加纪录
-                    var msr = {
-                        ms_id : ms._id,
-                        msr_ms : ms,
-                        msr_date : date.toLocaleString(),
-                        msr_time : 0,
-                        msr_user : user,
-                        msr_guid : guid,
-                        msr_input : inputData,
-                        msr_output : outputData,
-                        msr_status : 0,
-                        msr_des : ''
-                    };
-                    ModelSerRunCtrl.save(msr ,function (err, msr) {
-                        if(err) {
-                            return cb(err);
-                        }
-                        if(ms.ms_status != 1) {
-                            return cb({
-                                Error : -1,
-                                Message : 'Service is not available'
-                            });
-                        }
-                        ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
-                            ModelSerRunModel.getByGUID(guid, function (err2, item) {
-                                if(err2) {
-                                    return console.log(JSON.stringify(err2));
-                                }
-                                if(item == null) {
-                                    return console.log( 'Can not find MSR when it is ended !');
-                                }
-                                if(err){
-                                    item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
-                                }
-                                if(stdout){
-                                    item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
-                                }
-                                if(stderr){
-                                    item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
-                                }
-                                var mis = global.app.modelInsColl.getByGUID(guid);
-                                //没有配置环境，进程无法启动
-                                if(mis.state == "MC_READY" && mis.socket == null){
-                                    global.app.modelInsColl.removeByGUID(guid);
-                                    item.msr_status = -1;
-                                    ModelSerRunModel.update(item, function (err, res) {
-                                        if(err) {
-                                            return console.log(JSON.stringify(err2));
-                                        }
-                                    })
-                                }
-                                else {
-                                    ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
-                                        if(err) {
-                                            return console.log(JSON.stringify(err2));
-                                        }
-                                    });
-                                }
-                            });
-                        }, function (err, ms) {
-                            if(err) {
-                                return cb(err);
-                            }
-                            //绑定内存实例的ms属性
-                            global.app.modelInsColl.bindMs(guid, ms);
-
-                            //存储通知消息
-                            var notice = {
-                                time : new Date(),
-                                title : ms.ms_model.m_name + '开始运行！',
-                                detail : '',
-                                type : 'start-run',
-                                hasRead : false
-                            };
-                            NoticeCtrl.save(notice, function (err, data) {
-                                if(err) {
-                                    console.log(JSON.stringify(err));
-                                }
-                            });
-                            return cb(null, msr);
-                        });
-                    });
-                });
+                isIntegrate: true,
+                centerHost: runCfg.centerHost,
+                centerPort: runCfg.centerPort,
+                taskID: runCfg.taskID,
+                MSinsID: runCfg.MSinsID
             };
+            var modelIns = new ModelIns(mis);
+            app.modelInsColl.addIns(modelIns);
 
-            if(outputData == undefined || outputData == null) {
-                ModelSerControl.getInputData(msid, function(err, data){
+            ModelSerModel.getByOID(msid, function(err, ms){
+                //添加纪录
+                var msr = {
+                    ms_id : ms._id,
+                    msr_ms : ms,
+                    msr_date : date.toLocaleString(),
+                    msr_time : 0,
+                    msr_user : user,
+                    msr_guid : guid,
+                    msr_input : inputData,
+                    msr_output : outputData,
+                    msr_status : 0,
+                    msr_des : ''
+                };
+                ModelSerRunCtrl.save(msr ,function (err, msr) {
                     if(err) {
                         return cb(err);
                     }
-                    //指定输出文件参数
-                    outputData = [];
-                    for(var k = 0; k < data.length; k++) {
-                        for(var i = 0; i < data[k].Event.length; i++) {
-                            if(data[k].Event[i].$.type == 'noresponse') {
-                                var dataid = 'gd_' + uuid.v1();
-                                var item = {
-                                    StateId : data[k].$.id,
-                                    Tag : 'OUTPUT',
-                                    Event : data[k].Event[i].$.name,
-                                    DataId : dataid,
-                                    Ready : false
-                                };
-                                outputData.push(item);
+                    if(ms.ms_status != 1) {
+                        return cb({
+                            Error : -1,
+                            Message : 'Service is not available'
+                        });
+                    }
+                    ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
+                        ModelSerRunModel.getByGUID(guid, function (err2, item) {
+                            if(err2) {
+                                return console.log(JSON.stringify(err2));
                             }
-                        }
-                    }
-                    run_next();
-                });
-            }
-            else {
-                outputData = outputData;
-                //指定输出文件参数
-                for(var k = 0; k < outputData.length; k++) {
-                    var dataid = 'gd_' + uuid.v1();
-                    outputData[k]['DataId'] = dataid;
-                    outputData[k]['Ready'] = false;
-                }
-
-                run_next();
-            }
-        };
-
-        return {
-            // 初始化 __task,__solution,__centerHost
-            init: function (taskID, cb) {
-                var self = this;
-                if(taskID){
-                    AggreTaskModel.getByOID(taskID,function (err, task) {
-                        if(err){
-                            return cb(err);
-                        }
-                        else {
-                            __task = task;
-                            var solutionID = task.taskCfg.solutionID;
-                            AggreSolutionModel.getByOID(solutionID,function (err, solution) {
-                                if(err){
-                                    return cb(err);
-                                }
-                                else{
-                                    __solution = solution;
-                                    SysCtrl.getIP(function (err, ip) {
-                                        if(err){
-                                            return cb(err);
-                                        }
-                                        else {
-                                            __centerHost = ip;
-                                            return cb(null);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    })
-                }
-            },
-
-            // 测试私有变量
-            console: function () {
-                console.log(__task._id);
-            },
-
-            // 分发数据坐标，实际数据要计算节点根据这个坐标去请求
-            // 返回一个数组，[{error:Object}]
-            distributeDataListLocation: function (cb) {
-                var self = this;
-                var distributeRst = [];
-                var dataList = __task.taskCfg.dataList;
-                var count = 0;
-                var taskID = __task._id;
-                __updateTaskState(TaskState.distributing,function (err, rst) {
-                    if(err){
-                        //
-                    }
-                    else{
-                        for(let i=0;i<dataList.length;i++){
-                            if(dataList[i].state == DataState.ready){
-                                distributeRst.push({error:null});
-                                self.emitDataLocation(taskID, dataList[i],function (i) {
-                                    count++;
-                                    return function (err) {
-                                        if(err){
-                                            distributeRst[i].error = err;
-                                        }
-                                        else{
-                                            distributeRst[i].error = null;
-                                        }
-                                        if(count == 0){
-                                            return cb(distributeRst);
-                                        }
+                            if(item == null) {
+                                return console.log( 'Can not find MSR when it is ended !');
+                            }
+                            if(err){
+                                item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
+                            }
+                            if(stdout){
+                                item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
+                            }
+                            if(stderr){
+                                item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
+                            }
+                            var mis = global.app.modelInsColl.getByGUID(guid);
+                            //没有配置环境，进程无法启动
+                            if(mis.state == "MC_READY" && mis.socket == null){
+                                global.app.modelInsColl.removeByGUID(guid);
+                                item.msr_status = -1;
+                                ModelSerRunModel.update(item, function (err, res) {
+                                    if(err) {
+                                        return console.log(JSON.stringify(err2));
+                                    }
+                                })
+                            }
+                            else {
+                                ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
+                                    if(err) {
+                                        return console.log(JSON.stringify(err2));
                                     }
                                 });
                             }
-                        }
-                    }
-                });
-            },
-
-            // 分发数据坐标，更新数据状态
-            emitDataLocation: function (taskID,taskData, cb) {
-                if(taskData.state == DataState.ready){
-                    var url = 'http://' + taskData.host + ':' + taskData.port + '/aggregation/onReceivedDataLocation';
-                    var form = {
-                        taskID: taskID,
-                        gdid: taskData.gdid,
-                        host: taskData.host,
-                        port: taskData.port,
-                        centerHost: __centerHost,
-                        centerPort: setting.port
-                    };
-                    RmtReqCtrl.postByServer(url,form,function (err, res) {
-                        if(err){
+                        });
+                    }, function (err, ms) {
+                        if(err) {
                             return cb(err);
                         }
-                        else{
-                            __updateDataState(taskData.gdid,DataState.pending,function (err, rst) {
-                                if(err){
-                                    return cb(err);
+                        //绑定内存实例的ms属性
+                        global.app.modelInsColl.bindMs(guid, ms);
+
+                        //存储通知消息
+                        var notice = {
+                            time : new Date(),
+                            title : ms.ms_model.m_name + '开始运行！',
+                            detail : '',
+                            type : 'start-run',
+                            hasRead : false
+                        };
+                        NoticeCtrl.save(notice, function (err, data) {
+                            if(err) {
+                                console.log(JSON.stringify(err));
+                            }
+                        });
+                        return cb(null, msr);
+                    });
+                });
+            });
+        };
+
+        if(outputData == undefined || outputData == null) {
+            ModelSerControl.getInputData(msid, function(err, data){
+                if(err) {
+                    return cb(err);
+                }
+                //指定输出文件参数
+                outputData = [];
+                for(var k = 0; k < data.length; k++) {
+                    for(var i = 0; i < data[k].Event.length; i++) {
+                        if(data[k].Event[i].$.type == 'noresponse') {
+                            var dataid = 'gd_' + uuid.v1();
+                            var item = {
+                                StateId : data[k].$.id,
+                                Tag : 'OUTPUT',
+                                Event : data[k].Event[i].$.name,
+                                DataId : dataid,
+                                Ready : false
+                            };
+                            outputData.push(item);
+                        }
+                    }
+                }
+                run_next();
+            });
+        }
+        else {
+            outputData = outputData;
+            //指定输出文件参数
+            for(var k = 0; k < outputData.length; k++) {
+                var dataid = 'gd_' + uuid.v1();
+                outputData[k]['DataId'] = dataid;
+                outputData[k]['Ready'] = false;
+            }
+
+            run_next();
+        }
+    };
+
+    // 分发数据坐标，更新数据状态
+    var __emitDataPosition = function (taskID, taskData, cb) {
+        var url = 'http://' + taskData.host + ':' + taskData.port + '/aggregation/onReceivedDataPosition';
+        var form = {
+            taskID: taskID,
+            gdid: taskData.gdid,
+            host: taskData.host,
+            port: taskData.port,
+            MSID: taskData.MSID,
+            stateID: taskData.stateID,
+            eventName: taskData.eventName
+        };
+        if(app.centerHost){
+            form.centerHost = app.centerHost;
+            form.centerPort = app.centerPort;
+        }
+        RmtReqCtrl.postByServer(url,form,function (err, res) {
+            if(err){
+                // TODO 重新尝试
+                return cb(err);
+            }
+            else{
+                return cb(null);
+            }
+        })
+    };
+
+    // 判断一个模型的输出数据是否是作为另一个模型的输入
+    var __get2NodeEvent = function (solution, MSID, stateID, eventName) {
+        var relationList = solution.solutionCfg.relationList;
+        var has2Node = false;
+        var toNode = null;
+        for(let i=0;i<relationList.length;i++){
+            var fromNode = relationList[i].from;
+            if(fromNode.MSID == MSID && fromNode.stateID == stateID && fromNode.eventName == eventName){
+                has2Node = true;
+                toNode = relationList[i].to;
+                break;
+            }
+        }
+        if(has2Node){
+            return toNode;
+        }
+        else{
+            return null;
+        }
+    };
+
+    var __checkTaskState = function (task) {
+
+    };
+
+    // 恢复任务场景
+    // 运算结果数据可能没加入进来，这样就没有数据驱动task继续运行下去
+    var __restoreTaskScene = function (task) {
+        var msStateList = task.MSState;
+        AggreSolutionModel.getByOID(task.taskCfg.solutionID,function (err, solution) {
+            if(err){
+                WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
+            }
+            else{
+                for(let i=0;i<msStateList.length;i++){
+                    if(msStateList[i].state == MSState.finished){
+                        __restoreServiceScene(task, solution, msStateList[i].MSID);
+                    }
+                }
+
+            }
+        });
+    };
+
+    var __restoreServiceScene = function (task, solution, MSID) {
+        var service = null;
+        var serviceList = solution.solutionCfg.serviceList;
+        var dataList = task.taskCfg.dataList;
+        for(let i=0;i<serviceList.length;i++){
+            if(serviceList[i]._id == MSID){
+                service = serviceList[i];
+            }
+        }
+        if(service){
+            var events = __getServiceEvents(service);
+            for(let i=0;i<events.length;i++){
+                var event = events[i];
+                var hasInserted = false;
+                for(let j=0;j<dataList.length;j++){
+                    if(dataList[j].MSID == MSID && dataList[j].stateID == event.stateID && event._$.name){
+                        hasInserted = true;
+                    }
+                }
+            }
+        }
+    };
+
+    return {
+        // 分发数据坐标，更新数据状态为pending
+        // 返回一个数组，[{error:Object}]，通过websocket传给前台
+        // TODO 不需要数据输入的模型的驱动
+        dispatchDataListPosition: function (task) {
+            var dispatchRst = [];
+            var dataList = task.taskCfg.dataList;
+            var count = 0;
+            var taskID = task._id;
+            // __restoreTaskScene(task);
+            for(let i=0;i<dataList.length;i++){
+                // 只分发ready状态的数据
+                if(dataList[i].state == DataState.ready){
+                    dispatchRst.push({
+                        gdid: dataList[i].gdid,
+                        MSID: dataList[i].MSID,
+                        stateID: dataList[i].stateID,
+                        eventName: dataList[i].eventName,
+                        host: dataList[i].host,
+                        port: dataList[i].port,
+                        error:null
+                    });
+                    __emitDataPosition(taskID, dataList[i],(function (i) {
+                        count++;
+                        return function (err){
+                            count--;
+                            if(err){
+                                dispatchRst[i].error = err;
+                                err.place = '__emitDataPosition';
+                            }
+                            if(count == 0){
+                                // 更新数据状态
+                                TaskInstanceManager.updateDataListState(taskID, dispatchRst, function (err, rst) {
+                                    if(err){
+                                        err.place = 'updateDataListState';
+                                    }
+                                    WebSocketCtrl.emit(taskID,'data dispatched', JSON.stringify({error:err,dispatchRst:dispatchRst}))
+                                });
+                            }
+                        }
+                    })());
+                }
+            }
+        },
+
+        // 拿到数据坐标，下载数据并添加到数据库中
+        onReceivedDataPosition: function (dataPosition) {
+            var self = this;
+            var url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+            // 请求数据
+            new Promise(function (resolve, reject) {
+                RmtReqCtrl.getByServer(url,null,function (err, res) {
+                    if(err){
+                        return reject(err);
+                    }
+                    else {
+                        return resolve(JSON.parse(res));
+                    }
+                })
+            })
+                // 保存数据
+                .then(function (gd) {
+                    return new Promise(function (resolve, reject) {
+                        if(gd.error){
+                            reject(new Error(gd.error));
+                        }
+                        if(gd.gd_type == 'FILE'){
+                            var path = Path.join(__dirname,'../../geo_data/' + dataPosition.gdid);
+                            fs.writeFile(path,gd.gd_value,function (err) {
+                                if (err) {
+                                    return reject(err);
                                 }
                                 else{
-                                    taskData.state = DataState.pending;
-                                    __updateTask(function (err, rst) {
+                                    gd.gd_value = dataPosition.gdid + '.xml';
+                                    GeoDataCtrl.addData(gd,function (err, rst) {
                                         if(err){
-                                            taskData.state = DataState.ready;
-                                            return cb(err);
+                                            return reject(err);
                                         }
                                         else{
-                                            return cb(null);
+                                            return resolve();
                                         }
                                     })
                                 }
                             });
                         }
-                    })
-                }
-            },
-
-            // 拿到数据坐标，下载数据并添加到数据库中
-            onReceivedDataLocation: function (dataLocation) {
-                var self = this;
-                var url = 'http://' + dataLocation.host + ':' + dataLocation.port + '/geodata/detail/' + dataLocation.gdid;
-                new Promise(function (resolve, reject) {
-                    RmtReqCtrl.getByServer(url,null,function (err, res) {
-                        if(err){
-                            return reject(err);
-                        }
-                        else {
-                            return resolve(JSON.parse(res));
+                        else if(gd.gd_type == 'STREAM'){
+                            GeoDataCtrl.addData(gd,function (err, rst) {
+                                if(err){
+                                    return reject(err);
+                                }
+                                else{
+                                    return resolve();
+                                }
+                            })
                         }
                     })
                 })
-                    .then(function (gd) {
-                        return new Promise(function (resolve, reject) {
-                            if(gd.gd_type == 'FILE'){
-                                var path = Path.join(__dirname,'../../geo_data/' + dataLocation.gdid);
-                                fs.writeFile(path,gd.gd_value,function (err) {
-                                    if (err) {
-                                        return reject(err);
-                                    }
-                                    else{
-                                        gd.gd_value = dataLocation.gdid + '.xml';
-                                        GeoDataCtrl.addData(gd,function (err, rst) {
-                                            if(err){
-                                                return reject(err);
-                                            }
-                                            else{
-                                                return resolve();
-                                            }
-                                        })
-                                    }
-                                });
-                            }
-                            else if(gd.gd_type == 'STREAM'){
-                                GeoDataCtrl.addData(gd,function (err, rst) {
-                                    if(err){
-                                        return reject(err);
-                                    }
-                                    else{
-                                        return resolve();
-                                    }
-                                })
-                            }
-                        })
-                    })
-                    .then(function () {
-                        // 添加过数据后的处理
-                        let replyData = {
-                            taskID: dataLocation.taskID,
-                            gdid: dataLocation.gdid,
-                            err: null
-                        };
-                        self.emitDataDownloaded(replyData, dataLocation.centerHost, dataLocation.centerPort);
-                    })
-                    .catch(function (err) {
-                        console.log(err);
-                        let replyData = {
-                            taskID: dataLocation.taskID,
-                            gdid: dataLocation.gdid,
-                            err: err
-                        };
-                        self.emitDataDownloaded(replyData, dataLocation.centerHost, dataLocation.centerPort);
-                    })
-            },
-
-            // 下载完数据后回复消息
-            emitDataDownloaded: function (replyData, centerHost, centerPort) {
-                var url = 'http://' + centerHost + ':' + centerPort + '/aggregation/onReceivedDataDownloaded';
-                RmtReqCtrl.postByServer(url,replyData,function (err, res) {
-                    if(err){
-                        // TODO 重新发送请求，当请求超过三次后放弃
-                    }
-                    else {
-
-                    }
+                // 回复消息
+                .then(function () {
+                    // 添加过数据后的处理
+                    let replyData = {
+                        taskID: dataPosition.taskID,
+                        gdid: dataPosition.gdid,
+                        MSID: dataPosition.MSID,
+                        stateID: dataPosition.stateID,
+                        eventName: dataPosition.eventName,
+                        err: null
+                    };
+                    self.emitDataDownloaded(replyData, dataPosition.centerHost, dataPosition.centerPort);
                 })
-            },
+                .catch(function (err) {
+                    err.place = 'onReceivedDataPosition';
+                    console.log(err);
+                    let replyData = {
+                        taskID: dataPosition.taskID,
+                        gdid: dataPosition.gdid,
+                        MSID: dataPosition.MSID,
+                        stateID: dataPosition.stateID,
+                        eventName: dataPosition.eventName,
+                        err: err
+                    };
+                    self.emitDataDownloaded(replyData, dataPosition.centerHost, dataPosition.centerPort);
+                })
+        },
 
-            // update data state
-            onReceivedDataDownloaded: function (replyData, cb) {
-                var self = this;
-                var state = null;
-                if(!replyData.err){
-                    state = DataState.received;
+        // 下载完数据后回复消息（是否下载成功）
+        emitDataDownloaded: function (replyData, centerHost, centerPort) {
+            var url = 'http://' + centerHost + ':' + centerPort + '/aggregation/onReceivedDataDownloaded';
+            RmtReqCtrl.postByServer(url,replyData,function (err, res) {
+                if(err){
+                    // TODO 重新发送请求，当请求超过三次后放弃
                 }
-                else{
-                    state = DataState.failed;
-                }
-                __updateDataState(replyData.gdid, state,function (err,rst) {
-                    if(err){
-                        return cb(err);
-                    }
-                    else {
-                        self.checkMSState(replyData.taskID,replyData.gdid);
-                        return cb(null,rst);
-                    }
-                });
-            },
+            })
+        },
 
-            // 先暂时不管多state的情况，只有所有state的数据准备好了才能运行
-            checkMSState: function (taskID,gdid) {
-                var self = this;
-                var MSinsID = null;     // 一个ms可能会有多个实例
-                var dataList = __task.taskCfg.dataList;
+        // update data state
+        onReceivedDataDownloaded: function (replyData) {
+            var self = this;
+            var state = null;
+            if(!replyData.err){
+                state = DataState.received;
+            }
+            else{
+                state = DataState.failed;
+            }
+            TaskInstanceManager.updateDataState(replyData.taskID, replyData.gdid, state,function (err,rst) {
+                if(err){
+                    err.place = 'updateDataState';
+                }
+                WebSocketCtrl.emit(replyData.taskID, 'data downloaded', JSON.stringify({error:err,downloadRst:replyData}));
+                if(!err && !replyData.err) {
+                    self.checkMSState(replyData.taskID,replyData.gdid);
+                }
+            });
+        },
+
+        // 先暂时不管多state的情况，只有所有state的数据准备好了才能运行
+        checkMSState: function (taskID,gdid) {
+            var self = this;
+            var MSinsID = null;     // 一个ms可能会有多个实例
+            var task = TaskInstanceManager.get(taskID);
+            if(task){
+                var dataList = task.taskCfg.dataList;
                 for(let i=0;i<dataList.length;i++){
-                    if(dataList[i].gdid == gdid){
+                    if(dataList[i].gdid == gdid && dataList[i].state != DataState.mid){
                         MSinsID = dataList[i].MSID;
                         break;
                     }
@@ -565,9 +518,10 @@ module.exports = function (task) {
                             msEvents.push(dataList[i]);
                         }
                     }
-                    __getSolutionServiceByID(MSinsID,function (err, service) {
+                    TaskInstanceManager.getServiceByID(taskID, MSinsID,function (err, service) {
                         if(err){
-                            // TODO 多段时间重新尝试
+                            err.place = 'getServiceByID checkMSState';
+                            return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
                         }
                         else{
                             var inputData = [];
@@ -586,9 +540,15 @@ module.exports = function (task) {
                                     });
                                     for(let j=0;j<msEvents.length;j++){
                                         if(eventList[i].stateID == msEvents[j].stateID && eventList[i]._$.name == msEvents[j].eventName){
-                                            inputData[i].DataId = msEvents[j].gdid;
-                                            isDataReady = true;
-                                            break;
+                                            if(msEvents[j].state == DataState.received){
+                                                inputData[i].DataId = msEvents[j].gdid;
+                                                isDataReady = true;
+                                                break;
+                                            }
+                                            else{
+                                                isDataReady = false;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -617,131 +577,188 @@ module.exports = function (task) {
                     });
                 }
                 else{
-
+                    return WebSocketCtrl.emit(taskID,'error',JSON.stringify({
+                        error: {
+                            message:'Can\'t find the related model service!',
+                            place: 'checkMSState'
+                        }
+                    }));
                 }
-            },
-
-            emitMSReady: function (taskID,MSinsID,inputData,outputData) {
-                __getSolutionServiceByID(MSinsID,function (err, service) {
-                    if(err){
-                        // TODO 与前台通信
+            }
+            else{
+                return WebSocketCtrl.emit(taskID,'error',JSON.stringify({
+                    error: {
+                        message:'Can\'t find the related task!',
+                        place: 'checkMSState'
                     }
-                    else{
-                        var host = service.host;
-                        var port = service.port;
-                        var url = 'http://' + host + ':' + port + '/aggregation/onReceivedMSReady';
-                        var form = {
-                            msid: service.MS._id,
-                            inputData: inputData,
-                            outputData: outputData,
-                            centerHost: __centerHost,
-                            centerPort: setting.port,
-                            taskID: taskID,
-                            MSinsID: MSinsID
-                        };
-                        RmtReqCtrl.postByServer(url,form,function (err, res) {
-                            if(err){
-                                //
-                            }
-                            else{
-                                if(!res.error){
-                                    __updateMSState(MSinsID,MSState.running,function (err,rst) {
-                                        if(err){
-                                            //
-                                        }
-                                        else{
+                }));
+            }
+        },
 
-                                        }
-                                    })
+        // update MS state, emit ms ready
+        emitMSReady: function (taskID,MSinsID,inputData,outputData) {
+            TaskInstanceManager.updateMSState(taskID,MSinsID,MSState.pending,function (err, rst) {
+                if(err){
+                    err.place = 'emitMSReady';
+                    return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
+                }
+                else{
+                    WebSocketCtrl.emit(taskID,'service starting',JSON.stringify({
+                        error:null,
+                        MSinsID: MSinsID
+                    }));
+                    TaskInstanceManager.getServiceByID(taskID, MSinsID, function (err, service) {
+                        if(err){
+                            return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error: err}));
+                        }
+                        else{
+                            var host = service.host;
+                            var port = service.port;
+                            var url = 'http://' + host + ':' + port + '/aggregation/onReceivedMSReady';
+                            var form = {
+                                msid: service.MS._id,
+                                inputData: inputData,
+                                outputData: outputData,
+                                centerHost: app.centerHost,
+                                centerPort: setting.port,
+                                taskID: taskID,
+                                MSinsID: MSinsID
+                            };
+                            RmtReqCtrl.postByServer(url,form,function (err, res) {
+                                if(err){
+                                    // TODO 重试
                                 }
                                 else{
-                                    __updateTaskState(TaskState.collapsed,function (err, rst) {
+                                    var state = null;
+                                    if(!res.error){
+                                        state = MSState.running;
+                                    }
+                                    else{
+                                        res.error.place = 'starting service';
+                                        state = MSState.collapsed;
+                                    }
+                                    WebSocketCtrl.emit(taskID,'service started',JSON.stringify({
+                                        error:res.error,
+                                        MSinsID: MSinsID
+                                    }));
+                                    TaskInstanceManager.updateMSState(taskID, MSinsID, state, function (err,rst) {
                                         if(err){
-
-                                        }
-                                        else{
-
+                                            err.place = 'updateMSState emitMSReady';
+                                            return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
                                         }
                                     })
                                 }
+                            })
+                        }
+                    });
+                }
+            })
+        },
+
+        // 已经写过了，在modelSerAccessRoute的 /modelser/:msid路由中，在此重写一遍，增加了回复功能
+        onReceivedMSReady: function (runCfg,user,cb) {
+            __aggreRun(runCfg, user, function(err, msr){
+                if(err){
+                    return cb(err);
+                }
+                else{
+                    return cb(null,msr);
+                }
+            });
+        },
+
+        // 模型运行结束时触发，
+        // TODO 这里崩了怎么办？？？
+        // TODO center node 向computer node 请求心跳状态。。。
+        emitMSFinished: function (finishedInfo,cb) {
+            var url = 'http://' + finishedInfo.centerHost + ':' + finishedInfo.centerPort + '/aggregation/onReceivedMSFinished';
+            var form = {
+                taskID: finishedInfo.taskID,
+                MSinsID: finishedInfo.MSinsID,
+                MSState: finishedInfo.MSState,
+                outputData: finishedInfo.outputData,
+                host: finishedInfo.host,
+                port: finishedInfo.port
+            };
+            RmtReqCtrl.postByServer(url,form,function (err, rst) {
+                if(err){
+                    // TODO 重试
+                }
+            })
+        },
+
+        // update MSState TaskState, dispatch data
+        onReceivedMSFinished: function (finishedInfo) {
+            var task = TaskInstanceManager.get(finishedInfo.taskID);
+            var self = this;
+            TaskInstanceManager.updateMSState(finishedInfo.taskID, finishedInfo.MSinsID, finishedInfo.MSState, function (err, rst) {
+                if(err){
+                    err.place = 'updateMSState onReceivedMSFinished';
+                    return WebSocketCtrl.emit(task._id, 'error', JSON.stringify({error: err}));
+                }
+                else {
+                    AggreSolutionModel.getByOID(task.taskCfg.solutionID,function (err, solution) {
+                        if(err){
+                            return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
+                        }
+                        else{
+                            var newDataList = [];
+                            for(let i =0;i<finishedInfo.outputData.length;i++){
+                                var output = finishedInfo.outputData[i];
+                                var toNode = __get2NodeEvent(solution,finishedInfo.MSinsID,output.StateId,output.Event);
+                                let newData = {
+                                    host: finishedInfo.host,
+                                    port: finishedInfo.port,
+                                    state: DataState.mid,
+                                    eventName: output.Event,
+                                    stateID: output.StateId,
+                                    MSID: finishedInfo.MSinsID,
+                                    gdid: output.DataId
+                                };
+                                task.taskCfg.dataList.push(newData);
+                                newDataList.push(newData);
+                                // 有两个实体
+                                if(toNode){
+                                    newData = {
+                                        host: finishedInfo.host,
+                                        port: finishedInfo.port,
+                                        state: DataState.ready,
+                                        eventName: toNode.eventName,
+                                        stateID: toNode.stateID,
+                                        MSID: toNode.MSID,
+                                        gdid: output.DataId
+                                    };
+                                    task.taskCfg.dataList.push(newData);
+                                    newDataList.push(newData);
+                                }
                             }
-                        })
-                    }
-                });
-            },
-
-            // 已经写过了，在modelSerAccessRoute的 /modelser/:msid路由中，在此重写一遍，增加了回复功能
-            onReceivedMSReady: function (runCfg,user,cb) {
-                __aggreRun(runCfg, user, function(err, msr){
-                    if(err){
-                        return cb(err);
-                    }
-                    else{
-                        return cb(null,msr);
-                    }
-                });
-            },
-
-            // 模型运行结束时触发，
-            emitMSFinished: function (finishedInfo,cb) {
-                var url = 'http://' + finishedInfo.centerHost + ':' + finishedInfo.centerPort + '/aggregation/onReceivedMSFinished';
-                var form = {
-                    taskID: finishedInfo.taskID,
-                    MSinsID: finishedInfo.MSinsID,
-                    MSState: finishedInfo.MSState,
-                    outputData: finishedInfo.outputData,
-                    host: finishedInfo.host,
-                    port: finishedInfo.port
-                };
-                RmtReqCtrl.postByServer(url,form,function (err, rst) {
-                    if(err){
-                        return cb(err);
-                    }
-                    else{
-                        return cb(null,rst);
-                    }
-                })
-            },
-
-            // 更新MSState TaskState 并重新检查数据准备状态
-            onReceivedMSFinished: function (finishedInfo,cb) {
-                var task = __task;
-                var self = this;
-                // __updateMSState(finishedInfo.MSinsID,finishedInfo.MSState,function (err, rst) {
-                //     if(err){
-                //         return cb(err);
-                //     }
-                //     else {
-                        for(let i =0;i<finishedInfo.outputData.length;i++){
-                            var output = finishedInfo.outputData[i];
-                            __task.taskCfg.dataList.push({
-                                host: finishedInfo.host,
-                                port: finishedInfo.port,
-                                state: DataState.ready,
-                                eventName: output.Event,
-                                stateID: output.StateId,
-                                MSID: finishedInfo.MSinsID,
-                                gdid: output.DataId
+                            // 程序如果在这里崩了怎么办？数据没更新，重新运行task时没有数据驱动
+                            TaskInstanceManager.update(task,function (err, rst) {
+                                if(err){
+                                    err.place = 'update onReceivedMSFinished';
+                                    return WebSocketCtrl.emit(task._id,'error',JSON.stringify({error:err}));
+                                }
+                                else{
+                                    WebSocketCtrl.emit(task._id,'service stoped',JSON.stringify({
+                                        error:null,
+                                        MSinsID: finishedInfo.MSinsID,
+                                        MSState: finishedInfo.MSState,
+                                        newDataList: newDataList
+                                    }));
+                                    self.dispatchDataListPosition(task);
+                                }
                             });
                         }
-                        self.distributeDataListLocation(function (err, rst) {
-                            if(err){
-                                return cb(err);
-                            }
-                            else {
-                                return cb(null,rst);
-                            }
-                        });
-                //     }
-                // });
-            },
+                    });
 
-            // TODO data service task state 更新时通知前台
-            socket2Front: function () {
+                }
+            });
+        },
 
-            }
+        // TODO data service task state 更新时通知前台
+        socket2Front: function () {
 
-        };
-    })();
+        }
 
-};
+    };
+})();
