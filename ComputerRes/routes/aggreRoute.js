@@ -21,7 +21,7 @@ module.exports = function (app) {
             var ac = req.params.ac;
             // if(Object.getOwnPropertyNames(req.query).length == 0){
                 if(ac == 'new'){
-                    return res.render('aggregation/newSolution',{
+                    return res.render('aggregation/solution',{
                         openli:'aggregation-li'
                     });
                 }
@@ -33,10 +33,10 @@ module.exports = function (app) {
                 else if(ac == 'edit' || ac == 'configure' || ac == 'detail'){
                     var ejsFile = null;
                     if(ac == 'edit'){
-                        ejsFile = 'aggregation/newSolution';
+                        ejsFile = 'aggregation/solution';
                     }
                     else if(ac == 'detail' || ac == 'configure'){
-                        ejsFile = 'aggregation/solutionDetail';
+                        ejsFile = 'aggregation/task';
                     }
                     var solutionID = null;
                     if(ac == 'configure'){
@@ -46,7 +46,7 @@ module.exports = function (app) {
                         solutionID = req.query._id;
                     }
                     if(!solutionID || solutionID == undefined){
-                        return res.render('aggregation/solutionDetail',{
+                        return res.render('aggregation/task',{
                             openli:'aggregation-li',
                             solution: '',
                             solutionName: 'query error!'
@@ -94,7 +94,7 @@ module.exports = function (app) {
             else if(ac == 'new'){
                 var solutionID = req.query.solutionID;
                 if(!solutionID || solutionID == undefined){
-                    return res.render('aggregation/solutionDetail',{
+                    return res.render('aggregation/task',{
                         openli:'aggregation-li',
                         solution: '',
                         solutionName: 'query error!'
@@ -106,14 +106,14 @@ module.exports = function (app) {
                     }
                     else {
                         if(solution && solution != undefined){
-                            return res.render('aggregation/solutionDetail',{
+                            return res.render('aggregation/task',{
                                 openli:'aggregation-li',
                                 solution: JSON.stringify(solution),
                                 solutionName: solution.solutionInfo.solutionName
                             });
                         }
                         else{
-                            return res.render('aggregation/solutionDetail',{
+                            return res.render('aggregation/task',{
                                 openli:'aggregation-li',
                                 solution: '',
                                 solutionName: 'query error!'
@@ -125,7 +125,7 @@ module.exports = function (app) {
             else if(ac == 'edit' || ac == 'detail'){
                 var taskID = req.query._id;
                 if(!taskID || taskID == undefined){
-                    return res.render('aggregation/solutionDetail',{
+                    return res.render('aggregation/task',{
                         openli:'aggregation-li',
                         solution: '',
                         solutionName: 'query error!'
@@ -136,14 +136,14 @@ module.exports = function (app) {
                         return res.end(JSON.stringify(err));
                     }
                     else if(taskDetail){
-                        return res.render('aggregation/solutionDetail',{
+                        return res.render('aggregation/task',{
                             openli:'aggregation-li',
                             task: JSON.stringify(taskDetail),
                             taskName: taskDetail.taskInfo.taskName
                         });
                     }
                     else{
-                        return res.render('aggregation/solutionDetail',{
+                        return res.render('aggregation/task',{
                             openli:'aggregation-li',
                             task: '',
                             taskName: 'query error!'
@@ -157,17 +157,17 @@ module.exports = function (app) {
         });
 
     // query instance
-    app.route('/aggregation/instance')
-        .get(function (req, res, next) {
-            var ac = req.query.ac;
-            if(ac == 'query'){
-                return res.render('instance',{
-                    openli:'aggregation-li'
-                });
-            }
-
-            next();
-        });
+    // app.route('/aggregation/instance')
+    //     .get(function (req, res, next) {
+    //         var ac = req.query.ac;
+    //         if(ac == 'query'){
+    //             return res.render('instance',{
+    //                 openli:'aggregation-li'
+    //             });
+    //         }
+    //
+    //         next();
+    //     });
 
     //endregion
 
@@ -229,8 +229,9 @@ module.exports = function (app) {
 
     app.route('/aggregation/solution/save')
         .post(function (req, res, next) {
+            var isSaveAs = req.query.isSaveAs;
             var solution = req.body;
-            MSAggreCtrl.saveSolution(solution,function (err, msg) {
+            MSAggreCtrl.saveSolution(solution, isSaveAs, function (err, msg) {
                 if(err){
                     return res.end(JSON.stringify({error:err}));
                 }
@@ -267,8 +268,9 @@ module.exports = function (app) {
     // region task router
     app.route('/aggregation/task/save')
         .post(function (req, res, next) {
+            var isSaveAs = req.query.isSaveAs;
             var task = req.body;
-            MSAggreCtrl.saveTask(task,function (err, msg) {
+            MSAggreCtrl.saveTask(task, isSaveAs, function (err, msg) {
                 if(err){
                     return res.end(JSON.stringify({error:err}));
                 }
@@ -328,7 +330,7 @@ module.exports = function (app) {
                     return res.end(JSON.stringify({error:err}));
                 }
                 else{
-                    return res.end(JSON.stringify({error:null}));
+                    return res.end(JSON.stringify({error:null,_id:msg}));
                 }
             })
         });

@@ -22,6 +22,7 @@ $().ready(function () {
     // }
 
     if(url.indexOf('aggregation/solution/new') != -1){
+        $('#saveas-solution-tool').remove();
         CanvasJS.init('edit','solution');
 
         new Promise((resolve, reject)=> {
@@ -98,6 +99,7 @@ $().ready(function () {
         TaskListJS.init();
     }
     else if(url.indexOf('aggregation/task/new') != -1){
+        $('#saveas-task-tool').remove();
         CanvasJS.init('configure','task');
 
         solution = $('#solution-detail').text().slice(1,-1);

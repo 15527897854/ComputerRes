@@ -22,21 +22,28 @@ var CanvasJS = (()=> {
         unready: '#60A7FF',
         pending: '#A3D39B',
         pause: '#78F5DD',
-        running: '#FF8034',
-        collapsed: '#E05B45',
-        finished: '#3AEB7C'
+        running: '#ffee58',
+        collapsed: '#e0412b',
+        finished: '#41EB4A'
     };
 
     // 包括角色和状态
     const EventColor = {
-        ready: '#FF8034',
+        ready: '#ffee58',
         pending: '#A3D39B',
-        received: '#3AEB7C',
-        failed: '#E05B45',
+        received: '#41EB4A',
+        failed: '#e0412b',
         // mid: '#3AEB7C',
         origin: '#60A7FF',
-        input: '#FFE16C',
-        output: '#3AEB7C'
+        input: '#FF8034'
+        // output: '#3AEB7C'
+    };
+
+    const SolutionColor = {
+        link:StatesColor.unready,
+        manualLink: '#0949ff',
+        event: EventColor.origin,
+        states: StatesColor.unready
     };
 
     // 数据角色和状态
@@ -56,7 +63,8 @@ var CanvasJS = (()=> {
         collapsed: 'COLLAPSED',
         end: 'END',
         finished: 'FINISHED',
-        running: 'RUNNING'
+        running: 'RUNNING',
+        pause: 'PAUSE'
     };
 
     const MSState = {
@@ -360,20 +368,53 @@ var CanvasJS = (()=> {
         __type: null,
 
         // solution
-        __solution: null,
-        __task: null,
+        __solution: {
+            layoutCfg: {
+                scene: null,
+                nodeList: [],
+                containerList: [],
+                linkList: []
+            },
+            solutionCfg: {
+                relationList: [],
+                serviceList: []
+            },
+            solutionInfo: {
+                solutionAuthor: null,
+                solutionDesc: null,
+                solutionName: null
+            },
+            time: null
+        },
+        __task: {
+            taskCfg: {
+                dataList:[],
+                solutionID: null,
+                driver: null
+            },
+            taskState: null,
+            taskInfo: {
+                taskName: null,
+                taskDesc: null,
+                taskAuthor: null
+            },
+            time: null,
+            MSState: [],
+        },
 
-        // solutionCfg
-        __serviceList: [],
-        __relationList: [],
-        // taskCfg
-        __dataList: [],             // gdid MSID stateID eventName isInput isOutput TODO 接入数据服务时应该加上 host port 两个字段
-        __inputDataList: [],
-
-        // canvas role
+        // canvas role 和 solution中的不一样！
         __nodeList: [],
         __linkList: [],
         __containerList: [],
+
+        // region deprecated 同一个数据存了两次（__task中）会导致内存混乱
+        // solutionCfg
+        // __serviceList: [],
+        // __relationList: [],
+        // taskCfg
+        // __dataList: [],                   // gdid MSID stateID eventName isInput isOutput TODO 接入数据服务时应该加上 host port 两个字段
+        // __inputDataList: [],
+        // endregion
 
         // temp
         __currentNode: null,
@@ -408,26 +449,36 @@ var CanvasJS = (()=> {
             else if(mode == 'configure'){
                 $('#edit-mode-toolbar').remove();
             }
+
+            if(type == 'task'){
+                $('#task-legend').show();
+            }
+            else if(type == 'solution'){
+                $('#solution-legend').show();
+            }
+            this.initLegend();
         },
 
+        // region bind event
         __bindToolbarEvent: function () {
             var self = this;
             $('#toolbar button').click(function () {
-                if(typeof ($(this).attr('data-toggle')) !== 'undefined' && $(this).attr('data-toggle') == 'button')
+                if(typeof ($(this).attr('data-toggle')) !== 'undefined' && $(this).attr('data-toggle') == 'button'){
                     if(!$(this).hasClass('active')){
                         $('#toolbar button').removeClass('active');
                     }
                     else{
                         $('#hand-tool').addClass('active');
                     }
+                }
 
                 switch ($(this).attr('id')){
                     //清空场景
                     case 'del-all-tool':
                         if(self.__type == 'solution' && self.__mode == 'edit'){
-                            self.__serviceList = [];
-                            self.__relationList = [];
-                            self.__dataList = [];
+                            // self.__serviceList = [];
+                            // self.__relationList = [];
+                            // self.__dataList = [];
                             self.__scene.clear();
 
                             self.__toolMode = 'normal';
@@ -558,13 +609,20 @@ var CanvasJS = (()=> {
                     case 'run-tool':
                         self.run();
                         break;
+                    case 'saveas-solution-tool':
+                        $('#save-aggre-solution-modal').modal('show');
+                        self.__bindSaveSolutionEvent(true);
+                        break;
                     case 'save-solution-tool':
                         $('#save-aggre-solution-modal').modal('show');
-                        self.__bindSaveSolutionEvent();
+                        self.__bindSaveSolutionEvent(false);
                         break;
+                    case 'saveas-task-tool':
+                        $('#save-aggre-task-modal').modal('show');
+                        self.__bindSaveTaskEvent(true);
                     case 'save-task-tool':
                         $('#save-aggre-task-modal').modal('show');
-                        self.__bindSaveTaskEvent();
+                        self.__bindSaveTaskEvent(false);
                 }
             });
 
@@ -666,12 +724,14 @@ var CanvasJS = (()=> {
             if(type == 'INPUT' || type == 'OUTPUT' || type == 'CONTROL'){
                 // 双击上传数据
                 node.addEventListener('dbclick',function (e) {
+                    __beginNode = null;
                     self.__currentNode = node;
                     self.__buildEventDetail();
                 });
             }
             else if(type == 'STATES'){
                 node.addEventListener('dbclick',function (e) {
+                    __beginNode = null;
                     self.__currentNode = node;
                     self.__buildStatesDetail();
                 });
@@ -679,7 +739,7 @@ var CanvasJS = (()=> {
 
         },
 
-        __bindSaveSolutionEvent: function () {
+        __bindSaveSolutionEvent: function (isSaveAs) {
             var self = this;
             $('#save-aggre-form').validate({
                 onfocusout:function(element) {
@@ -700,7 +760,7 @@ var CanvasJS = (()=> {
                     $('#loading-div').show();
                     $('#submit-form-btn').attr('disabled',true);
                     $.ajax( {
-                        url: '/aggregation/solution/save',
+                        url: '/aggregation/solution/save?isSaveAs=' + isSaveAs,
                         data: JSON.stringify(data),
                         contentType: "application/json;charset=utf-8",
                         type: 'POST',
@@ -735,6 +795,10 @@ var CanvasJS = (()=> {
                                     sticky: false,
                                     time: 2000
                                 });
+
+                                if(isSaveAs){
+                                    window.location.search= '?_id=' + res._id;
+                                }
                             }
                         })
                         .fail(function (err) {
@@ -752,7 +816,7 @@ var CanvasJS = (()=> {
         },
 
         // task 的保存和solution不是一个套路，只用保存最新的datalist就行，其他状态由后台维护
-        __bindSaveTaskEvent: function () {
+        __bindSaveTaskEvent: function (isSaveAs, isRunNow) {
             var self = this;
             $('#save-aggre-form').validate({
                 onfocusout:function(element) {
@@ -764,7 +828,7 @@ var CanvasJS = (()=> {
                     $('#loading-div').show();
                     $('#submit-form-btn').attr('disabled',true);
                     $.ajax( {
-                        url: '/aggregation/task/save',
+                        url: '/aggregation/task/save?isSaveAs=' + isSaveAs,
                         data: JSON.stringify(data),
                         contentType: "application/json;charset=utf-8",
                         type: 'POST',
@@ -799,6 +863,16 @@ var CanvasJS = (()=> {
                                     sticky: false,
                                     time: 2000
                                 });
+
+                                if(isRunNow){
+                                    return self.run();
+                                }
+                                if(window.location.pathname == '/aggregation/task/new'){
+                                    window.location.href = '/aggregation/task/edit?_id=' + res._id;
+                                }
+                                if(isSaveAs){
+                                    window.location.search = '?_id=' + res._id;
+                                }
                             }
                         })
                         .fail(function (err) {
@@ -814,6 +888,9 @@ var CanvasJS = (()=> {
                 }
             });
         },
+        // endregion
+
+        // region add remove role
 
         // 两种node，附加信息有：
         // {
@@ -837,7 +914,7 @@ var CanvasJS = (()=> {
                 node.borderRadius = 5;
                 node.borderWidth = 0;
                 node.borderColor = '0,0,0';
-                node.fillColor = '96, 168, 255';
+                node.fillColor = __getRGB(SolutionColor.states);
                 node.layout = {
                     type:'tree',
                     direction:'right',
@@ -851,7 +928,7 @@ var CanvasJS = (()=> {
                 // node.borderRadius = __DATA_RADIUS;
                 node.borderWidth = 0;
                 node.borderColor = '0,0,0';
-                node.fillColor = '96, 168, 255';
+                node.fillColor = __getRGB(SolutionColor.event);
 
                 // node = new JTopo.Node(text);
                 // node.beginDegree = 0;
@@ -880,7 +957,6 @@ var CanvasJS = (()=> {
                 //     this.paintText(g);
                 // };
             }
-            // node.fillColor = '129, 194, 255';
             if(x && y)
                 node.setCenterLocation(x,y);
             node.alpha = 1;
@@ -923,18 +999,130 @@ var CanvasJS = (()=> {
             return container;
         },
 
+        // 手动添加link，此处会添加到私有变量 __relationList 中，附加信息有
+        // {
+        //     __linkType: 'CUSTOM',
+        //     __relationID: String
+        // }
+        addLinkRoleManuel: function () {
+            var self = this;
+            var scene = this.__scene;
+            // var __beginNode = null;
+            var tempNodeA = new JTopo.Node('tempA');
+            tempNodeA.setSize(1, 1);
+
+            var tempNodeZ = new JTopo.Node('tempZ');
+            tempNodeZ.setSize(1, 1);
+
+            var link = new JTopo.Link(tempNodeA, tempNodeZ);
+            link.lineWidth = 2;
+
+            scene.mouseup(function(e){
+                if(self.__toolMode != 'link')
+                    return;
+                if(e.button == 2){
+                    __beginNode = null;
+                    scene.remove(link);
+                    return;
+                }
+                if(e.target != null && e.target instanceof JTopo.Node){
+                    if(__beginNode == null){
+                        // TODO 验证添加规则
+                        if(e.target.__nodeType == 'STATES'){
+                            __beginNode = null;
+                            scene.remove(link);
+                            return;
+                        }
+
+                        __beginNode = e.target;
+                        scene.add(link);
+                        tempNodeA.setLocation(e.x, e.y);
+                        tempNodeZ.setLocation(e.x, e.y);
+                    }
+                    else if(__beginNode !== e.target){
+                        var endNode = e.target;
+                        if(!self.validateLink(__beginNode,endNode)){
+                            __beginNode = null;
+                            scene.remove(link);
+                            return ;
+                        }
+                        // endregion
+                        var relation = self.__addRelation(__beginNode,endNode);
+                        var l = new JTopo.Link(__beginNode, endNode);
+                        l.arrowsRadius = 7;
+                        l.lineWidth = 2;
+                        l.bundleOffset = 60;
+                        l.bundleGap = 15;
+                        l.strokeColor = __getRGB(SolutionColor.manualLink);
+                        l._id = __beginNode._id + '__' + endNode._id;
+                        l.__linkType = 'CUSTOM';
+                        l.__relationID = relation._id;
+
+
+                        scene.add(l);
+                        __beginNode = null;
+                        scene.remove(link);
+                    }
+                    else{
+                        __beginNode = null;
+                    }
+                }else{
+                    __beginNode = null;
+                    scene.remove(link);
+                }
+            });
+
+            scene.mousedown(function(e){
+                if(self.__toolMode != 'link')
+                    return;
+                if(e.target == null || e.target === __beginNode || e.target === link){
+                    scene.remove(link);
+                }
+            });
+            scene.mousemove(function(e){
+                if(self.__toolMode != 'link')
+                    return;
+                tempNodeZ.setLocation(e.x, e.y);
+            });
+        },
+
+        __addRelation: function (nodeA, nodeZ) {
+            var relation = {
+                _id: nodeA.__MSID + '__' + nodeZ.__MSID,
+                from:{
+                    MSID: nodeA.__MSID,
+                    stateID: nodeA.__stateID,
+                    eventName: nodeA.__eventName
+                },
+                to:{
+                    MSID: nodeZ.__MSID,
+                    stateID: nodeZ.__stateID,
+                    eventName: nodeZ.__eventName
+                }
+            };
+            this.__solution.solutionCfg.relationList.push(relation);
+            return relation;
+        },
+
         __addJTopoElementByJSON: function (roleJSON) {
             var role = null;
+            var nodeList = this.__nodeList;
             if(roleJSON.elementType == 'link'){
-                var nodeA = __getRoleByID(this.__nodeList,roleJSON.nodeAID);
-                var nodeZ = __getRoleByID(this.__nodeList,roleJSON.nodeZID);
+                var nodeA = __getRoleByID(nodeList,roleJSON.nodeAID);
+                var nodeZ = __getRoleByID(nodeList,roleJSON.nodeZID);
                 role  = new JTopo.Link(nodeA,nodeZ);
                 for(var key in roleJSON){
+                    if(key == 'strokeColor'){
+                        if(roleJSON.__linkType == 'CUSTOM'){
+                            role.strokeColor = __getRGB(SolutionColor.manualLink);
+                        }
+                        else{
+                            role.strokeColor = __getRGB(SolutionColor.link);
+                        }
+                        continue;
+                    }
                     role[key] = roleJSON[key];
                 }
-                // if(this.__mode == 'edit'){
-                //     this.__bindNodeEvent(role);
-                // }
                 this.__linkList.push(role);
             }
             else if(roleJSON.elementType == 'container'){
@@ -944,11 +1132,12 @@ var CanvasJS = (()=> {
                 }
                 if(roleJSON.childsID && roleJSON.childsID != undefined){
                     for(var i=0;i<roleJSON.childsID.length;i++){
-                        var child = __getRoleByID(this.__nodeList, roleJSON.childsID[i]);
+                        var child = __getRoleByID(nodeList, roleJSON.childsID[i]);
                         if(child && child != undefined)
                             role.add(child);
                     }
                 }
+                this.__bindContainerEvent(role);
                 this.__containerList.push(role);
             }
             else if(roleJSON.elementType == 'node'){
@@ -996,50 +1185,6 @@ var CanvasJS = (()=> {
             this.__scene.add(role);
         },
 
-        // 不支持container元素
-        __getJTopoElementByID: function (scene, _id) {
-            var roleList = scene.childs;
-            if(roleList.length == 0)
-                return null;
-            for(var i=0;i<roleList.length;i++){
-                if(roleList[i]._id == _id && roleList[i].elementType != 'container'){
-                    return roleList[i];
-                }
-            }
-            return null;
-        },
-
-        // 用于删除自定义的线
-        __removeJTopoElementByID: function (scene, _id) {
-            if(scene.childs.length == 0)
-                return -1;
-            for(var i=0;i<scene.childs.length;i++){
-                if(scene.childs[i]._id == _id){
-                    scene.remove(scene.childs[i]);
-                    return 1;
-                }
-            }
-            return 0;
-        },
-
-        // remove container and childs
-        __removeJTopoContainer: function (scene, containerNode) {
-            for(var j=0;j<containerNode.childs.length;j++){
-                if(containerNode.childs[j].elementType == 'node')
-                    scene.remove(containerNode.childs[j]);
-            }
-            scene.remove(containerNode);
-        },
-
-        __getServiceByID: function (id) {
-            for(var i=0;i<this.__serviceList.length;i++){
-                if(this.__serviceList[i]._id == id){
-                    return this.__serviceList[i];
-                }
-            }
-            return null;
-        },
-
         // TODO 数据不一定必须要上传，也有可能是以服务的形式接入进来
         // 上传数据，会添加到 __dataList 中
         __buildEventDetail: function () {
@@ -1055,7 +1200,7 @@ var CanvasJS = (()=> {
                         $('#' + id + '-download-data').attr('onclick','window.open(\''+dataURL+'\')');
                     }
                     else{
-                        $('#'+ id +' .down-event-btn').remove();
+                        $('#'+ id +'-download-div').remove();
                         $(  '<p><b>Download data: </b></p>' +
                             '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download</button>')
                             .appendTo($('#' + id));
@@ -1066,7 +1211,7 @@ var CanvasJS = (()=> {
                 $('#'+id).parent().css('z-index',__getMaxZIndex()+1);
             }
             else{
-                var eventDetail = __getEventDetail(node.__stateID,node.__eventName,node.__MSID, self.__serviceList);
+                var eventDetail = __getEventDetail(node.__stateID,node.__eventName,node.__MSID, self.__solution.solutionCfg.serviceList);
                 var $dataInfoDialog = null;
                 if(eventDetail == null){
                     $dataInfoDialog = $(
@@ -1162,35 +1307,39 @@ var CanvasJS = (()=> {
                                     MSID: node.__MSID,
                                     stateID: node.__stateID,
                                     eventName: node.__eventName,
-                                    state: 'READY',
-                                    isInput: true
+                                    state: DataState.ready,
+                                    isInput: true,
+                                    isMid: false
                                 };
                                 var hasInserted = false;
-                                for(var i=0;i<self.__dataList.length;i++){
+                                var dataList = self.__task.taskCfg.dataList;
+                                for(var i=0;i<dataList.length;i++){
                                     // 已经上传过，重新上传替换
-                                    if(self.__dataList[i].MSID == node.__MSID &&
-                                    self.__dataList[i].stateID == node.__stateID &&
-                                    self.__dataList[i].eventName == node.__eventName){
-                                        self.__dataList[i] = inputData;
+                                    if(dataList[i].MSID == node.__MSID &&
+                                        dataList[i].stateID == node.__stateID &&
+                                        dataList[i].eventName == node.__eventName){
+                                        dataList[i].gdid = gdid;
                                         hasInserted = true;
                                         break;
                                     }
                                 }
                                 if(!hasInserted){
-                                    self.__dataList.push(inputData);
-                                    self.__inputDataList.push(inputData);
+                                    dataList.push(inputData);
+                                    // self.__inputDataList.push(inputData);
                                 }
                                 node.__gdid = gdid;
-                                node.fillColor = __getRGB(EventColor.ready);
+                                node.fillColor = __getRGB(EventColor.input);
                                 // node.shadow = true;
                                 // node.shadowColor = 'rgba(0,0,0,1)';
 
                                 // 添加数据下载链接
                                 // 不能通过原来的链接下载，有可能会跨域请求别的节点上的数据
                                 let dataURL = '/aggregation/data?gdid='+node.__gdid+'&msid='+node.__MSID +'&stateID=' + node.__stateID + '&eventName=' + node.__eventName;
-                                $('#'+ id +' .down-event-btn').remove();
-                                $(  '<p><b>Download data: </b></p>' +
-                                    '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download</button>')
+                                $('#'+ id +'-download-div').remove();
+                                $(  '<div id="'+id +'-download-div">' +
+                                    '<p><b>Download data: </b></p>' +
+                                    '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download</button>' +
+                                    '</div>')
                                     .appendTo($dataInfoDialog);
 
                                 $.gritter.add({
@@ -1230,7 +1379,7 @@ var CanvasJS = (()=> {
                 $('#'+id).parent().css('z-index',__getMaxZIndex()+1);
             }
             else{
-                var serviceDetail = __getServiceDetail(node.__MSID, self.__serviceList);
+                var serviceDetail = __getServiceDetail(node.__MSID, self.__solution.solutionCfg.serviceList);
                 var $serviceInfoDialog = null;
                 if(serviceDetail == null){
                     $serviceInfoDialog = $(
@@ -1317,109 +1466,26 @@ var CanvasJS = (()=> {
             }
         },
 
-        __addRelation: function (nodeA, nodeZ) {
-            var relation = {
-                _id: nodeA.__MSID + '__' + nodeZ.__MSID,
-                from:{
-                    MSID: nodeA.__MSID,
-                    stateID: nodeA.__stateID,
-                    eventName: nodeA.__eventName
-                },
-                to:{
-                    MSID: nodeZ.__MSID,
-                    stateID: nodeZ.__stateID,
-                    eventName: nodeZ.__eventName
+        // 用于删除自定义的线
+        __removeJTopoElementByID: function (scene, _id) {
+            if(scene.childs.length == 0)
+                return -1;
+            for(var i=0;i<scene.childs.length;i++){
+                if(scene.childs[i]._id == _id){
+                    scene.remove(scene.childs[i]);
+                    return 1;
                 }
-            };
-            this.__relationList.push(relation);
-            return relation;
+            }
+            return 0;
         },
 
-        // 手动添加link，此处会添加到私有变量 __relationList 中，附加信息有
-        // {
-        //     __linkType: 'CUSTOM',
-        //     __relationID: String
-        // }
-        addLinkRoleManuel: function () {
-            var self = this;
-            var scene = this.__scene;
-            // var __beginNode = null;
-            var tempNodeA = new JTopo.Node('tempA');
-            tempNodeA.setSize(1, 1);
-
-            var tempNodeZ = new JTopo.Node('tempZ');
-            tempNodeZ.setSize(1, 1);
-
-            var link = new JTopo.Link(tempNodeA, tempNodeZ);
-            link.lineWidth = 2;
-
-            scene.mouseup(function(e){
-                if(self.__toolMode != 'link')
-                    return;
-                if(e.button == 2){
-                    __beginNode = null;
-                    scene.remove(link);
-                    return;
-                }
-                if(e.target != null && e.target instanceof JTopo.Node){
-                    if(__beginNode == null){
-                        // TODO 验证添加规则
-                        if(e.target.__nodeType == 'STATES'){
-                            __beginNode = null;
-                            scene.remove(link);
-                            return;
-                        }
-
-                        __beginNode = e.target;
-                        scene.add(link);
-                        tempNodeA.setLocation(e.x, e.y);
-                        tempNodeZ.setLocation(e.x, e.y);
-                    }
-                    else if(__beginNode !== e.target){
-                        var endNode = e.target;
-                        if(!self.validateLink(__beginNode,endNode)){
-                            __beginNode = null;
-                            scene.remove(link);
-                            return ;
-                        }
-                        // endregion
-                        var relation = self.__addRelation(__beginNode,endNode);
-                        var l = new JTopo.Link(__beginNode, endNode);
-                        l.arrowsRadius = 7;
-                        l.lineWidth = 2;
-                        l.bundleOffset = 60;
-                        l.bundleGap = 15;
-                        l.strokeColor = '72,152,255';
-                        l._id = __beginNode._id + '__' + endNode._id;
-                        l.__linkType = 'CUSTOM';
-                        l.__relationID = relation._id;
-
-
-                        scene.add(l);
-                        __beginNode = null;
-                        scene.remove(link);
-                    }
-                    else{
-                        __beginNode = null;
-                    }
-                }else{
-                    __beginNode = null;
-                    scene.remove(link);
-                }
-            });
-
-            scene.mousedown(function(e){
-                if(self.__toolMode != 'link')
-                    return;
-                if(e.target == null || e.target === __beginNode || e.target === link){
-                    scene.remove(link);
-                }
-            });
-            scene.mousemove(function(e){
-                if(self.__toolMode != 'link')
-                    return;
-                tempNodeZ.setLocation(e.x, e.y);
-            });
+        // remove container and childs
+        __removeJTopoContainer: function (scene, containerNode) {
+            for(var j=0;j<containerNode.childs.length;j++){
+                if(containerNode.childs[j].elementType == 'node')
+                    scene.remove(containerNode.childs[j]);
+            }
+            scene.remove(containerNode);
         },
 
         removeRelationByJTopoID: function (scene,id) {
@@ -1427,15 +1493,39 @@ var CanvasJS = (()=> {
                 if(scene.childs[i]._id == id){
                     var link = scene.childs[i];
                     var relationID = link.nodeA.__MSID + '__' + link.nodeZ.__MSID;
-                    for(var j=0;j<this.__relationList.length;j++){
-                        if(this.__relationList[j]._id == relationID){
-                            this.__relationList.splice(j,1);
+                    var relationList = this.__solution.solutionCfg.relationList;
+                    for(var j=0;j<relationList.length;j++){
+                        if(relationList[j]._id == relationID){
+                            relationList.splice(j,1);
                             return;
                         }
                     }
                     break;
                 }
             }
+        },
+
+        // 不支持container元素
+        __getJTopoElementByID: function (scene, _id) {
+            var roleList = scene.childs;
+            if(roleList.length == 0)
+                return null;
+            for(var i=0;i<roleList.length;i++){
+                if(roleList[i]._id == _id && roleList[i].elementType != 'container'){
+                    return roleList[i];
+                }
+            }
+            return null;
+        },
+
+        __getServiceByID: function (id) {
+            var serviceList = this.__solution.solutionCfg.serviceList;
+            for(var i=0;i<serviceList.length;i++){
+                if(serviceList[i]._id == id){
+                    return serviceList[i];
+                }
+            }
+            return null;
         },
 
         // SADLService 结构
@@ -1464,7 +1554,7 @@ var CanvasJS = (()=> {
             // 有可能会出现一个服务使用多次的情况，所以_id得在前台生成
             var __service = JSON.parse(JSON.stringify(SADLService));
             __service._id = ObjectID().str;
-            this.__serviceList.push(__service);
+            this.__solution.solutionCfg.serviceList.push(__service);
 
             stateNode.__MSID = __service._id;
             stateNode.__nodeType = 'STATES';
@@ -1531,9 +1621,10 @@ var CanvasJS = (()=> {
         removeServiceRole: function (serviceNode) {
             var self = this;
             var roleList = self.__scene.childs;
-            for(var j=0;j<self.__serviceList.length;j++){
-                if(self.__serviceList[j]._id == serviceNode.__MSID){
-                    self.__serviceList.splice(j,1);
+            var serviceList = this.__solution.solutionCfg.serviceList;
+            for(var j=0;j<serviceList.length;j++){
+                if(serviceList[j]._id == serviceNode.__MSID){
+                    serviceList.splice(j,1);
                     break;
                 }
             }
@@ -1545,7 +1636,10 @@ var CanvasJS = (()=> {
             }
             self.__stage.paint();
         },
+        // endregion
 
+        // region import and export
+        // TODO 优化，添加 role 时直接放在 __solution 中
         __getLayoutCfg: function () {
             var self = this;
             var layout = {
@@ -1572,8 +1666,8 @@ var CanvasJS = (()=> {
 
         __getSolutionCfg: function () {
             return {
-                serviceList: this.__serviceList,
-                relationList: this.__relationList
+                serviceList: this.__solution.solutionCfg.serviceList,
+                relationList: this.__solution.solutionCfg.relationList
             };
         },
 
@@ -1584,7 +1678,7 @@ var CanvasJS = (()=> {
         },
 
         __importDataList: function () {
-            var dataList = this.__dataList;
+            var dataList = this.__task.taskCfg.dataList;
             var roleList = this.__scene.childs;
             for(let i=0;i<roleList.length;i++){
                 let role = roleList[i];
@@ -1596,18 +1690,11 @@ var CanvasJS = (()=> {
                             // role.shadowColor = 'rgba(0,0,0,1)';
                             if(data.state){
                                 if(data.isInput){
-                                    role.fillColor = __getRGB(EventColor.ready);
+                                    role.fillColor = __getRGB(EventColor.input);
                                 }
-                                else if(data.state == DataState.failed){
-                                    role.fillColor = __getRGB(EventColor.failed);
+                                else{
+                                    role.fillColor = __getRGB(EventColor[data.state.toLowerCase()]);
                                 }
-                                else if(data.state == DataState.pending){
-                                    role.fillColor = __getRGB(EventColor.pending);
-                                }
-                                else if(data.state == DataState.received){
-                                    role.fillColor = __getRGB(EventColor.received);
-                                }
-                                role.fillColor = __getRGB(EventColor[data.state.toLowerCase()]);
                             }
                             role.__gdid = data.gdid;
                             // 设置上传按钮的显示，添加下载链接
@@ -1647,8 +1734,8 @@ var CanvasJS = (()=> {
         importSolution: function () {
             var solution = this.__solution;
             var self = this;
-            this.__serviceList = solution.solutionCfg.serviceList;
-            this.__relationList = solution.solutionCfg.relationList;
+            // this.__serviceList = solution.solutionCfg.serviceList;
+            // this.__relationList = solution.solutionCfg.relationList;
 
             var sceneJSON = solution.layoutCfg.scene;
             this.__addJTopoElementByJSON(sceneJSON);
@@ -1656,8 +1743,8 @@ var CanvasJS = (()=> {
             var nodeList = solution.layoutCfg.nodeList;
             var linkList = solution.layoutCfg.linkList;
             this.__importRoleByJSON(nodeList);
-            this.__importRoleByJSON(linkList);
             this.__importRoleByJSON(containerList);
+            this.__importRoleByJSON(linkList);
             self.__stage.paint();
         },
 
@@ -1665,6 +1752,34 @@ var CanvasJS = (()=> {
             this.importSolution();
             this.__importDataList();
             this.__importStatesState();
+        },
+
+        initLegend: function () {
+            if(this.__type == 'solution'){
+                let trList = $('#solution-table tr');
+                for(let i=0;i<trList.length;i++){
+                    let $pic = $(trList[i]).find('td:nth-child(1) div');
+                    let className = $pic.attr('class');
+                    if(className){
+                        $pic.css('background',SolutionColor[className]);
+                    }
+                }
+            }
+            else if(this.__type == 'task'){
+                let eventTrList = $('#event-table tr');
+                for(let i=0;i<eventTrList.length;i++){
+                    let $pic = $(eventTrList[i]).find('td:nth-child(1) div');
+                    let className = $pic.attr('class');
+                    $pic.css('background',EventColor[className]);
+                }
+
+                let statesTrList = $('#states-table tr');
+                for(let i=0;i<statesTrList.length;i++){
+                    let $pic = $(statesTrList[i]).find('td:nth-child(1) div');
+                    let className = $pic.attr('class');
+                    $pic.css('background',StatesColor[className]);
+                }
+            }
         },
 
         // 给私有变量赋值，添加solution或task的基本信息到modal和input中
@@ -1692,7 +1807,7 @@ var CanvasJS = (()=> {
             else if(type == 'TASK'){
                 this.__task = data;
                 this.__solution = data.solutionDetail;
-                this.__dataList = data.taskCfg.dataList;
+                // this.__dataList = data.taskCfg.dataList;
                 let task = this.__task;
                 let solution = this.__solution;
 
@@ -1723,12 +1838,20 @@ var CanvasJS = (()=> {
         exportTask: function () {
             var taskInfo = {};
             var saveTag = $('#save-aggre-form').serializeArray();
-            for(var i=0;i<saveTag.length;i++){
+            for(let i=0;i<saveTag.length;i++){
                 taskInfo[saveTag[i].name] = saveTag[i].value;
             }
+            var inputDataList = [];
+            var dataList = this.__task.taskCfg.dataList;
+            for(let i=0;i<dataList.length;i++){
+                if(dataList[i].isInput){
+                    inputDataList.push(dataList[i]);
+                }
+            }
+
             __task = {
                 taskCfg:{
-                    dataList: this.__inputDataList,
+                    dataList: inputDataList,
                     solutionID: this.__solution._id,
                     driver: 'DataDriver'
                 },
@@ -1738,53 +1861,79 @@ var CanvasJS = (()=> {
             if($('#taskID-input').length && $('#taskID-input').attr('value') && $('#taskID-input').attr('value') != undefined){
                 __task._id = $('#taskID-input').attr('value');
             }
+            else{
+                var MSState = [];
+                var serviceList = this.__solution.solutionCfg.serviceList;
+                for(let i=0;i<serviceList.length;i++){
+                    MSState.push({
+                        MSID: serviceList[i]._id,
+                        state: 'UNREADY'
+                    });
+                }
+                __task.MSState = MSState;
+            }
+
             return __task;
         },
+        // endregion
 
         run: function () {
-            // TODO 再点击运行前要有一些其他交互
-
-            if(!this.__isValid){
-                $.gritter.add({
-                    title: 'Warning:',
-                    text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(res.error,null,4)+'</pre>',
-                    sticky: false,
-                    time: 2000
-                });
-            }
-            $.ajax({
-                url:'/aggregation/task/run',
-                data: JSON.stringify(this.exportTask()),
-                contentType:"application/json;charset=utf-8",
-                type:'POST',
-                dataType:'json',
-            })
-                .done(function (res) {
-                    if(res.error){
-                        $.gritter.add({
-                            title: 'Warning:',
-                            text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(res.error,null,4)+'</pre>',
-                            sticky: false,
-                            time: 2000
-                        });
-                    }
-                    else {
-                        $.gritter.add({
-                            title: 'Notice:',
-                            text: 'Start aggregation task successed, please check the run state at times!',
-                            sticky: false,
-                            time: 2000
-                        });
-                    }
-                })
-                .fail(function (err) {
+            var self = this;
+            var postRun = function () {
+                if(!self.__isValid){
                     $.gritter.add({
                         title: 'Warning:',
-                        text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(err,null,4)+'</pre>',
+                        text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(res.error,null,4)+'</pre>',
                         sticky: false,
                         time: 2000
                     });
-                });
+                }
+                $.ajax({
+                    url:'/aggregation/task/run',
+                    data: JSON.stringify(self.exportTask()),
+                    contentType:"application/json;charset=utf-8",
+                    type:'POST',
+                    dataType:'json',
+                })
+                    .done(function (res) {
+                        if(res.error){
+                            $.gritter.add({
+                                title: 'Warning:',
+                                text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(res.error,null,4)+'</pre>',
+                                sticky: false,
+                                time: 2000
+                            });
+                        }
+                        else {
+                            $.gritter.add({
+                                title: 'Notice:',
+                                text: 'Start aggregation task successed, please check the run state at times!',
+                                sticky: false,
+                                time: 2000
+                            });
+
+                            if(window.location.pathname != '/aggregation/task/edit' && window.location.query != '?_id=' + res._id){
+                                window.location.href = '/aggregation/task/edit?_id=' + res._id;
+                            }
+                        }
+                    })
+                    .fail(function (err) {
+                        $.gritter.add({
+                            title: 'Warning:',
+                            text: 'Start aggregation task failed! <br><pre>'+JSON.stringify(err,null,4)+'</pre>',
+                            sticky: false,
+                            time: 2000
+                        });
+                    });
+            };
+            // 在点击运行前要有一些其他交互，如果没保存要先保存
+            if($('#taskID-input').length && $('#taskID-input').attr('value') && $('#taskID-input').attr('value') != undefined){
+                postRun();
+            }
+            else{
+                $('#save-aggre-task-modal').modal('show');
+                self.__bindSaveTaskEvent(false, true);
+            }
         },
 
         // TODO 当上传数据时调用，更新所有服务的准备状态，显示在界面上
@@ -1824,6 +1973,7 @@ var CanvasJS = (()=> {
             return true;
         },
 
+        // region socket
         // 其他信息也都复制到node里了
         __updateNodeState: function (node) {
             if(node.__nodeType == 'STATES'){
@@ -1831,14 +1981,23 @@ var CanvasJS = (()=> {
             }
             else{
                 // update ui, and download link(update when db click)
-                node.fillColor = __getRGB(EventColor[node.__state.toLowerCase()]);
+                if(node.__isInput == true && node.__state == DataState.received){
+                    node.fillColor = __getRGB(EventColor.input);
+                }
+                else{
+                    node.fillColor = __getRGB(EventColor[node.__state.toLowerCase()]);
+                }
+                if(node.__state == DataState.ready){
+                    node;
+                }
             }
             this.__stage.paint();
         },
 
         __getEventNode: function (__MSID, __stateID, __eventName) {
-            for(let i=0;i<this.__nodeList.length;i++){
-                let node = this.__nodeList[i];
+            var nodeList = this.__nodeList;
+            for(let i=0;i<nodeList.length;i++){
+                let node = nodeList[i];
                 if(node.__MSID == __MSID && node.__stateID == __stateID && node.__eventName == __eventName){
                     return node;
                 }
@@ -1847,8 +2006,9 @@ var CanvasJS = (()=> {
         },
 
         __getStatesNode: function (MSinsID) {
-            for(let i=0;i<this.__nodeList.length;i++){
-                let node = this.__nodeList[i];
+            var nodeList = this.__nodeList;
+            for(let i=0;i<nodeList.length;i++){
+                let node = nodeList[i];
                 if(node.__MSID == MSinsID && node.__nodeType == 'STATES'){
                     return node;
                 }
@@ -1860,7 +2020,7 @@ var CanvasJS = (()=> {
             for(let i=0;i<dispatchRst.length;i++){
                 for(let j=0;j<this.__task.taskCfg.dataList.length;j++){
                     var data = this.__task.taskCfg.dataList[j];
-                    if(data.gdid == dispatchRst[i].gdid){
+                    if(data.gdid == dispatchRst[i].gdid && data.MSID == dispatchRst[i].MSID){
                         if(dispatchRst[i].error){
                             data.state = DataState.failed;
                             let node = this.__getEventNode(data.MSID,data.stateID,data.eventName);
@@ -1891,18 +2051,29 @@ var CanvasJS = (()=> {
                 }
             }
         },
-        
-        __updateDataState: function (downloadRst) {
-            for(let j=0;j<this.__task.taskCfg.dataList.length;j++){
-                var data = this.__task.taskCfg.dataList[j];
-                if(data.MSID == downloadRst.MSID && downloadRst.stateID == data.stateID && downloadRst.eventName == data.eventName && data.state!= DataState.mid){
-                    data.state = downloadRst.err?DataState.failed:DataState.received;
-                    let node = this.__getEventNode(data.MSID,data.stateID,data.eventName);
-                    node.__state = data.state;
-                    node.__gdid = data.gdid;
-                    this.__updateNodeState(node);
-                    break;
+
+        // 更新下载完成的数据 或者 模型运行结果数据
+        __updateDataState: function (downloadRst, newData) {
+            if(!newData){
+                for(let j=0;j<this.__task.taskCfg.dataList.length;j++){
+                    var data = this.__task.taskCfg.dataList[j];
+                    if(data.MSID == downloadRst.MSID && downloadRst.stateID == data.stateID && downloadRst.eventName == data.eventName){
+                        data.state = downloadRst.err?DataState.failed:DataState.received;
+                        let node = this.__getEventNode(data.MSID,data.stateID,data.eventName);
+                        node.__state = data.state;
+                        node.__gdid = data.gdid;
+                        node.__isInput = data.isInput;
+                        this.__updateNodeState(node);
+                        break;
+                    }
                 }
+            }
+            else{
+                let node = this.__getEventNode(newData.MSID,newData.stateID,newData.eventName);
+                node.__state = newData.state;
+                node.__gdid = newData.gdid;
+                node.__isInput = newData.isInput;
+                this.__updateNodeState(node);
             }
         },
 
@@ -2036,7 +2207,7 @@ var CanvasJS = (()=> {
             //     error:null,
             //     MSinsID: MSinsID,
             //     MSState: finishedInfo.MSState,
-            //     task: task
+            //     newDataList: newDataList
             // }
             socket.on('service stoped',function (msg) {
                 msg = JSON.parse(msg);
@@ -2053,13 +2224,51 @@ var CanvasJS = (()=> {
                     var statesNode = self.__getStatesNode(msg.MSinsID);
                     statesNode.__state = msg.MSState;
                     self.__updateNodeState(statesNode);
-                    self.__dataList = self.__dataList.concat(msg.newDataList);
+                    // self.__dataList = self.__dataList.concat(msg.newDataList);
+                    self.__task.taskCfg.dataList = self.__task.taskCfg.dataList.concat(msg.newDataList);
                     for(let i=0;i<msg.newDataList.length;i++){
-                        self.__updateDataState(msg.newDataList[i]);
+                        self.__updateDataState(null, msg.newDataList[i]);
                     }
                 }
             });
+
+            socket.on('update task state',function (msg) {
+                var state = msg.taskState;
+                if(state == TaskState.finished){
+                    $.gritter.add({
+                        title: 'Notice:',
+                        text: 'Task finished!',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+                else if(state == TaskState.end){
+                    $.gritter.add({
+                        title: 'Notice:',
+                        text: 'Task run to the end, please upload the essential input data to continue!',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+                else if(state == TaskState.collapsed){
+                    $.gritter.add({
+                        title: 'Warning:',
+                        text: 'Task collapsed. Maybe caused by unsuited input data or model error!',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+                else if(state == TaskState.pause){
+                    $.gritter.add({
+                        title: 'Notice:',
+                        text: 'Task paused, please cancel the break points to continue!',
+                        sticky: false,
+                        time: 2000
+                    });
+                }
+            })
         }
+        // endregion
     };
 })();
 

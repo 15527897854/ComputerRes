@@ -130,7 +130,7 @@ TaskInstanceManager.updateDataState = function (_id, gdid, state, cb) {
     if(task){
         for(let j=0;j<task.taskCfg.dataList.length;j++){
             var data = task.taskCfg.dataList[j];
-            if(data.gdid == gdid && data.state!= DataState.mid){
+            if(data.gdid == gdid && (data.isMid != null && data.isMid != true)){
                 data.state = state;
                 break;
             }

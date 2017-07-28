@@ -24,7 +24,7 @@ var TaskInstanceManager = require('../../model/Integrate/TaskInstanceManager');
 var Path = require('path');
 var fs = require('fs');
 
-// 数据角色和状态
+// 状态和角色分开存
 const DataState = {
     // unready: 'UNREADY',      // DataState表示的是已经上传过的数据的状态，没有 unready这一种
     ready: 'READY',             // 准备好，表示初始状态，将要分发的状态，before dispatch
@@ -42,20 +42,19 @@ const TaskState = {
     collapsed: 'COLLAPSED',
     end: 'END',
     finished: 'FINISHED',
-    running: 'RUNNING'
+    running: 'RUNNING',
+    pause: 'PAUSE'
 };
 
 const MSState = {
     unready: 'UNREADY',         // 初始状态，前台创建task时默认是这种
     pending: 'PENDING',         // 正在发送运行指令
     pause: 'PAUSE',             // 允许用户给准备好的模型打断点
-    running: 'RUNNING',         // 现在默认准备好数据就开始运行
     collapsed: 'COLLAPSED',     // 运行失败，两种情况：调用出错；运行失败
+    running: 'RUNNING',         // 现在默认准备好数据就开始运行
     finished: 'FINISHED'        // 运行成功且结束
 };
 
-global.StatesColor = StatesColor;
-global.EventColor = EventColor;
 global.DataState = DataState;
 global.TaskState = TaskState;
 global.MSState = MSState;
@@ -303,11 +302,83 @@ module.exports = (function () {
         }
     };
 
-    var __checkTaskState = function (task) {
+    var __getTaskState = function (task) {
+        var MSStateList = task.MSState;
+        var hasRunning = false;
+        var hasCollapsed = false;
+        var hasPause = false;
+        var hasUnready = false;
+        var hasFinished = false;
+        var hasPending = false;
+        var pauseStates = [];
+        for(let i=0;i<MSStateList.length;i++){
+            var state = MSStateList[i].state;
+            var MSID = MSStateList[i].MSID;
+            if(state == MSState.collapsed){
+                hasCollapsed = true;
+            }
+            else if(state == MSState.running){
+                hasRunning = true;
+                break;
+            }
+            else if(state == MSState.finished){
+                hasFinished = true;
+            }
+            else if(state == MSState.pause){
+                hasPause = true;
+                pauseStates.push(MSID);
+            }
+            else if(state == MSState.unready){
+                hasUnready = true;
+            }
+            else if(state == MSState.pending){
+                hasPending = true;
+                break;
+            }
+        }
 
+        if(hasRunning || hasPending){
+            return TaskState.running;
+        }
+        else if(hasCollapsed){
+            return TaskState.collapsed;
+        }
+        else if(hasUnready && !hasPause){
+            return TaskState.end;
+        }
+        else if(hasUnready && hasPause){
+            // 状态可能是end pause，看unready的state在pause之前还是之后
+            // 如果所有pause的service的状态都是准备好的，task的状态就是pause，否则是end
+            let isAllMSReady = true;
+            for(let i=0;i<pauseStates.length;i++){
+                if(!checkMSState(task._id,null,pauseStates[i],true)){
+                    isAllMSReady = false;
+                    break;
+                }
+            }
+            if(isAllMSReady){
+                return TaskState.pause;
+            }
+            else {
+                return TaskState.end;
+            }
+        }
+        else{
+            if(hasPause){
+                return TaskState.pause;
+            }
+            else if(hasCollapsed){
+                return TaskState.collapsed;
+            }
+            else{
+                return TaskState.finished;
+            }
+        }
     };
 
-    // 恢复任务场景
+    // region deprecated
+    // 恢复任务
+    // 场景
     // 运算结果数据可能没加入进来，这样就没有数据驱动task继续运行下去
     var __restoreTaskScene = function (task) {
         var msStateList = task.MSState;
@@ -348,17 +419,41 @@ module.exports = (function () {
             }
         }
     };
+    // endregion
 
     return {
+        // 以模型为入口，查找模型依赖的输入数据，驱动数据分发和模型运算
+        init: function (task) {
+            var MSStateList = task.MSState;
+            var taskState = TaskState.configured;
+            for(let i=0;i<MSStateList.length;i++){
+                if(MSStateList[i].state == MSState.unready){
+                    var MSID = MSStateList[i].MSID;
+                    var serviceDataList = [];
+                    var taskDataList = task.taskCfg.dataList;
+                    for(let j=0;j<taskDataList.length;j++){
+                        if(taskDataList[j].MSID == MSID){
+                            serviceDataList.push(taskDataList[j]);
+                        }
+                    }
+                    this.dispatchDataListPosition(task._id,MSID,serviceDataList);
+                }
+            }
+
+        },
+
         // 分发数据坐标，更新数据状态为pending
         // 返回一个数组，[{error:Object}]，通过websocket传给前台
-        // TODO 不需要数据输入的模型的驱动
-        dispatchDataListPosition: function (task) {
+        dispatchDataListPosition: function (taskID,MSID,dataList) {
             var dispatchRst = [];
-            var dataList = task.taskCfg.dataList;
             var count = 0;
-            var taskID = task._id;
             // __restoreTaskScene(task);
+
+            // 不需要输入数据的模型
+            if(dataList.length == 0){
+                this.checkMSState(taskID,null,MSID);
+                return;
+            }
             for(let i=0;i<dataList.length;i++){
                 // 只分发ready状态的数据
                 if(dataList[i].state == DataState.ready){
@@ -506,16 +601,21 @@ module.exports = (function () {
         },
 
         // 先暂时不管多state的情况，只有所有state的数据准备好了才能运行
-        checkMSState: function (taskID,gdid) {
+        checkMSState: function (taskID,gdid, MSinsID, getRstflag) {
             var self = this;
-            var MSinsID = null;     // 一个ms可能会有多个实例
+            // var MSinsID = null;     // 一个ms可能会有多个实例
             var task = TaskInstanceManager.get(taskID);
             if(task){
-                var dataList = task.taskCfg.dataList;
-                for(let i=0;i<dataList.length;i++){
-                    if(dataList[i].gdid == gdid && dataList[i].state != DataState.mid){
-                        MSinsID = dataList[i].MSID;
-                        break;
+                var dataList = [];
+                if(!MSinsID){
+                    dataList = task.taskCfg.dataList;
+                    for(let i=0;i<dataList.length;i++){
+                        if(dataList[i].gdid == gdid){
+                            if(dataList[i].isMid == null || dataList[i].isMid == false){
+                                MSinsID = dataList[i].MSID;
+                                break;
+                            }
+                        }
                     }
                 }
                 if(MSinsID){
@@ -528,7 +628,12 @@ module.exports = (function () {
                     TaskInstanceManager.getServiceByID(taskID, MSinsID,function (err, service) {
                         if(err){
                             err.place = 'getServiceByID checkMSState';
-                            return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
+                            if(getRstflag){
+                                return false;
+                            }
+                            else{
+                                return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
+                            }
                         }
                         else{
                             var inputData = [];
@@ -578,27 +683,42 @@ module.exports = (function () {
                                 }
                             }
                             if(isMSReady){
-                                self.emitMSReady(taskID,MSinsID,inputData,outputData);
+                                if(getRstflag){
+                                    return true;
+                                }
+                                else{
+                                    self.emitMSReady(taskID,MSinsID,inputData,outputData);
+                                }
                             }
                         }
                     });
                 }
                 else{
+                    if(getRstflag){
+                        return false;
+                    }
+                    else{
+                        return WebSocketCtrl.emit(taskID,'error',JSON.stringify({
+                            error: {
+                                message:'Can\'t find the related model service!',
+                                place: 'checkMSState'
+                            }
+                        }));
+                    }
+                }
+            }
+            else{
+                if(getRstflag){
+                    return false;
+                }
+                else{
                     return WebSocketCtrl.emit(taskID,'error',JSON.stringify({
                         error: {
-                            message:'Can\'t find the related model service!',
+                            message:'Can\'t find the related task!',
                             place: 'checkMSState'
                         }
                     }));
                 }
-            }
-            else{
-                return WebSocketCtrl.emit(taskID,'error',JSON.stringify({
-                    error: {
-                        message:'Can\'t find the related task!',
-                        place: 'checkMSState'
-                    }
-                }));
             }
         },
 
@@ -704,6 +824,29 @@ module.exports = (function () {
                     return WebSocketCtrl.emit(task._id, 'error', JSON.stringify({error: err}));
                 }
                 else {
+                    if(finishedInfo.MSState == MSState.collapsed){
+                        var taskState = __getTaskState(task);
+                        task.taskState = taskState;
+                        TaskInstanceManager.update(task,function (err, rst) {
+                            if (err) {
+                                err.place = 'update onReceivedMSFinished';
+                                return WebSocketCtrl.emit(task._id, 'error', JSON.stringify({error: err}));
+                            }
+                            else{
+                                WebSocketCtrl.emit(task._id,'service stoped',JSON.stringify({
+                                    error:null,
+                                    MSinsID: finishedInfo.MSinsID,
+                                    MSState: finishedInfo.MSState,
+                                    newDataList: []
+                                }));
+                                WebSocketCtrl.emit(task._id,'update task state',JSON.stringify({
+                                    error: null,
+                                    taskState: taskState
+                                }));
+                                return ;
+                            }
+                        });
+                    }
                     AggreSolutionModel.getByOID(task.taskCfg.solutionID,function (err, solution) {
                         if(err){
                             return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
@@ -716,16 +859,18 @@ module.exports = (function () {
                                 let newData = {
                                     host: finishedInfo.host,
                                     port: finishedInfo.port,
-                                    state: DataState.mid,
+                                    state: DataState.received,
                                     eventName: output.Event,
                                     stateID: output.StateId,
                                     MSID: finishedInfo.MSinsID,
-                                    gdid: output.DataId
+                                    gdid: output.DataId,
+                                    isInput: false
                                 };
                                 task.taskCfg.dataList.push(newData);
                                 newDataList.push(newData);
                                 // 有两个实体
                                 if(toNode){
+                                    newData.isMid = true;
                                     newData = {
                                         host: finishedInfo.host,
                                         port: finishedInfo.port,
@@ -733,10 +878,15 @@ module.exports = (function () {
                                         eventName: toNode.eventName,
                                         stateID: toNode.stateID,
                                         MSID: toNode.MSID,
-                                        gdid: output.DataId
+                                        gdid: output.DataId,
+                                        isMid: false,
+                                        isInput: false
                                     };
                                     task.taskCfg.dataList.push(newData);
                                     newDataList.push(newData);
+                                }
+                                else{
+                                    newData.isMid = false;
                                 }
                             }
                             // 程序如果在这里崩了怎么办？数据没更新，重新运行task时没有数据驱动
@@ -746,26 +896,33 @@ module.exports = (function () {
                                     return WebSocketCtrl.emit(task._id,'error',JSON.stringify({error:err}));
                                 }
                                 else{
-                                    WebSocketCtrl.emit(task._id,'service stoped',JSON.stringify({
-                                        error:null,
-                                        MSinsID: finishedInfo.MSinsID,
-                                        MSState: finishedInfo.MSState,
-                                        newDataList: newDataList
-                                    }));
-                                    self.dispatchDataListPosition(task);
+                                    var taskState = __getTaskState(task);
+                                    task.taskState = taskState;
+                                    TaskInstanceManager.update(task,function (err, rst) {
+                                        if (err) {
+                                            err.place = 'update onReceivedMSFinished';
+                                            return WebSocketCtrl.emit(task._id, 'error', JSON.stringify({error: err}));
+                                        }
+                                        else{
+                                            WebSocketCtrl.emit(task._id,'service stoped',JSON.stringify({
+                                                error:null,
+                                                MSinsID: finishedInfo.MSinsID,
+                                                MSState: finishedInfo.MSState,
+                                                newDataList: newDataList
+                                            }));
+                                            WebSocketCtrl.emit(task._id,'update task state',JSON.stringify({
+                                                error: null,
+                                                taskState: taskState
+                                            }));
+                                            self.init(task);
+                                        }
+                                    })
                                 }
                             });
                         }
                     });
-
                 }
             });
-        },
-
-        // TODO data service task state 更新时通知前台
-        socket2Front: function () {
-
         }
-
     };
 })();

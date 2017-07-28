@@ -103,14 +103,15 @@ function SocketTrans(app)
                         centerPort: mi.centerPort,
                         taskID: mi.taskID,
                         MSinsID: mi.MSinsID,
-                        outputData: msr.msr_output,
                         host: app.centerHost,
                         port: app.centerPort
                     };
                     if(finished) {
+                        finishedInfo.outputData = msr.msr_output;
                         finishedInfo.MSState = MSState.finished;
                     }
                     else {
+                        finishedInfo.outputData = [];
                         finishedInfo.MSState = MSState.collapsed;
                     }
                     DataDriver.emitMSFinished(finishedInfo)

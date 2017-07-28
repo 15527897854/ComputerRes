@@ -149,10 +149,23 @@ var MSAggreCtrl = (function () {
         },
 
         // region solution ctrl
-        saveSolution: function (solution, cb) {
+        saveSolution: function (solution, isSaveAs, cb) {
             solution.time = new Date().getTime();
             var solutionID = solution._id;
-            if(solutionID && solutionID != undefined){
+            var tag = null;
+            if(isSaveAs == 'true'){
+                if(solutionID && solutionID != undefined){
+                    delete solution._id;
+                }
+                tag = 'save';
+            }
+            else if(solutionID && solutionID != undefined){
+                tag = 'update';
+            }
+            else{
+                tag = 'save';
+            }
+            if(tag == 'update'){
                 AggreSolutionModel.update(solution,function (err,rst) {
                     if(err){
                         return cb(err);
@@ -215,7 +228,7 @@ var MSAggreCtrl = (function () {
         // region task ctrl
 
         // save or update task
-        saveTask: function (task, cb) {
+        saveTask: function (task, isSaveAs, cb) {
             new Promise(function (resolve, reject) {
                 SysCtrl.getIP(function (err, ip) {
                     if(err){
@@ -236,8 +249,20 @@ var MSAggreCtrl = (function () {
                     }
                     task.time = new Date().getTime();
                     var taskID = task._id;
-                    // update
-                    if(taskID && taskID != undefined){
+                    var tag = null;
+                    if(isSaveAs == 'true'){
+                        if(taskID && taskID != undefined){
+                            delete task._id;
+                        }
+                        tag = 'save';
+                    }
+                    else if(taskID && taskID != undefined){
+                        tag = 'update';
+                    }
+                    else{
+                        tag = 'save';
+                    }
+                    if(tag == 'update'){
                         AggreTaskModel.getByOID(taskID,function (err, oldTask) {
                             if(err){
                                 return cb(err);
@@ -270,9 +295,7 @@ var MSAggreCtrl = (function () {
                             }
                         });
                     }
-                    // save
                     else{
-                        task.MSState = [];
                         AggreTaskModel.save(task,function (err, rst) {
                             if(err){
                                 return cb(err);
@@ -372,7 +395,7 @@ var MSAggreCtrl = (function () {
         runTask: function (task, cb) {
             var self = this;
             new Promise(function (resolve, reject) {
-                self.saveTask(task,function (err, taskID) {
+                self.saveTask(task, false, function (err, taskID) {
                     if(err){
                         return reject(err);
                     }
@@ -394,12 +417,13 @@ var MSAggreCtrl = (function () {
                     // 更新task state，更新失败时将错误给前台
                     TaskInstanceManager.updateTaskState(task._id, 'RUNNING', function (err, rst) {
                         if(err){
+                            cb(err);
                             return WebSocketCtrl.emit(_id, 'error', JSON.stringify({error:err}));
                         }
                     });
-                    // 分发完数据，将分发结果给前台
-                    DataDriver.dispatchDataListPosition(task);
-                    return cb(null);
+                    // 遍历模型，分发数据，驱动运算
+                    DataDriver.init(task);
+                    return cb(null,task._id);
                 })
                 .catch(function (err) {
                     console.log(err);

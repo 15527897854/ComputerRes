@@ -62,7 +62,12 @@ body{
     bottom:10px
 }
 .toolbar{
-    margin-left:20px;
+    margin-right:40px;
+}
+#legend-toolbar{
+    position: fixed;
+    right: 20px;
+    margin-right: 0 !important;
 }
 .contextMenu{
     display: none;
@@ -140,4 +145,59 @@ body{
 }
 .delete-cursor{
 
+}
+#solution-table tr:nth-child(2) td:nth-child(1) div,
+#event-table tr td:nth-child(1) div{
+    margin:0 auto;
+    width:20px;
+    height: 20px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+#solution-table tr:nth-child(1) td:nth-child(1) div,
+#states-table tr td:nth-child(1) div{
+    margin:0 auto;
+    width:30px;
+    height: 20px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+#link-table tr:nth-child(1) td:nth-child(1) div,
+#solution-table tr:nth-child(3) td:nth-child(1) div{
+    margin:0 auto;
+    width: 40px;
+    height: 20px;
+    background: url("/images/arrow-blue.png") 0% 0% / 40px 20px no-repeat;
+
+}
+#link-table tr:nth-child(2) td:nth-child(1) div,
+#solution-table tr:nth-child(4) td:nth-child(1) div{
+    margin:0 auto;
+    width: 40px;
+    height: 20px;
+    background: url("/images/arrow-blue-deep.png") 0% 0% / 40px 20px no-repeat;
+
+}
+#legend-modal table{
+    /*margin-right: 20px;*/
+}
+#legend-modal table td{
+    border:none !important;
+
+}
+#legend-modal table td:nth-child(1){
+    width:100px !important;
+}
+#saveas-task-tool div,
+#saveas-solution-tool div{
+    margin:0 auto;
+    width:12px;
+    height: 14px;
+    background: url("/images/save-as.png") 0 0 / 13px 12px no-repeat;
+}
+#saveas-task-tool,
+#saveas-solution-tool{
+    height:34px;
 }
