@@ -369,6 +369,7 @@ var MSAggreCtrl = (function () {
             })
         },
 
+        // task and solution
         getTaskDetailByID: function (_id, cb) {
             AggreTaskModel.getByOID(_id,function (err, task) {
                 if(err){
@@ -420,10 +421,12 @@ var MSAggreCtrl = (function () {
                             cb(err);
                             return WebSocketCtrl.emit(_id, 'error', JSON.stringify({error:err}));
                         }
+                        else{
+                            return cb(null,task._id);
+                        }
                     });
                     // 遍历模型，分发数据，驱动运算
                     DataDriver.init(task);
-                    return cb(null,task._id);
                 })
                 .catch(function (err) {
                     console.log(err);
@@ -434,11 +437,40 @@ var MSAggreCtrl = (function () {
 
         // region data ctrl
         getData: function (query, cb) {
+            var taskID = query.taskID;
             var gdid = query.gdid;
             var msid = query.msid;
             var stateID = query.stateID;
             var eventName = query.eventName;
-
+            AggreTaskModel.getByOID(taskID,function (err, task) {
+                if (err) {
+                    return cb(err);
+                }
+                else if (task) {
+                    var data = null;
+                    let dataList = task.taskCfg.dataList;
+                    for(let i=0;i<dataList.length;i++){
+                        if(dataList[i].MSID == msid && dataList[i].gdid == gdid && dataList[i].stateID == stateID && dataList[i].eventName == eventName){
+                            data = dataList[i];
+                            break;
+                        }
+                    }
+                    if(data){
+                        var rmtURL = 'http://' + data.host + ':' + data.port + '/geodata/' + data.gdid;
+                        remoteReqCtrl.getByServer(rmtURL,null,function (err, res) {
+                            if(err){
+                                return cb(err);
+                            }
+                            else{
+                                return cb(null,res);
+                            }
+                        })
+                    }
+                }
+                else {
+                    return cb(new Error('Can\'t find this task!'));
+                }
+            });
         }
         // endregion
     };

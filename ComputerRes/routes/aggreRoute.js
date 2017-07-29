@@ -341,11 +341,22 @@ module.exports = function (app) {
     app.route('/aggregation/data')
         .get(function (req, res, next) {
             MSAggreCtrl.getData(req.query,function (err, msg) {
+                var fileName = 'gd-' + req.query.gdid + '.xml';
+                res.setHeader('Content-Disposition','attachment;filename=' + encodeURIComponent(fileName));
                 if(err){
-                    return res.end(JSON.stringify({error:err}));
+                    var data = JSON.stringify({error:err});
+                    res.set({
+                        'Content-Type': 'file/xml',
+                        'Content-Length': data.length
+                    });
+                    return res.end(data);
                 }
                 else{
-
+                    res.set({
+                        'Content-Type': 'file/xml',
+                        'Content-Length': msg.length
+                    });
+                    return res.end(msg);
                 }
             })
         });

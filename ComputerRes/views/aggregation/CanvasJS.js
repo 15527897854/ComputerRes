@@ -76,6 +76,9 @@ var CanvasJS = (()=> {
         finished: 'FINISHED'        // 运行成功且结束
     };
 
+    const __font = '12px 微软雅黑';
+    const __lineHeight = 12;
+
     var __getRGB = function (color) {
         var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
         var hex2RGB = function(hexStr){
@@ -90,7 +93,7 @@ var CanvasJS = (()=> {
                 }
                 //处理六位的颜色值
                 var sColorChange = [];
-                for(var i=1; i<7; i+=2){
+                for(let i=1; i<7; i+=2){
                     sColorChange.push(parseInt("0x"+sColor.slice(i,i+2)));
                 }
                 return "RGB(" + sColorChange.join(",") + ")";
@@ -359,6 +362,89 @@ var CanvasJS = (()=> {
         return maxZ;
     };
 
+    var __is2Node = function (node, relationList) {
+        for(let i=0;i<relationList.length;i++){
+            var toNode = relationList[i].to;
+            if(toNode.MSID == node.__MSID && toNode.eventName == node.__eventName && toNode.stateID == node.__stateID){
+                return true;
+            }
+        }
+        return false;
+    };
+
+    var __wrapText = function () {
+        CanvasRenderingContext2D.prototype.wrapText = function(str,x,y){
+            var textArray = str.split('\n');
+            if(textArray==undefined||textArray==null)return false;
+
+            var rowCnt = textArray.length;
+            var i = 0,imax  = rowCnt,maxLength = 0;maxText = textArray[0];
+            for(;i<imax;i++){
+                var nowText = textArray[i],textLength = nowText.length;
+                if(textLength >=maxLength){
+                    maxLength = textLength;
+                    maxText = nowText;
+                }
+            }
+            var maxWidth = this.measureText(maxText).width;
+            var lineHeight = this.measureText("元").width;
+            x-= lineHeight*4;
+            for(var j= 0;j<textArray.length;j++){
+                var words = textArray[j];
+                this.fillText(words,-(maxWidth/2),y-textArray.length*lineHeight/2);
+                y+= lineHeight;
+            }
+        };
+    };
+
+    // 将text 分割为数组，使每一个数组元素的宽度不大于width，font是字体
+    var __breakLinesForCanvas = function (text, width, height, font) {
+        var findBreakPoint = function (text, width, context) {
+            var min = 0;
+            var max = text.length - 1;
+
+            while (min <= max) {
+                var middle = Math.floor((min + max) / 2);
+                var middleWidth = context.measureText(text.substr(0, middle)).width;
+                var oneCharWiderThanMiddleWidth = context.measureText(text.substr(0, middle + 1)).width;
+                if (middleWidth <= width && oneCharWiderThanMiddleWidth > width) {
+                    return middle;
+                }
+                if (middleWidth < width) {
+                    min = middle + 1;
+                } else {
+                    max = middle - 1;
+                }
+            }
+
+            return -1;
+        };
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var result = [];
+        var breakPoint = 0;
+        var lines = Math.floor(height/__lineHeight);
+
+        if (font) {
+            context.font = font;
+        }
+
+        while ((breakPoint = findBreakPoint(text, width, context)) !== -1) {
+            result.push(text.substr(0, breakPoint));
+            text = text.substr(breakPoint);
+        }
+
+        if (text) {
+            result.push(text);
+        }
+        if(result.length > lines){
+            result = result.slice(0,lines-1);
+            result.push('...');
+        }
+
+        return result.join('\n');
+    };
+
     return {
         // canvas element
         __stage: null,
@@ -426,6 +512,7 @@ var CanvasJS = (()=> {
             this.__type = type;
             $('#canvas').attr('height',$('#canvas-div').height());
             $('#canvas').attr('width',$('#canvas-div').width());
+            __wrapText();
             this.__stage = new JTopo.Stage($('#canvas')[0]);
             this.__scene = new JTopo.Scene();
             this.__stage.add(this.__scene);
@@ -473,7 +560,7 @@ var CanvasJS = (()=> {
                 }
 
                 switch ($(this).attr('id')){
-                    //清空场景
+                    // 清空场景
                     case 'del-all-tool':
                         if(self.__type == 'solution' && self.__mode == 'edit'){
                             // self.__serviceList = [];
@@ -487,7 +574,7 @@ var CanvasJS = (()=> {
                             $('#hand-tool').addClass('active');
                         }
                         break;
-                    //回到初始位置
+                    // 回到初始位置
                     case 'back-pos-tool':
                         // self.__stage.centerAndZoom(1);
                         // self.__stage.setCenter(0,0);
@@ -505,6 +592,7 @@ var CanvasJS = (()=> {
                         $('#toolbar button').removeClass('active');
                         $('#hand-tool').addClass('active');
                         break;
+                    // 显示模式切换
                     case 'display-toggle-tool':
                         if(!$(this).hasClass('active')){
                             self.__scene.mode = 'select';
@@ -517,7 +605,7 @@ var CanvasJS = (()=> {
                             $('#hand-tool').addClass('active');
                         }
                         break;
-                    //放大
+                    // 放大
                     case 'zoomIn-tool':
                         if(!$(this).hasClass('active')){
                             self.__toolMode = 'zoomIn';
@@ -530,7 +618,7 @@ var CanvasJS = (()=> {
                             $('#hand-tool').addClass('active');
                         }
                         break;
-                    //缩小
+                    // 缩小
                     case 'zoomOut-tool':
                         if(!$(this).hasClass('active')){
                             self.__toolMode = 'zoomOut';
@@ -543,7 +631,7 @@ var CanvasJS = (()=> {
                             $('#hand-tool').addClass('active');
                         }
                         break;
-                    //拖动模式
+                    // 拖动模式
                     case 'hand-tool':
                         if(!$(this).hasClass('active')){
                             self.__scene.mode = 'normal';
@@ -554,7 +642,7 @@ var CanvasJS = (()=> {
                             self.__toolMode = 'normal';
                         }
                         break;
-                    //框选模式
+                    // 框选模式
                     case 'select-tool':
                         if(!$(this).hasClass('active')){
                             self.__scene.mode = 'select';
@@ -567,7 +655,7 @@ var CanvasJS = (()=> {
                             $('#hand-tool').addClass('active');
                         }
                         break;
-                    //编辑模式
+                    // 编辑模式
                     case 'edit-tool':
                         if(!$(this).hasClass('active')){
                             self.__scene.mode = 'edit';
@@ -580,7 +668,7 @@ var CanvasJS = (()=> {
                             $('#hand-tool').addClass('active');
                         }
                         break;
-                    //删除模式
+                    // 删除模式
                     case 'del-tool':
                         if(!$(this).hasClass('active')){
                             self.__toolMode = 'delete';
@@ -593,7 +681,7 @@ var CanvasJS = (()=> {
                             $('#hand-tool').addClass('active');
                         }
                         break;
-                    //创建连接线模式
+                    // 创建连接线模式
                     case 'link-tool':
                         if(!$(this).hasClass('active')){
                             self.__toolMode = 'link';
@@ -606,20 +694,24 @@ var CanvasJS = (()=> {
                             $('#hand-tool').addClass('active');
                         }
                         break;
+                    // 运行
                     case 'run-tool':
                         self.run();
                         break;
+                    // 另存为
                     case 'saveas-solution-tool':
                         $('#save-aggre-solution-modal').modal('show');
                         self.__bindSaveSolutionEvent(true);
                         break;
+                    // 保存solution
                     case 'save-solution-tool':
+                        $('#save-aggre-solution-modal').on('shown.bs.modal',function (e) {
+                            $('#solutionName').focus();
+                        });
                         $('#save-aggre-solution-modal').modal('show');
                         self.__bindSaveSolutionEvent(false);
                         break;
-                    case 'saveas-task-tool':
-                        $('#save-aggre-task-modal').modal('show');
-                        self.__bindSaveTaskEvent(true);
+                    //  保存task
                     case 'save-task-tool':
                         $('#save-aggre-task-modal').modal('show');
                         self.__bindSaveTaskEvent(false);
@@ -658,9 +750,6 @@ var CanvasJS = (()=> {
                     }
                 }
                 else if(e.button == 2){
-                    if(!e.target && !__beginNode){
-                        $('#hand-tool').click();
-                    }
                     __hideContextMenu();
                 }
             });
@@ -677,10 +766,30 @@ var CanvasJS = (()=> {
 
                 }
                 else if(e.button == 2){
+                    if(!target && !__beginNode){
+                        $('#hand-tool').click();
+                    }
                     if( self.__type == 'solution' && self.__mode == 'edit' && target && target.elementType == 'link' && target.__linkType == 'CUSTOM'){
                         self.removeRelationByJTopoID(self.__scene, target._id);
                         self.__removeJTopoElementByID(self.__scene, target._id);
                     }
+                }
+            });
+
+            scene.addEventListener('mousedrag',function (e) {
+                var node = e.target;
+                if(node != null && node instanceof JTopo.Node && self.__scene.mode == 'edit'){
+                    var width = null;
+                    var height = null;
+                    if(node.__nodeType == 'STATES'){
+                        width = node.width;
+                        height = node.height;
+                    }
+                    else{
+                        height = width = node.radius*2;
+                    }
+                    node.text = __breakLinesForCanvas(node.__text, width, height, __font);
+                    self.__stage.paint();
                 }
             });
         },
@@ -737,6 +846,39 @@ var CanvasJS = (()=> {
                 });
             }
 
+            node.addEventListener('mouseover',function (e) {
+                var node = this;
+                if(node && node instanceof JTopo.Node){
+                    var width = null;
+                    var height = null;
+                    if(node.__nodeType == 'STATES'){
+                        width = node.width;
+                        height = node.height;
+                    }
+                    else{
+                        height = width = node.radius*2-3;
+                    }
+                    node.text = __breakLinesForCanvas(node.__text, width, 9999, __font);
+                    self.__stage.paint();
+                }
+            });
+
+            node.addEventListener('mouseout', function (e) {
+                var node = this;
+                if(node && node instanceof JTopo.Node){
+                    var width = null;
+                    var height = null;
+                    if(node.__nodeType == 'STATES'){
+                        width = node.width;
+                        height = node.height;
+                    }
+                    else{
+                        height = width = node.radius*2-3;
+                    }
+                    node.text = __breakLinesForCanvas(node.__text, width, height, __font);
+                    self.__stage.paint();
+                }
+            });
         },
 
         __bindSaveSolutionEvent: function (isSaveAs) {
@@ -910,11 +1052,11 @@ var CanvasJS = (()=> {
             var linkScale = scale == 1?1:(2-scale);
             if(type == 'STATES'){
                 node = new JTopo.Node(text);
-                node.setSize(__STATES_WIDTH,__STATES_HEIGHT);
                 node.borderRadius = 5;
                 node.borderWidth = 0;
                 node.borderColor = '0,0,0';
                 node.fillColor = __getRGB(SolutionColor.states);
+                node.setSize(__STATES_WIDTH,__STATES_HEIGHT);
                 node.layout = {
                     type:'tree',
                     direction:'right',
@@ -925,43 +1067,15 @@ var CanvasJS = (()=> {
             else{
                 node = new JTopo.CircleNode(text);
                 node.radius = __DATA_RADIUS;
-                // node.borderRadius = __DATA_RADIUS;
                 node.borderWidth = 0;
                 node.borderColor = '0,0,0';
                 node.fillColor = __getRGB(SolutionColor.event);
-
-                // node = new JTopo.Node(text);
-                // node.beginDegree = 0;
-                // node.percent = 1;
-                // node.setCenterLocation(x,y);
-                // node.width = node.height = __DATA_RADIUS*2;
-                // node.paint = function (g) {
-                //     g.beginPath();
-                //     g.moveTo(0,0);
-                //     g.fillStyle = 'rgba(0,0,0,1)';
-                //     g.arc(0, 0, this.width/2, this.beginDegree, this.beginDegree + 2*Math.PI*this.percent);
-                //     g.fill();
-                //     g.closePath();
-                //
-                //     g.save();
-                //     g.beginPath();
-                //     g.fillStyle = 'rgba(255,255,255,1)';
-                //     g.moveTo(0,0);
-                //     var radius =  this.width/2;
-                //     radius = radius>20?radius:20;
-                //     g.arc(0, 0, radius-1, this.beginDegree, this.beginDegree + 2*Math.PI);
-                //     g.fill();
-                //     g.closePath();
-                //     g.restore();
-                //
-                //     this.paintText(g);
-                // };
             }
             if(x && y)
                 node.setCenterLocation(x,y);
             node.alpha = 1;
             node.textPosition = 'Middle_Center';
-            node.font = '微软雅黑';
+            node.font = __font;
             node.fontColor = '0,0,0';
             node.showSelected = true;
             node.dragable = true;
@@ -969,6 +1083,32 @@ var CanvasJS = (()=> {
             node.scaleX = scale;
             node.scaleY = scale;
             node._id = __createGUID();
+
+            var width = null;
+            var height = null;
+            if(type == 'STATES'){
+                width = node.width;
+                height = node.height;
+            }
+            else{
+                height = width = node.radius*2-3;
+            }
+            node.__text = text;
+            node.text = __breakLinesForCanvas(text, width, height, __font);
+
+            node.paintText = function(a){
+                var b = this.text;
+                if (null != b && "" != b) {
+                    a.beginPath();
+                    a.font = this.font;
+                    var c = a.measureText(b).width,
+                        d = a.measureText("田").width;
+                    a.fillStyle = "rgba(" + this.fontColor + ", " + this.alpha + ")";
+                    var e = this.getTextPostion(this.textPosition, c, d);
+                    a.wrapText(b, e.x, e.y);
+                    a.closePath();
+                }
+            };
 
             this.__scene.add(node);
             return node;
@@ -1150,29 +1290,37 @@ var CanvasJS = (()=> {
                 for(let key in roleJSON){
                     role[key] = roleJSON[key];
                 }
-                // if(role.__nodeType != 'STATES'){
-                //     role.paint = function (g) {
-                //         g.beginPath();
-                //         g.moveTo(0,0);
-                //         g.fillStyle = 'rgba(0,0,0,1)';
-                //         g.arc(0, 0, this.width/2, this.beginDegree, this.beginDegree + 2*Math.PI*this.percent);
-                //         g.fill();
-                //         g.closePath();
-                //
-                //         g.save();
-                //         g.beginPath();
-                //         g.fillStyle = 'rgba(255,255,255,1)';
-                //         g.moveTo(0,0);
-                //         var radius =  this.width/2;
-                //         radius = radius>20?radius:20;
-                //         g.arc(0, 0, radius-1, this.beginDegree, this.beginDegree + 2*Math.PI);
-                //         g.fill();
-                //         g.closePath();
-                //         g.restore();
-                //
-                //         this.paintText(g);
-                //     };
-                // }
+
+                var width = null;
+                var height = null;
+                if(roleJSON.__nodeType == 'STATES'){
+                    width = role.width;
+                    height = role.height;
+                }
+                else{
+                    height = width = role.radius*2-3;
+                }
+                if(roleJSON.__text){
+                    role.__text = roleJSON.__text;
+                }
+                else{
+                    role.__text = roleJSON.text;
+                }
+                role.text = __breakLinesForCanvas(role.__text, width, height, __font);
+                role.paintText = function(a){
+                    var b = this.text;
+                    if (null != b && "" != b) {
+                        a.beginPath();
+                        a.font = this.font;
+                        var c = a.measureText(b).width,
+                            d = a.measureText("田").width;
+                        a.fillStyle = "rgba(" + this.fontColor + ", " + this.alpha + ")";
+                        var e = this.getTextPostion(this.textPosition, c, d);
+                        a.wrapText(b, e.x, e.y);
+                        a.closePath();
+                    }
+                };
+
                 this.__bindNodeEvent(role);
                 this.__nodeList.push(role);
             }
@@ -1192,25 +1340,27 @@ var CanvasJS = (()=> {
             var self = this;
             var type = node.__nodeType;
             var id = node.__MSID + '___' + node.__stateID + '___' + node.__eventName;
-            if($('#'+id).length){
-                // update download link
+            var addDownBtn = function () {
                 if(node.__gdid){
-                    var dataURL = '/aggregation/data?gdid='+node.__gdid+'&msid='+node.__MSID +'&stateID=' + node.__stateID + '&eventName=' + node.__eventName;
+                    var dataURL = '/aggregation/data?taskID='+self.__task._id+'&gdid='+node.__gdid+'&msid='+node.__MSID +'&stateID=' + node.__stateID + '&eventName=' + node.__eventName;
                     if($('#' + id + '-download-data').length){
                         $('#' + id + '-download-data').attr('onclick','window.open(\''+dataURL+'\')');
                     }
                     else{
                         $('#'+ id +'-download-div').remove();
-                        $(  '<p><b>Download data: </b></p>' +
-                            '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download</button>')
+                        $(  '<p style="margin-top: 10px"><b>Download data: </b></p>' +
+                            '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn">Download</button>')
                             .appendTo($('#' + id));
                     }
                 }
+            };
 
+            if($('#'+id).length){
                 $('#'+id).parent().show();
                 $('#'+id).parent().css('z-index',__getMaxZIndex()+1);
             }
             else{
+                // region append event information
                 var eventDetail = __getEventDetail(node.__stateID,node.__eventName,node.__MSID, self.__solution.solutionCfg.serviceList);
                 var $dataInfoDialog = null;
                 if(eventDetail == null){
@@ -1234,11 +1384,11 @@ var CanvasJS = (()=> {
                         '</div>'
                     );
                 }
+                // endregion
 
                 $dataInfoDialog.appendTo($('#aggreDIV'));
                 $dataInfoDialog.dialog({
                     width: 350,
-                    // maxHeight: 550,
                     modal: false,
                     create: function () {
                         $(this).css('maxHeight',500);
@@ -1247,17 +1397,11 @@ var CanvasJS = (()=> {
                 $('#'+id).parent().addClass('dataInfo-ui-dialog');
 
                 if(this.__mode == 'configure'){
-                    if(node.__nodeType == 'INPUT' || node.__nodeType == 'CONTROL'){
+                    if((node.__nodeType == 'INPUT' || node.__nodeType == 'CONTROL') && !__is2Node(node, self.__solution.solutionCfg.relationList)){
                         $(
                             '<p><b>Upload data: </b></p>' +
                             '<input id="' + id + '-upload-data" name="myfile" type="file" class="file">'
                         ).appendTo($dataInfoDialog);
-
-                        if(node.__gdid && node.__gdid != undefined){
-                            let dataURL = '/aggregation/data?gdid='+node.__gdid+'&msid='+node.__MSID +'&stateID=' + node.__stateID + '&eventName=' + node.__eventName;
-                            $('<button id="' + id + '-download-data " onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download data</button>')
-                                .appendTo($dataInfoDialog);
-                        }
 
                         // TODO 验证数据合法性
                         $('#'+id+'-upload-data').fileinput({
@@ -1278,19 +1422,6 @@ var CanvasJS = (()=> {
                             removeIcon: '<i class="glyphicon glyphicon-trash text-danger"></i>',
                             uploadIcon: '<i class="glyphicon glyphicon-upload text-info"></i>'
                         })
-                            .on('fileselect',function (event) {
-                                // if($('#'+id+' .fileinput-remove-button')[0].tagName == 'BUTTON'){
-                                //     var tmpDIV = $('<div>');
-                                //     tmpDIV.append($('#'+id+' .fileinput-remove-button'));
-                                //     var buttonStr = tmpDIV.html();
-                                //     var str = buttonStr.match(/<button(.+)<\/button>/i);
-                                //     if(str.length>=2){
-                                //         str = '<a '+ str[1] + '</a>';
-                                //         $(str).prependTo($('#' + id + ' .input-group-btn'));
-                                //     }
-                                //
-                                // }
-                            })
                             .on('fileuploaded',function (e, data, previewId, index) {
                                 if(data.response.res != 'suc'){
                                     $.gritter.add({
@@ -1325,22 +1456,11 @@ var CanvasJS = (()=> {
                                 }
                                 if(!hasInserted){
                                     dataList.push(inputData);
-                                    // self.__inputDataList.push(inputData);
                                 }
                                 node.__gdid = gdid;
                                 node.fillColor = __getRGB(EventColor.input);
-                                // node.shadow = true;
-                                // node.shadowColor = 'rgba(0,0,0,1)';
 
-                                // 添加数据下载链接
-                                // 不能通过原来的链接下载，有可能会跨域请求别的节点上的数据
-                                let dataURL = '/aggregation/data?gdid='+node.__gdid+'&msid='+node.__MSID +'&stateID=' + node.__stateID + '&eventName=' + node.__eventName;
-                                $('#'+ id +'-download-div').remove();
-                                $(  '<div id="'+id +'-download-div">' +
-                                    '<p><b>Download data: </b></p>' +
-                                    '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn" style="margin-top: 20px;">Download</button>' +
-                                    '</div>')
-                                    .appendTo($dataInfoDialog);
+                                addDownBtn();
 
                                 $.gritter.add({
                                     title: 'Notice:',
@@ -1360,11 +1480,13 @@ var CanvasJS = (()=> {
                             });
                     }
                 }
-
+                // close event
                 $('.ui-dialog-titlebar-close').click(function (e) {
                     $(this).parent().parent().hide();
                 });
             }
+            // download button
+            addDownBtn();
 
             this.updateServiceState();
         },
@@ -1505,6 +1627,16 @@ var CanvasJS = (()=> {
             }
         },
 
+        removeRelationByMSID: function (MSID) {
+            var relationList = this.__solution.solutionCfg.relationList;
+            for(var j=0;j<relationList.length;j++){
+                var relation = relationList[j];
+                if(relation.from.MSID == MSID || relation.to.MSID == MSID){
+                    relationList.splice(j,1);
+                }
+            }
+        },
+
         // 不支持container元素
         __getJTopoElementByID: function (scene, _id) {
             var roleList = scene.childs;
@@ -1575,8 +1707,8 @@ var CanvasJS = (()=> {
                     controlCount++;
                 }
             }
-            var dx = __DATA_RADIUS*4*linkScale*this.__scene.scaleX;
-            var dy = __DATA_RADIUS*2*linkScale*this.__scene.scaleY;
+            var dx = __DATA_RADIUS*4.5*linkScale*this.__scene.scaleX;
+            var dy = __DATA_RADIUS*2.5*linkScale*this.__scene.scaleY;
             var k = 0;
             for(var i=0;i<eventCount;i++){
                 var nodeA = null;
@@ -1634,6 +1766,7 @@ var CanvasJS = (()=> {
                     break;
                 }
             }
+            this.removeRelationByMSID(serviceNode.__MSID);
             self.__stage.paint();
         },
         // endregion
@@ -1642,6 +1775,7 @@ var CanvasJS = (()=> {
         // TODO 优化，添加 role 时直接放在 __solution 中
         __getLayoutCfg: function () {
             var self = this;
+            this.__scene.mode = 'normal';
             var layout = {
                 linkList: [],
                 containerList: [],
@@ -1677,6 +1811,7 @@ var CanvasJS = (()=> {
             }
         },
 
+        // 根据state更新颜色，并将数据链接添加到dialog中
         __importDataList: function () {
             var dataList = this.__task.taskCfg.dataList;
             var roleList = this.__scene.childs;
@@ -1988,7 +2123,7 @@ var CanvasJS = (()=> {
                     node.fillColor = __getRGB(EventColor[node.__state.toLowerCase()]);
                 }
                 if(node.__state == DataState.ready){
-                    node;
+                    // node;
                 }
             }
             this.__stage.paint();
@@ -2266,7 +2401,7 @@ var CanvasJS = (()=> {
                         time: 2000
                     });
                 }
-            })
+            });
         }
         // endregion
     };
