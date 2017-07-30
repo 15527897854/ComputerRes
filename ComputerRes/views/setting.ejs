@@ -3,6 +3,13 @@
 <head>
     <title>模型服务器设置</title>
     <%- include headInclude.ejs %>
+    <link rel="stylesheet" href="/css/drawChart.css">
+    <script type="text/javascript" src="/js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="/js/chart-js/highcharts.js"></script>
+    <script type="text/javascript" src="/js/chart-js/highcharts-more.js"></script>
+    <script type="text/javascript" src="/js/chart-js/solid-gauge.js"></script>
+    <script type="text/javascript" src="/js/chart-js/exporting.js"></script>
+    <script type="text/javascript" src="/js/geomodel/drawChart.js" ></script>
 </head>
 <body class="sticky-header">
 <section>
@@ -14,7 +21,22 @@
 
         <section class="panel" >
             <header class="panel-heading">
-                Information
+                Information - Status
+            </header>
+            <div class="panel-body" >
+                <div id="chartContainer" style="min-height: 600px；position: relative;">
+                    <br>
+                    <p id="data" style="margin-left: 40px;font-family: 'Microsoft YaHei';font-size: 16px;white-space: pre-wrap"></p> <br>
+                    <div id="chart_line1" style="margin-top: 40px;width: 700px; height: 400px; float: left"></div>
+                    <div id="chart_line2" style="width: 400px; height: 400px; margin-top: 40px; position: absolute;left: 700px;"></div>
+                    <!--<div id="chart_line3" style="min-width: 700px; height: 250px; max-width: 800px; margin: 0 auto; float: left"></div>-->
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" >
+            <header class="panel-heading">
+                Information - Setting
             </header>
             <div id="settingPage" class="panel-body" >
             </div>

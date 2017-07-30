@@ -19,8 +19,8 @@ var ModelSerOpera = React.createClass({
     onStarted : function(e){
         Axios.put(this.props['data-starting']).then(
             data => {
-                if(data.data.res == 'Success'){
-                    NoteDialog.openNoteDia('服务已开启');
+                if(data.data.result == 'suc'){
+                    NoteDialog.openNoteDia('Service has been started!');
                     if(this.props['onStarted']){
                         this.props['onStarted']();
                     }
@@ -33,8 +33,8 @@ var ModelSerOpera = React.createClass({
     onStopped : function(e){
         Axios.put(this.props['data-stopping']).then(
             data => {
-                if(data.data.res == 'Success'){
-                    NoteDialog.openNoteDia('服务已关闭');
+                if(data.data.result == 'suc'){
+                    NoteDialog.openNoteDia('Service has been stopped!');
                     if(this.props['onStopped']){
                         this.props['onStopped']();
                     }

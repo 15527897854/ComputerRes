@@ -108,10 +108,10 @@ var ModelItemSelect = React.createClass({
                     var doms = [];
                     for(var i = 1; i < pages + 1; i++){
                         if(i == this.state.page){
-                            doms.push(<li  className="active"><a href="#" >{i}</a></li>);
+                            doms.push(<li key={i} className="active"><a href="#" >{i}</a></li>);
                         }
                         else{
-                            doms.push(<li><a href="#" data-page={i} onClick={ (e) => { this.changePage(e) } } >{i}</a></li>);
+                            doms.push(<li key={i} ><a href="#" data-page={i} onClick={ (e) => { this.changePage(e) } } >{i}</a></li>);
                         }
                     }
                     return doms;

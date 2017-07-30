@@ -288,6 +288,18 @@ ModelSerControl.getLocalModelSer = function(callback){
     ModelSerModel.getAll('AVAI', this.returnFunction(callback, 'error in getting all model services'));
 };
 
+//搜寻本地可用模型信息
+ModelSerControl.getLocalModelSerByPage = function(start, count, callback){
+    try{
+        start = parseInt(start);
+        count = parseInt(count);
+    }
+    catch(ex){
+        return callback(ex);
+    }
+    ModelSerModel.getAllByPage(start, count, this.returnFunction(callback, 'error in getting all model services'));
+};
+
 //搜寻本地可用模型信息(包括管理员私有)
 ModelSerControl.getLocalModelSerByAdmin = function(callback){
     ModelSerModel.getAll('ADMIN', this.returnFunction(callback, 'error in getting all model services'));
@@ -529,6 +541,7 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                                         m_register : fields.m_register
                                     }, fields.m_model_append),
                                     ms_limited:fields.ms_limited,
+                                    ms_permission:fields.ms_permission,
                                     mv_num:fields.mv_num,
                                     ms_des:fields.ms_des,
                                     ms_update:date.toLocaleString(),
@@ -605,6 +618,11 @@ ModelSerControl.getByPID = function(mid, callback){
     ModelSerModel.getByPID(mid, this.returnFunction(callback, 'error in getting model service by PID'));
 };
 
+//根据PID查询模型服务
+ModelSerControl.getByPIDforPortal = function(mid, callback){
+    ModelSerModel.getByPIDforPortal(mid, this.returnFunction(callback, 'error in getting model service by PID for portal'));
+};
+
 //更新模型服务信息
 ModelSerControl.update = function(ms, callback){
     ModelSerModel.update(ms, function (err, data) {
@@ -634,6 +652,13 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
         app.modelInsColl.addIns(modelIns);
 
         ModelSerModel.getByOID(msid, function(err, ms){
+            if(err){
+                return callback(err);
+            }
+            if(ms.ms_status != 1)
+            {
+                return callback(new Error('Service is not available'));
+            }
             //添加纪录
             var msr = {
                 ms_id : ms._id,
@@ -650,13 +675,6 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
             ModelSerRunCtrl.save(msr ,function (err, msr) {
                 if(err) {
                     return res.end('Error : ' + err);
-                }
-                if(ms.ms_status != 1)
-                {
-                    return callback({
-                        Error : -1,
-                        Message : 'Service is not available'
-                    });
                 }
                 ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
                     ModelSerRunModel.getByGUID(guid, function (err2, item) {
@@ -696,15 +714,6 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                                     return console.log(JSON.stringify(err2));
                                 }
                             });
-                        }
-
-                        //销毁必要数据
-                        for(var i = 0; i < item.msr_input.length; i++){
-                            if(item.msr_input[i].Destroyed){
-                                GeoDataCtrl.delete(item.msr_input[i].DataId, function(err, result){
-
-                                });
-                            }
                         }
                     });
                     
@@ -753,10 +762,12 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                         var dataid = 'gd_' + uuid.v1();
                         var item = {
                             StateId : data[k].$.id,
-                            Tag : 'OUTPUT',
+                            StateName : data[k].$.Name,
+                            StateDes : data[k].$.description,
                             Event : data[k].Event[i].$.name,
-                            DataId : dataid,
-                            Ready : false
+                            Destroyed : false,
+                            Tag : data[k].$.Name + '-' + data[k].Event[i].$.name,
+                            DataId : dataid
                         };
                         outputData.push(item);
                     }
@@ -1219,7 +1230,7 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                     var arr = [state];
                     return callback(null, {
                         States : arr,
-                        Limited : ms.ms_limited
+                        Permission : ms.ms_permission
                     });
                 }
             }

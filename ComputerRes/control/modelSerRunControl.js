@@ -134,11 +134,11 @@ ModelSerRunCtrl.getStatisticInfoRecent = function(msid, days, callback){
         ModelSerRun.getStatisticInfoByDate(msid, date[i], date[i + 1], pending(i));
         if(date.length > 40){
             if(i%5 == 0){
-                statisticInfo.ticks.push([i, (date[i].getMonth() + 1) + '/' + date[i].getDate()]);
+                statisticInfo.ticks.push([i, CommonMethod.getMonthWord(date[i].getMonth()) + ' ' + date[i].getDate()]);
             }
         }
         else{
-            statisticInfo.ticks.push([i, (date[i].getMonth() + 1) + '/' + date[i].getDate()]);
+            statisticInfo.ticks.push([i, CommonMethod.getMonthWord(date[i].getMonth()) + ' ' + date[i].getDate()]);
         }
         statisticInfo.data.push([i, 0]);
     }
@@ -159,8 +159,8 @@ ModelSerRunCtrl.getTimesStatisticInfo = function(callback){
             count ++;
             return function(err, ms){
                 count --;
-                if(err){
-                    data[index].label = '[Unknown]';
+                if(err || ms == null){
+                    data[index].label = 'Others';
                 }
                 else{
                     data[index].label = ms.ms_model.m_name;
@@ -171,9 +171,26 @@ ModelSerRunCtrl.getTimesStatisticInfo = function(callback){
                 }
             }
         });
-        for(var i = 0; i < data.length; i++){
-            ModelSer.getByOID(data[i]._id.ms_id, pending(i));
-            allcount = allcount + data[i].count;
+        data.sort(function(a, b){
+            return b.count - a.count;
+        });
+        if(data.length > 4){
+            var otherCount = 0;
+            for(var i = 4; i < data.length; i++){
+                otherCount =  data[4].count + data[i].count;
+            }
+            data[4].length = otherCount;
+            data[4]._id.ms_id = null;
+            for(var i = 0; i < 5; i++){
+                ModelSer.getByOID(data[i]._id.ms_id, pending(i));
+                allcount = allcount + data[i].count;
+            }
+        }
+        else{
+            for(var i = 0; i < data.length; i++){
+                ModelSer.getByOID(data[i]._id.ms_id, pending(i));
+                allcount = allcount + data[i].count;
+            }
         }
     });
 }

@@ -82,12 +82,18 @@ var ModelSerInfo = React.createClass({
         }
         var url = window.location.href;
         url = url.substr(0, url.lastIndexOf(':') + 5);
-        var limited = null;
-        if(this.state.ms.ms_limited == 1){
-            limited = (<span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}</span>);
+        var permission = null;
+        if(this.state.ms.ms_permission == 1){
+            permission = (
+                    <span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Auth} >
+                        <i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}
+                    </span>);
         }
         else{
-            limited = (<span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
+            permission = (
+                    <span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title="Open" >
+                        <i className="fa fa-unlock" ></i>&nbsp;Open
+                    </span>);
         }
         return (
             <div className="panel panel-primary">
@@ -108,7 +114,7 @@ var ModelSerInfo = React.createClass({
                             <p className="muted" >{window.LanguageConfig.ModelService.Platform}&nbsp;:&nbsp;{platform}</p>
                             <p className="muted" >{window.LanguageConfig.ModelServiceDetail.DeploymentTime}&nbsp;:&nbsp;{this.state.ms.ms_update}</p>
                             <p className="muted" >{window.LanguageConfig.ModelService.Status}&nbsp;:&nbsp;{status}</p>
-                            <p className="muted" >{window.LanguageConfig.ModelServiceDetail.Limited}&nbsp;:&nbsp;{limited}</p>
+                            <p className="muted" >Permission&nbsp;:&nbsp;{permission}</p>
                             <p  className="muted" >{window.LanguageConfig.ModelServiceDetail.Description}&nbsp;:&nbsp;{this.state.ms.ms_des}</p>
                             <br />{detail}
                             <br />

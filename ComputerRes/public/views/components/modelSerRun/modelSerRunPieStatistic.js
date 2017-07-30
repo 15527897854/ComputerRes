@@ -28,8 +28,7 @@ var ModelSerRunPieStatisitc = React.createClass({
                         series: {
                             pie: {
                                 show: true,
-                                innerRadius: 0.5,
-                                show: true
+                                innerRadius: 0.3
                             }
                         },
                         legend: {
@@ -39,10 +38,14 @@ var ModelSerRunPieStatisitc = React.createClass({
                             hoverable: true,
                             clickable: true
                         },
-                        colors: ["#869cb3", "#6dc5a3", "#778a9f","#FF6C60"],
+                        colors: ["#869cb3", "#6dc5a3", "#778a9f", "#ff6c60", '#6699ff', '#6633cc'],
                         tooltip: true,
+                        label : {
+                            show : true
+                        },
                         tooltipOpts: {
-                            defaultTheme: false
+                            content : '%p.0%, %s',
+                            defaultTheme: false,
                         }
                     };
                     $.plot($("#records_pie_statistic"), data, options);
@@ -57,8 +60,9 @@ var ModelSerRunPieStatisitc = React.createClass({
 
     render : function () {
         return (
-            <div>
-                <div id="records_pie_statistic" style={{ "width" : "100%", "height" : "300px", "text-align" : "center", "margin":"0 auto"}}></div>
+            <div >
+                <div id="records_pie_statistic" style={{ "width" : "80%", "height" : "300px", "textAlign" : "center", "margin":"0 auto"}}>
+                </div>
             </div>
         );
     }

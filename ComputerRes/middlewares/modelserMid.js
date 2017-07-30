@@ -34,6 +34,7 @@ ModelSerMid.NewModelSer = function (req, callback) {
         }
         fields.u_name = '[Unknown]';
         fields.u_email = '[Unknown]';
+        fields.ms_permission = 0;
         if(req.session.admin){
             fields.u_name = req.session.admin;
             fields.u_email = '[Unknown]';
@@ -75,6 +76,7 @@ ModelSerMid.NewRmtModelSer = function (req, callback) {
         
         fields.u_name = CommonMethod.getIP(req);
         fields.u_email = '[Unknown]';
+        fields.ms_permission = 0;
         ModelSerControl.addNewModelSer(fields, files, this.returnFunction(callback, "err in new a service"));
 
     }.bind(this));
@@ -113,6 +115,7 @@ ModelSerMid.getCloudPackage = function(fields, pid, callback){
                 mv_num : 1,
                 ms_des : fields.model_description,
                 ms_xml : null,
+                ms_permission : 0,
                 u_name : fields.model_author,
                 m_model_append : {
                     m_id : fields.model_id,

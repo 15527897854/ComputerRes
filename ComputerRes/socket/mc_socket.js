@@ -102,6 +102,16 @@ function SocketTrans(app)
                         //移除该实例
                         app.modelInsColl.removeBySocekt(socket);
                     }
+                    
+
+                    //销毁必要数据
+                    for(var i = 0; i < msr.msr_input.length; i++){
+                        if(msr.msr_input[i].Destroyed){
+                            GeoDataCtrl.delete(msr.msr_input[i].DataId, function(err, result){
+
+                            });
+                        }
+                    }
 
                     //通知消息数据
                     var noticeData = {

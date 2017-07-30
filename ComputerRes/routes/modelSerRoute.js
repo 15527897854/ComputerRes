@@ -28,17 +28,6 @@ var NoticeCtrl = require('../control/noticeCtrl');
 module.exports = function(app)
 {
     app.route('/modelser')
-        //查询模型服务
-        .get(function(req, res, next){
-            if(req.query.ac = 'search'){
-                if(req.query.mid){
-                    ModelSerCtrl.getByMID(req.query.mid, RouteBase.returnFunction(res, 'error in searching model services!'));
-                }
-                else if(req.query.pid){
-                    ModelSerCtrl.getByPID(req.query.pid, RouteBase.returnFunction(res, 'error in searching model services!'));
-                }
-            }
-        })
         //新增模型服务
         .post(function(req, res, next) {
             ModelSerMid.NewModelSer(req, function(err, rst){
@@ -455,6 +444,76 @@ module.exports = function(app)
                             }
                             return res.end(JSON.stringify({
                                 "res":"Success"
+                            }));
+                        })
+                    }
+                });
+            }
+            //锁定服务
+            else if(req.query.ac == "lock")
+            {
+                ModelSerCtrl.getByOID(msid,function (err, ms) {
+                    if(err)
+                    {
+                        return res.end(JSON.stringify({
+                            result : "err",
+                            message : JSON.stringify(err)
+                        }));
+                    }
+                    if(ms.ms_limited == 1)
+                    {
+                        return res.end(JSON.stringify({
+                            result : "locked"
+                        }));
+                    }
+                    else
+                    {
+                        ms.ms_limited = 1;
+                        ModelSerCtrl.update(ms, function (err, data) {
+                            if(err) {
+                                return res.end(JSON.stringify({
+                                    result : "err",
+                                    message : err
+                                }));
+                            }
+                            return res.end(JSON.stringify({
+                                result : "suc",
+                                data : data
+                            }));
+                        })
+                    }
+                });
+            }
+            //解锁服务
+            else if(req.query.ac == "unlock")
+            {
+                ModelSerCtrl.getByOID(msid,function (err, ms) {
+                    if(err)
+                    {
+                        return res.end(JSON.stringify({
+                            result : "err",
+                            message : JSON.stringify(err)
+                        }));
+                    }
+                    if(ms.ms_limited == 0)
+                    {
+                        return res.end(JSON.stringify({
+                            result : "unlocked"
+                        }));
+                    }
+                    else
+                    {
+                        ms.ms_limited = 0;
+                        ModelSerCtrl.update(ms, function (err, data) {
+                            if(err) {
+                                return res.end(JSON.stringify({
+                                    result : "err",
+                                    message : err
+                                }));
+                            }
+                            return res.end(JSON.stringify({
+                                result : "suc",
+                                data : data
                             }));
                         })
                     }

@@ -29,6 +29,7 @@ var ModelSerTransform = require('../components/modelSer/modelserTranform');
 var ModelInsTable = require('../components/modelSer/modelInsTable');
 var ModelSerRunStatistic = require('../components/modelSerRun/modelSerRunStatistic');
 var ModelSerRunPieStatisitc = require('../components/modelSerRun/modelSerRunPieStatistic');
+var NoticeTable = require('../components/systemSetting/noticeTable');
 
 if(document.getElementById('rmtModelSerTable') != null) {
     ReactDOM.render(
@@ -262,4 +263,9 @@ if(document.getElementById('ModelSerRunPieStatisitc') != null){
     ReactDOM.render(<ModelSerRunPieStatisitc
         data-source={document.getElementById('ModelSerRunPieStatisitc').getAttribute('data-source') }
         />,document.getElementById('ModelSerRunPieStatisitc'));
+}
+
+if(document.getElementById('NoticeTable') != null){
+    ReactDOM.render(<NoticeTable
+        />,document.getElementById('NoticeTable'));
 }

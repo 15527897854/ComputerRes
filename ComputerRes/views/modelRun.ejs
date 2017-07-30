@@ -32,10 +32,10 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>StateID</th>
+                                <th>StateName</th>
                                 <th>EventName</th>
                                 <th>Data</th>
-                                <th>Destroyed if used</th>
+                                <th>Destroy after used</th>
                                 <th>Operation</th>
                             </tr>
                         </thead>
@@ -43,7 +43,7 @@
                             <% for(var i = 0; i < msr.msr_input.length; i++) { %>
                             <tr>
                                 <td><%=i %></td>
-                                <td><%=msr.msr_input[i].StateId %></td>
+                                <td title="<%=msr.msr_input[i].StateId %>"><%=msr.msr_input[i].StateName %></td>
                                 <td><%=msr.msr_input[i].Event %></td>
                                 <td title="<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].Tag %></td>
                                 <td><%=msr.msr_input[i].Destroyed %></td>
@@ -64,10 +64,10 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>StateID</th>
+                                <th>StateName</th>
                                 <th>EventName</th>
                                 <th>Data</th>
-                                <th>Destroyed if used</th>
+                                <th>Destroy after used</th>
                                 <th>Operation</th>
                             </tr>
                         </thead>
@@ -467,7 +467,7 @@
                                             {
                                                 output += '<tr>';
                                                 output += '<td>' + i + '</td>';
-                                                output += '<td>' + jsItem.data.msr_output[i].StateId + '</td>';
+                                                output += '<td title="' + jsItem.data.msr_output[i].StateId + '">' + jsItem.data.msr_output[i].StateName + '</td>';
                                                 output += '<td>' + jsItem.data.msr_output[i].Event + '</td>';
                                                 output += '<td title="' + jsItem.data.msr_output[i].DataId  + '">' +  jsItem.data.msr_output[i].Tag + '</td>';
                                                 output += '<td>' + jsItem.data.msr_output[i].Destroyed + '</td>';

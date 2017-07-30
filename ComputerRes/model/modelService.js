@@ -29,6 +29,7 @@ function ModelService(modelser)
         this.ms_status = modelser.ms_status;
         this.ms_user = modelser.ms_user;
         this.ms_limited = modelser.ms_limited;
+        this.ms_permission = modelser.ms_permission;
     }
     else
     {
@@ -42,6 +43,7 @@ function ModelService(modelser)
         this.ms_status = 0;
         this.ms_user = '';
         this.ms_limited = 0;
+        this.ms_permission = 0;
     }
     return this;
 }
@@ -59,6 +61,7 @@ var msSchema = new mongoose.Schema({
     ms_xml : String,
     ms_status : Number,
     ms_limited : Number,
+    ms_permission : Number,
     ms_user : mongoose.Schema.Types.Mixed,
     ms_img : String
 },{collection:'modelservice'});
@@ -78,10 +81,20 @@ ModelService.getAll = function(flag, callback){
             where = { ms_status : { $ne : -1 }}
         }
         else{
-            where = { ms_status : { $ne : -1 }, ms_limited : { $ne : -1 }}
+            where = { ms_status : { $ne : -1 }, ms_limited : { $ne : 1 }}
         }
         MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
     }
+};
+
+//分页查询
+ModelService.getAllByPage = function(start, count, callback){
+    var where = {ms_status : { $ne : -1 }, ms_limited : { $ne : 1 }};
+    var query = MS.find({});
+    query.where(where);
+    query.skip(start);
+    query.limit(count);
+    query.exec(this.returnFunction(callback, 'Error in getting model services by paging'));
 };
 
 //通过MID查询
@@ -94,10 +107,19 @@ ModelService.getByMID = function (mid, callback) {
 };
 
 //通过PID查询
-ModelService.getByPID = function (mid, callback) {
-    if(ParamCheck.checkParam(callback, mid))
+ModelService.getByPID = function (pid, callback) {
+    if(ParamCheck.checkParam(callback, pid))
     {
-        var where = { "ms_model.p_id" : mid, "ms_status" : {$ne:-1}};
+        var where = { "ms_model.p_id" : pid, "ms_status" : {$ne:-1}, ms_limited : {$ne:-1}};
+        this.getByWhere(where, callback);
+    }
+};
+
+//通过PID查询(用于门户查询可用服务资源)
+ModelService.getByPIDforPortal = function (pid, callback) {
+    if(ParamCheck.checkParam(callback, pid))
+    {
+        var where = { "ms_model.p_id" : pid, "ms_model.m_register" : true, "ms_status" : {$ne:-1}, ms_limited : {$ne:-1}};
         this.getByWhere(where, callback);
     }
 };

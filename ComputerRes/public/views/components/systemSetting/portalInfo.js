@@ -67,7 +67,7 @@ var PortalInfo = React.createClass({
 
     render : function(){
         if(this.state.loading){
-            return (<span>加载中...</span>);
+            return (<span>loading...</span>);
         }
         if(this.state.err){
             return (<span>Error: {JSON.stringify(this.state.err)}</span>);
@@ -94,27 +94,27 @@ var PortalInfo = React.createClass({
         }
         return (
             <div>
-                <p>门户用户名: {this.state.data} &nbsp;&nbsp;&nbsp;<button className="btn btn-sm btn-info"  data-toggle="modal"
-                        data-target="#portalInfoDia" >更改信息</button></p>
+                <p>Portal Account User Name: {this.state.data} &nbsp;&nbsp;&nbsp;<button className="btn btn-sm btn-info"  data-toggle="modal"
+                        data-target="#portalInfoDia" >Set</button></p>
                 <div aria-hidden="true" aria-labelledby="portalInfoDia" role="dialog" tabIndex="-1" id="portalInfoDia" className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">更改信息</h4>
+                                <h4 className="modal-title">Set Portal Account</h4>
                             </div>
                             <div className="modal-body">
-                                <label htmlFor="txtPortalName" className="control-label" style={{ "text-align" : "left"}}>请输入门户网站用户名: </label>
+                                <label htmlFor="txtPortalName" className="control-label" style={{ "text-align" : "left"}}>Portal User Name : </label>
                                 <input id="txtPortalName" name="txtPortalName" type="text" placeholder="门户网站用户名" className="form-control"/>
-                                <label htmlFor="txtPortalPwdNew" className="control-label" style={{ "text-align" : "left"}}>请输入密码: </label>
+                                <label htmlFor="txtPortalPwdNew" className="control-label" style={{ "text-align" : "left"}}>Portal Password : </label>
                                 <input id="txtPortalPwdNew" name="txtPortalPwdNew" type="password" className="form-control"/>
                                 <br />
                                 {processBar}
                                 {warning}
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-success" onClick={this.onSubmit} disabled={btnDisabled} >确认</button>
-                                <button type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
+                                <button type="button" className="btn btn-success" onClick={this.onSubmit} disabled={btnDisabled} >Confirm</button>
+                                <button type="button" className="btn btn-default" data-dismiss="modal" >Close</button>
                             </div>
                         </div>
                     </div>

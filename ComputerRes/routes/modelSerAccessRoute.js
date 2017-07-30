@@ -157,7 +157,7 @@ module.exports = function(app){
                     ModelSerCtrl.getByMID(req.query.mid, RouteBase.returnFunction(res, 'error in searching model services!'));
                 }
                 else if(req.query.pid){
-                    ModelSerCtrl.getByPID(req.query.pid, RouteBase.returnFunction(res, 'error in searching model services!'));
+                    ModelSerCtrl.getByPIDforPortal(req.query.pid, RouteBase.returnFunction(res, 'error in searching model services!'));
                 }
             }
         });
@@ -170,7 +170,20 @@ module.exports = function(app){
                     next();
                 }
                 else{
-                    return ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'error in getting all model servicess!'));
+                    if(req.query.start || req.query.count){
+                        var start = 0;
+                        var count = 0;
+                        if(req.query.start){
+                            start = req.query.start;
+                        }
+                        if(req.query.count){
+                            count = req.query.count;
+                        }
+                        return ModelSerCtrl.getLocalModelSerByPage(start, count, RouteBase.returnFunction(res, 'error in getting all model servicess!'));
+                    }
+                    else{
+                        return ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'error in getting all model servicess!'));
+                    }
                 }
             }
             else{
@@ -256,6 +269,12 @@ module.exports = function(app){
                     }
                     else{
                         ModelSerCtrl.run(msid, inputData, outputData, user, function(err, msr){
+                            if(err){
+                                return res.end(JSON.stringify({
+                                    res : 'err',
+                                    message : err.message
+                                }));
+                            }
                             return res.end(JSON.stringify({
                                 res : 'suc',
                                 msr_id : msr._id

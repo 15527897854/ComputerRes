@@ -78,11 +78,11 @@
     $(document).ready(function () {
         window.Polling = function() {
             $.ajax({
-                url:'/notices?noticeFilter=未读',
+                url:'/notices/all?read=false',
                 type:'GET',
                 success:function (msg){
                     var data = JSON.parse(msg);
-                    if(data.status == 1 && data.data.length){
+                    if(data.result == 'suc' && data.data.length){
                         $('#newsNum').html(data.data.length);
                         renderNews(data.data);
                     }
@@ -109,11 +109,11 @@
                     });
                     $('#nav-news-ul').append(tmp);
                 }
-                $('#nav-news-ul').append('<li class="new"><a href="/note">查看所有消息</a></li>');
+                $('#nav-news-ul').append('<li class="new"><a href="/note" >show all notices</a></li>');
             }
             else {
                 $('#nav-news-ul').html('');
-                $('#nav-news-ul').append('<li class="new"><a href="/note">没有通知消息</a></li>');
+                $('#nav-news-ul').append('<li class="new"><a href="/note" >no new notice</a></li>');
             }
         }
 

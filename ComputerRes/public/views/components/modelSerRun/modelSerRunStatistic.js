@@ -40,9 +40,9 @@ var ModelSerRunStatisitc = React.createClass({
                                 show: true,
                                 lineWidth: 2,
                                 fill: true,
-                                fillColor: "#ffffff",
+                                fillColor: "#65CEA7",
                                 symbol: "circle",
-                                radius: 5
+                                radius: 3
                             },
                             shadowSize: 0
                         },
@@ -56,14 +56,16 @@ var ModelSerRunStatisitc = React.createClass({
                         colors: ["#65CEA7", "#424F63"],
                         tooltip: true,
                         tooltipOpts: {
+                            content : 'Number of invoking : %y',
                             defaultTheme: false
                         },
                         xaxis: {
                             ticks: data.data.data.ticks
                         },
-                        yaxes: {
+                        yaxes: [{
                             position: "left",
-                        }
+                            tickDecimals: 0
+                        }]
                     });
                 }
                 else{
@@ -84,10 +86,10 @@ var ModelSerRunStatisitc = React.createClass({
         return (
             <div>
                 <div className="form-group">
-                    <label className="col-md-1 col-sm-1 control-label" style={{"paddingTop" : "8px"}}>Length:</label>
+                    <label className="col-md-1 col-sm-1 control-label" style={{"paddingTop" : "8px"}}>Duration:</label>
                     <div className="col-md-2 col-sm-2">
                         <select id="day_lengh" name="day_lengh" className="form-control" onChange={this.refresh} >
-                            <option value="7">a week</option>
+                            <option value="7">7 days</option>
                             <option value="30">30 days</option>
                             <option value="100">100 days</option>
                         </select>
@@ -96,7 +98,7 @@ var ModelSerRunStatisitc = React.createClass({
                 <br />
                 <br />
                 <br />
-                <div id="records_statistic" style={{ "width" : "100%", "height" : "300px", "text-align" : "center", "margin":"0 auto"}}></div>
+                <div id="records_statistic" style={{ "width" : "100%", "height" : "300px", "textAlign" : "center", "margin":"0 auto"}}></div>
             </div>
         );
     }

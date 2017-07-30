@@ -50,9 +50,48 @@ var Note = mongoose.model('notice',noteSchema);
 Notice.baseModel = Note;
 Notice.modelName = 'notice';
 
-Notice.getByWhere = function (where, callback) {
-    if(ParamCheck.checkParam(callback, where))
-    {
-        this.baseModel.find(where).sort({'time':1}).exec(this.returnFunction(callback, 'Error in getting notices by where'));
+Notice.getAll = function(callback){
+    this.baseModel.find({}).sort({'time':-1}).exec(this.returnFunction(callback, 'Error in getting all notices by where'));
+}
+
+Notice.getAllByTypeAndRead = function(type, read, callback){
+    var where = {};
+    if(type){
+        if(type == 'start'){
+            where['type'] = 'start-run';
+        }
+        else if(type == 'start'){
+            where['type'] = 'stop-run';
+        }
+        else if(type == 'delete'){
+            where['type'] = 'del-ms';
+        }
     }
-};
+    if(read){
+        if(read == 'true'){
+            where['hasRead'] = true;
+        }
+        if(read == 'false'){
+            where['hasRead'] = false;
+        }
+    }
+    this.baseModel.find(where).sort({'time':-1}).exec(this.returnFunction(callback, 'Error in getting all notices by where'));
+}
+
+Notice.markAllAsRead = function(callback){
+    var update = {
+        $set:{hasRead : true}
+    };
+    Note.update({hasRead : false}, update, {multi : true}, this.returnFunction(callback, 'Error in updating notice as read by oid'));
+}
+
+Notice.markAsRead = function(oid, callback){
+    if(ParamCheck.checkParam(callback, oid)){
+        var oid = new ObjectId(oid);
+        var where = {'_id' : oid};
+        var update = {
+            hasRead : true
+        };
+        Note.update(where, update, this.returnFunction(callback, 'Error in updating notice as read by oid'));
+    }
+}

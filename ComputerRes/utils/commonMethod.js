@@ -14,8 +14,7 @@ var settings = require('../setting');
 function CommonMethod(){}
 
 //得到当前时间
-CommonMethod.getDateTimeNow = function()
-{
+CommonMethod.getDateTimeNow = function(){
     var date = new Date();
     var seperator1 = "-";
     var seperator2 = ":";
@@ -39,7 +38,13 @@ CommonMethod.getStartDate = function(offset){
     date = new Date( date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' 00:00:00');
     date.setDate(date.getDate() + offset);
     return date;
-}
+};
+
+var Month_en = ["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"];
+//得到月份的单词
+CommonMethod.getMonthWord = function(index){
+    return Month_en[index];
+};
 
 //解压
 CommonMethod.Uncompress = function(zip_file, file_path, callback){

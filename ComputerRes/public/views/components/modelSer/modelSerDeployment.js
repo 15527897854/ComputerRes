@@ -183,11 +183,11 @@ var ModelSerDeployment = React.createClass({
                         </div> */}
                         <fieldset>
                             <div className="form-group">
-                                <label className="col-md-2 col-sm-2 control-label">Limited</label>
+                                <label className="col-md-2 col-sm-2 control-label">Public</label>
                                 <div className="col-md-2 col-sm-2">
                                     <select id="ms_limited" name="ms_limited" className="form-control" >
                                         <option value="0">Public</option>
-                                        <option value="-1">Private</option>
+                                        <option value="1">Private</option>
                                     </select>
                                 </div>
                             </div>

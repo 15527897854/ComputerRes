@@ -110,13 +110,22 @@ var DataSelectTable = React.createClass({
             );
         }
         var dataItems = this.state.data.map(function(item){
-
+            var size = (parseInt(item.gd_size) / 1024).toFixed(2);
+            var unit = 'KB';
+            if(size > 1024){
+                size = (size / 1024).toFixed(2);
+                unit = 'MB';
+            }
+            if(size > 1024){
+                size = (size / 1024).toFixed(2);
+                unit = 'GB';
+            }
             return(
                 <tr key={item.gd_id}>
                     <td><input className="radio " name="rd_GDID" type="radio" value={item.gd_id + '\t\t\t' + item.gd_tag} /></td>
-                    <td>{item.gd_id}</td>
-                    <td>{item.gd_datetime}</td>
                     <td>{item.gd_tag}</td>
+                    <td>{item.gd_datetime}</td>
+                    <td>{size + ' ' + unit}</td>
                 </tr>
             );
         }.bind(this));
@@ -125,10 +134,10 @@ var DataSelectTable = React.createClass({
                 <table className="display table table-bordered table-striped" id={'dataSelect-table' + this.state.id}>
                     <thead>
                     <tr>
-                        <th> </th>
-                        <th>{window.LanguageConfig.DataTable.ID}</th>
-                        <th>{window.LanguageConfig.DataTable.DateTime}</th>
+                        <th>#</th>
                         <th>{window.LanguageConfig.DataTable.Tag}</th>
+                        <th>{window.LanguageConfig.DataTable.DateTime}</th>
+                        <th>Size</th>
                     </tr>
                     </thead>
                     <tbody>

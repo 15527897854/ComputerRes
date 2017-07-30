@@ -22,7 +22,7 @@ var DataPreparation = React.createClass({
             allInputData : [],
             allOutputData : [],
             loading : true,
-            limited : 0,
+            permission : 0,
             authToken : ''
         };
     },
@@ -32,12 +32,14 @@ var DataPreparation = React.createClass({
             data => {
                 if(data.data.result == 'suc')
                 {
-                    this.setState({states : data.data.data.States, loading : false, limited : data.data.data.Limited});
+                    this.setState({states : data.data.data.States, loading : false, permission : data.data.data.Permission});
                     this.state.states.map(function(State){
                         State.Event.map(function(Event){
                             if(Event.$.type == 'response'){
                                 this.state.allInputData.push({
                                     StateId : State.$.id,
+                                    StateName : State.$.name,
+                                    StateDes : State.$.description,
                                     Event : Event.$.name,
                                     DataId : '',
                                     Tag : '',
@@ -48,6 +50,8 @@ var DataPreparation = React.createClass({
                             else if(Event.$.type == 'noresponse'){
                                 this.state.allOutputData.push({
                                     StateId : State.$.id,
+                                    StateName : State.$.name,
+                                    StateDes : State.$.description,
                                     Event : Event.$.name,
                                     Destroyed : false,
                                     Tag : ''
@@ -134,7 +138,12 @@ var DataPreparation = React.createClass({
 
         for(var i = 0; i < window.allOutputData.length; i++)
         {
-            window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
+            if($('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val().trim() == ''){
+                window.allOutputData[i].Tag = window.allOutputData[i].StateName + '-' + window.allOutputData[i].Event;
+            }
+            else{
+                window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
+            }
             if($('#dataDestroyed_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event)[0].checked){
                 window.allOutputData[i].Destroyed = true;
             }
@@ -154,7 +163,7 @@ var DataPreparation = React.createClass({
             return (<span>loading...</span>);
         }
         var authPanel = null;
-        if(this.state.limited == 1){
+        if(this.state.permission == 1){
             authPanel = (
                 <div className="form-group">
                     <label className="col-md-1 col-sm-1 control-label" style={{"paddingTop" : "8px"}} >Auth Token</label>

@@ -17,8 +17,7 @@ var ModelSerTransform = React.createClass({
             processBar : false,
             stepy : null,
             pkgs : [],
-            itemDetail : null,
-            dt : null
+            itemDetail : null
         };
     },
 
@@ -40,46 +39,7 @@ var ModelSerTransform = React.createClass({
                 return false;
             }.bind(this)
         });
-        
-        var dt = $('#dynamic-table').dataTable(
-            {
-                "bRetrieve" : true,
-                "bDestory" : true,
-                //载入数据的时候是否显示“正在加载中...”
-                "processing": true,
-                //是否显示分页
-                "bPaginate": true,
-                //初始化显示条目数
-                "iDisplayLength" : 10,
-                //每页显示条目数
-                "bLengthChange": false,
-                //排序
-                "bSort": true,
-                //排序配置
-                "aaSorting": [[0, "asc"]],
-                //自适应宽度
-                "bAutoWidth": true,
-                //多语言配置
-                "oLanguage": {
-                    "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
-                    "sZeroRecords": ' ',
-                    "sInfo": window.LanguageConfig.TablePaging.Info,
-                    "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
-                    "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
-                    "sProcessing": window.LanguageConfig.TablePaging.Processing,
-                    "sSearch": window.LanguageConfig.TablePaging.Search,
-                    //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
-                    "sUrl": "",
-                    "oPaginate": {
-                        "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
-                        "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
-                        "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
-                        "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
-                    }
-                }
-            }
-        );
-        this.setState({stepy : stepy, dt : dt});
+        this.setState({stepy : stepy});
     },
     
     downCloudModelPackage : function(e, pid){

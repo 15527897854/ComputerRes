@@ -128,13 +128,29 @@ var ModelSerDetail = React.createClass({
         }
         var limited = null;
         if(this.state.ms.ms_limited == 1){
-            limited = (<span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}</span>);
-        }
-        else if(this.state.ms.ms_limited == -1){
-            limited = (<span className="label label-warning tooltips" title={window.LanguageConfig.ModelService.Private} ><i className="fa fa-user" ></i>&nbsp;{window.LanguageConfig.ModelService.Private}</span>);
+            limited = (
+                    <span className="label label-warning tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Private} >
+                        <i className="fa fa-user" ></i>&nbsp;{window.LanguageConfig.ModelService.Private}
+                    </span>);
         }
         else{
-            limited = (<span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
+            limited = (
+                    <span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Public} >
+                        <i className="fa fa-users" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}
+                    </span>);
+        }
+        var permission = null;
+        if(this.state.ms.ms_permission == 1){
+            permission = (
+                    <span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Auth} >
+                        <i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}
+                    </span>);
+        }
+        else{
+            permission = (
+                    <span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title="Open" >
+                        <i className="fa fa-unlock" ></i>&nbsp;Open
+                    </span>);
         }
         var url = window.location.href;
         url = url.substr(0, url.lastIndexOf(':') + 5);
@@ -228,7 +244,10 @@ var ModelSerDetail = React.createClass({
                                     {window.LanguageConfig.ModelService.Status}&nbsp;:&nbsp;{status}
                                 </p>
                                 <p className="muted" >
-                                    {window.LanguageConfig.ModelServiceDetail.Limited}&nbsp;:&nbsp;{limited}
+                                    Public&nbsp;:&nbsp;{limited}
+                                </p>
+                                <p className="muted" >
+                                    Permission&nbsp;:&nbsp;{permission}
                                 </p>
                                 {window.LanguageConfig.ModelServiceDetail.PublicInvoking}&nbsp;:&nbsp;
                                 <div className="input-group m-bot15">
