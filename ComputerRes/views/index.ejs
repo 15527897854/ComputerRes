@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>模型服务器</title>
+        <title><%=global.LanguageConfig.Name %></title>
         <%- include headInclude.ejs %>
     </head>
     <body class="sticky-header">
@@ -18,56 +18,72 @@
                         <!--<div class="col-sm-12">-->
                             <section class="panel">
                                 <header class="panel-heading" style="background: #D1D5E1;border-bottom: none;opacity:0.8;">
-                                    <h3 style="margin: 0;">欢迎来到模型容器！</h3>
+                                    <h3 style="margin: 0;"><%=global.LanguageConfig.Homepage.Welcome %></h3>
                                 </header>
                                 <div class="panel-body" id="panel-body">
                                     <div id="gallery" class="media-gal">
                                         <div class="images item " id="image1">
                                             <a href="/modelser/all" data-toggle="modal">
-                                                <img class="gallery-img" src="images/gallery/modelser_all.png" alt="" />
+                                                <img class="gallery-img" src="images/gallery/items.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/modelser/all">模型一览</a>
+                                                <a href="/modelser/all">Model Service Items</a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image2">
                                             <a href="/note" data-toggle="modal">
-                                                <img class="gallery-img" src="images/gallery/note.png" alt="" />
+                                                <img class="gallery-img" src="images/gallery/notice.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/note">本地消息</a>
+                                                <a href="/note">Notice</a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image3">
                                             <a href="/status" data-toggle="modal">
-                                                <img class="gallery-img" src="images/gallery/status.png" alt="" />
+                                                <img class="gallery-img" src="images/gallery/info.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/status">服务器状态</a>
+                                                <a href="/status">Information</a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image4">
                                             <a href="modelser/new" data-toggle="modal">
-                                                <img class="gallery-img" src="images/gallery/modelser_new.png" alt="" />
+                                                <img class="gallery-img" src="images/gallery/deployment.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="modelser/new">模型部署</a>
+                                                <a href="modelser/new"><%=global.LanguageConfig.Homepage.Deployment %></a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image5">
                                             <a href="/modelserrun/all" data-toggle="modal">
-                                                <img class="gallery-img" src="images/gallery/modelserrun.png" alt="" />
+                                                <img class="gallery-img" src="images/gallery/records.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/modelserrun/all">模型运行</a>
+                                                <a href="/modelserrun/all">Records</a>
                                             </div>
                                         </div>
                                         <div class="images item " id="image6">
                                             <a href="/child-node/all" data-toggle="modal">
-                                                <img class="gallery-img" src="images/gallery/child.png" alt="" />
+                                                <img class="gallery-img" src="images/gallery/network.png" alt="" />
                                             </a>
                                             <div>
-                                                <a href="/child-node/all">远程节点</a>
+                                                <a href="/child-node/all">Network</a>
+                                            </div>
+                                        </div>
+                                        <div class="images item " id="image7">
+                                            <a href="/child-node/all" data-toggle="modal">
+                                                <img class="gallery-img" src="images/gallery/data.png" alt="" />
+                                            </a>
+                                            <div>
+                                                <a href="/geodata/all">Data Cache</a>
+                                            </div>
+                                        </div>
+                                        <div class="images item " id="image8">
+                                            <a href="/child-node/all" data-toggle="modal">
+                                                <img class="gallery-img" src="images/gallery/help.png" alt="" />
+                                            </a>
+                                            <div>
+                                                <a href="/help.html">Data Cache</a>
                                             </div>
                                         </div>
                                     </div>
@@ -103,8 +119,8 @@
             width += "px";
             height += "px";
             $(".item").css({
-                "width":width,
-                "height":height
+                "width":256,
+                "height":256
             });
             $(".item img").css({
                 "width":"100%",

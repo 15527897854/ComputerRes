@@ -23,8 +23,8 @@ $(document).ready(function () {
                                 $('#'+window.notices[i]._id).parent()[0].removeChild($('#'+window.notices[i]._id)[0]);
                         }
                         $.gritter.add({
-                            title: '提示：',
-                            text: '已全部标为已读！',
+                            title: window.LanguageConfig.Notice.InfoTitle,
+                            text: window.LanguageConfig.Notice.AllMessageMarkedRead,
                             sticky: false,
                             time: 2000
                         });
@@ -35,8 +35,8 @@ $(document).ready(function () {
                             window.notices[$('#'+id).attr('data-index')].hasRead = true;
                             $('#'+id).parent()[0].removeChild($('#'+id)[0]);
                             $.gritter.add({
-                                title: '提示：',
-                                text: '标为已读成功！',
+                                title: window.LanguageConfig.Notice.InfoTitle,
+                                text: window.LanguageConfig.Notice.MessageMarkedRead,
                                 sticky: false,
                                 time: 2000
                             });
@@ -47,8 +47,8 @@ $(document).ready(function () {
                 }
                 else if(msg.status == 0){
                     $.gritter.add({
-                        title: '警告：',
-                        text: '标为已读失败！',
+                        title: window.LanguageConfig.Notice.WarningTitle,
+                        text: window.LanguageConfig.Notice.MessageMarkedReadFailed,
                         sticky: false,
                         time: 2000
                     });
@@ -122,8 +122,8 @@ $(document).ready(function () {
                 }
                 else if(msg.status == 0){
                     $.gritter.add({
-                        title: '警告：',
-                        text: '查找通知失败！',
+                        title: window.LanguageConfig.Notice.WarningTitle,
+                        text: window.LanguageConfig.Notice.GettingNoticeFailed,
                         sticky: false,
                         time: 2000
                     });

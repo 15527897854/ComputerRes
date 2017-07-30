@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>模型运行信息</title>
+    <title>Record</title>
     <%- include headInclude.ejs %>
     <link href="/css/uploadfile.css" rel="stylesheet" />
     <link href="/css/ol.css" type="text/css"/>
@@ -15,127 +15,77 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                模型服务信息
-                <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
-                 </span>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="blog-img">
-                            <% if(host == 'localhost'){ %>
-                            <% if(msr.msr_ms == null || msr.msr_ms.ms_img == null || msr.msr_ms.ms_img == ''){
-                            %><img src="/images/modelImg/default.png" alt="" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="/images/modelImg/<%=msr.msr_ms.ms_img %>" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                            }%>
-                            <% }else{ %>
-                            <% if(msr.msr_ms_img == null || msr.msr_ms.ms_img == ''){
-                            %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=msr.msr_ms.ms_img %>" alt="<%=msr.msr_ms.ms_model.m_name %>" ><%
-                            }%>
-                            <% } %>
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <p style="font-size: 14px; color:#aaa" >
-                            <strong>模型名称&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_model.m_name  %>
-                            <br />
-                            <strong>模型类型&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_model.m_type %>
-                            <br />
-                            <strong>版本号&nbsp;:&nbsp;</strong><%=msr.msr_ms.mv_num %>
-                            <br />
-                            <strong>所在平台&nbsp;:&nbsp;</strong><%
-                            if(msr.msr_ms.ms_platform == 1)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-windows"></i>
-                                    windows
-                                </span><%
-                            }
-                            else if(msr.msr_ms.ms_platform == 2)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-linux"></i>
-                                    linux
-                                </span><%
-                            }
-                            else
-                            {
-                            %><span class="label label-info">
-                                    未知平台
-                                </span><%
-                            }
-                            %>
-                            <br />
-                            <strong>部署时间&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_update %>
-                            <br />
-                            <strong>状态&nbsp;:&nbsp;</strong><% if(msr.msr_ms.ms_status == 1){
-                            %><span class="badge badge-success">可用</span><%
-                            }else {
-                            %><span class="badge badge-defult">不可用</span><%
-                            }%>
-                            <br />
-                            <strong>描述&nbsp;:&nbsp;</strong>
-                            <br />
-                            <%=msr.msr_ms.ms_des %>
-                        </p>
-                        <% if(msr.msr_ms.ms_model.m_url != null)
-                        {
-                        %><a style="more" href="<%=msr.msr_ms.ms_model.m_url %>" >更多信息</a><%
-                        }%>
-                        <br />
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="modelserinfo" data-source="/modelser/json/<%=msr.msr_ms._id %>" ></div>
         <div class="panel panel-info">
             <div class="panel-heading">
-                模型运行信息
+                Model Running Info
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                  </span>
             </div>
             <div class="panel-body" id="msrInfo">
-                <p><strong>模型开始时间&nbsp;:&nbsp;</strong><%= msr.msr_date.toLocaleString() %></p>
-                <p><strong>模型调用者&nbsp;:&nbsp;</strong><%if(msr.msr_user.u_type == 0){ %>本地调用者<% }
-                    else {%>外部调用者<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
-                <p><strong>运行实例GUID&nbsp;:&nbsp;</strong><%= msr.msr_guid %></p>
-                <p><strong>输入数据&nbsp;:&nbsp;</strong><br />
-                    <% for(var i = 0; i < msr.msr_input.length; i++) { %>
-                    <%=msr.msr_input[i].StateId %>
-                    &nbsp;&nbsp;&nbsp;
-                    <%=msr.msr_input[i].Event %>
-                    &nbsp;:&nbsp;
-                    <a href="/geodata/<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].DataId %></a>
-                    &nbsp;&nbsp;&nbsp;
-                    <a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="<%=msr.msr_input[i].DataId %>">Snapshot</span></a>
-                    <br />
-                    <%}%>
+                <p><strong>Start Time &nbsp;:&nbsp;</strong><%= new Date(msr.msr_date).toLocaleString() %></p>
+                <p><strong>User&nbsp;:&nbsp;</strong><%if(msr.msr_user.u_type == 0){ %>local administrator<% }
+                    else {%>Unknown user<%}%>&nbsp;&nbsp;<%= msr.msr_user.u_name %></p>
+                <p><strong>Input Data&nbsp;:&nbsp;</strong><br />
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>StateName</th>
+                                <th>EventName</th>
+                                <th>Data</th>
+                                <th>Destroy after used</th>
+                                <th>Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for(var i = 0; i < msr.msr_input.length; i++) { %>
+                            <tr>
+                                <td><%=i %></td>
+                                <td title="<%=msr.msr_input[i].StateId %>"><%=msr.msr_input[i].StateName %></td>
+                                <td><%=msr.msr_input[i].Event %></td>
+                                <td title="<%=msr.msr_input[i].DataId %>" ><%=msr.msr_input[i].Tag %></td>
+                                <td><%=msr.msr_input[i].Destroyed %></td>
+                                <td>
+                                    <button class="btn btn-default btn-xs" onclick="window.open('/geodata/<%=msr.msr_input[i].DataId %>')"><i class="fa fa-download"></i>  Download</button>
+                                    <button class="btn btn-success btn-xs"><i class="fa fa-picture-o"></i>  Visualization</button>
+                                </td>
+                                
+                                &nbsp;&nbsp;&nbsp;
+                                <br />
+                            </tr>
+                            <%}%>
+                        </tbody>
+                    </table>
                 </p>
-                <p><strong>输出数据&nbsp;:&nbsp;</strong><br />
-                    <span id="sp_dataoutput">
-
-                    </span>
+                <p><strong>Output Data&nbsp;:&nbsp;</strong><br />
+                <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>StateName</th>
+                                <th>EventName</th>
+                                <th>Data</th>
+                                <th>Destroy after used</th>
+                                <th>Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sp_dataoutput">
+                        </tbody>
+                    </table>
                 </p>
                 <p id="p_des" style="white-space: pre-line">
-                    <strong>模型运行描述信息&nbsp;:&nbsp;</strong>
+                    <strong>Output Message&nbsp;:&nbsp;</strong>
                     <br />
                     <%=msr.msr_des
                     %>
                 </p>
-                <p><strong>运行时间&nbsp;:&nbsp;</strong><span id="sp_time"><%=msr.msr_time.toString() %>&nbsp;s&nbsp;</span></p>
-                <p id="progressMess"><strong>当前进度&nbsp;:&nbsp;</strong></p>
+                <p><strong>Time of Running&nbsp;:&nbsp;</strong><span id="sp_time"><%=msr.msr_time.toString() %>&nbsp;s&nbsp;</span></p>
+                <p id="progressMess"><strong>Currect Porgress&nbsp;:&nbsp;</strong></p>
                 <div id="bar_pro_div" class="progress progress-striped active progress-sm">
                     <div id="bar_pro" style="width: 0%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
-                        <span class="sr-only">0% 完成</span>
+                        <span class="sr-only">0% Finisded</span>
                     </div>
                 </div>
                 <div style="height: 30px;"></div>
@@ -169,24 +119,24 @@
                             &times;
                         </button>
                         <h4 class="modal-title" id="myModalLabel">
-                            设为测试数据
+                            Set As Test Data
                         </h4>
                     </div>
                     <form id="testifyForm">
                         <div class="modal-body">
-                            <h4>测试标签</h4>
+                            <h4>Tag</h4>
                             <div>
                                 <input name="testifyTag" type="text" id="testTag" class="form-control" style="width: 90%;display: inline;">
                             </div>
-                            <h4>详细说明</h4>
+                            <h4>Detail</h4>
                             <div>
                                 <textarea name="testifyDetail" type="text" id="testDetail" class="form-control" style="width: 90%;display: inline;"></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input id="submitTestify" type="button" class="btn btn-success" value="提交" data-dismiss="modal">
+                            <input id="submitTestify" type="button" class="btn btn-success" value="Submit" data-dismiss="modal">
                             <button type="button" class="btn btn-default" data-dismiss="modal">
-                                关闭
+                                Close
                             </button>
                         </div>
                     </form>
@@ -212,6 +162,9 @@
 <script type="text/javascript" src="/js/chart-js/data.js"></script>
 <!--gritter通知-->
 <script type="text/javascript" src="/js/gritter/js/jquery.gritter.js"></script>
+
+<script type="text/javascript" src="/js/output/bundle.js" ></script>
+
 <script type="text/javascript">
     var snapshotReq = function (gdid) {
         var nice = $("html").niceScroll();
@@ -291,19 +244,11 @@
                             },
                             title: {
                                 text: (function () {
-//                                    var title = $('#x-axis option:selected').text()
-//                                            + ' - '
-//                                            + $('#y-axis option:selected').text()
-//                                            + ' '
-//                                            + $('#chartType :radio:checked')[0].value + ' chart';
                                     var title = 'table data chart'
                                     return title;
                                 })()
                             },
                             xAxis: (function () {
-//                                var title;
-//                                if($('#x-axis option:selected').text() == 'NULL'){ title = 'num' }
-//                                else{ title = $('#x-axis option:selected').text();}
                                 return {title:{text:'num'}};
                             })(),
                             yAxis: {
@@ -338,26 +283,6 @@
                                 }
                                 return series;
                             })()
-//                            data:{
-//                                columns:(function () {
-//                                    var firstCol = [];
-//                                    firstCol.push(null);
-//                                    for(var i=0;i<rst.series[$('#y-axis option:selected')[0].index].data.length;i++){
-//                                        if($('#x-axis option:selected')[0].value == 'NULL'){
-//                                            firstCol.push(i+1);
-//                                        }
-//                                        else{
-//                                            firstCol.push(rst.series[$('#x-axis option:selected')[0].index-1].data[i]);
-//                                        }
-//                                    }
-//                                    var secondCol = [];
-//                                    secondCol.push(rst.series[$('#y-axis option:selected')[0].index].name);
-//                                    for(var i=0;i<rst.series[$('#y-axis option:selected')[0].index].data.length;i++){
-//                                        secondCol.push(rst.series[$('#y-axis option:selected')[0].index].data[i]);
-//                                    }
-//                                    return [firstCol,secondCol];
-//                                })()
-//                            }
                         });
                         Highcharts.setOptions({
                             global: {
@@ -366,7 +291,6 @@
                         });
                         //改变图表类型
                         $('#chartType input[name="ct"]').change(function () {
-                            //alert($('#chartType input[name="ct"]:checked')[0].value);
                             for(var k=0;k<myChart.series.length;k++){
                                 myChart.series[k].update({
                                     type:$('#chartType input[name="ct"]:checked')[0].value
@@ -414,9 +338,7 @@
                             ]
                         });
                         map = new ol.Map({
-//                        controls: ol.control.defaults().extend([
-//                            new ol.control.ZoomToExtent({})
-//                        ]),
+
                             layers: [overlayGroup],
                             target: 'map',
                             view: myView
@@ -444,10 +366,7 @@
                         else if(rst.dataType == 'shp'){
                             //经纬度
                             //考虑一个问题：geojosn的坐标和openlayers的坐标之间的关系
-//                        ENCorner = proj4('EPSG:4326').forward(ENCorner);
-//                        WSCorner = proj4('EPSG:4326').forward(WSCorner);
-//                        imageExtent = [WSCorner[0],WSCorner[1],ENCorner[0],ENCorner[1]];
-//                        projection = 'EPSG:4326';
+
                             overlayGroup.getLayers().push(new ol.layer.Vector({
                                 ratio: 1,
                                 params: {'LAYERS': 'show:0'},
@@ -520,82 +439,86 @@
                     url : '/modelins/json/<%=msr.msr_guid %>',
                     success : function (data) {
                         var resJson = JSON.parse(data);
-                        if(resJson.res == null)
+                        if(resJson.result == 'suc')
                         {
-                            blFinish = true;
-                            $.ajax({
-                                url : '/modelserrun/json/<%=msr._id %>',
-                                success : function (data) {
-                                    var jsItem = JSON.parse(data);
-                                    ProcessFinished(jsItem.msr.msr_status);
-                                    clearInterval(interval);
-                                    var descript = jsItem.msr.msr_des.replace(/\r\n/g, '<br />');
-                                    descript = descript.replace(/\\r\\n/g, '<br />');
-                                    descript = descript.replace(/\\n/g, '<br />');
-                                    descript = descript.replace(/\"/g, '');
-                                    descript = descript.replace(/Stand Output Message :/g, '<span class="label label-info" >模型程序标准输出</span><br />');
-                                    descript = descript.replace(/Stand Error Message :/g, '<span class="label label-warning" >模型程序错误信息</span><br />');
-                                    descript = descript.replace(/Error Message :/g, '<span class="label label-danger" >运行错误信息</span><br />');
-
-
-                                    $('#p_des').html('<strong>模型运行描述信息&nbsp;:&nbsp;</strong><br />' + descript);
-                                    $('#sp_time').html( jsItem.msr.msr_time + '&nbsp; s &nbsp;');
-                                    if(jsItem.msr.msr_status == 1)
-                                    {
-                                        var output = '';
-                                        for(var i = 0; i < jsItem.msr.msr_output.length; i++)
-                                        {
-                                            output += jsItem.msr.msr_output[i].StateId +
-                                                    '&nbsp;&nbsp;&nbsp;' + jsItem.msr.msr_output[i].Event +
-                                                    '&nbsp;:&nbsp;<a href="/geodata/' + jsItem.msr.msr_output[i].DataId + '" >' +
-                                                    jsItem.msr.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
-                                                    '<a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="' + jsItem.msr.msr_output[i].DataId + '">Snapshot</span></a>' +
-                                                    '<br />';
-                                        }
-
-                                        $('#sp_dataoutput').html(output);
-                                    }
-                                }
-                            });
-                        }
-                        else if(resJson.res == 'suc')
-                        {
-                            switch (resJson.mis.state)
+                            if(resJson.data == null)
                             {
-                                case 'MC_ENTER':
+                                blFinish = true;
+                                $.ajax({
+                                    url : '/modelserrun/json/<%=msr._id %>',
+                                    success : function (data) {
+                                        var jsItem = JSON.parse(data);
+                                        ProcessFinished(jsItem.data.msr_status);
+                                        clearInterval(interval);
+                                        var descript = jsItem.data.msr_des.replace(/\r\n/g, '<br />');
+                                        descript = descript.replace(/\\r\\n/g, '<br />');
+                                        descript = descript.replace(/\\n/g, '<br />');
+                                        descript = descript.replace(/\"/g, '');
+                                        descript = descript.replace(/Stand Output Message :/g, '<span class="label label-info" >Stand Output</span><br />');
+                                        descript = descript.replace(/Stand Error Message :/g, '<span class="label label-warning" >Exception Output</span><br />');
+                                        descript = descript.replace(/Error Message :/g, '<span class="label label-danger" >Invork Error</span><br />');
+
+                                        $('#p_des').html('<strong>Output Message&nbsp;:&nbsp;</strong><br />' + descript);
+                                        $('#sp_time').html( jsItem.data.msr_time + '&nbsp; s &nbsp;');
+                                        if(jsItem.data.msr_status == 1)
+                                        {
+                                            var output = '';
+                                            for(var i = 0; i < jsItem.data.msr_output.length; i++)
+                                            {
+                                                output += '<tr>';
+                                                output += '<td>' + i + '</td>';
+                                                output += '<td title="' + jsItem.data.msr_output[i].StateId + '">' + jsItem.data.msr_output[i].StateName + '</td>';
+                                                output += '<td>' + jsItem.data.msr_output[i].Event + '</td>';
+                                                output += '<td title="' + jsItem.data.msr_output[i].DataId  + '">' +  jsItem.data.msr_output[i].Tag + '</td>';
+                                                output += '<td>' + jsItem.data.msr_output[i].Destroyed + '</td>';
+                                                output += '<td><button class="btn btn-default btn-xs" onclick="window.open(\'/geodata/' + jsItem.data.msr_output[i].DataId + '\')"><i class="fa fa-download"></i> Download</button> ' + 
+                                                '<button class="btn btn-success btn-xs"><i class="fa fa-picture-o"></i>  Visualization</button></td>';
+                                                output += '</tr>';
+                                            }
+
+                                            $('#sp_dataoutput').html(output);
+                                        }
+                                    }
+                                });
+                            }
+                            else{
+                                switch (resJson.data.state)
                                 {
-                                    setProcess(10);
-                                    break;
-                                }
-                                case 'MC_REQUEST':
-                                {
-                                    setProcess(20);
-                                    break;
-                                }
-                                case 'MC_CHECKDATA':
-                                {
-                                    setProcess(35);
-                                    break;
-                                }
-                                case 'MC_CALCULATE':
-                                {
-                                    setProcess(50);
-                                    break;
-                                }
-                                case 'MC_CHECKRES':
-                                {
-                                    setProcess(75);
-                                    break;
-                                }
-                                case 'MC_RESPONSE':
-                                {
-                                    setProcess(90);
-                                    break;
-                                }
-                                case 'MC_EXIT':
-                                {
-                                    setProcess(100);
-                                    break;
+                                    case 'MC_ENTER':
+                                    {
+                                        setProcess(10);
+                                        break;
+                                    }
+                                    case 'MC_REQUEST':
+                                    {
+                                        setProcess(20);
+                                        break;
+                                    }
+                                    case 'MC_CHECKDATA':
+                                    {
+                                        setProcess(35);
+                                        break;
+                                    }
+                                    case 'MC_CALCULATE':
+                                    {
+                                        setProcess(50);
+                                        break;
+                                    }
+                                    case 'MC_CHECKRES':
+                                    {
+                                        setProcess(75);
+                                        break;
+                                    }
+                                    case 'MC_RESPONSE':
+                                    {
+                                        setProcess(90);
+                                        break;
+                                    }
+                                    case 'MC_EXIT':
+                                    {
+                                        setProcess(100);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -626,7 +549,7 @@
                     required: ''
                 }
             }
-    });
+        });
 
         $('#submitTestify').on('click',function () {
             if(!validator.form())
@@ -640,14 +563,14 @@
                     var title;
                     if(msg.suc){
                         if(msg.status == 1){
-                            title = '添加测试数据成功！';
+                            title = 'Add test data successfully';
                         }
                         else{
-                            title = '已存在该测试数据！';
+                            title = 'Test data has existed';
                         }
                     }
                     else{
-                        title = '添加测试数据失败！';
+                        title = 'Fail to add test data';
                     }
                     $.gritter.add({
                         title: title,
@@ -661,7 +584,7 @@
 
                 }
             });
-        })
+        });
     });
 
     function setProcess(per) {
@@ -673,12 +596,12 @@
         $('#bar_pro_div').css('display','none');
         if( status == 1)
         {
-            $('#progressMess').append('<span class="label label-success" >已完成</span>');
-            var setTestBtn = $('<p style="text-align: center"><button id="setTest" class="btn btn-success" type="button" data-toggle="modal" data-target="#setTestModal" style="text-align: center;width: 250px;;margin-bottom: 50px"><i class="fa fa-cogs"></i> 设为测试数据</button></p>');
+            $('#progressMess').append('<span class="label label-success" >Finished</span>');
+            var setTestBtn = $('<p style="text-align: center"><button id="setTest" class="btn btn-success" type="button" data-toggle="modal" data-target="#setTestModal" style="text-align: center;width: 250px;;margin-bottom: 50px"><i class="fa fa-cogs"></i> Set As Test Data</button></p>');
             $('#msrInfo').append(setTestBtn);
         }
         else{
-            $('#progressMess').append('<span class="label label-danger">未完成</span>');
+            $('#progressMess').append('<span class="label label-danger">Unfinished</span>');
         }
     }
 

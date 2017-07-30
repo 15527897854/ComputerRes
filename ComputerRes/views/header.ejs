@@ -19,16 +19,16 @@
             <div class="media logged-user">
                 <img alt="" src="/images/photos/admin.png" class="media-object">
                 <div class="media-body">
-                    <h4><a href="#">管理员</a></h4>
-                    <span>"我是管理员"</span>
+                    <h4><a href="#"><%=global.LanguageConfig.Heading.Administrator.Title %></a></h4>
+                    <span>"<%=global.LanguageConfig.Heading.Administrator.Signature %>"</span>
                 </div>
             </div>
 
-            <h5 class="left-nav-title">用户信息</h5>
+            <h5 class="left-nav-title"><%=global.LanguageConfig.Heading.User.Title %></h5>
             <ul class="nav nav-pills nav-stacked custom-nav">
-                <li><a href="#"><i class="fa fa-user"></i> <span>信息</span></a></li>
-                <li><a href="#"><i class="fa fa-cog"></i> <span>设置</span></a></li>
-                <li><a href="#"><i class="fa fa-sign-out"></i> <span>退出</span></a></li>
+                <li><a href="#"><i class="fa fa-user"></i> <span><%=global.LanguageConfig.Heading.User.Info %></span></a></li>
+                <li><a href="#"><i class="fa fa-cog"></i> <span><%=global.LanguageConfig.Heading.User.Settings %></span></a></li>
+                <li><a href="#"><i class="fa fa-sign-out"></i> <span><%=global.LanguageConfig.Heading.User.SignOut %></span></a></li>
             </ul>
         </div>
 
@@ -37,43 +37,39 @@
             <li>
                 <a href="/index">
                     <i class="fa fa-home"></i>
-                    <span>主页</span>
+                    <span><%=global.LanguageConfig.Heading.Homepage %></span>
                 </a>
             </li>
-            <li><a href="/status"><i class="fa fa-laptop"></i> <span>服务器状态</span></a></li>
-            <li><a href="/note"><i class="fa fa-envelope"></i> <span>通知</span></a></li>
             <li class="menu-list
             <% if(typeof blmodelser !== 'undefined'){%>
             nav-active
             <%} %>
             ">
-                <a href="/modelSer/all"><i class="fa fa-tasks"></i> <span>本地模型服务</span></a>
+                <a href="/modelSer/all"><i class="fa fa-tasks"></i> <span><%=global.LanguageConfig.Heading.LocalModelService.Title %></span></a>
                 <ul class="sub-menu-list">
-                    <li><a href="/modelser/all">查看模型服务</a></li>
-                    <li><a href="/modelins/all">查看运行实例</a></li>
-                    <li><a href="/modelserrun/all">查看运行记录</a></li>
-                    <li><a href="/modelser/new">新增模型服务</a></li>
+                    <li><a href="/modelser/all">items</a></li>
+                    <li><a href="/modelins/all"><%=global.LanguageConfig.Heading.LocalModelService.Instances %></a></li>
+                    <li><a href="/modelserrun/all"><%=global.LanguageConfig.Heading.LocalModelService.Records %></a></li>
+                    <li><a href="/modelser/new"><%=global.LanguageConfig.Heading.LocalModelService.Deployment %></a></li>
                 </ul>
             </li>
             <li class="menu-list <% if(typeof blmodelser_r !== 'undefined'){%>nav-active<%} %>">
-                <a href="/modelSer/all"><i class="fa fa-rss"></i> <span>远程模型服务</span></a>
+                <a href="/modelSer/all"><i class="fa fa-rss"></i> <span><%=global.LanguageConfig.Heading.RemoteModelService.Title %></span></a>
                 <ul class="sub-menu-list">
-                    <li><a href="/modelser/rmt/all">查看模型服务</a></li>
-                    <li><a href="/modelins/rmt/all">查看运行实例</a></li>
-                    <li><a href="/modelserrun/rmt/all">查看运行记录</a></li>
-                    <li><a href="/child-node/all">查看运算网络</a></li>
+                    <li><a href="/modelser/rmt/all">items</a></li>
+                    <li><a href="/child-node/all"><%=global.LanguageConfig.Heading.RemoteModelService.Network %></a></li>
                 </ul>
             </li>
-            <li><a href="/modelser/cloud"><i class="fa fa-cloud-download"></i> <span>门户云模型</span></a></li>
-            <li><a href="/geodata/all"><i class="fa fa-folder"></i> <span>数据中心</span></a></li>
+            <li><a href="/note"><i class="fa fa-envelope"></i> <span><%=global.LanguageConfig.Heading.Notice %></span></a></li>
+            <li><a href="/geodata/all"><i class="fa fa-folder"></i> <span>Data Cache</span></a></li>
             <li id="setting-li" class="menu-list">
                 <a href="/setting">
                     <i class="fa fa-cogs"></i>
-                    <span>设置</span>
+                    <span><%=global.LanguageConfig.Heading.Settings.Title %></span>
                 </a>
                 <ul class="sub-menu-list">
-                    <li><a href="/setting">常规</a></li>
-                    <li><a href="/setting/enviroment">环境字典</a></li>
+                    <li><a href="/setting">Information</a></li>
+                    <li><a href="/setting/enviroment"><%=global.LanguageConfig.Heading.Settings.Environment %></a></li>
                 </ul>
             </li>
         </ul>

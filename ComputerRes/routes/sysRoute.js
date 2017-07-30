@@ -7,6 +7,7 @@ var RouteBase = require('./routeBase');
 var registerCtrl = require('../control/registerCtrl');
 var sweCtrl = require('../control/softwareEnCtrl');
 var hweCtrl = require('../control/hardwareEnCtrl');
+var fs = require('fs');
 
 module.exports = function(app)
 {
@@ -218,7 +219,7 @@ module.exports = function(app)
                     }));
                 }
                 if(result){
-                    req.session.admin = true;
+                    req.session.admin = req.body.adminname;
                     return res.end(JSON.stringify({
                         result : 'suc',
                         data : true
@@ -272,4 +273,5 @@ module.exports = function(app)
         .get(function(req, res, next){
             SysControl.getToken(req.query.ip, RouteBase.returnFunction(res, 'Error in getting token!'));
         });
+    
 };

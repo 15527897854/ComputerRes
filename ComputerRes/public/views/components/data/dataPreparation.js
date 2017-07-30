@@ -21,7 +21,9 @@ var DataPreparation = React.createClass({
             states : [],
             allInputData : [],
             allOutputData : [],
-            loading : true
+            loading : true,
+            permission : 0,
+            authToken : ''
         };
     },
 
@@ -30,14 +32,17 @@ var DataPreparation = React.createClass({
             data => {
                 if(data.data.result == 'suc')
                 {
-                    this.setState({states : data.data.data, loading : false});
+                    this.setState({states : data.data.data.States, loading : false, permission : data.data.data.Permission});
                     this.state.states.map(function(State){
                         State.Event.map(function(Event){
                             if(Event.$.type == 'response'){
                                 this.state.allInputData.push({
                                     StateId : State.$.id,
+                                    StateName : State.$.name,
+                                    StateDes : State.$.description,
                                     Event : Event.$.name,
                                     DataId : '',
+                                    Tag : '',
                                     Destroyed : false,
                                     Optional : Event.$.optional
                                 });
@@ -45,6 +50,8 @@ var DataPreparation = React.createClass({
                             else if(Event.$.type == 'noresponse'){
                                 this.state.allOutputData.push({
                                     StateId : State.$.id,
+                                    StateName : State.$.name,
+                                    StateDes : State.$.description,
                                     Event : Event.$.name,
                                     Destroyed : false,
                                     Tag : ''
@@ -54,6 +61,8 @@ var DataPreparation = React.createClass({
 
                         window.allInputData = this.state.allInputData;
                         window.allOutputData = this.state.allOutputData;
+                        window.authToken = this.state.authToken;
+                        window.limited = this.state.limited;
                         window.addGeoData = this.onDataReady;
                         window.checkGeoData = this.checkGeoData;
 
@@ -64,12 +73,13 @@ var DataPreparation = React.createClass({
         );
     },
 
-    onDataReady : function(stateId, eventName, gdid){
+    onDataReady : function(stateId, eventName, gdid, tag){
         for(var i = 0; i < this.state.allInputData.length; i++)
         {
             if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName)
             {
                 this.state.allInputData[i].DataId = gdid;
+                this.state.allInputData[i].Tag = tag;
                 break;
             }
         }
@@ -77,7 +87,7 @@ var DataPreparation = React.createClass({
     },
 
     onRemoveData : function(e, stateId, eventName){
-        if(confirm("确认移除数据?"))
+        if(confirm("Remove this data?"))
         {
             for(var i = 0; i < this.state.allInputData.length; i++)
             {
@@ -98,14 +108,14 @@ var DataPreparation = React.createClass({
             {
                 return (
                     <p id={ 'data_pre_p_' + stateId + '_' + eventName }>
-                        <strong>数据准备情况&nbsp;:&nbsp;</strong><span className="label label-success">已准备</span>&nbsp;&nbsp;
+                        <strong>{window.LanguageConfig.InputData.Event.Ready}&nbsp;:&nbsp;</strong><span className="label label-success">{window.LanguageConfig.InputData.Event.DataReady}</span>&nbsp;&nbsp;
                         { this.state.allInputData[i].DataId }&nbsp;&nbsp;
-                        <button className="btn btn-danger btn-xs" onClick={(e) => { this.onRemoveData(e, stateId, eventName) }} >移除</button>
+                        <button className="btn btn-danger btn-xs" onClick={(e) => { this.onRemoveData(e, stateId, eventName) }} >{window.LanguageConfig.InputData.Event.DataRemove}</button>
                     </p>
                 );
             }
         }
-        return (<p id={ 'data_pre_p_' + stateId + '_' + eventName }><strong>数据准备情况&nbsp;:&nbsp;</strong><span className="label label-warning">未准备</span></p>);
+        return (<p id={ 'data_pre_p_' + stateId + '_' + eventName }><strong>{window.LanguageConfig.InputData.Event.Ready}&nbsp;:&nbsp;</strong><span className="label label-warning">{window.LanguageConfig.InputData.Event.DataNoReady}</span></p>);
     },
 
     checkGeoData : function(){
@@ -113,7 +123,7 @@ var DataPreparation = React.createClass({
             if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 ){
                 return {
                     result : 'fail',
-                    message : '数据未完全准备!'
+                    message : window.LanguageConfig.InputData.Event.DataNoReadyMessage
                 };
             }
             else{
@@ -128,7 +138,12 @@ var DataPreparation = React.createClass({
 
         for(var i = 0; i < window.allOutputData.length; i++)
         {
-            window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
+            if($('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val().trim() == ''){
+                window.allOutputData[i].Tag = window.allOutputData[i].StateName + '-' + window.allOutputData[i].Event;
+            }
+            else{
+                window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
+            }
             if($('#dataDestroyed_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event)[0].checked){
                 window.allOutputData[i].Destroyed = true;
             }
@@ -145,7 +160,17 @@ var DataPreparation = React.createClass({
     render : function(){
         if(this.state.loading)
         {
-            return (<span>加载中...</span>);
+            return (<span>loading...</span>);
+        }
+        var authPanel = null;
+        if(this.state.permission == 1){
+            authPanel = (
+                <div className="form-group">
+                    <label className="col-md-1 col-sm-1 control-label" style={{"paddingTop" : "8px"}} >Auth Token</label>
+                    <div className="col-md-6 col-sm-6">
+                        <input name="authToken" type="text" id="authToken" className="form-control"  />
+                    </div>
+                </div>);
         }
         var states = this.state.states.map(function(State){
             var mark = true;
@@ -180,7 +205,7 @@ var DataPreparation = React.createClass({
                     <div className="checkbox">
                         <label>
                             <input id={ 'dataDestroyed_' + State.$.id + '_' + Event.$.name} type="checkbox" value="" />
-                            使用后销毁
+                            {window.LanguageConfig.InputData.Event.Destoryed}
                         </label>
                     </div>
                 );    
@@ -192,18 +217,18 @@ var DataPreparation = React.createClass({
                                                 data-type={dataType}
                                                 data-rmt={this.state.rmt}
                                                 data-host={this.state.host}
-                                                onFinish={ (gdid) => { this.onDataReady(State.$.id, Event.$.name, gdid) } } />);
+                                                onFinish={ (gdid, tag) => { this.onDataReady(State.$.id, Event.$.name, gdid, tag) } } />);
                     dataReady = this.getDataState(State.$.id, Event.$.name);
                     if(Event.$.optional == '1'){
-                        optional = (<h4 style={{color : '#9AD717' }}><strong>可选参数</strong></h4>);
+                        optional = (<h4 style={{color : '#9AD717' }}><strong>{window.LanguageConfig.InputData.Event.Control}</strong></h4>);
                     }
                     else{
-                        optional = (<h4 style={{color : '#9AD717' }}><strong>必选参数</strong></h4>);
+                        optional = (<h4 style={{color : '#9AD717' }}><strong>{window.LanguageConfig.InputData.Event.Required}</strong></h4>);
                     }
                 }
                 else if(Event.$.type == 'noresponse'){
-                    optional = (<h4 style={{color : '#9AD717' }}><strong>输出参数</strong></h4>);
-                    dataReady = (<p><strong>结果数据标签:</strong></p>);
+                    optional = (<h4 style={{color : '#9AD717' }}><strong>{window.LanguageConfig.InputData.Event.Response}</strong></h4>);
+                    dataReady = (<p><strong>{window.LanguageConfig.InputData.Event.ResponseDataTag}:</strong></p>);
                     dataSelect = (<input id={'dataTag_' + State.$.id + '_' + Event.$.name } className="form-control" type="text" />);
                 }
                 var udxDec = null;
@@ -213,9 +238,9 @@ var DataPreparation = React.createClass({
                 return (
                     <div key={'body' + State.$.id + '_' + Event.$.name} className={ 'tab-pane ' + tag } id={State.$.id + '_' + Event.$.name}>
                         {optional}
-                        <p><strong>类型：</strong>{Event.$.type}</p>
-                        <p><strong>描述：</strong>{Event.$.description}</p>
-                        <p><strong>数据参考：</strong>{udxDec}</p>
+                        <p><strong>{window.LanguageConfig.InputData.Event.Type} : </strong>{Event.$.type}</p>
+                        <p><strong>{window.LanguageConfig.InputData.Event.Description} : </strong>{Event.$.description}</p>
+                        <p><strong>{window.LanguageConfig.InputData.Event.DataReference} : </strong>{udxDec}</p>
                         {dataReady}
                         {dataSelect}
                         {dataDestoryed}
@@ -225,13 +250,13 @@ var DataPreparation = React.createClass({
 
             return(
                 <div key={State.$.id} className="panel-body">
-                    <h4 style={{color : '#9ad717'}}><strong>状态信息</strong></h4>
-                    <p><strong>名称&nbsp;:&nbsp;</strong>{State.$.name}</p>
-                    <p><strong>ID&nbsp;:&nbsp;</strong>{State.$.id}</p>
-                    <p><strong>描述&nbsp;:&nbsp;</strong>{State.$.description}</p>
-                    <p><strong>类型&nbsp;:&nbsp;</strong>{State.$.type}</p>
+                    <h4 style={{color : '#9ad717'}}><strong>{window.LanguageConfig.InputData.State.Title}</strong></h4>
+                    <p><strong>{window.LanguageConfig.InputData.State.Name}&nbsp;:&nbsp;</strong>{State.$.name}</p>
+                    <p><strong>{window.LanguageConfig.InputData.State.ID}&nbsp;:&nbsp;</strong>{State.$.id}</p>
+                    <p><strong>{window.LanguageConfig.InputData.State.Description}&nbsp;:&nbsp;</strong>{State.$.description}</p>
+                    <p><strong>{window.LanguageConfig.InputData.State.Type}&nbsp;:&nbsp;</strong>{State.$.type}</p>
                     <br />
-                    <h4><strong>事件</strong></h4>
+                    <h4><strong>{window.LanguageConfig.InputData.Event.Title}</strong></h4>
                     <section className="panel">
                         <header className="panel-heading custom-tab ">
                             <ul className="nav nav-tabs">
@@ -248,6 +273,9 @@ var DataPreparation = React.createClass({
         }.bind(this));
         return (
             <div>
+                {authPanel}
+                <br />
+                <br />
                 {states}
             </div>
         );

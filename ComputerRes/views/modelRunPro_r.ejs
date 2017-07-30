@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>模型服务调用</title>
+    <title>Invoking</title>
     <%- include headInclude.ejs %>
     <link href="/css/uploadfile.css" rel="stylesheet" />
     <style>
@@ -17,75 +17,7 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                模型服务信息
-                <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
-                 </span>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="blog-img">
-                            <img src="/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" >
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <p style="font-size: 14px; color:#aaa" >
-                            <strong>模型名称&nbsp;:&nbsp;</strong><%=modelSer.ms_model.m_name  %>
-                            <br />
-                            <strong>模型类型&nbsp;:&nbsp;</strong><%=modelSer.ms_model.m_type %>
-                            <br />
-                            <strong>版本号&nbsp;:&nbsp;</strong><%=modelSer.mv_num %>
-                            <br />
-                            <strong>所在位置&nbsp;:&nbsp;</strong><%=host %>
-                            <br />
-                            <strong>所在平台&nbsp;:&nbsp;</strong><%
-                            if(modelSer.ms_platform == 1)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-windows"></i>
-                                    windows
-                                </span><%
-                            }
-                            else if(modelSer.ms_platform == 2)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-linux"></i>
-                                    linux
-                                </span><%
-                            }
-                            else
-                            {
-                            %><span class="label label-info">
-                                    未知平台
-                                </span><%
-                            }
-                            %>
-                            <br />
-                            <strong>部署时间&nbsp;:&nbsp;</strong><%=modelSer.ms_update %>
-                            <br />
-                            <strong>状态&nbsp;:&nbsp;</strong><% if(modelSer.ms_status == 1){
-                            %><span class="badge badge-success">可用</span><%
-                            }else {
-                            %><span class="badge badge-defult">不可用</span><%
-                            }%>
-                            <br />
-                            <strong>描述&nbsp;:&nbsp;</strong>
-                            <br />
-                            <%=modelSer.ms_des %>
-                        </p>
-                        <% if(modelSer.ms_model.m_url != null)
-                        {
-                        %><a style="more" href="<%=modelSer.ms_model.m_url %>" >更多信息</a><%
-                        }%>
-                        <br />
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="modelserinfo" data-source="/modelser/rmt/json/<%=host %>/<%=msid %>" ></div>
         <div class="panel panel-info">
             <div class="panel-heading">
                 数据输入
@@ -93,7 +25,7 @@
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                  </span>
             </div>
-            <div id="DataPreparation" data-source="/modelser/rmt/inputdata/<%=host%>/<%=modelSer._id %>" data-type="rmt" data-host="<%=host %>" ></div>
+            <div id="DataPreparation" data-source="/modelser/rmt/inputdata/<%=host%>/<%=msid %>" data-type="rmt" data-host="<%=host %>" ></div>
         </div>
         <div class="panel panel-danger">
             <div class="panel-heading">
@@ -119,31 +51,32 @@
 <script type="text/javascript" src="/js/output/bundle.js" ></script>
 <script type="text/javascript" >
     $(document).ready(function(){
-        var msid = '<%=modelSer._id %>';
+        var msid = '<%=msid %>';
         var host = '<%=host %>';
         $('#btn_run').click(function(e){
-            for(var i = 0; i < window.allInputData.length; i++)
-            {
-                if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 )
-                {
-                    return alert('数据未全准备！');
-                }
+            var result = window.checkGeoData();
+            if(result.result == 'fail'){
+                return alert(result.message);
             }
-            for(var i = 0; i < window.allOutputData.length; i++)
-            {
-                window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
-            }
-            $.ajax({
-                url : '/modelser/rmt/' + host + '/' + msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
-                type:'GET',
-                success : function(data){
-                    var resJson = JSON.parse(data);
-                    if(resJson.res = 'suc')
-                    {
-                        window.location.href = '/modelserrun/rmt/' + host + '/' + resJson.msr_id;
+            else if(result.result == 'suc'){
+                $.ajax({
+                    url : '/modelser/rmt/' + host + '/' + msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
+                    type:'GET',
+                    success : function(data){
+                        var resJson = JSON.parse(data);
+                        if(resJson.res == 'suc')
+                        {
+                            window.location.href = '/modelserrun/rmt/' + host + '/' + resJson.msr_id;
+                        }
+                        else{
+                            $.gritter.add({
+                                title: '调用失败!',
+                                text: resJson.message
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         });
     });
 </script>

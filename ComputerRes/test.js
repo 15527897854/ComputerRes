@@ -1,6 +1,6 @@
-var CommonMethod = require('./utils/commonMethod');
-var uuid = require('node-uuid');
-var ModelSerAccessCtrl = require('./control/modelSerAccessControl');
+// var CommonMethod = require('./utils/commonMethod');
+// var uuid = require('node-uuid');
+// var ModelSerAccessCtrl = require('./control/modelSerAccessControl');
 
 // var path = uuid.v1();
 // var token = {
@@ -27,7 +27,35 @@ var ModelSerAccessCtrl = require('./control/modelSerAccessControl');
 
 // console.log(tokenJson);
 
-var a = {};
-if(a.b == undefined){
-    console.log(1);
-}
+
+// var ModelServiceRunModel = require('./model/modelSerRun');
+
+// ModelServiceRunModel.getAllStatisticInfoByDate(new Date('2017-7-17 00:00:00'), new Date('2017-7-18 00:00:00'), function(err, data){
+//     if(err){
+//         return console.log('error');
+//     }
+//     console.log(data);
+// });
+
+
+// ModelServiceModel.readMDLByPath('E:/DemoData/GeoModeling/Demo.mdl', function(err, mdl){
+//     if(err){
+//         return console.log(err);
+//     }
+//     console.log('suc');
+// });
+
+// var RequestCtrl = require('./control/remoteReqControl');
+// var formData = { 'id' : '123', 'computeCollection': '123', 'collName': '123' };
+
+// RequestCtrl.postRequestJSONWithFormData('http://223.2.40.81:8080/registerDataMappingServlet?collName=123', formData, function(err, data){
+    
+// });
+var ModelSerCtrl = require('./control/modelSerControl');
+
+ModelSerCtrl.RegisterModelService('597221e696ddfe2e306cce51', function(err, data){
+    if(err){
+        console.log(err);
+    }
+    return console.log(data);
+});

@@ -14,73 +14,7 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                模型服务信息
-                <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
-                 </span>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="blog-img">
-                            <img src="/images/modelImg/default.png" alt="<%=msr.msr_ms.ms_model.m_name %>" />
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <p style="font-size: 14px; color:#aaa" >
-                            <strong>模型名称&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_model.m_name  %>
-                            <br />
-                            <strong>模型类型&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_model.m_type %>
-                            <br />
-                            <strong>版本号&nbsp;:&nbsp;</strong><%=msr.msr_ms.mv_num %>
-                            <br />
-                            <strong>所在平台&nbsp;:&nbsp;</strong><%
-                            if(msr.msr_ms.ms_platform == 1)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-windows"></i>
-                                    windows
-                                </span><%
-                            }
-                            else if(msr.msr_ms.ms_platform == 2)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-linux"></i>
-                                    linux
-                                </span><%
-                            }
-                            else
-                            {
-                            %><span class="label label-info">
-                                    未知平台
-                                </span><%
-                            }
-                            %>
-                            <br />
-                            <strong>部署时间&nbsp;:&nbsp;</strong><%=msr.msr_ms.ms_update %>
-                            <br />
-                            <strong>状态&nbsp;:&nbsp;</strong><% if(msr.msr_ms.ms_status == 1){
-                            %><span class="badge badge-success">可用</span><%
-                            }else {
-                            %><span class="badge badge-defult">不可用</span><%
-                            }%>
-                            <br />
-                            <strong>描述&nbsp;:&nbsp;</strong>
-                            <br />
-                            <%=msr.msr_ms.ms_des %>
-                        </p>
-                        <% if(msr.msr_ms.ms_model.m_url != null)
-                        {
-                        %><a style="more" href="<%=msr.msr_ms.ms_model.m_url %>" >更多信息</a><%
-                        }%>
-                        <br />
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="modelserinfo" data-source="/modelser/rmt/json/<%=host %>/<%=msid %>" ></div>
         <div class="panel panel-info">
             <div class="panel-heading">
                 模型运行信息
@@ -240,20 +174,13 @@
                             },
                             title: {
                                 text: (function () {
-//                                    var title = $('#x-axis option:selected').text()
-//                                            + ' - '
-//                                            + $('#y-axis option:selected').text()
-//                                            + ' '
-//                                            + $('#chartType :radio:checked')[0].value + ' chart';
+
                                     var title = 'table data chart'
                                     return title;
                                 })()
                             },
                             xAxis: (function () {
-//                                var title;
-//                                if($('#x-axis option:selected').text() == 'NULL'){ title = 'num' }
-//                                else{ title = $('#x-axis option:selected').text();}
-                                return {title:{text:'num'}};
+
                             })(),
                             yAxis: {
                                 title:{
@@ -287,26 +214,7 @@
                                 }
                                 return series;
                             })()
-//                            data:{
-//                                columns:(function () {
-//                                    var firstCol = [];
-//                                    firstCol.push(null);
-//                                    for(var i=0;i<rst.series[$('#y-axis option:selected')[0].index].data.length;i++){
-//                                        if($('#x-axis option:selected')[0].value == 'NULL'){
-//                                            firstCol.push(i+1);
-//                                        }
-//                                        else{
-//                                            firstCol.push(rst.series[$('#x-axis option:selected')[0].index-1].data[i]);
-//                                        }
-//                                    }
-//                                    var secondCol = [];
-//                                    secondCol.push(rst.series[$('#y-axis option:selected')[0].index].name);
-//                                    for(var i=0;i<rst.series[$('#y-axis option:selected')[0].index].data.length;i++){
-//                                        secondCol.push(rst.series[$('#y-axis option:selected')[0].index].data[i]);
-//                                    }
-//                                    return [firstCol,secondCol];
-//                                })()
-//                            }
+
                         });
                         Highcharts.setOptions({
                             global: {
@@ -461,7 +369,7 @@
                     url : '/modelins/rmt/json/<%=host %>/<%=msr.msr_guid %>',
                     success : function (data) {
                         var resJson = JSON.parse(data);
-                        if(resJson.res == null)
+                        if(resJson.result == 'suc' && resJson.data == null)
                         {
                             blFinish = true;
                             ProcessFinished(1);
@@ -470,7 +378,7 @@
                                 url : '/modelserrun/rmt/json/<%=host %>/<%=msr._id %>',
                                 success : function (data) {
                                     var jsItem = JSON.parse(data);
-                                    var descript = jsItem.msr.msr_des.replace(/\r\n/g, '<br />');
+                                    var descript = jsItem.data.msr_des.replace(/\r\n/g, '<br />');
                                     descript = descript.replace(/\\r\\n/g, '<br />');
                                     descript = descript.replace(/\\n/g, '<br />');
                                     descript = descript.replace(/\"/g, '');
@@ -478,28 +386,34 @@
                                     descript = descript.replace(/Stand Error Message :/g, '<span class="label label-warning" >模型程序错误信息</span><br />');
                                     descript = descript.replace(/Error Message :/g, '<span class="label label-danger" >运行错误信息</span><br />');
                                     $('#p_des').html('<strong>模型运行描述信息&nbsp;:&nbsp;</strong><br />' + descript);
-                                    $('#sp_time').html( jsItem.msr.msr_time + '&nbsp; s &nbsp;');
-                                    if(jsItem.msr.msr_status == 1)
+                                    $('#sp_time').html( jsItem.data.msr_time + '&nbsp; s &nbsp;');
+                                    if(jsItem.data.msr_status == 1)
                                     {
                                         var output = '';
-                                        for(var i = 0; i < jsItem.msr.msr_output.length; i++)
+                                        for(var i = 0; i < jsItem.data.msr_output.length; i++)
                                         {
-                                            output += jsItem.msr.msr_output[i].StateId +
-                                                    '&nbsp;&nbsp;&nbsp;' + jsItem.msr.msr_output[i].Event +
-                                                    '&nbsp;:&nbsp;<a href="/geodata/rmt/' + host + '/' + jsItem.msr.msr_output[i].DataId + '" >' +
-						     jsItem.msr.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
-						     '<a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="' + jsItem.msr.msr_output[i].DataId + '">Snapshot</span></a>' +
+                                            output += jsItem.data.msr_output[i].StateId +
+                                                    '&nbsp;&nbsp;&nbsp;' + jsItem.data.msr_output[i].Event +
+                                                    '&nbsp;:&nbsp;<a href="/geodata/rmt/' + host + '/' + jsItem.data.msr_output[i].DataId + '" >' +
+						     jsItem.data.msr_output[i].DataId +'</a>&nbsp;&nbsp;&nbsp;&nbsp;' +
+						     '<a><span style="cursor:pointer;padding: 0;" class="udx_snapshot btn-lg" onclick="snapshotReq(this.id)" data-toggle="modal" data-target="#myModal" id="' + jsItem.data.msr_output[i].DataId + '">Snapshot</span></a>' +
 						     '<br />';
                                         }
 
                                         $('#sp_dataoutput').html(output);
                                     }
+                                    else if(jsItem.data.msr_status == -1){
+                                        ProcessFinished(-1)
+                                    }
+                                    else {
+                                        ProcessFinished(-1)
+                                    }
                                 }
                             });
                         }
-                        else if(resJson.res == 'suc')
+                        else if(resJson.result == 'suc')
                         {
-                            switch (resJson.mis.state)
+                            switch (resJson.data.state)
                             {
                                 case 'MC_ENTER':
                                 {
@@ -553,12 +467,12 @@
         $('#bar_pro_div').css('display','none');
         if( status == 1)
         {
-            $('#progressMess').append('<span class="label label-success" >已完成</span>');
+            $('#progressMess').html('<strong>当前进度&nbsp;:&nbsp;</strong><span class="label label-success" >已完成</span>');
             var setTestBtn = $('<p style="text-align: center"><button id="setTest" class="btn btn-success" type="button" data-toggle="modal" data-target="#setTestModal" style="text-align: center;width: 250px;;margin-bottom: 50px"><i class="fa fa-cogs"></i> 设为测试数据</button></p>');
             $('#msrInfo').append(setTestBtn);
         }
         else{
-            $('#progressMess').append('<span class="label label-danger">未完成</span>');
+            $('#progressMess').html('<strong>当前进度&nbsp;:&nbsp;</strong><span class="label label-danger">未完成</span>');
         }
     }
 

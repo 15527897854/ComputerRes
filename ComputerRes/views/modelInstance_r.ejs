@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>模型服务运行实例</title>
+    <title><%=global.LanguageConfig.ModelInstancesTable.RemoteTitle %></title>
     <%- include headInclude.ejs %>
 </head>
 <body class="sticky-header">
@@ -13,19 +13,19 @@
         <%- include nav.ejs %>
         <section class="panel">
             <header class="panel-heading">
-                远程模型运行实例
+                <%=global.LanguageConfig.ModelInstancesTable.RemoteTitle %>
             </header>
             <div class="panel-body">
                 <table  class="display table table-bordered table-striped" id="dynamic-table">
                     <thead>
                     <tr>
-                        <td>GUID</td>
-                        <td>名称</td>
-                        <td>版本</td>
-                        <td>启动时间</td>
-                        <td>状态</td>
-                        <td>地址</td>
-                        <td>操作</td>
+                        <td><%=global.LanguageConfig.ModelInstancesTable.ID %></td>
+                        <td><%=global.LanguageConfig.ModelInstancesTable.ModelName %></td>
+                        <td><%=global.LanguageConfig.ModelInstancesTable.Version %></td>
+                        <td><%=global.LanguageConfig.ModelInstancesTable.StartTime %></td>
+                        <td><%=global.LanguageConfig.ModelInstancesTable.Status %></td>
+                        <td><%=global.LanguageConfig.ModelInstancesTable.Address %></td>
+                        <td><%=global.LanguageConfig.ModelInstancesTable.Operation %></td>
                     </tr>
                     </thead>
                     <tbody id="tb_data"></tbody>

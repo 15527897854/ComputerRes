@@ -8,6 +8,7 @@ var fs = require('fs');
 var uuid = require('node-uuid');
 
 var GeoDataCtrl = require('../control/geoDataControl');
+var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var setting = require('../setting');
 var remoteReqCtrl = require('../control/remoteReqControl');
 var request = require('request');
@@ -242,43 +243,65 @@ module.exports = function (app) {
                 {
                     return res.end('No Data!');
                 }
-                var filename = gd.gd_id + '.xml';
-                if(gd.gd_type == 'FILE')
-                {
-                    fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
-                        if (err) {
-                            GeoDataCtrl.delete(gdid, function (err, reslut) {
-                                return res.end('Data file do not exist!')
-                            });
+                ModelSerRunCtrl.IsOutputData2BDestroyed(gd.gd_id, function(err, destroyed){
+                    if(err){
+                        return res.end('error');
+                    }
+                    var filename = gd.gd_id + '.xml';
+                    if(gd.gd_type == 'FILE')
+                    {
+                        fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                            if (err) {
+                                GeoDataCtrl.delete(gdid, function (err, reslut) {
+                                    return res.end('Data file do not exist!')
+                                });
+                            }
+                            else {
+                                fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                                    if(err)
+                                    {
+                                        return res.end('error');
+                                    }
+                                    res.set({
+                                        'Content-Type': 'file/xml',
+                                        'Content-Length': data.length });
+                                    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                                    res.end(data);
+                                    //销毁数据
+                                    if(destroyed){
+                                        GeoDataCtrl.delete(gd.gd_id, function(err, result){});
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    else if(gd.gd_type == 'STREAM')
+                    {
+                        res.set({
+                            'Content-Type': 'file/xml',
+                            'Content-Length': gd.gd_value.length });
+                        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                        res.end(gd.gd_value);
+                        //销毁数据
+                        if(destroyed){
+                            GeoDataCtrl.delete(gd.gd_id, function(err, result){});
                         }
-                        else {
-                            fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
-                                if(err)
-                                {
-                                    return res.end('error');
-                                }
-                                res.set({
-                                    'Content-Type': 'file/xml',
-                                    'Content-Length': data.length });
-                                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                                res.end(data);
-                            });
-                        }
-                    });
-                }
-                else if(gd.gd_type == 'STREAM')
-                {
-                    res.set({
-                        'Content-Type': 'file/xml',
-                        'Content-Length': gd.gd_value.length });
-                    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                    res.end(gd.gd_value);
-                }
+                    }
+                });
             });
         })
         .delete(function(req, res, next){
             var gdid = req.params.gdid;
-            GeoDataCtrl.delete(gdid, RouteBase.returnFunction(res, 'Error in delete a geo-data!'));
+            if(gdid == 'all'){
+                if(req.query.month){
+                    var month = req.query.month;
+                    month = parseInt(month);
+                    GeoDataCtrl.deleteByMonth(month, RouteBase.returnFunction(res, 'Error in delete geo-data by month'));
+                }
+            }
+            else{
+                GeoDataCtrl.delete(gdid, RouteBase.returnFunction(res, 'Error in delete a geo-data!'));
+            }
         });
 
     app.route('/geodata/snapshot/:gdid')
@@ -308,7 +331,7 @@ module.exports = function (app) {
                     }));
                 }
                 var port = child.port;
-                var url = 'http://' + host + ':' + port + '/geodata/file';
+                var url = 'http://' + host + ':' + port + '/geodata?type=file';
                 remoteReqCtrl.postRequest(req,url,function (err, data) {
                     if(err){
                         console.log('---------------------err--------------------\n'+err);
@@ -334,7 +357,7 @@ module.exports = function (app) {
                     }));
                 }
                 var port = child.port;
-                req.pipe(request.post('http://' + host + ':' + port +'/geodata/stream',function (err, respose, body) {
+                req.pipe(request.post('http://' + host + ':' + port +'/geodata?type=stream',function (err, respose, body) {
                     if(err){
                         console.log('---------------------err--------------------\n'+err);
                         return res.end(JSON.stringify({

@@ -8,6 +8,8 @@ var CopyToClipBoard = require('copy-to-clipboard');
 
 var NoteDialog = require('../../action/utils/noteDialog');
 var ModelSerOpera = require('./modelSerOpera');
+var ModelSerRunTable = require('../modelSerRun/rmtModelSerRunTable');
+var ModelSerRunStatistic = require('../modelSerRun/modelSerRunStatistic');
 
 var ModelSerDetail = React.createClass({
     getInitialState : function(){
@@ -52,7 +54,7 @@ var ModelSerDetail = React.createClass({
 
     copyToClipBoard : function(text){
         CopyToClipBoard(text);
-        NoteDialog.openNoteDia('复制成功!');
+        NoteDialog.openNoteDia(window.LanguageConfig.ModelServiceDetail.CopySuccessfully);
     },
 
     onDeleted : function(){
@@ -67,12 +69,12 @@ var ModelSerDetail = React.createClass({
     render : function(){
         if(this.state.loading){
             return (
-                <span>加载中...</span>
+                <span>loading...</span>
             );
         }
         if(this.state.err){
             return (
-                <span>出现异常 : {JSON.stringify(this.state.err)}</span>
+                <span>Error : {JSON.stringify(this.state.err)}</span>
             );
         }
         var platform = null;
@@ -104,13 +106,13 @@ var ModelSerDetail = React.createClass({
         if(this.state.ms.ms_status == 1){
             opera_status = "started";
             status = (
-                <span className="badge badge-success">可用</span>
+                <span className="badge badge-success">{window.LanguageConfig.ModelService.Avai}</span>
             )
         }
         else {
             opera_status = "stopped";
             status = (
-                <span className="badge badge-default">不可用</span>
+                <span className="badge badge-default">{window.LanguageConfig.ModelService.Unavai}</span>
             );
         }
         var img = null;
@@ -121,15 +123,34 @@ var ModelSerDetail = React.createClass({
             img = (<img width="128" height="128" src="/images/modelImg/default.png" alt={this.state.ms.ms_model.ms_name} />);
         }
         var moreInfo = null;
-        if(this.state.ms.ms_model.m_url && this.state.ms.ma_model.m_url.trim() != ''){
-            moreInfo = (<a style="more" href={this.state.ms.ma_model.m_url} >更多信息</a>);
+        if(this.state.ms.ms_model.m_url && this.state.ms.ms_model.m_url.trim() != ''){
+            moreInfo = (<a href={this.state.ms.ms_model.m_url} >MORE</a>);
         }
         var limited = null;
         if(this.state.ms.ms_limited == 1){
-            limited = (<span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title="权限模型" ><i className="fa fa-lock" ></i>&nbsp;权限模型</span>);
+            limited = (
+                    <span className="label label-warning tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Private} >
+                        <i className="fa fa-user" ></i>&nbsp;{window.LanguageConfig.ModelService.Private}
+                    </span>);
         }
         else{
-            limited = (<span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title="公开模型" ><i className="fa fa-unlock" ></i>&nbsp;公开模型</span>);
+            limited = (
+                    <span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Public} >
+                        <i className="fa fa-users" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}
+                    </span>);
+        }
+        var permission = null;
+        if(this.state.ms.ms_permission == 1){
+            permission = (
+                    <span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Auth} >
+                        <i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}
+                    </span>);
+        }
+        else{
+            permission = (
+                    <span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title="Open" >
+                        <i className="fa fa-unlock" ></i>&nbsp;Open
+                    </span>);
         }
         var url = window.location.href;
         url = url.substr(0, url.lastIndexOf(':') + 5);
@@ -140,6 +161,8 @@ var ModelSerDetail = React.createClass({
         var run = "/modelser/preparation/" + this.state.ms._id;
 
         var modelserOpera = null;
+        var records = null;
+        var statistic = null;
         if(this.props['data-type'] == 'admin'){
             modelserOpera = (<ModelSerOpera 
                                     data-status={opera_status} 
@@ -152,66 +175,109 @@ var ModelSerDetail = React.createClass({
                                     onDeleted={this.onDeleted}
                                         />);
         }
+        
+        var host = null;
+        if(this.props['data-host']){
+            host = (
+                <p className="muted" >
+                    Host&nbsp;:&nbsp;{this.props['data-host']}
+                </p>
+            );
+        }
 
+        var invorkingURL = url + '/public/modelser/preparation/' + this.state.ms._id;
+        if(this.props['data-type'] == 'admin'){
+            invorkingURL = url + '/modelser/preparation/' + this.state.ms._id
+            records = (
+                <div className="panel panel-info">
+                    <div className="panel-heading" >
+                        Records
+                    </div>
+                    <div className="panel-body">
+                        <header className="panel-heading"> Statistic </header>
+                        <ModelSerRunStatistic 
+                            data-source={this.props['data-source-msrstatistic']}
+                            />
+                        <br />
+                        <br />
+                        <br />
+                        <header className="panel-heading"> Records Table </header>
+                        <ModelSerRunTable 
+                            data-source={this.props['data-source-msr']}
+                            data-type="rms"
+                            data-host={this.props['data-host']}
+                            />
+                    </div>
+                </div>
+            );
+        } 
         return (
-            <div className="panel panel-default">
-                <div className="panel-body">
-                    <div className="row">
-                        <div className="col-md-2">
-                            <div className="blog-img">
-                                {img}
+            <div>
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="row">
+                            <div className="col-md-2">
+                                <div className="blog-img">
+                                    {img}
+                                </div>
                             </div>
-                        </div>
-                        <div className="col-md-7">
-                            <h1 className="mtop35">{ this.state.ms.ms_model.m_name }</h1>
-                            <p className="muted" >
-                                部署人&nbsp;:&nbsp;{ this.state.ms.ms_user.u_name }&nbsp;&nbsp;&nbsp;&nbsp;
-                                Email&nbsp;:&nbsp;{ this.state.ms.ms_user.u_email }
-                            </p>
-                            <p className="muted" >
-                                模型类型&nbsp;:&nbsp;{ this.state.ms.ms_model.m_type }
-                            </p >
-                            <p className="muted" >
-                                版本号&nbsp;:&nbsp;{ this.state.ms.mv_num }
-                            </p>
-                            <p className="muted" >
-                                所在平台&nbsp;:&nbsp;{platform}
-                            </p>
-                            <p className="muted" >
-                                部署时间&nbsp;:&nbsp;{ this.state.ms.ms_update }
-                            </p>
-                            <p className="muted" >
-                                状态&nbsp;:&nbsp;{status}
-                            </p>
-                            <p className="muted" >
-                                权限情况&nbsp;:&nbsp;{limited}
-                            </p>
-                            运行请求地址&nbsp;:&nbsp;
-                            <div className="input-group m-bot15">
-                                <span className="input-group-btn">
-                                    <button title="复制" type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/public/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
-                                    <button title="公开调用" type="button" className="btn btn-default" onClick={ (e) => { window.open(url + '/public/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-retweet"></i></button>
-                                </span>
-                                <input type="text" readOnly="readonly" className="form-control" value={url + '/public/modelser/preparation/' + this.state.ms._id} />
-                            </div>
-                            API调用地址&nbsp;:&nbsp;
-                            <div className="input-group m-bot15">
-                                <span className="input-group-btn">
-                                    <button title="复制" type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
-                                </span>
-                                <input type="text" readOnly="readonly" className="form-control" value={url + '/modelser/' + this.state.ms._id + '?ac=run&inputdata=[]&outputdate=[]&auth={username:"",pwd:""}'} />
-                            </div>
-                            <p className="muted" >
-                                描述&nbsp;:&nbsp;
-                                { this.state.ms.ms_des }
+                            <div className="col-md-7">
+                                <h1 className="mtop35">{ this.state.ms.ms_model.m_name }</h1>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelServiceDetail.Deployer}&nbsp;:&nbsp;{ this.state.ms.ms_user.u_name }&nbsp;&nbsp;&nbsp;&nbsp;
+                                    Email&nbsp;:&nbsp;{ this.state.ms.ms_user.u_email }
+                                </p>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelService.Type}&nbsp;:&nbsp;{ this.state.ms.ms_model.m_type }
+                                </p >
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelService.Version}&nbsp;:&nbsp;{ this.state.ms.mv_num }
+                                </p>
+                                {host}
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelService.Platform}&nbsp;:&nbsp;{platform}
+                                </p>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelServiceDetail.DeploymentTime}&nbsp;:&nbsp;{ this.state.ms.ms_update }
+                                </p>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelService.Status}&nbsp;:&nbsp;{status}
+                                </p>
+                                <p className="muted" >
+                                    Public&nbsp;:&nbsp;{limited}
+                                </p>
+                                <p className="muted" >
+                                    Permission&nbsp;:&nbsp;{permission}
+                                </p>
+                                {window.LanguageConfig.ModelServiceDetail.PublicInvoking}&nbsp;:&nbsp;
+                                <div className="input-group m-bot15">
+                                    <span className="input-group-btn">
+                                        <button title={window.LanguageConfig.ModelServiceDetail.Copy} type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/public/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
+                                        <button title={window.LanguageConfig.ModelServiceDetail.PublicInvoking} type="button" className="btn btn-default" onClick={ (e) => { window.open(invorkingURL); } } ><i className="fa fa-retweet"></i></button>
+                                    </span>
+                                    <input type="text" readOnly="readonly" className="form-control" value={url + '/public/modelser/preparation/' + this.state.ms._id} />
+                                </div>
+                                {window.LanguageConfig.ModelServiceDetail.API}&nbsp;:&nbsp;
+                                <div className="input-group m-bot15">
+                                    <span className="input-group-btn">
+                                        <button title={window.LanguageConfig.ModelServiceDetail.Copy} type="button" className="btn btn-default" onClick={ (e) => { this.copyToClipBoard(url + '/modelser/preparation/' + this.state.ms._id); } } ><i className="fa fa-files-o"></i></button>
+                                    </span>
+                                    <input type="text" readOnly="readonly" className="form-control" value={url + '/modelser/' + this.state.ms._id + '?ac=run&inputdata=[]&outputdate=[]&auth="YOUR TOKEN"'} />
+                                </div>
+                                <p className="muted" >
+                                    {window.LanguageConfig.ModelServiceDetail.Description}&nbsp;:&nbsp;
+                                    { this.state.ms.ms_des }
 
-                            </p>
-                            {moreInfo}
-                            <br />
-                            {modelserOpera}
+                                </p>
+                                {moreInfo}
+                                <br />
+                                <br />
+                                
+                            </div>
                         </div>
                     </div>
                 </div>
+                {records}
             </div>
         );
     }

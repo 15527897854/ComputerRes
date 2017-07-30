@@ -184,11 +184,13 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
                     if(msr.msr_output[j].StateId == detail[0] && msr.msr_output[j].Event == detail[1])
                     {
                         count ++;
-                        if(parseInt(detail[2]) < setting.data_size)
+                        var size = parseInt(detail[2]);
+                        if(size < setting.data_size)
                         {
                             var gd = {
                                 gd_id : msr.msr_output[j].DataId,
                                 gd_tag :  msr.msr_output[j].Tag,
+                                gd_size :  size,
                                 gd_type : 'STREAM',
                                 gd_value : ''
                             };
@@ -199,6 +201,7 @@ ModelInsCtrl.checkres = function(app, cmds, socket){
                             var gd = {
                                 gd_id: msr.msr_output[j].DataId,
                                 gd_tag: msr.msr_output[j].Tag,
+                                gd_size: size,
                                 gd_type: 'FILE',
                                 gd_value: msr.msr_output[j].DataId + '.xml'
                             };

@@ -28,6 +28,7 @@ var DataUploader = React.createClass({
         return {
             isCtrl: isCtrl,
             id : id,
+            tag : '',
             gdid : '',
             fileUrl : fileUrl,
             streamUrl : streamUrl,
@@ -55,19 +56,27 @@ var DataUploader = React.createClass({
             maxFileSize:100*1024*1024,
             //动态表单
             dynamicFormData : function(){
+                var tag = '';
+                if($('#fileuploaderTag_' + this.state.id).val() == ''){
+                    tag = this.state.uploader.existingFileNames[0];
+                }
+                else{
+                    tag = $('#fileuploaderTag_' + this.state.id).val();
+                }
+                this.state.tag = tag;
                 var formData = {
-                    gd_tag : $('#fileuploaderTag_' + this.state.id).val()
+                    gd_tag : tag
                 };
                 return formData;
             }.bind(this),
             //上传文件按钮文本
-            uploadStr:"上传文件",
+            uploadStr : window.LanguageConfig.InputData.Data.FileUpload,
             //取消上传按钮文本
-            cancelStr:"取消文件",
+            cancelStr : window.LanguageConfig.InputData.Data.FileCancel,
             //拖拽上传提示文本（带HTML）
-            dragDropStr:"<span><b>拖拽上传</b></span>",
+            dragDropStr : "<span><b>" + window.LanguageConfig.InputData.Data.DragUpload + "</b></span>",
             //完成上传提示文本
-            doneStr:"完成上传",
+            doneStr : window.LanguageConfig.InputData.Data.UploadDone,
             //是否自动传
             autoSubmit:false,
             //是否显示已上传文件
@@ -87,6 +96,7 @@ var DataUploader = React.createClass({
                 data => {
                     if(data.data.res == 'suc'){
                         this.state.gdid = data.data.gd_id;
+                        this.state.tag = $('#dataInputTag_' + this.state.id).val();
                         this.onUploadStreamFinished(data.data.gd_id);
                     }
                 },
@@ -100,19 +110,21 @@ var DataUploader = React.createClass({
 
     onSelectSubmit : function(e){
         var gdid = this.refs.selectedTB.getSelectedGDID();
+        var tag = this.refs.selectedTB.getSelectedTAG();
         if(gdid == undefined)
         {
-            alert('请选择一个数据！');
+            alert(window.LanguageConfig.InputData.Data.PleaseChooseData);
         }
         else
         {
             this.state.gdid = gdid;
+            this.state.tag = tag;
             this.onSelectFinished();
         }
     },
 
     onUploadStreamFinished : function(gdid) {
-        NoteDialog.openNoteDia('数据上传成功！', '数据ID : ' + gdid);
+        NoteDialog.openNoteDia(window.LanguageConfig.InputData.Data.DataUploadSuccessfully, 'ID : ' + gdid);
         $('#dataInputModel' + this.state.id).modal('hide');
         $('#dataInputTag_' + this.state.id).val('');
         $('#dataInput_' + this.state.id).val('');
@@ -126,7 +138,7 @@ var DataUploader = React.createClass({
             $('#fileuploaderTag_' + this.state.id).val('');
             $('#dataFileModel' + this.state.id).modal('hide');
             this.state.gdid = resJson.gd_id;
-            NoteDialog.openNoteDia('数据上传成功！', '数据ID : ' + resJson.gd_id);
+            NoteDialog.openNoteDia(window.LanguageConfig.InputData.Data.DataUploadSuccessfully, 'ID : ' + resJson.gd_id);
             this.onFinished();
         }
         this.state.uploader.reset();
@@ -140,16 +152,12 @@ var DataUploader = React.createClass({
     onFinished : function () {
         if(this.props.onFinish)
         {
-            this.props.onFinish(this.state.gdid);
+            this.props.onFinish(this.state.gdid, this.state.tag);
         }
     },
 
     getGDID : function(){
         return this.state.gdid;
-    },
-
-    onGenerateSubmit : function () {
-
     },
     
     render : function(){
@@ -160,14 +168,14 @@ var DataUploader = React.createClass({
         if(this.props['data-type'] == 'SELECT')
         {
             selectBtn = (
-                <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataLinkModel" + id} ><i className="fa fa-link"></i> 选择数据</button>
+                <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataLinkModel" + id} ><i className="fa fa-link"></i> {window.LanguageConfig.InputData.Data.Link}</button>
             );
         }
 
         if (this.state.isCtrl) {
             semiautoBtn = (
                 <button className="btn btn-default" type="button" data-toggle="modal"
-                        data-target={'#dataGenerateModel' + id}><i className="fa fa-cogs"></i> 半自动配置</button>
+                        data-target={'#dataGenerateModel' + id}><i className="fa fa-cogs"></i> {window.LanguageConfig.InputData.Data.ConfigData}</button>
             );
             semiautoModal = (
                 <div aria-hidden="true" aria-labelledby="dataInputModel" role="dialog" tabIndex="-1"
@@ -177,12 +185,12 @@ var DataUploader = React.createClass({
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×
                                 </button>
-                                <h4 className="modal-title">半自动配置数据</h4>
+                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.ConfigData}</h4>
                             </div>
                             <div className="modal-body">
-                                <h4>数据标签</h4>
+                                <h4>{window.LanguageConfig.InputData.Data.Tag}</h4>
                                 <input id={'dataGenerateTag_' + this.state.id} type="text" className="form-control"/>
-                                <h4>UDX数据</h4>
+                                <h4>{window.LanguageConfig.InputData.Data.UDXData}</h4>
 
                                 <div className="adv-table editable-table ">
                                     <div className="clearfix">
@@ -218,10 +226,10 @@ var DataUploader = React.createClass({
                             </div>
                             <div className="modal-footer">
                                 <button id={'btn_generate_ok' + id} type="button" className="btn btn-success"
-                                        onClick={this.onGenerateSubmit}>提交
+                                        onClick={this.onGenerateSubmit}>{window.LanguageConfig.InputData.Data.Confirm}
                                 </button>
                                 <button id={'btn_generate_close' + id} type="button" className="btn btn-default"
-                                        data-dismiss="modal">关闭
+                                        data-dismiss="modal">{window.LanguageConfig.InputData.Data.Close}
                                 </button>
                             </div>
                         </div>
@@ -234,8 +242,8 @@ var DataUploader = React.createClass({
             <div>
                 <div className="btn-group">
                     {semiautoBtn}
-                    <button className="btn btn-default" type="button" data-toggle="modal" data-target={'#dataInputModel' + id} ><i className="fa fa-pencil"></i> 手动输入</button>
-                    <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataFileModel" + id} ><i className="fa fa-file"></i> 上传文件</button>
+                    <button className="btn btn-default" type="button" data-toggle="modal" data-target={'#dataInputModel' + id} ><i className="fa fa-pencil"></i> {window.LanguageConfig.InputData.Data.Input}</button>
+                    <button className="btn btn-default" type="button" data-toggle="modal" data-target={"#dataFileModel" + id} ><i className="fa fa-file"></i> {window.LanguageConfig.InputData.Data.File}</button>
                     {selectBtn}
                 </div>
                 {semiautoModal}
@@ -244,17 +252,17 @@ var DataUploader = React.createClass({
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">手动输入</h4>
+                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.Input}</h4>
                             </div>
                             <div className="modal-body">
-                                <h4>数据标签</h4>
+                                <h4>{window.LanguageConfig.InputData.Data.Tag}</h4>
                                 <input id={'dataInputTag_' + this.state.id} type="text" className="form-control" ></input>
-                                <h4>UDX数据</h4>
+                                <h4>{window.LanguageConfig.InputData.Data.UDXData}</h4>
                                 <textarea id={'dataInput_' + this.state.id} className="form-control" style={{height:'200px'}} ></textarea>
                             </div>
                             <div className="modal-footer">
-                                <button id={'btn_input_ok' + id} type="button" className="btn btn-success" onClick={this.onInputSubmit} >提交</button>
-                                <button id={'btn_input_close' + id} type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
+                                <button id={'btn_input_ok' + id} type="button" className="btn btn-success" onClick={this.onInputSubmit} >{window.LanguageConfig.InputData.Data.Confirm}</button>
+                                <button id={'btn_input_close' + id} type="button" className="btn btn-default" data-dismiss="modal" >{window.LanguageConfig.InputData.Data.Close}</button>
                             </div>
                         </div>
                     </div>
@@ -264,17 +272,17 @@ var DataUploader = React.createClass({
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">上传文件</h4>
+                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.File}</h4>
                             </div>
                             <div className="modal-body">
-                                <h4>数据标签</h4>
+                                <h4>{window.LanguageConfig.InputData.Data.Tag}</h4>
                                 <input id={'fileuploaderTag_' + this.state.id} type="text" className="form-control" ></input>
-                                <h4>数据文件</h4>
+                                <h4>{window.LanguageConfig.InputData.Data.DataFile}</h4>
                                 <div id={'fileuploader_' + this.state.id}>Upload</div>
                             </div>
                             <div className="modal-footer">
-                                <button id={'btn_file_ok' + id} type="button" className="btn btn-success" onClick={this.onFileSubmit} >提交</button>
-                                <button id={'btn_file_close' + id} type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
+                                <button id={'btn_file_ok' + id} type="button" className="btn btn-success" onClick={this.onFileSubmit} >{window.LanguageConfig.InputData.Data.Confirm}</button>
+                                <button id={'btn_file_close' + id} type="button" className="btn btn-default" data-dismiss="modal" >{window.LanguageConfig.InputData.Data.Close}</button>
                             </div>
                         </div>
                     </div>
@@ -284,7 +292,7 @@ var DataUploader = React.createClass({
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">链接数据</h4>
+                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.Link}</h4>
                             </div>
                             <div className="modal-body">
                                 <DataSelectTabel source={ this.state.selectUrl } ref="selectedTB" data-id={id} />
@@ -294,8 +302,8 @@ var DataUploader = React.createClass({
                                 <br />
                             </div>
                             <div className="modal-footer">
-                                <button id={'btn_link_ok' + id} type="button" className="btn btn-success" onClick={this.onSelectSubmit} >确认</button>
-                                <button id={'btn_link_close' + id} type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
+                                <button id={'btn_link_ok' + id} type="button" className="btn btn-success" onClick={this.onSelectSubmit} >{window.LanguageConfig.InputData.Data.Confirm}</button>
+                                <button id={'btn_link_close' + id} type="button" className="btn btn-default" data-dismiss="modal" >{window.LanguageConfig.InputData.Data.Close}</button>
                             </div>
                         </div>
                     </div>

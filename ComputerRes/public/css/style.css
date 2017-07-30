@@ -4731,3 +4731,13 @@ ol.comment-list {
     border-radius: 5px;
     -webkit-border-radius: 5px;
 }
+
+.label-open {
+    background-color: #00CD66
+}
+
+.label-open[href]:hover,.label-open[href]:focus {
+    background-color: #00CD00
+}
+
+.hand {cursor:pointer}

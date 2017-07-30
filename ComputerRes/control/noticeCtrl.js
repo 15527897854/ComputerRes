@@ -2,22 +2,22 @@
  * Created by ChaoRan on 2016/8/20.
  */
 
-var ModelNotice = require('../model/notice');
+var Notice = require('../model/notice');
 var controlBase = require('./controlBase');
 
-function ModelNoticeCtrl() {
+function NoticeCtrl() {
 
 }
 
-ModelNoticeCtrl.__proto__ = controlBase;
-ModelNoticeCtrl.model = ModelNotice;
-module.exports = ModelNoticeCtrl;
+NoticeCtrl.__proto__ = controlBase;
+NoticeCtrl.model = Notice;
+module.exports = NoticeCtrl;
 
 
 //将未读标记为已读
-ModelNoticeCtrl.updateState = function (where, callback) {
+NoticeCtrl.updateState = function (where, callback) {
     if(where._id == 'all'){
-        ModelNotice.updateByWhere({},{$set:{hasRead:true}},{multi:true,upsert:false},function (err, data) {
+        Notice.updateByWhere({},{$set:{hasRead:true}},{multi:true,upsert:false},function (err, data) {
             if(err){
                 return callback(null,JSON.stringify({status:0}));
             }
@@ -25,13 +25,13 @@ ModelNoticeCtrl.updateState = function (where, callback) {
         });
     }
     else{
-        ModelNotice.getByOID(where._id,function (err, data) {
+        Notice.getByOID(where._id,function (err, data) {
             if(err){
                 return callback(null,JSON.stringify({status:0}));
             }
             if(data){
                 data.hasRead = true;
-                ModelNotice.update(data,function (err, data) {
+                Notice.update(data,function (err, data) {
                     if(err){
                         return callback(null,JSON.stringify({status:0}));
                     }
@@ -41,3 +41,33 @@ ModelNoticeCtrl.updateState = function (where, callback) {
         });
     }
 };
+
+//添加模型启动消息
+NoticeCtrl.addModelStartNotice = function(){
+    
+}
+
+//添加模型启动消息
+NoticeCtrl.addModelStopNotice = function(){
+
+}
+
+//添加模型启动消息
+NoticeCtrl.addModelDeleteNotice = function(){
+
+}
+
+//得到所有消息
+NoticeCtrl.getAllNoticeByTypeAndRead = function(type, read, callback){
+    Notice.getAllByTypeAndRead(type, read, this.returnFunction(callback, 'Error in getting all notices!'));
+}
+
+//设置所有为已读
+NoticeCtrl.markAllAsRead = function(callback){
+    Notice.markAllAsRead(this.returnFunction(callback, 'Error in setting all notices as read'));
+}
+
+//设置所有为已读
+NoticeCtrl.markAsRead = function(oid ,callback){
+    Notice.markAsRead(oid, this.returnFunction(callback, 'Error in setting notice as read by oid'));
+}
