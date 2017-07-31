@@ -519,6 +519,10 @@ module.exports = function(app)
                     }
                 });
             }
+            //登记服务
+            else if(req.query.ac == 'register'){
+                ModelSerCtrl.RegisterModelService(msid, RouteBase.returnFunction(res, 'Error in registering model service'));
+            }
         })
         //删除模型服务
         .delete(function (req, res, next) {
