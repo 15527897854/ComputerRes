@@ -497,8 +497,8 @@
                 '   <div class="file-caption-name"></div>\n' +
                 '</div>\n';
             //noinspection HtmlUnknownAttribute
-            tBtnDefault = '<button type="{type}" tabindex="500" title="{title}" class="{css}" ' +
-                '{status}>{icon} {label}</button>';
+            tBtnDefault = '<span tabindex="500" title="{title}" class="{css}" ' +
+                '{status}>{icon} {label}</span>';
             //noinspection HtmlUnknownAttribute
             tBtnLink = '<a href="{href}" tabindex="500" title="{title}" class="{css}" {status}>{icon} {label}</a>';
             //noinspection HtmlUnknownAttribute
@@ -536,8 +536,8 @@
                 '    <div class="clearfix"></div>\n' +
                 '</div>';
             //noinspection HtmlUnknownAttribute
-            tActionDelete = '<button type="button" class="kv-file-remove {removeClass}" ' +
-                'title="{removeTitle}" {dataUrl}{dataKey}>{removeIcon}</button>\n';
+            tActionDelete = '<span class="kv-file-remove {removeClass}" ' +
+                'title="{removeTitle}" {dataUrl}{dataKey}>{removeIcon}</span>\n';
             tActionUpload = '<button type="button" class="kv-file-upload {uploadClass}" title="{uploadTitle}">' +
                 '{uploadIcon}</button>';
             tActionZoom = '<button type="button" class="kv-file-zoom {zoomClass}" ' +

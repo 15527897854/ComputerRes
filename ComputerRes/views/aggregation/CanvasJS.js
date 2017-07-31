@@ -21,7 +21,7 @@ var CanvasJS = (()=> {
     const StatesColor = {
         unready: '#60A7FF',
         pending: '#A3D39B',
-        pause: '#78F5DD',
+        pause: '#ff75c9',
         running: '#ffee58',
         collapsed: '#e0412b',
         finished: '#41EB4A'
@@ -35,6 +35,7 @@ var CanvasJS = (()=> {
         failed: '#e0412b',
         // mid: '#3AEB7C',
         origin: '#60A7FF',
+        optional: '#9bc8ff',
         input: '#FF8034'
         // output: '#3AEB7C'
     };
@@ -43,7 +44,8 @@ var CanvasJS = (()=> {
         link:StatesColor.unready,
         manualLink: '#0949ff',
         event: EventColor.origin,
-        states: StatesColor.unready
+        states: StatesColor.unready,
+        optional: EventColor.optional
     };
 
     // 数据角色和状态
@@ -77,7 +79,13 @@ var CanvasJS = (()=> {
     };
 
     const __font = '12px 微软雅黑';
+
     const __lineHeight = 12;
+
+    const NoticeType = {
+        warning: 'Warning:',
+        notice: 'Notice:'
+    };
 
     var __getRGB = function (color) {
         var reg = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
@@ -116,6 +124,9 @@ var CanvasJS = (()=> {
             type == 'CONTROL') {
             id = 'eventContextMenu';
         }
+        else if(type == 'STAGE'){
+            id = 'stageContextMenu';
+        }
         $('#' + id).css({
             top:event.layerY + (+$(event.target).parent().css('padding-left').replace('px','')),
             left:event.layerX + (+$(event.target).parent().css('padding-top').replace('px',''))
@@ -123,8 +134,8 @@ var CanvasJS = (()=> {
     };
 
     var __hideContextMenu = function () {
-        $('#stateContextMenu').hide();
-        $('#eventContextMenu').hide();
+        $('.contextMenu li').hide();
+        $('.contextMenu').hide();
     };
 
     var __getEventDetail = function (__stateID, __eventName, __MSID, serviceList) {
@@ -397,6 +408,15 @@ var CanvasJS = (()=> {
         };
     };
 
+    var __addNotice = function (noticeType,noticeText) {
+        $.gritter.add({
+            title: noticeType,
+            text: noticeText,
+            sticky: false,
+            time: 2000
+        });
+    };
+
     // 将text 分割为数组，使每一个数组元素的宽度不大于width，font是字体
     var __breakLinesForCanvas = function (text, width, height, font) {
         var findBreakPoint = function (text, width, context) {
@@ -446,6 +466,8 @@ var CanvasJS = (()=> {
     };
 
     return {
+        __menuID: null,
+        __hasChanged: false,
         // canvas element
         __stage: null,
         __scene: null,
@@ -498,7 +520,7 @@ var CanvasJS = (()=> {
         // __serviceList: [],
         // __relationList: [],
         // taskCfg
-        // __dataList: [],                   // gdid MSID stateID eventName isInput isOutput TODO 接入数据服务时应该加上 host port 两个字段
+        // __dataList: [],                   // gdid MSID stateID eventName isInput TODO 接入数据服务时应该加上 host port 两个字段
         // __inputDataList: [],
         // endregion
 
@@ -544,6 +566,12 @@ var CanvasJS = (()=> {
                 $('#solution-legend').show();
             }
             this.initLegend();
+
+            window.onbeforeunload = function (event) {
+                if(self.__mode != 'view' && self.__hasChanged){
+                    return 'Configuration has changed, close will not save these changes!';
+                }
+            }
         },
 
         // region bind event
@@ -724,59 +752,208 @@ var CanvasJS = (()=> {
         __bindMenuEvent: function () {
             var self = this;
 
-            $('#del-ms-menu').on('click',function (e) {
-                self.removeServiceRole(self.__currentNode);
+            // region menu authority
+            if(this.__type == 'task'){
+                $('.solution-menu').remove();
+            }
+            else if(this.__type == 'solution'){
+                $('.task-menu').remove();
+            }
+            if(this.__mode == 'view'){
+                $('.edit-mode-menu').remove();
+                $('.configure-mode-menu').remove();
+            }
+            else if(this.__mode == 'edit'){
+                $('.view-mode-menu').remove();
+                $('.configure-mode-menu').remove();
+            }
+            else if(this.__mode == 'configure'){
+                $('.edit-mode-menu').remove();
+                $('.view-mode-menu').remove();
+            }
+            // endregion
+
+            // region menu item call
+            $('.contextMenu li').on('click',function (e) {
                 __hideContextMenu();
             });
 
-            $('#upload-data-menu').on('click',function (e) {
+            $('#show-data-menu').on('click',function (e) {
                 self.__buildEventDetail();
-                __hideContextMenu();
             });
+
+            $('#remove-data-menu').on('click',function (e) {
+                var node = self.__currentNode;
+                node.dispatchEvent('remove data');
+            });
+
+            $('#configure-data-menu').on('click',function (e) {
+
+            });
+
+            $('#del-ms-menu').on('click',function (e) {
+                self.removeServiceRole(self.__currentNode);
+            });
+
+            // 其他操作都是在保存时更新，但这个要立即更新
+            $('#addbreak-ms-menu').on('click',function (e) {
+                var node = self.__currentNode;
+
+                var saveBreak = function () {
+                    $.ajax({
+                        url: '/aggregation/task/breakpoint?ac=add',
+                        method: 'POST',
+                        contentType: 'application/json;charset=utf-8',
+                        dataType: 'json',
+                        data: JSON.stringify({
+                            taskID: self.__task._id,
+                            MSID: node.__MSID
+                        })
+                    })
+                        .done(function (res) {
+                            if(res.error){
+                                __addNotice(NoticeType.warning,'Add break point failed<br><pre>'+ JSON.stringify(res.error,null,4) +'</pre>');
+                            }
+                            else{
+                                if(res.result == 'success'){
+                                    var msStateList = self.__task.MSState;
+                                    for(let i=0;i<msStateList.length;i++){
+                                        if(msStateList[i].MSID == node.__MSID){
+                                            msStateList[i].state = MSState.pause;
+                                            break;
+                                        }
+                                    }
+                                    node.fillColor = __getRGB(StatesColor.pause);
+                                    node.__pause = true;
+                                    __addNotice(NoticeType.notice,'Add break point successed!');
+                                }
+                                else{
+                                    __addNotice(NoticeType.notice,'Can\'t add a break point to a running model!');
+                                }
+                            }
+                        })
+                        .error(function (err) {
+                            __addNotice(NoticeType.warning,'Add break point failed<br><pre>'+ JSON.stringify(err,null,4) +'</pre>');
+                        });
+                };
+
+                if($('#taskID-input').length && $('#taskID-input').attr('value') && $('#taskID-input').attr('value') != undefined){
+                    saveBreak();
+                }
+                else{
+                    var msStateList = self.__task.MSState;
+                    for(let i=0;i<msStateList.length;i++){
+                        if(msStateList[i].MSID == node.__MSID){
+                            msStateList[i].state = MSState.pause;
+                            break;
+                        }
+                    }
+                    node.fillColor = __getRGB(StatesColor.pause);
+                    node.__pause = true;
+                }
+            });
+
+            $('#removebreak-ms-menu').on('click',function (e) {
+                var node = self.__currentNode;
+                $.ajax({
+                    url: '/aggregation/task/breakpoint?ac=remove',
+                    method: 'POST',
+                    contentType: 'application/json;charset=utf-8',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        taskID: self.__task._id,
+                        MSID: node.__MSID
+                    })
+                })
+                    .done(function (res) {
+                        if(res.error){
+                            __addNotice(NoticeType.warning,'Remove break point failed<br><pre>'+ JSON.stringify(res.error,null,4) +'</pre>');
+                        }
+                        else{
+                            if(res.result == 'success'){var msStateList = self.__task.MSState;
+                                for(let i=0;i<msStateList.length;i++){
+                                    if(msStateList[i].MSID == node.__MSID){
+                                        msStateList[i].state = MSState.unready;
+                                        break;
+                                    }
+                                }
+                                node.fillColor = __getRGB(StatesColor.unready);
+                                node.__pause = false;
+                                __addNotice(NoticeType.notice,'Remove break point successed!');
+                            }
+                        }
+                    })
+                    .error(function (err) {
+                        __addNotice(NoticeType.warning,'Remove break point failed<br><pre>'+ JSON.stringify(err,null,4) +'</pre>');
+                    })
+            });
+            // endregion
         },
 
         __bindStageEvent: function (stage) {
             var self = this;
-            stage.click(function (e) {
-                if(e.button == 0){
-                    __hideContextMenu();
-                    if(typeof self.__toolMode !== 'undefined'){
-                        if(self.__toolMode == 'zoomIn'){
-                            self.__stage.zoomOut(0.85);
-                        }
-                        else if(self.__toolMode == 'zoomOut'){
-                            self.__stage.zoomIn(0.85);
-                        }
+
+            // zoom
+            stage.addEventListener('mouseup', function (e) {
+                if(typeof self.__toolMode !== 'undefined'){
+                    if(self.__toolMode == 'zoomIn'){
+                        self.__stage.zoomOut(0.85);
                     }
-                }
-                else if(e.button == 2){
-                    __hideContextMenu();
+                    else if(self.__toolMode == 'zoomOut'){
+                        self.__stage.zoomIn(0.85);
+                    }
                 }
             });
         },
 
         __bindSceneEvent: function (scene) {
             var self = this;
+
+            // region hide context menu
+            scene.addEventListener('mouseup', function (e) {
+                // $('.' + self.__type + '-menu, .' + self.__mode + '-mode-menu').show();
+                if(e.target == null || e.target instanceof JTopo.Container || e.target instanceof JTopo.Link){
+                    __hideContextMenu();
+                }
+            });
+            // endregion
+
+            // region delete manual link
             scene.addEventListener('mouseup',function (e) {
                 var target = e.target;
-                if(!e.target){
+                if(e.target == null){
                     __beginNode = null;
                 }
                 if(e.button == 0){
 
                 }
                 else if(e.button == 2){
-                    if(!target && !__beginNode){
+                    if(target == null && !__beginNode){
                         $('#hand-tool').click();
                     }
                     if( self.__type == 'solution' && self.__mode == 'edit' && target && target.elementType == 'link' && target.__linkType == 'CUSTOM'){
+                        self.__hasChanged = true;
                         self.removeRelationByJTopoID(self.__scene, target._id);
                         self.__removeJTopoElementByID(self.__scene, target._id);
                     }
                 }
             });
+            // endregion
 
+            // region scene change tag
+            scene.addEventListener('mousewheel',function (e) {
+                if(self.__type == 'solution'){
+                    self.__hasChanged = true;
+                }
+            });
+            // endregion
+
+            // region repaint text when node resize
             scene.addEventListener('mousedrag',function (e) {
+                if(self.__type == 'solution'){
+                    self.__hasChanged = true;
+                }
+
                 var node = e.target;
                 if(node != null && node instanceof JTopo.Node && self.__scene.mode == 'edit'){
                     var width = null;
@@ -792,6 +969,7 @@ var CanvasJS = (()=> {
                     self.__stage.paint();
                 }
             });
+            // endregion
         },
 
         __bindContainerEvent: function (container) {
@@ -802,20 +980,50 @@ var CanvasJS = (()=> {
             var self = this;
             var type = node.__nodeType;
 
-            if(self.__mode == 'configure'){
-                $('#del-ms-menu').hide();
-                node.addEventListener('mouseup',function (e) {
-                    if(e.button == 2){
-                        __hideContextMenu();
-                        __showContextMenu(node.__nodeType);
-                        self.__currentNode = node;
-                    }
-                    else if(e.button == 0){
+            // region menu authority
+            node.addEventListener('mouseup',function (e) {
+                if(e.button == 2){
+                    __hideContextMenu();
+                    if(node.__nodeType != 'STATES'){
+                        if((node.__nodeType == 'INPUT' || node.__nodeType == 'CONTROL') && !__is2Node(node, self.__solution.solutionCfg.relationList)){
 
+                            if(node.__isInput && node.__gdid){
+                                $('#remove-data-menu').show();
+                                $('#show-data-menu').show();
+                            }
+                            else{
+                                $('#show-data-menu').show();
+                                $('#configure-data-menu').show();
+                            }
+                        }
                     }
-                });
-            }
+                    else if(node.__nodeType == 'STATES'){
+                        var msStateList = self.__task.MSState;
+                        var msState = null;
+                        for(let i=0;i<msStateList.length;i++){
+                            if(msStateList[i].MSID == this.__MSID){
+                                msState = msStateList[i];
+                                break;
+                            }
+                        }
+                        if(msState == null || msState.state == MSState.unready){
+                            $('#addbreak-ms-menu').show();
+                        }
+                        else if(msState == null || msState.state == MSState.pause){
+                            $('#removebreak-ms-menu').show();
+                        }
+                    }
+                    __showContextMenu(node.__nodeType);
+                    self.__currentNode = node;
+                }
+                else if(e.button == 0){
+                    __hideContextMenu();
+                }
 
+            });
+            // endregion
+
+            // region remove service
             if(self.__mode == 'edit' && self.__type == 'solution'){
                 node.addEventListener('mouseup',function (e) {
                     if(e.button == 2){
@@ -829,7 +1037,9 @@ var CanvasJS = (()=> {
                     }
                 });
             }
+            // endregion
 
+            // region data panel
             if(type == 'INPUT' || type == 'OUTPUT' || type == 'CONTROL'){
                 // 双击上传数据
                 node.addEventListener('dbclick',function (e) {
@@ -845,7 +1055,9 @@ var CanvasJS = (()=> {
                     self.__buildStatesDetail();
                 });
             }
+            // endregion
 
+            // region text indentation
             node.addEventListener('mouseover',function (e) {
                 var node = this;
                 if(node && node instanceof JTopo.Node){
@@ -879,6 +1091,29 @@ var CanvasJS = (()=> {
                     self.__stage.paint();
                 }
             });
+            // endregion
+
+            // region delete uploaded data
+            node.addEventListener('remove data',function (e) {
+                if(confirm('Are you sure to delete this configured data?')){
+                    self.__hasChanged = true;
+                    var id = this.__MSID + '___' + this.__stateID + '___' + this.__eventName;
+                    $('#' + id + '-download-div').remove();
+                    this.__gdid = null;
+                    var fillColor = __getRGB((this.__optional != null && this.__optional == true)? EventColor.optional: EventColor.origin);
+                    this.fillColor = fillColor;
+                    self.__stage.paint();
+                }
+            });
+            // endregion
+
+            // region window change flag
+            node.addEventListener('mousedrag',function (e) {
+                if(self.__type == 'solution'){
+                    self.__hasChanged = true;
+                }
+            })
+            // endregion
         },
 
         __bindSaveSolutionEvent: function (isSaveAs) {
@@ -920,6 +1155,7 @@ var CanvasJS = (()=> {
                                 });
                             }
                             else {
+                                self.__hasChanged = false;
                                 $('#loading-div').hide();
                                 $('#submit-form-btn').attr('disabled',false);
                                 $('#save-aggre-solution-modal').modal('hide');
@@ -988,6 +1224,7 @@ var CanvasJS = (()=> {
                                 });
                             }
                             else {
+                                self.__hasChanged = false;
                                 $('#loading-div').hide();
                                 $('#submit-form-btn').attr('disabled',false);
                                 $('#save-aggre-task-modal').modal('hide');
@@ -1039,15 +1276,19 @@ var CanvasJS = (()=> {
         //     __nodeType:'STATES',
         //     __MSID:String,
         //     __containerID:String
+        //     __state                  // 应该放在msstate中，这里是临时属性，不会存在solution中
+        //     __pause                  // 放在msstate中
         // }
         // {
         //     __nodeType:'INPUT',      // 'OUTPUT' 'CONTROL'
         //     __MSID:String,
         //     __stateID:String,
         //     __eventName:String
+        //     __gdid                   // 放在 dataList 中
+        //     __isInput:Boolean        // 当上传数据了，才为true
         // }
         // 创建时只添加jTopo自带的属性，额外属性在调用端添加
-        __addJTopoNode: function(x, y, text, type, scale) {
+        __addJTopoNode: function(x, y, text, type, scale, optional) {
             var node = null;
             var linkScale = scale == 1?1:(2-scale);
             if(type == 'STATES'){
@@ -1069,7 +1310,12 @@ var CanvasJS = (()=> {
                 node.radius = __DATA_RADIUS;
                 node.borderWidth = 0;
                 node.borderColor = '0,0,0';
-                node.fillColor = __getRGB(SolutionColor.event);
+                if(optional && optional == true){
+                    node.fillColor = __getRGB(EventColor.optional);
+                }
+                else{
+                    node.fillColor = __getRGB(SolutionColor.event);
+                }
             }
             if(x && y)
                 node.setCenterLocation(x,y);
@@ -1202,6 +1448,7 @@ var CanvasJS = (()=> {
                         scene.add(l);
                         __beginNode = null;
                         scene.remove(link);
+                        self.__hasChanged = true;
                     }
                     else{
                         __beginNode = null;
@@ -1348,8 +1595,10 @@ var CanvasJS = (()=> {
                     }
                     else{
                         $('#'+ id +'-download-div').remove();
-                        $(  '<p style="margin-top: 10px"><b>Download data: </b></p>' +
-                            '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn">Download</button>')
+                        $(  '<div id="'+id+'-download-div">' +
+                            '<p style="margin-top: 10px"><b>Download data: </b></p>' +
+                            '<button id="' + id + '-download-data" onclick="window.open(\''+dataURL+'\')"  class="btn btn-default btn-xs down-event-btn">Download</button>' +
+                            '</div>')
                             .appendTo($('#' + id));
                     }
                 }
@@ -1374,11 +1623,17 @@ var CanvasJS = (()=> {
                     var eventName = eventDetail.event._$.name;
                     var eventType = eventDetail.event._$.type=='response'?'Input':'Output';
                     var eventDesc = eventDetail.event._$.description;
+                    var optional = (eventDetail.event._$.optional == '0' ||
+                                    eventDetail.event._$.optional == 0 ||
+                                    eventDetail.event._$.optional == false)
+                                        ? 'false':
+                                        'true';
                     $dataInfoDialog = $(
                         '<div id="'+id+'" class="data-info-dialog" title="Data Information">' +
                         '<p><b>Name: </b><span>' + eventName + '</span></p>' +
                         '<p><b>Type: </b><span>' + eventType + '</span></p>' +
                         '<p><b>Description: </b><span>' + eventDesc + '</span></p>' +
+                        '<p><b>Optional: </b><span>' + optional + '</span></p>' +
                         '<p><b>UDX Schema: </b></p>' +
                         '<pre style="width:100%;height:300px">' + JSON.stringify(eventDetail.schema,null,4) + '</pre>' +
                         '</div>'
@@ -1397,88 +1652,106 @@ var CanvasJS = (()=> {
                 $('#'+id).parent().addClass('dataInfo-ui-dialog');
 
                 if(this.__mode == 'configure'){
-                    if((node.__nodeType == 'INPUT' || node.__nodeType == 'CONTROL') && !__is2Node(node, self.__solution.solutionCfg.relationList)){
-                        $(
-                            '<p><b>Upload data: </b></p>' +
-                            '<input id="' + id + '-upload-data" name="myfile" type="file" class="file">'
-                        ).appendTo($dataInfoDialog);
+                    // 如果模型状态是 unready 或者 pause，才允许上传数据
+                    var msStateList = self.__task.MSState;
+                    var msState = null;
+                    for(let i=0;i<msStateList.length;i++){
+                        if(msStateList[i].MSID == node.__MSID){
+                            msState = msStateList[i];
+                            break;
+                        }
+                    }
+                    if(msState == null || msState.state == MSState.unready || msState.state == MSState.pause){
+                        if((node.__nodeType == 'INPUT' || node.__nodeType == 'CONTROL') && !__is2Node(node, self.__solution.solutionCfg.relationList)){
+                            $(
+                                '<p><b>Upload data: </b></p>' +
+                                '<input id="' + id + '-upload-data" name="myfile" type="file" class="file">'
+                            ).appendTo($dataInfoDialog);
 
-                        // TODO 验证数据合法性
-                        $('#'+id+'-upload-data').fileinput({
-                            uploadUrl: '/geodata/file',
-                            allowedFileExtensions: ['xml','zip'],
-                            aploadAsync: true,
-                            showPreview: false,
-                            showUpload: true,
-                            showRemove: true,
-                            showClose: false,
-                            showUploadedThumbs: false,
-                            autoReplace: true,
-                            maxFileCount: 1,
-                            uploadLabel: '',
-                            removeLabel: '',
-                            cancelLabel: '',
-                            browseLabel: '',
-                            removeIcon: '<i class="glyphicon glyphicon-trash text-danger"></i>',
-                            uploadIcon: '<i class="glyphicon glyphicon-upload text-info"></i>'
-                        })
-                            .on('fileuploaded',function (e, data, previewId, index) {
-                                if(data.response.res != 'suc'){
+                            // TODO 验证数据合法性
+                            $('#'+id+'-upload-data').fileinput({
+                                uploadUrl: '/geodata/file',
+                                allowedFileExtensions: ['xml','zip'],
+                                aploadAsync: true,
+                                showPreview: false,
+                                showUpload: true,
+                                showRemove: true,
+                                showClose: false,
+                                showUploadedThumbs: false,
+                                autoReplace: true,
+                                maxFileCount: 1,
+                                uploadLabel: '',
+                                removeLabel: '',
+                                cancelLabel: '',
+                                browseLabel: ''
+                            })
+                                .on('fileselect',function (event, numFiles, label) {
+                                    $('#' + id + ' .fileinput-remove-button').on('click',function (e) {
+                                        node.__gdid = null;
+                                        $('#' + id + '-download-div').remove();
+                                    });
+                                })
+                                .on('fileuploaded',function (e, data, previewId, index) {
+                                    if(data.response.res != 'suc'){
+                                        $.gritter.add({
+                                            title: 'Warning:',
+                                            text: 'Upload data failed!',
+                                            sticky: false,
+                                            time: 2000
+                                        });
+                                        return ;
+                                    }
+                                    self.__hasChanged = true;
+                                    var gdid = data.response.gd_id;
+                                    var inputData = {
+                                        gdid: gdid,
+                                        MSID: node.__MSID,
+                                        stateID: node.__stateID,
+                                        eventName: node.__eventName,
+                                        state: DataState.ready,
+                                        isInput: true,
+                                        isMid: false
+                                    };
+                                    var hasInserted = false;
+                                    var dataList = self.__task.taskCfg.dataList;
+                                    for(var i=0;i<dataList.length;i++){
+                                        // 已经上传过，重新上传替换
+                                        if(dataList[i].MSID == node.__MSID &&
+                                            dataList[i].stateID == node.__stateID &&
+                                            dataList[i].eventName == node.__eventName){
+                                            dataList[i].gdid = gdid;
+                                            hasInserted = true;
+                                            break;
+                                        }
+                                    }
+                                    if(!hasInserted){
+                                        dataList.push(inputData);
+                                    }
+                                    node.__isInput = true;
+                                    node.__gdid = gdid;
+                                    node.fillColor = __getRGB(EventColor.input);
+
+                                    addDownBtn();
+
                                     $.gritter.add({
-                                        title: 'Warning:',
-                                        text: 'Upload data failed!',
+                                        title: 'Notice:',
+                                        text: 'Upload data success!' ,
                                         sticky: false,
                                         time: 2000
                                     });
                                     return ;
-                                }
-                                var gdid = data.response.gd_id;
-                                var inputData = {
-                                    gdid: gdid,
-                                    MSID: node.__MSID,
-                                    stateID: node.__stateID,
-                                    eventName: node.__eventName,
-                                    state: DataState.ready,
-                                    isInput: true,
-                                    isMid: false
-                                };
-                                var hasInserted = false;
-                                var dataList = self.__task.taskCfg.dataList;
-                                for(var i=0;i<dataList.length;i++){
-                                    // 已经上传过，重新上传替换
-                                    if(dataList[i].MSID == node.__MSID &&
-                                        dataList[i].stateID == node.__stateID &&
-                                        dataList[i].eventName == node.__eventName){
-                                        dataList[i].gdid = gdid;
-                                        hasInserted = true;
-                                        break;
-                                    }
-                                }
-                                if(!hasInserted){
-                                    dataList.push(inputData);
-                                }
-                                node.__gdid = gdid;
-                                node.fillColor = __getRGB(EventColor.input);
-
-                                addDownBtn();
-
-                                $.gritter.add({
-                                    title: 'Notice:',
-                                    text: 'Upload data success!' ,
-                                    sticky: false,
-                                    time: 2000
+                                })
+                                .on('fileerror',function (e, data) {
+                                    $.gritter.add({
+                                        title: 'Warning:',
+                                        text: '<pre>'+JSON.stringify(error, null, 4)+'</pre>',
+                                        sticky: false,
+                                        time: 2000
+                                    });
                                 });
-                                return ;
-                            })
-                            .on('fileerror',function (e, data) {
-                                $.gritter.add({
-                                    title: 'Warning:',
-                                    text: '<pre>'+JSON.stringify(error, null, 4)+'</pre>',
-                                    sticky: false,
-                                    time: 2000
-                                });
-                            });
+                        }
                     }
+
                 }
                 // close event
                 $('.ui-dialog-titlebar-close').click(function (e) {
@@ -1487,8 +1760,6 @@ var CanvasJS = (()=> {
             }
             // download button
             addDownBtn();
-
-            this.updateServiceState();
         },
 
         __buildStatesDetail: function () {
@@ -1522,12 +1793,12 @@ var CanvasJS = (()=> {
                         '<p><b>Principle: </b><span>' + category.principle + '</span></p>' +
                         '<p><b>Path: </b><span>' + category.path + '</span></p>' +
                         '</div>' +
-                        '<hr>' +
+                        '<hr style="opacity: 0.3">' +
                         '<div id="'+id +'-LocalAttributes"><h4>LocalAttributes:</h4>' +
                         '<ul id="'+id+'-tab" class="nav nav-tabs"></ul>' +
                         '<div id="'+id+'-tab-content" class="tab-content"></div>' +
                         '</div>' +
-                        '<hr>' +
+                        '<hr style="opacity: 0.3">' +
                         '<div id="'+id +'-States"><h4>State list:</h4>' +
                         '<div id="'+ id + '-states-div"></div>' +
                         '</div>' +
@@ -1669,6 +1940,8 @@ var CanvasJS = (()=> {
         //     MDL:Object
         // }
         addServiceRole: function(SADLService) {
+            var self = this;
+            this.__hasChanged = true;
             //暂时只有一个state
             var container = this.__addJTopoContainer();
             var state = SADLService.MDL.ModelClass.Behavior.StateGroup.States.State;
@@ -1691,6 +1964,12 @@ var CanvasJS = (()=> {
             stateNode.__MSID = __service._id;
             stateNode.__nodeType = 'STATES';
             stateNode.__containerID = container._id;
+            // stateNode.__state = MSState.unready;
+            // stateNode.__pause = false;
+            this.__task.MSState.push({
+                state: MSState.unready,
+                MSID: __service._id
+            });
             this.__bindNodeEvent(stateNode);
             container.add(stateNode);
             var inputCount = 0;
@@ -1730,11 +2009,14 @@ var CanvasJS = (()=> {
                     }
                     k++;
                 }
-                nodeA = this.__addJTopoNode(x, y, event[i]._$.name, type, scale);
+                var optional = event[i]._$.optional;
+                optional = (optional == '0' || optional == 0 || optional == false)? false: true;
+                nodeA = this.__addJTopoNode(x, y, event[i]._$.name, type, scale, optional);
                 nodeA.__nodeType = type;
                 nodeA.__MSID = __service._id;
                 nodeA.__stateID = state._$.id;
                 nodeA.__eventName = event[i]._$.name;
+                nodeA.__optional = optional;
                 this.__bindNodeEvent(nodeA);
                 container.add(nodeA);
 
@@ -1751,6 +2033,7 @@ var CanvasJS = (()=> {
         },
 
         removeServiceRole: function (serviceNode) {
+            this.__hasChanged = true;
             var self = this;
             var roleList = self.__scene.childs;
             var serviceList = this.__solution.solutionCfg.serviceList;
@@ -1825,12 +2108,14 @@ var CanvasJS = (()=> {
                             // role.shadowColor = 'rgba(0,0,0,1)';
                             if(data.state){
                                 if(data.isInput){
+                                    role.__isInput = data.isInput;
                                     role.fillColor = __getRGB(EventColor.input);
                                 }
                                 else{
                                     role.fillColor = __getRGB(EventColor[data.state.toLowerCase()]);
                                 }
                             }
+
                             role.__gdid = data.gdid;
                             // 设置上传按钮的显示，添加下载链接
                         }
@@ -1851,6 +2136,7 @@ var CanvasJS = (()=> {
                         if(role.__MSID == service.MSID){
                             if(service.state){
                                 role.fillColor = __getRGB(StatesColor[service.state.toLowerCase()]);
+                                role.__state = service.state;
                             }
                         }
                     }
@@ -1881,6 +2167,18 @@ var CanvasJS = (()=> {
             this.__importRoleByJSON(containerList);
             this.__importRoleByJSON(linkList);
             self.__stage.paint();
+
+            // init MSState
+            if(location.href.indexOf('aggregation/task/new') != -1){
+                var MSState = this.__task.MSState;
+                var serviceList = this.__solution.solutionCfg.serviceList;
+                for(let i=0;i<serviceList.length;i++){
+                    MSState.push({
+                        MSID: serviceList[i]._id,
+                        state: 'UNREADY'
+                    });
+                }
+            }
         },
 
         importTask: function () {
@@ -1991,21 +2289,11 @@ var CanvasJS = (()=> {
                     driver: 'DataDriver'
                 },
                 taskState:'CONFIGURED',
-                taskInfo: taskInfo
+                taskInfo: taskInfo,
+                MSState: this.__task.MSState
             };
             if($('#taskID-input').length && $('#taskID-input').attr('value') && $('#taskID-input').attr('value') != undefined){
                 __task._id = $('#taskID-input').attr('value');
-            }
-            else{
-                var MSState = [];
-                var serviceList = this.__solution.solutionCfg.serviceList;
-                for(let i=0;i<serviceList.length;i++){
-                    MSState.push({
-                        MSID: serviceList[i]._id,
-                        state: 'UNREADY'
-                    });
-                }
-                __task.MSState = MSState;
             }
 
             return __task;
@@ -2071,17 +2359,12 @@ var CanvasJS = (()=> {
             }
         },
 
-        // TODO 当上传数据时调用，更新所有服务的准备状态，显示在界面上
-        updateServiceState: function () {
-
-        },
-
         // TODO 当上传数据时调用，验证上传数据与schema 是否匹配，先不做
         validateEvent: function () {
 
         },
 
-        // TODO 当在不同模型之间建立连接时，验证link 是否合法
+        // 当在不同模型之间建立连接时，验证link 是否合法
         validateLink: function (nodeA, nodeZ) {
             // 只能由输出连向输入
             if(nodeZ.__nodeType == 'OUTPUT'){
@@ -2103,7 +2386,7 @@ var CanvasJS = (()=> {
                 return false;
             }
 
-            // 在不同模型之间添加连线时，检查他的schema是否相同
+            // TODO 在不同模型之间添加连线时，检查他的schema是否相同
 
             return true;
         },

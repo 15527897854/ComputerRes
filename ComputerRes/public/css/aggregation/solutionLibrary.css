@@ -7,10 +7,6 @@ body{
 section{
     height: 100%;
 }
-.main-content{
-    height:100%;
-    background: #FFF !important;
-}
 .solution-operation-btn{
     margin-right: 10px;
     width: 22px;

@@ -4,26 +4,25 @@
     <title>Solution library</title>
     <%- include ../headInclude.ejs %>
 
-    <link href="/css/jquery-ui.min.css" rel="stylesheet">
-    <link href="/css/bootstrap.css" rel="stylesheet">
-    <link href="/css/jquery-ui-1.10.3.css" rel="stylesheet">
-
     <link rel="stylesheet" type="text/css" href="/js/webix/webix.css" />
     <link rel="stylesheet" type="text/css" href="/css/aggregation/solutionLibrary.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/aggregation/style.css"/>
 
 </head>
 <body class="left-side-collapsed">
 <section>
     <%- include ../header.ejs %>
-    <div class="main-content row" style="">
+    <div class="main-content" style="">
 
         <%- include ../nav.ejs %>
 
-        <h3 style="margin: 10px 20px;" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">Solution library</h3>
+        <div class="wrapper row">
+            <h2 class="col-lg-12 col-md-12 col-sm-12 col-xs-12">Solution library</h2>
 
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div id="solution-list-pager"></div>
-            <div id="solution-list"></div>
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div id="solution-list-pager"></div>
+                <div id="solution-list"></div>
+            </div>
         </div>
 
         <%- include ../footer.ejs %>

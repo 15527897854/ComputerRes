@@ -11,6 +11,7 @@ var TaskInstanceManager = function () {
 };
 
 // TaskInstance 的构造函数，与model/aggreTask 相同
+// 此处把solution也放进来了，为了调用端异步流程的方便管理
 TaskInstanceManager.TaskInstance = function (taskInstance) {
     if(taskInstance){
         for(var key in taskInstance){
@@ -27,6 +28,7 @@ TaskInstanceManager.TaskInstance = function (taskInstance) {
         this.taskState = {};
         this.MSState = [];
         this.time = (new Date()).getTime();
+        this.solution = {};
     }
 };
 
@@ -56,20 +58,36 @@ TaskInstanceManager.add = function (taskInstance) {
 
 // 同时更新 instance 和 db
 TaskInstanceManager.update = function (taskInstance, cb) {
+    var hasFinded = false;
     for(let i=0;i<app.taskInstanceColl.length;i++){
         if(app.taskInstanceColl[i]._id == taskInstance._id){
+            hasFinded = true;
             app.taskInstanceColl[i] = taskInstance;
             break;
         }
     }
-    AggreTaskModal.update(taskInstance,function (err, rst) {
+    if(hasFinded){
+        AggreTaskModal.update(taskInstance,function (err, rst) {
+            if(err){
+                return cb(err);
+            }
+            else{
+                return cb(null,rst);
+            }
+        });
+    }
+};
+
+TaskInstanceManager.save = function (_id, cb) {
+    var taskInstance = TaskInstanceManager.get(_id);
+    AggreTaskModal.save(taskInstance,function (err, rst) {
         if(err){
             return cb(err);
         }
-        else{
-            return cb(null,rst);
+        else {
+            return cb(rst);
         }
-    });
+    })
 };
 
 // 调用情景：点击开始运行、某一个MS崩溃掉、运行结束

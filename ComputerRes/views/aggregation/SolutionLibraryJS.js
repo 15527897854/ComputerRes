@@ -44,7 +44,7 @@ var SolutionLibrary = (function () {
         },
 
         __buildSolutionList: function () {
-            var width = $('#solution-list').width()-50;
+            var width = $('#solution-list').width()-30;
             var height = 600;
             var columns = [
                 {
@@ -56,7 +56,7 @@ var SolutionLibrary = (function () {
                             placeholder: 'Filter'
                         }
                     ],
-                    width: width/5
+                    adjust: true
                 },{
                     id: 'author',
                     header: [
@@ -66,15 +66,16 @@ var SolutionLibrary = (function () {
                             placeholder: 'Filter'
                         }
                     ],
-                    width: width/5
+                    adjust: true
                 },{
                     id: 'desc',
                     header: 'Description',
-                    width: width/5
+                    minWidth: 150,
+                    fillspace: true
                 },{
                     id: 'time',
                     header: 'Time',
-                    width: width/5
+                    adjust: true
                 }
             ];
             columns.push({
@@ -88,7 +89,7 @@ var SolutionLibrary = (function () {
                         "<button class='btn btn-default btn-xs solution-operation-btn solution-delete-btn' title='delete solution'><i class='fa fa-trash'></i></button>" +
                         "</div>";
                 },
-                width: width/5
+                adjust: true
             });
 
             webix.locale.pager = {
@@ -103,9 +104,8 @@ var SolutionLibrary = (function () {
                 pager:{
                     template: "{common.first()} {common.prev()} {common.pages()} {common.next()} {common.last()}",
                     container: 'solution-list-pager',
-                    size: 10,
+                    size: 12,
                     group: 5,
-                    level: 1,
                     width: 500
                 },
                 width: width,
@@ -122,6 +122,22 @@ var SolutionLibrary = (function () {
             this.__bindEditBtnEvent();
             this.__bindDeleteBtnEvent();
             this.__bindConfigureBtnEvent();
+            this.__bindResizeEvent();
+        },
+
+        __bindResizeEvent: function () {
+            var resizeTable = function () {
+                __webixSolutionTable.define('width', $('#solution-list').width()-30);
+                __webixSolutionTable.resize();
+            };
+
+            $('.header-section .toggle-btn').on('click',function () {
+                resizeTable();
+            });
+
+            window.onresize = function () {
+                resizeTable();
+            };
         },
 
         __bindDetailBtnEvent: function () {

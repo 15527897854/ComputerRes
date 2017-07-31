@@ -4,11 +4,6 @@ input[type=checkbox]{
 .webix_tree_item.webix_selected{
     background: #27ae60 !important;
 }
-.main-content{
-    margin-bottom: 0 !important;
-    height:100%;
-    background: #FFF !important;
-}
 html{
     height:100%;
 }
@@ -24,11 +19,6 @@ body{
 }
 .mslist-default{
 
-}
-#div-AggreMS{
-    height:100%;
-    margin:0 0;
-    padding:0 !important;
 }
 #canvas-div{
     height:100%;
@@ -47,6 +37,7 @@ body{
 #toolbar{
     position: fixed;
     margin:10px;
+    z-index: 999;
 }
 /*#solution-info{*/
     /*display: none;*/
@@ -66,7 +57,7 @@ body{
 }
 #legend-toolbar{
     position: fixed;
-    right: 20px;
+    right: 30px;
     margin-right: 0 !important;
 }
 .contextMenu{
@@ -147,6 +138,7 @@ body{
 
 }
 #solution-table tr:nth-child(2) td:nth-child(1) div,
+#solution-table tr:nth-child(3) td:nth-child(1) div,
 #event-table tr td:nth-child(1) div{
     margin:0 auto;
     width:20px;
@@ -165,7 +157,7 @@ body{
     -webkit-border-radius: 5px;
 }
 #link-table tr:nth-child(1) td:nth-child(1) div,
-#solution-table tr:nth-child(3) td:nth-child(1) div{
+#solution-table tr:nth-child(4) td:nth-child(1) div{
     margin:0 auto;
     width: 40px;
     height: 20px;
@@ -173,7 +165,7 @@ body{
 
 }
 #link-table tr:nth-child(2) td:nth-child(1) div,
-#solution-table tr:nth-child(4) td:nth-child(1) div{
+#solution-table tr:nth-child(5) td:nth-child(1) div{
     margin:0 auto;
     width: 40px;
     height: 20px;

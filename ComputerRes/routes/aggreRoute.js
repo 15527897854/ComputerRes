@@ -335,6 +335,21 @@ module.exports = function (app) {
             })
         });
 
+    app.route('/aggregation/task/breakpoint')
+        .post(function (req, res, next) {
+            var ac = req.query.ac;
+            var taskID = req.body.taskID;
+            var MSID = req.body.MSID;
+            MSAggreCtrl.breakpointAC(taskID,MSID,ac,function (err, result) {
+                if(err){
+                    return res.end(JSON.stringify({error:err}));
+                }
+                else{
+                    return res.end(JSON.stringify({error:null,result:result}));
+                }
+            });
+        });
+
     // endregion
 
     // region data

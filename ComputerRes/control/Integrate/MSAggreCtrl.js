@@ -262,12 +262,17 @@ var MSAggreCtrl = (function () {
                     else{
                         tag = 'save';
                     }
+
                     if(tag == 'update'){
                         AggreTaskModel.getByOID(taskID,function (err, oldTask) {
                             if(err){
                                 return cb(err);
                             }
                             else{
+                                // 更新datalist和state
+                                // datalist只更新 __isInput的
+                                // state 只更新 unready, pause
+                                // 其他的由后台来维护
                                 oldTask.taskInfo = task.taskInfo;
                                 oldTask.time = task.time;
                                 var oldDataList = oldTask.taskCfg.dataList;
@@ -284,12 +289,35 @@ var MSAggreCtrl = (function () {
                                         oldDataList.push(newDataList[j])
                                     }
                                 }
+
+                                var stateFailedList = [];
+                                var oldMSState = oldTask.MSState;
+                                var newMSState = task.MSState;
+                                for(let i=0;i<newMSState.length;i++){
+                                    if(newMSState[i].state == 'PAUSE' || newMSState[i].state == 'UNREADY'){
+                                        for(let j=0;j<oldMSState.length;j++){
+                                            if(newMSState[i].MSID == oldMSState[j].MSID){
+                                                if(oldMSState[j].state == 'PAUSE' || oldMSState[j].state == 'UNREADY'){
+                                                    oldMSState[j].state = newMSState[i].state;
+                                                    break;
+                                                }
+                                                else{
+                                                    stateFailedList.push({
+                                                        MSID: oldMSState[j].MSID,
+                                                        state: oldMSState[j].state
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
                                 AggreTaskModel.update(oldTask,function (err, rst) {
                                     if(err){
                                         return cb(err);
                                     }
                                     else{
-                                        return cb(null,taskID);
+                                        return cb(null,taskID,stateFailedList);
                                     }
                                 })
                             }
@@ -369,7 +397,7 @@ var MSAggreCtrl = (function () {
             })
         },
 
-        // task and solution
+        // return task and solution
         getTaskDetailByID: function (_id, cb) {
             AggreTaskModel.getByOID(_id,function (err, task) {
                 if(err){
@@ -413,26 +441,103 @@ var MSAggreCtrl = (function () {
                 })
             })
                 .then(function (task) {
-                    // 添加task instance
-                    TaskInstanceManager.add(task);
-                    // 更新task state，更新失败时将错误给前台
-                    TaskInstanceManager.updateTaskState(task._id, 'RUNNING', function (err, rst) {
+                    AggreSolutionModel.getByOID(task.taskCfg.solutionID, function (err, solution) {
                         if(err){
-                            cb(err);
-                            return WebSocketCtrl.emit(_id, 'error', JSON.stringify({error:err}));
+                            return cb(err);
                         }
                         else{
-                            return cb(null,task._id);
+                            // 添加task instance
+                            delete solution.layoutCfg;
+                            task.solution = solution;
+                            TaskInstanceManager.add(task);
+                            // 更新task state，更新失败时将错误给前台
+                            TaskInstanceManager.updateTaskState(task._id, 'RUNNING', function (err, rst) {
+                                if(err){
+                                    cb(err);
+                                    return WebSocketCtrl.emit(_id, 'error', JSON.stringify({error:err}));
+                                }
+                                else{
+                                    return cb(null,task._id);
+                                }
+                            });
+                            // 遍历模型，分发数据，驱动运算
+                            DataDriver.init(task);
                         }
                     });
-                    // 遍历模型，分发数据，驱动运算
-                    DataDriver.init(task);
+
                 })
                 .catch(function (err) {
                     console.log(err);
                     return cb(err);
                 });
         },
+
+        // 更改数据库和内存中的state
+        breakpointAC: function (taskID, MSID, ac, cb) {
+            var self = this;
+            var oldState = null;
+            var newState = null;
+            if(ac == 'add'){
+                oldState = 'UNREADY';
+                newState = 'PAUSE';
+            }
+            else if(ac == 'remove'){
+                oldState = 'PAUSE';
+                newState = 'UNREADY';
+            }
+            AggreTaskModel.getByOID(taskID,function (err, task) {
+                if(err){
+                    return cb(err);
+                }
+                else{
+                    var MSState = task.MSState;
+                    var hasFound = false;
+                    for(let i=0;i<MSState.length;i++){
+                        if(MSState[i].MSID == MSID){
+                            hasFound = true;
+                            if(MSState[i].state == oldState){
+                                MSState[i].state = newState;
+                                AggreTaskModel.update(task,function (err, rst) {
+                                    if(err){
+                                        return cb(err);
+                                    }
+                                    else{
+                                        var taskInstance = TaskInstanceManager.get(task._id);
+                                        if(taskInstance != null){
+                                            var msState = null;
+                                            for(let i=0;i<taskInstance.MSState.length;i++){
+                                                if(taskInstance.MSState[i].MSID == MSID){
+                                                    msState = taskInstance.MSState[i].state;
+                                                    if(msState == oldState){
+                                                        msState.state = newState;
+                                                        return cb(null,'success');
+                                                    }
+                                                    else{
+                                                        return cb(null,'failed');
+                                                    }
+                                                }
+                                                break;
+                                            }
+                                        }
+                                        else{
+                                            return cb(null, 'success');
+                                        }
+                                    }
+                                });
+                            }
+                            else{
+                                return cb(null, 'failed');
+                            }
+                            break;
+                        }
+                    }
+                    if(hasFound == false){
+                        return cb(null,'failed');
+                    }
+                }
+            });
+        },
+
         // endregion
 
         // region data ctrl

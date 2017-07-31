@@ -302,6 +302,17 @@ module.exports = (function () {
         }
     };
 
+    var __getFromNodeEvent = function (solution, MSID, stateID, eventName) {
+        var relationList = solution.solutionCfg.relationList;
+        for(let i=0;i<relationList.length;i++){
+            var toNode = relationList[i].to;
+            if(toNode.MSID == MSID && toNode.stateID == stateID && toNode.eventName == eventName){
+                return relationList[i].from;
+            }
+        }
+        return null;
+    };
+
     var __getTaskState = function (task) {
         var MSStateList = task.MSState;
         var hasRunning = false;
@@ -432,7 +443,7 @@ module.exports = (function () {
                     var serviceDataList = [];
                     var taskDataList = task.taskCfg.dataList;
                     for(let j=0;j<taskDataList.length;j++){
-                        if(taskDataList[j].MSID == MSID){
+                        if(taskDataList[j].MSID == MSID && taskDataList[j].state == DataState.ready){
                             serviceDataList.push(taskDataList[j]);
                         }
                     }
@@ -442,6 +453,7 @@ module.exports = (function () {
 
         },
 
+        // 分两种驱动：未分发完数据的由数据驱动，已分发完数据的直接检查模型准备状态
         // 分发数据坐标，更新数据状态为pending
         // 返回一个数组，[{error:Object}]，通过websocket传给前台
         dispatchDataListPosition: function (taskID,MSID,dataList) {
@@ -569,6 +581,7 @@ module.exports = (function () {
                 })
         },
 
+        // TODO 轮询请求
         // 下载完数据后回复消息（是否下载成功）
         emitDataDownloaded: function (replyData, centerHost, centerPort) {
             var url = 'http://' + centerHost + ':' + centerPort + '/aggregation/onReceivedDataDownloaded';
@@ -607,8 +620,8 @@ module.exports = (function () {
             var task = TaskInstanceManager.get(taskID);
             if(task){
                 var dataList = [];
+                dataList = task.taskCfg.dataList;
                 if(!MSinsID){
-                    dataList = task.taskCfg.dataList;
                     for(let i=0;i<dataList.length;i++){
                         if(dataList[i].gdid == gdid){
                             if(dataList[i].isMid == null || dataList[i].isMid == false){
@@ -619,10 +632,10 @@ module.exports = (function () {
                     }
                 }
                 if(MSinsID){
-                    let msEvents = [];
+                    let inputEvents = [];
                     for(let i=0;i<dataList.length;i++){
                         if(dataList[i].MSID == MSinsID){
-                            msEvents.push(dataList[i]);
+                            inputEvents.push(dataList[i]);
                         }
                     }
                     TaskInstanceManager.getServiceByID(taskID, MSinsID,function (err, service) {
@@ -650,10 +663,10 @@ module.exports = (function () {
                                         Optional: eventList[i]._$.optional,
                                         StateId: eventList[i].stateID
                                     });
-                                    for(let j=0;j<msEvents.length;j++){
-                                        if(eventList[i].stateID == msEvents[j].stateID && eventList[i]._$.name == msEvents[j].eventName){
-                                            if(msEvents[j].state == DataState.received){
-                                                inputData[i].DataId = msEvents[j].gdid;
+                                    for(let j=0;j<inputEvents.length;j++){
+                                        if(eventList[i].stateID == inputEvents[j].stateID && eventList[i]._$.name == inputEvents[j].eventName){
+                                            if(inputEvents[j].state == DataState.received){
+                                                inputData[inputData.length-1].DataId = inputEvents[j].gdid;
                                                 isDataReady = true;
                                                 break;
                                             }
@@ -674,8 +687,11 @@ module.exports = (function () {
                                     });
                                     isDataReady = true;
                                 }
-                                if(eventList[i]._$.optional == '1' || eventList[i]._$.optional == 'true'){
-                                    isDataReady = true;
+                                if(eventList[i]._$.type == 'response' && (eventList[i]._$.optional == '1' || eventList[i]._$.optional == 'true')){
+                                    var fromNode = __getFromNodeEvent(task.solution,MSinsID, eventList[i].stateID, eventList[i]._$.name);
+                                    if(!fromNode){
+                                        isDataReady = true;
+                                    }
                                 }
                                 if(!isDataReady){
                                     isMSReady = false;
@@ -794,9 +810,9 @@ module.exports = (function () {
             });
         },
 
+        // TODO 轮询请求
         // 模型运行结束时触发，
-        // TODO 这里崩了怎么办？？？
-        // TODO center node 向computer node 请求心跳状态。。。
+        // TODO 这里崩了怎么办？？？center node 向computer node 请求心跳状态
         emitMSFinished: function (finishedInfo,cb) {
             var url = 'http://' + finishedInfo.centerHost + ':' + finishedInfo.centerPort + '/aggregation/onReceivedMSFinished';
             var form = {
@@ -825,8 +841,8 @@ module.exports = (function () {
                 }
                 else {
                     if(finishedInfo.MSState == MSState.collapsed){
-                        var taskState = __getTaskState(task);
-                        task.taskState = taskState;
+                        // var taskState = __getTaskState(task);
+                        // task.taskState = taskState;
                         TaskInstanceManager.update(task,function (err, rst) {
                             if (err) {
                                 err.place = 'update onReceivedMSFinished';
@@ -840,85 +856,79 @@ module.exports = (function () {
                                     newDataList: []
                                 }));
                                 WebSocketCtrl.emit(task._id,'update task state',JSON.stringify({
-                                    error: null,
-                                    taskState: taskState
+                                    error: null
+                                    // taskState: taskState
                                 }));
                                 return ;
                             }
                         });
                     }
-                    AggreSolutionModel.getByOID(task.taskCfg.solutionID,function (err, solution) {
-                        if(err){
-                            return WebSocketCtrl.emit(taskID,'error',JSON.stringify({error:err}));
+
+                    var newDataList = [];
+                    for(let i =0;i<finishedInfo.outputData.length;i++){
+                        var output = finishedInfo.outputData[i];
+                        var toNode = __get2NodeEvent(task.solution,finishedInfo.MSinsID,output.StateId,output.Event);
+                        let newData = {
+                            host: finishedInfo.host,
+                            port: finishedInfo.port,
+                            state: DataState.received,
+                            eventName: output.Event,
+                            stateID: output.StateId,
+                            MSID: finishedInfo.MSinsID,
+                            gdid: output.DataId,
+                            isInput: false
+                        };
+                        task.taskCfg.dataList.push(newData);
+                        newDataList.push(newData);
+                        // 有两个实体
+                        if(toNode){
+                            newData.isMid = true;
+                            newData = {
+                                host: finishedInfo.host,
+                                port: finishedInfo.port,
+                                state: DataState.ready,
+                                eventName: toNode.eventName,
+                                stateID: toNode.stateID,
+                                MSID: toNode.MSID,
+                                gdid: output.DataId,
+                                isMid: false,
+                                isInput: false
+                            };
+                            task.taskCfg.dataList.push(newData);
+                            newDataList.push(newData);
                         }
                         else{
-                            var newDataList = [];
-                            for(let i =0;i<finishedInfo.outputData.length;i++){
-                                var output = finishedInfo.outputData[i];
-                                var toNode = __get2NodeEvent(solution,finishedInfo.MSinsID,output.StateId,output.Event);
-                                let newData = {
-                                    host: finishedInfo.host,
-                                    port: finishedInfo.port,
-                                    state: DataState.received,
-                                    eventName: output.Event,
-                                    stateID: output.StateId,
-                                    MSID: finishedInfo.MSinsID,
-                                    gdid: output.DataId,
-                                    isInput: false
-                                };
-                                task.taskCfg.dataList.push(newData);
-                                newDataList.push(newData);
-                                // 有两个实体
-                                if(toNode){
-                                    newData.isMid = true;
-                                    newData = {
-                                        host: finishedInfo.host,
-                                        port: finishedInfo.port,
-                                        state: DataState.ready,
-                                        eventName: toNode.eventName,
-                                        stateID: toNode.stateID,
-                                        MSID: toNode.MSID,
-                                        gdid: output.DataId,
-                                        isMid: false,
-                                        isInput: false
-                                    };
-                                    task.taskCfg.dataList.push(newData);
-                                    newDataList.push(newData);
-                                }
-                                else{
-                                    newData.isMid = false;
-                                }
-                            }
-                            // 程序如果在这里崩了怎么办？数据没更新，重新运行task时没有数据驱动
+                            newData.isMid = false;
+                        }
+                    }
+                    // 程序如果在这里崩了怎么办？数据没更新，重新运行task时没有数据驱动
+                    TaskInstanceManager.update(task,function (err, rst) {
+                        if(err){
+                            err.place = 'update onReceivedMSFinished';
+                            return WebSocketCtrl.emit(task._id,'error',JSON.stringify({error:err}));
+                        }
+                        else{
+                            // var taskState = __getTaskState(task);
+                            // task.taskState = taskState;
                             TaskInstanceManager.update(task,function (err, rst) {
-                                if(err){
+                                if (err) {
                                     err.place = 'update onReceivedMSFinished';
-                                    return WebSocketCtrl.emit(task._id,'error',JSON.stringify({error:err}));
+                                    return WebSocketCtrl.emit(task._id, 'error', JSON.stringify({error: err}));
                                 }
                                 else{
-                                    var taskState = __getTaskState(task);
-                                    task.taskState = taskState;
-                                    TaskInstanceManager.update(task,function (err, rst) {
-                                        if (err) {
-                                            err.place = 'update onReceivedMSFinished';
-                                            return WebSocketCtrl.emit(task._id, 'error', JSON.stringify({error: err}));
-                                        }
-                                        else{
-                                            WebSocketCtrl.emit(task._id,'service stoped',JSON.stringify({
-                                                error:null,
-                                                MSinsID: finishedInfo.MSinsID,
-                                                MSState: finishedInfo.MSState,
-                                                newDataList: newDataList
-                                            }));
-                                            WebSocketCtrl.emit(task._id,'update task state',JSON.stringify({
-                                                error: null,
-                                                taskState: taskState
-                                            }));
-                                            self.init(task);
-                                        }
-                                    })
+                                    WebSocketCtrl.emit(task._id,'service stoped',JSON.stringify({
+                                        error:null,
+                                        MSinsID: finishedInfo.MSinsID,
+                                        MSState: finishedInfo.MSState,
+                                        newDataList: newDataList
+                                    }));
+                                    WebSocketCtrl.emit(task._id,'update task state',JSON.stringify({
+                                        error: null
+                                        // taskState: taskState
+                                    }));
+                                    self.init(task);
                                 }
-                            });
+                            })
                         }
                     });
                 }

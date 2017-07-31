@@ -53,7 +53,7 @@ var TaskList = (function () {
                 __tasksSegment[i].time = __tasksSegment[i].taskInfo.time;
             }
 
-            var width = $('#task-list').width()-50;
+            var width = $('#task-list').width()-30;
             var height = 600;
             var columns = [
                 {
@@ -65,7 +65,7 @@ var TaskList = (function () {
                             placeholder: 'Filter'
                         }
                     ],
-                    width: width/5
+                    adjust: true
                 },{
                     id: 'author',
                     header: [
@@ -75,15 +75,16 @@ var TaskList = (function () {
                             placeholder: 'Filter'
                         }
                     ],
-                    width: width/5
+                    adjust: true
                 },{
                     id: 'desc',
                     header: 'Description',
-                    width: width/5
+                    minWidth: 150,
+                    fillspace: true
                 },{
                     id: 'time',
                     header: 'Time',
-                    width: width/5
+                    adjust: true
                 }
             ];
             columns.push({
@@ -96,7 +97,7 @@ var TaskList = (function () {
                         "<button class='btn btn-default btn-xs task-operation-btn task-delete-btn' title='delete task'><i class='fa fa-trash'></i></button>" +
                         "</div>";
                 },
-                width: width/5
+                adjust: true
             });
 
             webix.locale.pager = {
@@ -111,10 +112,9 @@ var TaskList = (function () {
                 pager:{
                     template: "{common.first()} {common.prev()} {common.pages()} {common.next()} {common.last()}",
                     container: 'task-list-pager',
-                    size: 10,
+                    size: 12,
                     group: 5,
-                    level: 1,
-                    width: 500
+                    width: width
                 },
                 width: width,
                 height: height,
@@ -129,6 +129,22 @@ var TaskList = (function () {
             this.__bindDetailBtnEvent();
             this.__bindEditBtnEvent();
             this.__bindDeleteBtnEvent();
+            this.__bindResizeEvent();
+        },
+
+        __bindResizeEvent: function () {
+            var resizeTable = function () {
+                __webixTaskTable.define('width', $('#task-list').width()-30);
+                __webixTaskTable.resize();
+            };
+
+            $('.header-section .toggle-btn').on('click',function () {
+                resizeTable();
+            });
+
+            window.onresize = function () {
+                resizeTable();
+            };
         },
 
         __bindDetailBtnEvent: function () {

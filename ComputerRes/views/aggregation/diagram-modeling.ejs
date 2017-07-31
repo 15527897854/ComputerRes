@@ -21,7 +21,7 @@
         <button id="save-task-tool" type="button" class="btn btn-default configure-mode-tool" title="save aggregation task"><i class="fa fa-floppy-o"></i></button>
     </div>
     <div id="legend-toolbar" class="btn-group toolbar">
-        <button id="legend-tool" type="button" class="btn btn-default" title="show legend" data-toggle="modal" data-target="#legend-modal"><i class="fa fa-bars"></i></button>
+        <button id="legend-tool" type="button" class="btn btn-default" title="show legend" data-toggle="modal" data-target="#legend-modal"><i class="fa fa-question"></i></button>
     </div>
 </div>
 <!-- endregion -->
@@ -30,15 +30,20 @@
 
 <!-- region ContextMenu -->
 <ul class="list-group contextMenu" id="eventContextMenu">
-    <li id="upload-data-menu" class="list-group-item"><a>upload data</a></li>
-    <li id="configure-data-menu" class="list-group-item"><a>configure data on line</a></li>
-    <!--<li id="" class="list-group-item"><a>set source from node</a></li>-->
-    <!--<li id="" class="list-group-item"><a>set source of node</a></li>-->
+    <li id="show-data-menu" class="list-group-item configure-mode-menu task-menu"><a>data detail</a></li>
+    <li id="remove-data-menu" class="list-group-item configure-mode-menu task-menu"><a>remove data</a></li>
+    <li id="configure-data-menu" class="list-group-item configure-mode-menu task-menu"><a>configure data on line</a></li>
 </ul>
 
 <ul class="list-group contextMenu" id="stateContextMenu">
-    <li id="del-ms-menu" class="list-group-item"><a>delete model service</a></li>
-    <li id="check-ms-menu" class="list-group-item"><a>check configuration</a></li>
+    <li id="del-ms-menu" class="list-group-item edit-mode-menu solution-menu"><a>delete model service</a></li>
+    <li id="addbreak-ms-menu" class="list-group-item configure-mode-menu task-menu"><a>add break point here</a></li>
+    <li id="removebreak-ms-menu" class="list-group-item configure-mode-menu task-menu"><a>remove this break point</a></li>
+    <!--<li id="check-ms-menu" class="list-group-item"><a>check configuration</a></li>-->
+</ul>
+
+<ul class="list-group contextMenu" id="stageContextMenu">
+    <li id="clear-stage-menu" class="list-group-item edit-mode-menu solution-menu"><a>clear all model service</a></li>
 </ul>
 <!-- endregion -->
 
@@ -79,6 +84,10 @@
                         <tr>
                             <td><div class="origin"></div></td>
                             <td>No data entity</td>
+                        </tr>
+                        <tr>
+                            <td><div class="optional"></div></td>
+                            <td>Optional IO data</td>
                         </tr>
                         <tr>
                             <td><div class="input"></div></td>
@@ -159,6 +168,10 @@
                             <tr>
                                 <td><div class="event"></div></td>
                                 <td>Input or output data</td>
+                            </tr>
+                            <tr>
+                                <td><div class="optional"></div></td>
+                                <td>Optional input or output data</td>
                             </tr>
                             <tr>
                                 <td><div class=""></div></td>
