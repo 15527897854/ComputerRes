@@ -1152,6 +1152,9 @@ ModelSerControl.getInputData = function (ms_id, callback) {
                 var state = mdl.ModelClass.Behavior.StateGroup.States.State;
                 if (state instanceof Array) {
                     for (var k = 0; k < state.length; k++) {
+                        if(!(state[k].Event instanceof Array)){
+                            state[k].Event = [state[k].Event];
+                        }
                         for (var i = 0; i < state[k].Event.length; i++) {
                             for(var j = 0; j < dataDecs.length; j++) {
                                 if (state[k].Event[i].hasOwnProperty('ResponseParameter')) {
