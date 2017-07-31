@@ -5,6 +5,7 @@ var React = require('react');
 var Axios = require('axios');
 
 var PortalInfo = require('../systemSetting/portalInfo');
+var NoteDialog = require('../../action/utils/noteDialog');
 
 var RmtModelSerTable = React.createClass({
     getInitialState : function () {
@@ -14,7 +15,8 @@ var RmtModelSerTable = React.createClass({
             ms : null,
             init : true,
             type : this.props['data-type'],
-            item : null
+            item : null,
+            progress : false
         };
     },
 
@@ -176,7 +178,32 @@ var RmtModelSerTable = React.createClass({
     },
 
     openRegisterDialogHandle : function (e, item) {
+        this.setState({ item : item });
         $('#mdModelSerRegister').modal('show');
+    },
+
+    registerConfim : function(e){
+        this.setState({progress : true});
+        Axios.put('/modelser/' + this.state.item._id + '?ac=register').then(
+            data => {
+                if(data.data.result == 'suc'){
+                    NoteDialog.openNoteDia('Info', 'Model service register successfully!');
+                    this.setState({item : null, progress : true});
+                    this.refresh();
+                    $('#mdModelSerRegister').modal('hide');
+                }
+                else{
+                    this.setState({item : null, progress : true});
+                    this.refresh();
+                    $('#mdModelSerRegister').modal('hide');
+                }
+            },
+            err => {
+                this.setState({item : null, progress : true});
+                this.refresh();
+                $('#mdModelSerRegister').modal('hide');
+            }
+        );
     },
 
     lockHandle : function(e, host, msid){
@@ -480,6 +507,11 @@ var RmtModelSerTable = React.createClass({
             }.bind(this));
         }
         var ms_name = null;
+        var ms_des = null;
+        if(this.state.item){
+            ms_name = this.state.item.ms_model.m_name;
+            ms_des = this.state.item.ms_des;
+        }
         return (
             <div>
                 <table className="display table table-bordered table-striped" id="modelservice-table">
@@ -490,7 +522,7 @@ var RmtModelSerTable = React.createClass({
                         {MsItems}
                     </tbody>
                 </table>
-                <div aria-hidden="true" aria-labelledby="mdModelSerRegister" role="dialog" tabIndex="-1" id="mdModelSerRegister" className="modal fade">
+                <div aria-hidden="true" aria-labelledby="mdModelSerRegister" role="dialog" tabIndex="-1" id="mdModelSerRegister" style={{"zIndex":"1050"}}  className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
@@ -500,9 +532,10 @@ var RmtModelSerTable = React.createClass({
                             <div className="modal-body">
                                 <PortalInfo />
                                 <h5 >Service Name : {ms_name} </h5>
+                                <h5 >Service Description : {ms_des} </h5>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-success" >Confirm</button>
+                                <button type="button" className="btn btn-success" onClick={ this.registerConfim } >Confirm</button>
                                 <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
                             </div>
                         </div>

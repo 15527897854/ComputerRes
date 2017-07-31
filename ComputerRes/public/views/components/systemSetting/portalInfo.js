@@ -47,12 +47,12 @@ var PortalInfo = React.createClass({
         Axios.put('/json/portalinfo?portalname=' + portalname + '&portalpwd=' + portalpwd).then(
             data => {
                 if(data.data.result == 'suc'){
-                    NoteDialog.openNoteDia('更改成功!', '门户信息更改成功!');
+                    NoteDialog.openNoteDia('Info!', 'Portal Account Information update successfully!');
                     this.dialogClose();
                     this.refresh();
                 }
                 else{
-                    this.setState({warning : '验证失败'});
+                    this.setState({warning : 'Fail!'});
                 }
                 this.setState({processBar : false});
             },
@@ -96,7 +96,7 @@ var PortalInfo = React.createClass({
             <div>
                 <p>Portal Account User Name: {this.state.data} &nbsp;&nbsp;&nbsp;<button className="btn btn-sm btn-info"  data-toggle="modal"
                         data-target="#portalInfoDia" >Set</button></p>
-                <div aria-hidden="true" aria-labelledby="portalInfoDia" role="dialog" tabIndex="-1" id="portalInfoDia" className="modal fade">
+                <div aria-hidden="true" aria-labelledby="portalInfoDia" role="dialog" tabIndex="-1" id="portalInfoDia" style={{"zIndex":"1000"}} className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
@@ -104,9 +104,9 @@ var PortalInfo = React.createClass({
                                 <h4 className="modal-title">Set Portal Account</h4>
                             </div>
                             <div className="modal-body">
-                                <label htmlFor="txtPortalName" className="control-label" style={{ "text-align" : "left"}}>Portal User Name : </label>
-                                <input id="txtPortalName" name="txtPortalName" type="text" placeholder="门户网站用户名" className="form-control"/>
-                                <label htmlFor="txtPortalPwdNew" className="control-label" style={{ "text-align" : "left"}}>Portal Password : </label>
+                                <label htmlFor="txtPortalName" className="control-label" style={{ "textAlign" : "left"}}>Portal User Name : </label>
+                                <input id="txtPortalName" name="txtPortalName" type="text" placeholder="User Name" className="form-control"/>
+                                <label htmlFor="txtPortalPwdNew" className="control-label" style={{ "texAlign" : "left"}}>Portal Password : </label>
                                 <input id="txtPortalPwdNew" name="txtPortalPwdNew" type="password" className="form-control"/>
                                 <br />
                                 {processBar}
