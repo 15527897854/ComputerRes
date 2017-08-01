@@ -188,22 +188,43 @@ var RmtModelSerTable = React.createClass({
             data => {
                 if(data.data.result == 'suc'){
                     NoteDialog.openNoteDia('Info', 'Model service register successfully!');
-                    this.setState({item : null, progress : true});
+                    this.setState({item : null, progress : false});
                     this.refresh();
                     $('#mdModelSerRegister').modal('hide');
                 }
                 else{
-                    this.setState({item : null, progress : true});
+                    this.setState({item : null, progress : false});
+                    NoteDialog.openNoteDia('Error', 'Error in registering a model service! Please go to Pottal to build Model Item. Message : ' + data.data.message);
                     this.refresh();
                     $('#mdModelSerRegister').modal('hide');
                 }
             },
             err => {
-                this.setState({item : null, progress : true});
+                this.setState({item : null, progress : false});
                 this.refresh();
                 $('#mdModelSerRegister').modal('hide');
             }
         );
+    },
+
+    unregisterConfim : function(e, name){
+        if(confirm('Unregister this model service [' + name + ']?')){
+            Axios.put('/modelser/' + this.state.item._id + '?ac=unregister').then(
+                data => {
+                    if(data.data.result == 'suc'){
+                        NoteDialog.openNoteDia('Info', 'Model service unregister successfully!');
+                        this.refresh();
+                    }
+                    else{
+                        NoteDialog.openNoteDia('Error', 'Error in unregistering a model service! Message : ' + data.data.message);
+                        this.refresh();
+                    }
+                },
+                err => {
+                    this.refresh();
+                }
+            );
+        }
     },
 
     lockHandle : function(e, host, msid){
@@ -512,6 +533,17 @@ var RmtModelSerTable = React.createClass({
             ms_name = this.state.item.ms_model.m_name;
             ms_des = this.state.item.ms_des;
         }
+        var btnDisabled = null;
+        var progress = null;
+        if(this.state.progress){
+            btnDisabled = 'disabled';
+            progress = (
+            <div className="progress progress-striped active progress-sm">
+                <div id="upload_bar" style={{"width": "100%"}} aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" role="progressbar" className="progress-bar progress-bar-success">
+                        <span className="sr-only"></span>
+                    </div>
+                </div>);
+        }
         return (
             <div>
                 <table className="display table table-bordered table-striped" id="modelservice-table">
@@ -535,9 +567,11 @@ var RmtModelSerTable = React.createClass({
                                 <h5 >Service Description : {ms_des} </h5>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-success" onClick={ this.registerConfim } >Confirm</button>
+                                <button type="button" className="btn btn-success" disabled={btnDisabled} onClick={ this.registerConfim } >Confirm</button>
                                 <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+                                <br />
                             </div>
+                            {progress}
                         </div>
                     </div>
                 </div>

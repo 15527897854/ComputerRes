@@ -1085,7 +1085,7 @@ ModelSerControl.RegisterModelService = function(msid, callback){
                                 return callback(null, true);
                             });
                         }
-                        else if(data.res == 'error'){
+                        else if(data.result == 'error'){
                             return callback(new Error('Error : ' + data.message));
                         }
                         else{
@@ -1097,6 +1097,20 @@ ModelSerControl.RegisterModelService = function(msid, callback){
             });
         });
     });
+};
+
+//退登模型服务
+ModelSerControl.UnregisterModelService = function(msid, callback){
+    ModelSerModel.getByOID(msid, function(err, ms){
+        if(err){
+            return callback(err);
+        }
+        if(ms == null){
+            return callback(new Error('Can not find model service'));
+        }
+        ms.ms_model.m_register = false;
+        ModelSerControl.update(ms, this.returnFunction(callback, 'Error in unregistering this model service!'));
+    }.bind(this));
 };
 
 //根据OID更新门户的ModelItemID

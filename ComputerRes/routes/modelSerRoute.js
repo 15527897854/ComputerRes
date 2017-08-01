@@ -523,6 +523,10 @@ module.exports = function(app)
             else if(req.query.ac == 'register'){
                 ModelSerCtrl.RegisterModelService(msid, RouteBase.returnFunction(res, 'Error in registering model service'));
             }
+            //退登服务
+            else if(req.query.ac == 'unregister'){
+                ModelSerCtrl.UnregisterModelService(msid, RouteBase.returnFunction(res, 'Error in registering model service'));
+            }
         })
         //删除模型服务
         .delete(function (req, res, next) {

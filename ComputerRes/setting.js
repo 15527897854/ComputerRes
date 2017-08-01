@@ -36,15 +36,15 @@ module.exports =  {
         host:'127.0.0.1',
         port:'6000'
     },
-    portal:
-    {
-        host:'222.192.7.74',
-        port:'80'
-    },
-    // portal:{
-    //     host:'223.2.33.35',
-    //     port:'8080'
+    // portal:
+    // {
+    //     host:'222.192.7.74',
+    //     port:'80'
     // },
+    portal:{
+        host:'223.2.33.35',
+        port:'8080'
+    },
     modelpath : __dirname + '/geo_model/',
     data_size : 1024,
     auth : false,
