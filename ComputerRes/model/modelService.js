@@ -6,6 +6,7 @@
 var ObjectId = require('mongodb').ObjectID;
 var fs = require('fs');
 var exec = require('child_process').exec;
+var ObjectId = require('mongodb').ObjectID;
 var xmlparse = require('xml2js').parseString;
 var setting = require('../setting');
 var mongoose = require('./mongooseModel');
@@ -83,7 +84,7 @@ ModelService.getAll = function(flag, callback){
         else{
             where = { ms_status : { $ne : -1 }, ms_limited : { $ne : 1 }}
         }
-        MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
+        MS.find(where).sort({'ms_update':-1}).exec(this.returnFunction(callback, 'Error in getting all model service'));
     }
 };
 
@@ -122,6 +123,48 @@ ModelService.getByPIDforPortal = function (pid, callback) {
         var where = { "ms_model.p_id" : pid, "ms_model.m_register" : true, "ms_status" : {$ne:-1}, ms_limited : {$ne:-1}};
         this.getByWhere(where, callback);
     }
+};
+
+//批量开启模型
+ModelService.batchStart = function(msids, callback){
+    var update = {"ms_status" : 1};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量关闭模型
+ModelService.batchStop = function(msids, callback){
+    var update = {"ms_status" : 0};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量锁定模型
+ModelService.batchLock = function(msids, callback){
+    var update = {"ms_limited" : 1};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量解锁模型
+ModelService.batchUnlock = function(msids, callback){
+    var update = {"ms_limited" : 0};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量更新
+ModelService.batchUpdate = function(msids, update, callback){
+    for(var i = 0; i < msids.length; i++){
+        msids[i] = new ObjectId(msids[i]);
+    }
+    var where = {'_id': { $in : msids }};
+    update = {$set : update};
+    this.baseModel.update(where, update, {multi : true}, this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
 };
 
 //启动一个模型服务实例

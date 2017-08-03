@@ -623,6 +623,50 @@ ModelSerControl.getByPIDforPortal = function(mid, callback){
     ModelSerModel.getByPIDforPortal(mid, this.returnFunction(callback, 'error in getting model service by PID for portal'));
 };
 
+//批量开启模型
+ModelSerControl.batchStart = function(msids, callback){
+    try{
+        var msids = JSON.parse(msids);
+        ModelSerModel.batchStart(msids, this.returnFunction(callback, 'error in batch updating model service!'));
+    }
+    catch(ex){
+        return callback(ex);
+    }
+}
+
+//批量开启模型
+ModelSerControl.batchStop = function(msids, callback){
+    try{
+        var msids = JSON.parse(msids);
+        ModelSerModel.batchStop(msids, this.returnFunction(callback, 'error in batch updating model service!'));
+    }
+    catch(ex){
+        return callback(ex);
+    }
+}
+
+//批量锁定模型
+ModelSerControl.batchLock = function(msids, callback){
+    try{
+        var msids = JSON.parse(msids);
+        ModelSerModel.batchLock(msids, this.returnFunction(callback, 'error in batch updating model service!'));
+    }
+    catch(ex){
+        return callback(ex);
+    }
+}
+
+//批量解锁启模型
+ModelSerControl.batchUnlock = function(msids, callback){
+    try{
+        var msids = JSON.parse(msids);
+        ModelSerModel.batchUnlock(msids, this.returnFunction(callback, 'error in batch updating model service!'));
+    }
+    catch(ex){
+        return callback(ex);
+    }
+}
+
 //更新模型服务信息
 ModelSerControl.update = function(ms, callback){
     ModelSerModel.update(ms, function (err, data) {

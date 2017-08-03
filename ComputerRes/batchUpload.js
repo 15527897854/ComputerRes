@@ -12,15 +12,27 @@ fs.readdir(path, function(err, dirs){
     if(err){
         return;
     }
-    for(var i = 0; i < dirs.length; i++){
-        ModelSerCtrl.addNewModelSer(fields, {file_model : {path : path + dirs[i]}}, function(err, result){
+    var count = 0;
+    var errList = [];
+    var pending = (function(index){
+        count ++;
+        return (function(err, result){
+            count --;
             if(err){
-
+                errList.push(dirs[index]);
+                console.log('Warning : Model Service Package [' + dirs[index] + '] has error in deploying!');
             }
             else{
-                console.log('Model has deployed!');
+                console.log('Model Service Package [' + dirs[index] + '] has deployed!');
             }
-        });
+            if(count == 0){
+                console.log('All Finished');
+                fs.writeFile(path + 'errlist.json', JSON.stringify(errList), function(err, result){});
+            }
+        })
+    });
+    for(var i = 0; i < dirs.length; i++){
+        ModelSerCtrl.addNewModelSer(fields, {file_model : {path : path + dirs[i]}}, pending(i));
     }
 });
 
