@@ -51,11 +51,19 @@
 // RequestCtrl.postRequestJSONWithFormData('http://223.2.40.81:8080/registerDataMappingServlet?collName=123', formData, function(err, data){
     
 // });
-var ModelSerCtrl = require('./control/modelSerControl');
 
-ModelSerCtrl.RegisterModelService('597221e696ddfe2e306cce51', function(err, data){
-    if(err){
-        console.log(err);
-    }
-    return console.log(data);
+var fs = require('fs');
+
+var srcDir = __dirname + '/lib/';
+var dstDirBase = __dirname + '/geo_model/';
+fs.readdir(srcDir, function(err, srcFiles){
+    fs.readdir(dstDirBase, function(err, dstDirs){
+        for(var j = 0; j < dstDirs.length; j++){
+            if(dstDirs[j].length == '24'){
+                for(var i = 0; i < srcFiles.length; i++){
+                    fs.createReadStream(srcDir + srcFiles[i]).pipe(fs.createWriteStream(dstDirBase + dstDirs[j] + '/model/' + srcFiles[i]));
+                }
+            }
+        }
+    });
 });

@@ -217,7 +217,7 @@ var ModelSerDeployment = React.createClass({
                                         <span className="btn btn-default btn-file">
                                             <span className="fileupload-new"><i className="fa fa-paper-clip"></i> Select</span>
                                             <span className="fileupload-exists"><i className="fa fa-undo"></i> Change</span>
-                                            <input id="file_modelSer" name="file_model" type="file" className="default" accept=".zip" />
+                                            <input id="file_modelSer" name="file_model" type="file" className="default" />
                                         </span>
                                         <span className="fileupload-preview" style={{ "marginLeft" : "5px"}}></span>
                                         <a href="#" className="close fileupload-exists" data-dismiss="fileupload" style={{"float":"none", "marginLeft":"5px"}}></a>
