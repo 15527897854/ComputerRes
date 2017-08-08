@@ -51,11 +51,30 @@
 // RequestCtrl.postRequestJSONWithFormData('http://223.2.40.81:8080/registerDataMappingServlet?collName=123', formData, function(err, data){
     
 // });
-var ModelSerCtrl = require('./control/modelSerControl');
+// var ModelSerCtrl = require('./control/modelSerControl');
 
-ModelSerCtrl.RegisterModelService('597221e696ddfe2e306cce51', function(err, data){
-    if(err){
-        console.log(err);
-    }
-    return console.log(data);
-});
+// ModelSerCtrl.RegisterModelService('597221e696ddfe2e306cce51', function(err, data){
+//     if(err){
+//         console.log(err);
+//     }
+//     return console.log(data);
+// });
+
+var cmd = '{onResponseData}d6d4a13d-aa22-4f9b-8bfa-bec0105641c0&RUNSTATE&RETURNDATASET&184[OK][RAW|FIL]e:\GitCode\GeoModel-fz_yss_update\ComputerRes/geo_model/AspectAnalysis_FrmDiff_5984cc7b3445aa46ec8fa21d//instance/d6d4a13d-aa22-4f9b-8bfa-bec0105641c0\RUNSTATE\RETURNDATASET\aspect.asc';
+var queryStr = cmd.split('&');
+
+//! querys
+var sname = queryStr[1];
+var event = queryStr[2];
+var signals = queryStr[3];
+
+//! data
+opLeft = cmd.lastIndexOf(']');
+var data = cmd.substr(opLeft + 1);
+data = data.replace('\0', '');
+var nameLength = signals.substr(0, signals.indexOf('['));
+var dataSignal = signals.substr(signals.indexOf('[') + 1, signals.indexOf(']') - signals.indexOf('[') - 1);
+signals = signals.substr(signals.indexOf(']') + 1);
+var dataType = signals.substr(1, signals.indexOf(']') - 1);
+var dataFormat = dataType.substr(dataType.indexOf('|') + 1);
+dataType = dataType.substr(0, dataType.indexOf('|'));

@@ -9,6 +9,9 @@ function ModelInstance(mis) {
         this.guid = '';
         this.socket = null;
         this.ms = null;
+        this.input = null;
+        this.output = null;
+        this.log = [];
         this.start = null;
         this.state = null;
     }
@@ -17,6 +20,9 @@ function ModelInstance(mis) {
         this.guid = mis.guid;
         this.socket = mis.socket;
         this.ms = mis.ms;
+        this.input = mis.input;
+        this.output = mis.output;
+        this.log = mis.log;
         this.start = mis.start;
         this.state = mis.state;
     }

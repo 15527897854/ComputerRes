@@ -20,43 +20,145 @@ function SocketTrans(app)
         // 为这个socket实例添加一个"data"事件处理函数
         socket.on('data', function(data) {
             console.log('RECEIVED DATA FROM ' + socket.remoteAddress + ': ' + data + '\n');
-            var cmds = data.toString();
-            cmds = cmds.split('[\t\t\t]');
-            if(cmds.length < 2)
-            {
-                console.log('Can not parse cmd : ' + data);
-                return;
+            var recvBuf = data.toString();
+            
+            var opLeft = recvBuf.indexOf('{');
+            var opRight = recvBuf.indexOf('}');
+            if(opLeft == -1 || opRight == -1 || opRight < opLeft){
+                return console.log('illegal commad! Can not find OP. Original cmd : ' + recvBuf);
             }
-            //事件分支
-            if(cmds[1] == 'enter')
-            {
-                ModelInsCtrl.enter(app, cmds, socket);
+            var op = recvBuf.substr(opLeft + 1, opRight - opLeft - 1);
+            
+            var idRight = recvBuf.indexOf('&');
+            var id = '';
+            if(idRight == -1){
+                id = recvBuf.substr(opRight + 1);
+                id = id.replace('\0','');
             }
-            else if(cmds[1] == 'request')
-            {
-                ModelInsCtrl.request(app, cmds, socket);
+            else if(opRight > idRight){
+                return console.log('illegal commad! Can not find ID. Original cmd : ' + recvBuf);
             }
-            else if(cmds[1] == 'checkdata')
-            {
-                ModelInsCtrl.checkdata(app, cmds, socket);
+            else{
+                id = recvBuf.substr(opRight + 1, idRight - opRight - 1);
             }
-            else if(cmds[1] == 'calculate')
-            {
-                ModelInsCtrl.calculate(app, cmds, socket);
+            opLeft = recvBuf.indexOf('}');
+            var cmd = recvBuf.substr(opLeft + 1);
+            cmd = cmd.replace('\0','');
+            switch(op){
+                case 'init':{
+                    ModelInsCtrl.Initialize(id, socket);
+                    break;
+                }
+                case 'onEnterState':{
+                    var queryStr = cmd.split('&');
+                    var sid = queryStr[1];
+
+                    ModelInsCtrl.EnterState(id, sid);
+                    break;
+                }
+                case 'onFireEvent':{
+                    var queryStr = cmd.split('&');
+                    var sid = queryStr[1];
+                    var event = queryStr[2];
+
+                    ModelInsCtrl.FireEvent(id, sid, event);
+                    break;
+                }
+                case 'onRequestData':{
+                    var queryStr = cmd.split('&');
+                    var sid = queryStr[1];
+                    var event = queryStr[2];
+                    
+                    ModelInsCtrl.RequestData(id, sid, event);
+                    break;
+                }
+                case 'onResponseData':{
+                    var queryStr = cmd.split('&');
+
+                    var queryStr = cmd.split('&');
+
+                    //! querys
+                    var sname = queryStr[1];
+                    var event = queryStr[2];
+                    var signals = queryStr[3];
+
+                    //! data
+                    opLeft = cmd.lastIndexOf(']');
+                    var data = cmd.substr(opLeft + 1);
+                    data = data.replace('\0', '');
+                    var nameLength = signals.substr(0, signals.indexOf('['));
+                    var dataSignal = signals.substr(signals.indexOf('[') + 1, signals.indexOf(']') - signals.indexOf('[') - 1);
+                    signals = signals.substr(signals.indexOf(']') + 1);
+                    var dataType = signals.substr(1, signals.indexOf(']') - 1);
+                    var dataFormat = dataType.substr(dataType.indexOf('|') + 1);
+                    dataType = dataType.substr(0, dataType.indexOf('|'));
+
+                    if (data == '')
+                        ModelInsCtrl.ResponseDataPrepare(id, sname, event, data, dataSignal, dataType, dataFormat);
+                    else
+                        ModelInsCtrl.ResponseDataReceived(id, sname, event, data, dataSignal, dataType, dataFormat);
+                    break;
+                }
+                case 'onPostErrorInfo':{
+                    var errorinfo = '';
+                    ModelInsCtrl.PostErrorInfo(id, errorinfo);
+                    break;
+                }
+                case 'GetDataMappingMethod':{
+                    var queryStr = cmd.split('&');
+                    var mappingMethod = queryStr[1];
+                    ModelInsCtrl.GetDataMapping(id, mappingMethod);
+                    break;
+                }
+                case 'onLeaveState':{
+                    var sid = '';
+                    ModelInsCtrl.LeaveState(id, sid);
+                    break;
+                }
+                case 'onFinalize':{
+                    var sid = '';
+                    ModelInsCtrl.Finalize(id);
+                    break;
+                }
             }
-            else if(cmds[1] == 'checkres')
-            {
-                ModelInsCtrl.checkres(app, cmds, socket);
-            }
-            else if(cmds[1] == 'response')
-            {
-                ModelInsCtrl.response(app, cmds, socket);
-            }
-            else if(cmds[1] == 'exit')
-            {
-                ModelInsCtrl.exit(app, cmds, socket);
-            }
+            // // 老版模型交互协议
+            // cmds = cmds.split('[\t\t\t]');
+            // if(cmds.length < 2)
+            // {
+            //     console.log('Can not parse cmd : ' + data);
+            //     return;
+            // }
+            // //事件分支
+            // if(cmds[1] == 'enter')
+            // {
+            //     ModelInsCtrl.enter(app, cmds, socket);
+            // }
+            // else if(cmds[1] == 'request')
+            // {
+            //     ModelInsCtrl.request(app, cmds, socket);
+            // }
+            // else if(cmds[1] == 'checkdata')
+            // {
+            //     ModelInsCtrl.checkdata(app, cmds, socket);
+            // }
+            // else if(cmds[1] == 'calculate')
+            // {
+            //     ModelInsCtrl.calculate(app, cmds, socket);
+            // }
+            // else if(cmds[1] == 'checkres')
+            // {
+            //     ModelInsCtrl.checkres(app, cmds, socket);
+            // }
+            // else if(cmds[1] == 'response')
+            // {
+            //     ModelInsCtrl.response(app, cmds, socket);
+            // }
+            // else if(cmds[1] == 'exit')
+            // {
+            //     ModelInsCtrl.exit(app, cmds, socket);
+            // }
         });
+
 
         // 为这个socket实例添加一个"close"事件处理函数
         socket.on('close', function(data) {
@@ -74,7 +176,7 @@ function SocketTrans(app)
                 }
                 //判断是否结束
                 var finished = false;
-                if(mi.state == 'MC_EXIT' || mi.state == 'MC_RESPONSE')
+                if(mi.state == 'Finalized')
                 {
                     finished = true;
                 }
@@ -84,6 +186,7 @@ function SocketTrans(app)
                 var time_span = date_now.getTime() - data_begin.getTime();
                 time_span = time_span / 1000;
                 msr.msr_time = time_span;
+                msr.msr_log = mi.log;
                 if(finished)
                 {
                     msr.msr_status = 1;

@@ -443,6 +443,32 @@ module.exports = function(app){
                                 GeoDataCtrl.delete(gd.gd_id, function(err, result){});
                             }
                         }
+                        else{
+                            fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                                if (err) {
+                                    GeoDataCtrl.delete(gdid, function (err, reslut) {
+                                        return res.end('Data file do not exist!')
+                                    });
+                                }
+                                else {
+                                    fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                                        if(err)
+                                        {
+                                            return res.end('error');
+                                        }
+                                        res.set({
+                                            'Content-Type': 'file/*',
+                                            'Content-Length': data.length });
+                                        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(gd.gd_value));
+                                        res.end(data);
+                                        //销毁数据
+                                        if(destroyed){
+                                            GeoDataCtrl.delete(gd.gd_id, function(err, result){});
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     });
                 });
             }

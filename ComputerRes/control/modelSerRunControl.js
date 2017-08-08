@@ -84,6 +84,17 @@ ModelSerRunCtrl.update = function (msr, callback) {
     });
 };
 
+//更新模型运行记录日志信息
+ModelSerRunCtrl.updateLog = function (msr, msr_log, callback) {
+    ModelSerRun.updateLog(msr, msr_log, function (err, data) {
+       if(err)
+       {
+           return callback(err);
+       }
+       return callback(null, data);
+    });
+};
+
 //判断数据是否需要销毁
 ModelSerRunCtrl.IsOutputData2BDestroyed = function(DataId, callback){
     ModelSerRun.getByOutputDataID(DataId, function(err, data){
