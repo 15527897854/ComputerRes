@@ -23,7 +23,7 @@ var CustomIndexPanel = React.createClass({
     },
 
     openDemoPage : function(e){
-        window.open('/public/modelser/preparation/5922a0f0edccec3128c88f2c');
+        window.open('/public/modelser/preparation/598341264cd2df0878a1fd0c');
     },
 
     openUpdatePage : function(e){

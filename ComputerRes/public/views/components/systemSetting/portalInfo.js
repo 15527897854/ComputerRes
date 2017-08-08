@@ -19,7 +19,6 @@ var PortalInfo = React.createClass({
         };
     },
 
-
     componentDidMount : function(){
         this.refresh();
     },
@@ -92,11 +91,15 @@ var PortalInfo = React.createClass({
             );
             btnDisabled = 'disabled';
         }
+        var setBtn = null;
+        if(this.props['data-type'] != 'show'){
+            setBtn = (<button className="btn btn-sm btn-info"  data-toggle="modal"
+                        data-target="#portalInfoDia" >Set</button>);
+        }
         return (
             <div>
-                <p>Portal Account User Name: {this.state.data} &nbsp;&nbsp;&nbsp;<button className="btn btn-sm btn-info"  data-toggle="modal"
-                        data-target="#portalInfoDia" >Set</button></p>
-                <div aria-hidden="true" aria-labelledby="portalInfoDia" role="dialog" tabIndex="-1" id="portalInfoDia" style={{"zIndex":"1000"}} className="modal fade">
+                <p>Portal Account User Name: {this.state.data} &nbsp;&nbsp;&nbsp;{setBtn}</p>
+                <div aria-hidden="true" aria-labelledby="portalInfoDia" role="dialog" tabIndex="-1" id="portalInfoDia" style={{"zIndex":"1050"}} className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">

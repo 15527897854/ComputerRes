@@ -42,12 +42,12 @@ module.exports =  {
         port:'80'
     },
     // portal:{
-    //     host:'223.2.33.35',
+    //     host:'223.2.45.225',
     //     port:'8080'
     // },
     modelpath : __dirname + '/geo_model/',
-    data_size : 1024,
-    auth : false,
+    data_size : 1,
+    auth : true,
     debug : false,
     debugGUID : '75e4589f-a8fd-4ae1-aa80-09cc3085b266'
 };
