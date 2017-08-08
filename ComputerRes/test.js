@@ -52,18 +52,26 @@
     
 // });
 
-var fs = require('fs');
+// var fs = require('fs');
 
-var srcDir = __dirname + '/lib/';
-var dstDirBase = __dirname + '/geo_model/';
-fs.readdir(srcDir, function(err, srcFiles){
-    fs.readdir(dstDirBase, function(err, dstDirs){
-        for(var j = 0; j < dstDirs.length; j++){
-            if(dstDirs[j].length == '24'){
-                for(var i = 0; i < srcFiles.length; i++){
-                    fs.createReadStream(srcDir + srcFiles[i]).pipe(fs.createWriteStream(dstDirBase + dstDirs[j] + '/model/' + srcFiles[i]));
-                }
-            }
-        }
-    });
-});
+// var srcDir = __dirname + '/lib/';
+// var dstDirBase = __dirname + '/geo_model/';
+// fs.readdir(srcDir, function(err, srcFiles){
+//     fs.readdir(dstDirBase, function(err, dstDirs){
+//         for(var j = 0; j < dstDirs.length; j++){
+//             if(dstDirs[j].length == '24'){
+//                 for(var i = 0; i < srcFiles.length; i++){
+//                     fs.createReadStream(srcDir + srcFiles[i]).pipe(fs.createWriteStream(dstDirBase + dstDirs[j] + '/model/' + srcFiles[i]));
+//                 }
+//             }
+//         }
+//     });
+// });
+
+var visualizer = require('./control/UDX_Visualization');
+
+visualizer.getSnapshot('gd_6ad24c20-7aac-11e7-a32a-bb31800e5d42', function(err, res){
+    if(err){
+        
+    }
+})

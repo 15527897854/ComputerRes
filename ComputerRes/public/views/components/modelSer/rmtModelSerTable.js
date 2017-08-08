@@ -209,9 +209,9 @@ var RmtModelSerTable = React.createClass({
         );
     },
 
-    unregisterConfim : function(e, name){
+    unregisterHandle : function(e, id, name){
         if(confirm('Unregister this model service [' + name + ']?')){
-            Axios.put('/modelser/' + this.state.item._id + '?ac=unregister').then(
+            Axios.put('/modelser/' + id + '?ac=unregister').then(
                 data => {
                     if(data.data.result == 'suc'){
                         NoteDialog.openNoteDia('Info', 'Model service unregister successfully!');
@@ -435,11 +435,19 @@ var RmtModelSerTable = React.createClass({
                         //     </button>
                         // );
                     }
+                    var name = item.ms_model.m_name;
+                    if(name.length > 25){
+                        name = name.substr(0, 25) + '...';
+                    }
+                    var tyep = item.ms_model.m_type;
+                    if(tyep.length > 20){
+                        tyep = tyep.substr(0, 20) + '...';
+                    }
                     return (
                         <tr>
-                            <td  title={item.ms_des} >{item.ms_model.m_name}</td>
+                            <td  title={item.ms_model.m_name + '-' + item.ms_des} >{name}</td>
                             <td>{item.mv_num}</td>
-                            <td>{item.ms_model.m_type}</td>
+                            <td title={item.ms_model.m_type}>{tyep}</td>
                             <td>{host.host}</td>
                             <td>{platform}</td>
                             <td>{status}</td>
@@ -488,11 +496,19 @@ var RmtModelSerTable = React.createClass({
                 else{
                     permission = (<span className="label label-success tooltips" title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
                 }
+                var name = item.ms_model.m_name;
+                if(name.length > 25){
+                    name = name.substr(0, 25) + '...';
+                }
+                var tyep = item.ms_model.m_type;
+                if(tyep.length > 20){
+                    tyep = tyep.substr(0, 20) + '...';
+                }
                 return (
                     <tr key={item._id}>
-                        <td>{item.ms_model.m_name}</td>
+                        <td title={item.ms_model.m_name + '-' + item.ms_des}>{name}</td>
                         <td>{item.mv_num}</td>
-                        <td>{item.ms_model.m_type}</td>
+                        <td title={item.ms_model.m_type}>{tyep}</td>
                         <td>{permission}</td>
                         <td>{status}</td>
                         <td>
@@ -538,11 +554,19 @@ var RmtModelSerTable = React.createClass({
                 else{
                     permission = (<span className="label label-success tooltips" title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
                 }
+                var name = item.ms_model.m_name;
+                if(name.length > 25){
+                    name = name.substr(0, 25) + '...';
+                }
+                var tyep = item.ms_model.m_type;
+                if(tyep.length > 20){
+                    tyep = tyep.substr(0, 20) + '...';
+                }
                 return (
                     <tr key={item._id}>
-                        <td>{item.ms_model.m_name}</td>
+                        <td title={item.ms_model.m_name + '-' + item.ms_des}>{name}</td>
                         <td>{item.mv_num}</td>
-                        <td>{item.ms_model.m_type}</td>
+                        <td title={item.ms_model.m_type}>{tyep}</td>
                         <td>{permission}</td>
                         <td>{status}</td>
                         <td>
@@ -594,7 +618,7 @@ var RmtModelSerTable = React.createClass({
                 }
                 else{
                     button3 = (
-                        <button className="btn btn-default btn-xs" type="button" onClick={(e) => {  }} >
+                        <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.unregisterHandle(e, item._id, item.ms_model.m_name) }} >
                             <i className="fa fa-share-square-o"> </i>&nbsp;Unregister
                         </button>);
                 }
@@ -680,10 +704,10 @@ var RmtModelSerTable = React.createClass({
         if(this.state.type == 'admin' ){
             operation = (
                 <div>
-                    <button className="btn btn-success btn-sm" onClick={this.batchStart} >Start</button>&nbsp;
-                    <button className="btn btn-danger btn-sm" onClick={this.batchStop}>Stop</button>&nbsp;
-                    <button className="btn btn-warning btn-sm" onClick={this.batchLock}>hidden</button>&nbsp;
-                    <button className="btn btn-success btn-sm" onClick={this.batchUnlock}>publish</button>
+                    <button className="btn btn-success btn-sm" onClick={this.batchStart} ><i className="fa fa-play"></i> Start</button>&nbsp;
+                    <button className="btn btn-danger btn-sm" onClick={this.batchStop}><i className="fa fa-stop"></i> Stop</button>&nbsp;
+                    <button className="btn btn-warning btn-sm" onClick={this.batchLock}><i className="fa fa-user"></i> hidden</button>&nbsp;
+                    <button className="btn btn-success btn-sm" onClick={this.batchUnlock}><i className="fa fa-users"></i> publish</button>
                 </div>
             );
         }
@@ -715,7 +739,7 @@ var RmtModelSerTable = React.createClass({
                                 <h4 className="modal-title">Register</h4>
                             </div>
                             <div className="modal-body">
-                                <PortalInfo />
+                                <PortalInfo data-type="show" />
                                 <h5 >Service Name : {ms_name} </h5>
                                 <h5 >Service Description : {ms_des} </h5>
                             </div>
