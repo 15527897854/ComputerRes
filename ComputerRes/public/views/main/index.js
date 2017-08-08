@@ -36,6 +36,7 @@ if(document.getElementById('rmtModelSerTable') != null) {
         <RmtModelSerTable
             data-source={ document.getElementById('rmtModelSerTable').getAttribute('data-source') }
             data-type={ document.getElementById('rmtModelSerTable').getAttribute('data-type') }
+            data-host={ document.getElementById('rmtModelSerTable').getAttribute('data-host') }
         />,
         document.getElementById('rmtModelSerTable'));
 }

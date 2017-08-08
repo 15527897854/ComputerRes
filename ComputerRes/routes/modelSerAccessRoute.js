@@ -380,6 +380,9 @@ module.exports = function(app){
                         }));
                 });
             }
+            else if(type == 'url'){
+
+            }
         });
 
     //下载数据
@@ -390,61 +393,69 @@ module.exports = function(app){
                 next();
             }
             else{
-                GeoDataCtrl.getByKey(gdid, function (err, gd) {
-                    if(err)
-                    {
-                        return res.end('error');
-                    }
-                    if(gd == null)
-                    {
-                        return res.end('No Data!');
-                    }
-                    ModelSerRunCtrl.IsOutputData2BDestroyed(gd.gd_id, function(err, destroyed){
-                        if(err){
+                var ac = req.query.ac;
+                if(ac == 'visualize'){
+                    res.render('visualization',{
+                        gdid : gdid
+                    });
+                }
+                else{
+                    GeoDataCtrl.getByKey(gdid, function (err, gd) {
+                        if(err)
+                        {
                             return res.end('error');
                         }
-                        var filename = gd.gd_id + '.xml';
-                        if(gd.gd_type == 'FILE')
+                        if(gd == null)
                         {
-                            fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
-                                if (err) {
-                                    GeoDataCtrl.delete(gdid, function (err, reslut) {
-                                        return res.end('Data file do not exist!')
-                                    });
-                                }
-                                else {
-                                    fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
-                                        if(err)
-                                        {
-                                            return res.end('error');
-                                        }
-                                        res.set({
-                                            'Content-Type': 'file/xml',
-                                            'Content-Length': data.length });
-                                        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                                        res.end(data);
-                                        //销毁数据
-                                        if(destroyed){
-                                            GeoDataCtrl.delete(gd.gd_id, function(err, result){});
-                                        }
-                                    });
-                                }
-                            });
+                            return res.end('No Data!');
                         }
-                        else if(gd.gd_type == 'STREAM')
-                        {
-                            res.set({
-                                'Content-Type': 'file/xml',
-                                'Content-Length': gd.gd_value.length });
-                            res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                            res.end(gd.gd_value);
-                            //销毁数据
-                            if(destroyed){
-                                GeoDataCtrl.delete(gd.gd_id, function(err, result){});
+                        ModelSerRunCtrl.IsOutputData2BDestroyed(gd.gd_id, function(err, destroyed){
+                            if(err){
+                                return res.end('error');
                             }
-                        }
+                            var filename = gd.gd_id + '.xml';
+                            if(gd.gd_type == 'FILE')
+                            {
+                                fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                                    if (err) {
+                                        GeoDataCtrl.delete(gdid, function (err, reslut) {
+                                            return res.end('Data file do not exist!')
+                                        });
+                                    }
+                                    else {
+                                        fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                                            if(err)
+                                            {
+                                                return res.end('error');
+                                            }
+                                            res.set({
+                                                'Content-Type': 'file/xml',
+                                                'Content-Length': data.length });
+                                            res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                                            res.end(data);
+                                            //销毁数据
+                                            if(destroyed){
+                                                GeoDataCtrl.delete(gd.gd_id, function(err, result){});
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                            else if(gd.gd_type == 'STREAM')
+                            {
+                                res.set({
+                                    'Content-Type': 'file/xml',
+                                    'Content-Length': gd.gd_value.length });
+                                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                                res.end(gd.gd_value);
+                                //销毁数据
+                                if(destroyed){
+                                    GeoDataCtrl.delete(gd.gd_id, function(err, result){});
+                                }
+                            }
+                        });
                     });
-                });
+                }
             }
         });
 
