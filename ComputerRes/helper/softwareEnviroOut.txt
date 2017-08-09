@@ -2192,6 +2192,32 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{81455DEB
     DisplayName    REG_SZ    Microsoft Visual C++  Compilers 2010 Standard - enu - x64
     sEstimatedSize2    REG_DWORD    0xf8
 
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8499ACD3-C1E3-45AB-BF96-DA491727EBE1}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    7.1.12437.25
+    HelpLink    REG_SZ    
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170809
+    InstallLocation    REG_SZ    D:\Program Files\Microsoft MPI\
+    InstallSource    REG_SZ    C:\Users\Franklin\AppData\Local\Temp\80516076-0d6e-482d-b643-4bbe7c989d2b\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{8499ACD3-C1E3-45AB-BF96-DA491727EBE1}
+    NoModify    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x26c9
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{8499ACD3-C1E3-45AB-BF96-DA491727EBE1}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0x7
+    VersionMinor    REG_DWORD    0x1
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0x7013095
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft MPI (7.1.12437.25)
+
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8557397C-A42D-486F-97B3-A2CBC2372593}
     AuthorizedCDFPrefix    REG_SZ    
     Comments    REG_SZ    
