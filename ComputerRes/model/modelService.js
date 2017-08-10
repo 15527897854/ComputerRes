@@ -238,6 +238,29 @@ ModelService.readMDL = function (ms, callback) {
     }
 };
 
+ModelService.getMSDetail = function(msid, cb){
+    ModelService.getByOID(msid, function (err, ms) {
+        if (err) {
+            return cb(err);
+        }
+        ModelService.readCfg(ms, function (err, cfg) {
+            if(err) {
+                return callback(err);
+            }
+            fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
+                if(err) {
+                    console.log('Error in read mdl file : ' + err);
+                    return callback(err);
+                }
+                return cb(null,{
+                    MS:ms,
+                    MDLStr: data.toString()
+                });
+            })
+        });
+    });
+};
+
 ModelService.readMDLByPath = function (path, callback) {
     if(ParamCheck.checkParam(callback, path)){
         fs.readFile(path, function (err, data) {

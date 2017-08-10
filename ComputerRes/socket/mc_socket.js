@@ -9,6 +9,7 @@ var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var GeoDataCtrl = require('../control/geoDataControl');
 var NoticeCtrl = require('../control/noticeCtrl');
 var ModelInsCtrl = require('../control/ModelInsCtrl');
+var SysCtrl = require('../control/sysControl');
 
 function SocketTrans(app)
 {
@@ -127,6 +128,7 @@ function SocketTrans(app)
                         }
                     });
                 });
+
             });
             console.log('CLOSED: ' + socket.remoteAddress + ' ' + socket.remotePort);
         });

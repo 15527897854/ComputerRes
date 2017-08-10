@@ -26,6 +26,14 @@ ModelBase.getByOID = function(_oid,callback){
         var oid = new ObjectId(_oid);
         this.baseModel.findOne({'_id' : oid}, this.returnFunction(callback, 'Error in getting a ' + this.modelName + ' by id'));
     }
+    // this.baseModel.findOne({'_id': _oid},function (err, rst) {
+    //     if(err){
+    //         return callback(err);
+    //     }
+    //     else {
+    //         return callback(null,rst);
+    //     }
+    // })
 };
 
 ModelBase.getByWhere = function (where, callback) {
@@ -49,7 +57,7 @@ ModelBase.findBase = function (query, options, sort, cb) {
 ModelBase.update = function (newItem, callback) {
     var where = {'_id':newItem._id};
     var toUpdate = newItem;
-    delete toUpdate['_id'];
+    // delete toUpdate['_id'];
     this.baseModel.update(where,toUpdate,this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
 };
 
@@ -69,6 +77,17 @@ ModelBase.save = function (item, callback) {
             return callback(null,rst);
         }
     });
+};
+
+ModelBase.upsert = function (where, update, cb) {
+    this.baseModel.update(where,update,true,function (err, rst) {
+        if(err){
+            return cb(err);
+        }
+        else {
+            return cb(null,rst);
+        }
+    })
 };
 
 //转为webix支持的json

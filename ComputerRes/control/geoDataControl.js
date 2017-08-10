@@ -10,6 +10,7 @@ var CommonMethod = require('../utils/commonMethod');
 var FileOpera = require('../utils/fileOpera');
 var Settings = require('../setting');
 var fs = require('fs');
+var Promise = require('bluebird');
 
 function GeoDataCtrl() {}
 
@@ -225,4 +226,89 @@ GeoDataCtrl.addStreamData = function(gdid, gdtag, data, callback){
 //上传文件数据
 GeoDataCtrl.addFileData = function(){
     
+};
+
+GeoDataCtrl.exist = function (gdid, cb) {
+    GeoData.getByKey(gdid, function (err, data) {
+        if(err) {
+            return cb(err);
+        }
+        if(data != null){
+            return cb(null,true);
+        }
+        return cb(null, false);
+    });
+};
+
+// 拿到数据坐标，下载数据并添加到数据库中
+GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
+    var self = this;
+    var url = null;
+    if(dataPosition.posType == 'LOCAL'){
+        url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+    }
+    else if(dataPosition.posType == 'MODEL SERVICE'){
+        url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+    }
+    else if(dataPosition.posType == 'DATA SERVICE'){
+        url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+    }
+    // 先查询有没有
+    GeoDataCtrl.exist(dataPosition.gdid,function (err, exist) {
+        if (err) {
+
+        }
+        else {
+            if (exist) {
+
+            }
+            else {
+                // 请求数据
+                new Promise(function (resolve, reject) {
+                    RmtReqCtrl.getByServer(url,null,function (err, res) {
+                        if(err){
+                            return reject(err);
+                        }
+                        else {
+                            return resolve(JSON.parse(res));
+                        }
+                    })
+                })
+                // 保存数据
+                    .then(function (gd) {
+                        return new Promise(function (resolve, reject) {
+                            if(gd.error){
+                                reject(new Error(gd.error));
+                            }
+                            if(gd.gd_type == 'FILE'){
+                                var path = Path.join(__dirname,'../../geo_data/' + dataPosition.gdid + '.xml');
+                                fs.writeFile(path,gd.gd_value,function (err) {
+                                    if (err) {
+                                        return reject(err);
+                                    }
+                                    else{
+                                        gd.gd_value = dataPosition.gdid + '.xml';
+                                        GeoDataCtrl.addData(gd,function (err, rst) {
+                                            if(err){
+                                                return reject(err);
+                                            }
+                                        })
+                                    }
+                                });
+                            }
+                            else if(gd.gd_type == 'STREAM'){
+                                GeoDataCtrl.addData(gd,function (err, rst) {
+                                    if(err){
+                                        return reject(err);
+                                    }
+                                })
+                            }
+                        })
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                    })
+            }
+        }
+    });
 }

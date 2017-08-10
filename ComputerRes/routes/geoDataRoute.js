@@ -72,6 +72,70 @@ module.exports = function (app) {
             return res.render('dataCollection');
         });
 
+    // scr 返回数据文件及数据标签
+    app.route('/geodata/detail/:gdid')
+        .get(function (req, res, next) {
+            var gdid = req.params.gdid;
+            GeoDataCtrl.getByKey(gdid, function (err, gd) {
+                if(err)
+                {
+                    return res.end(JSON.stringify({error:err}));
+                }
+                if(gd == null)
+                {
+                    return res.end(JSON.stringify({error:'error'}));
+                }
+                var filename = gd.gd_id + '.xml';
+                if(gd.gd_type == 'FILE')
+                {
+                    fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                        if (err) {
+                            GeoDataCtrl.delete(gdid, function (err, reslut) {
+                                return res.end(JSON.stringify({error:err}));
+                            });
+                        }
+                        else {
+                            fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                                if(err)
+                                {
+                                    return res.end(JSON.stringify({error:'error'}));
+                                }
+                                // res.set({
+                                //     'Content-Type': 'file/xml',
+                                //     'Content-Length': data.length });
+                                // res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                                // res.end(data);
+                                gd.gd_value = data;
+                                res.end(JSON.stringify(gd));
+                            });
+                        }
+                    });
+                }
+                else if(gd.gd_type == 'STREAM')
+                {
+                    // res.set({
+                    //     'Content-Type': 'file/xml',
+                    //     'Content-Length': gd.gd_value.length });
+                    // res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                    res.end(JSON.stringify(gd));
+                }
+            });
+        });
+
+    // scr
+    app.route('/geodata/exist/:gdid')
+        .get(function (req, res, next) {
+            var gdid = req.params.gdid;
+            GeoDataCtrl.exist(gdid,function (err, exist) {
+                if(err){
+                    return res.end(JSON.stringify({error:err}));
+                }
+                else{
+                    return res.end(JSON.stringify({error:null,exist:exist}));
+                }
+            })
+        });
+
     //下载数据文件
     app.route('/geodata/:gdid')
         .get(function (req, res, next) {
@@ -266,4 +330,5 @@ module.exports = function (app) {
                 }
             })
         });
+
 };

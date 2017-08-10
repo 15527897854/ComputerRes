@@ -209,8 +209,8 @@ module.exports = function(app){
             var outputData = req.query.outputData;
             if(ac == 'run'){
                 //读取输入文件参数
-                var inputData = JSON.parse(req.query.inputdata);
-                var outputData = req.query.outputdata;
+                var inputData = JSON.parse(inputData);
+                var outputData = req.query.outputData;
                 ModelSerCtrl.getByOID(msid, function(err, ms){
                     if(err){
                         return res.end(
@@ -457,6 +457,22 @@ module.exports = function(app){
                     });
                 }
             }
+        });
+    
+    // 接收到数据坐标后主动下载数据
+    app.route('/aggregation/onReceivedDataPosition')
+        .post(function (req, res, next) {
+            // var centerHost = ;
+            // var centerPort = ;
+            var dataLocation = req.body;
+            // 两种选择：应该选择第二种，第一种可以会断开连接
+            // 数据下载完成时在 response，数据下载完成后发送请求更新数据准备状态为 RECEIVED
+            // 立即回复，收到回复后数据状态将更新为 PENDING
+
+            // 收到数据坐标，开始请求数据
+            GeoDataCtrl.onReceivedDataPosition(dataLocation);
+
+            res.end('');
         });
 
     //数据快照
