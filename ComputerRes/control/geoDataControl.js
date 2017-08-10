@@ -190,4 +190,16 @@ GeoDataCtrl.addStreamData = function(gdid, gdtag, data, callback){
 //上传文件数据
 GeoDataCtrl.addFileData = function(){
     
-}
+};
+
+GeoDataCtrl.exist = function (gdid, cb) {
+    GeoData.getByKey(gdid, function (err, data) {
+        if(err) {
+            return cb(err);
+        }
+        if(data != null){
+            return cb(null,true);
+        }
+        return cb(null, false);
+    });
+};

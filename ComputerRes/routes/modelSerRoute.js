@@ -572,6 +572,28 @@ module.exports = function(app)
             });
         });
 
+    app.route('/modelser/mdlstr/:msid')
+        .get(function (req, res, next) {
+            var msid = req.params.msid;
+            ModelSerCtrl.getByOID(msid, function (err, ms) {
+                if(err)
+                {
+                    return res.end('error');
+                }
+                ModelSerCtrl.readCfg(ms,function (err, cfg) {
+                    var filename = cfg.mdl;
+                    var cfgPath = __dirname + '/../geo_model/' + ms.ms_path + filename;
+                    fs.readFile(cfgPath, function (err, data) {
+                        if(err)
+                        {
+                            return res.end('error');
+                        }
+                        res.end(data.toString());
+                    })
+                });
+            });
+        });
+
     //get 所有测试数据
     app.route('/modelser/testify/:msid')
         .get(function (req, res) {

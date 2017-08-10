@@ -501,95 +501,78 @@ module.exports = (function () {
             }
         },
 
+        // 保留
         // 拿到数据坐标，下载数据并添加到数据库中
         onReceivedDataPosition: function (dataPosition) {
             var self = this;
-            var url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
-            // 请求数据
-            new Promise(function (resolve, reject) {
-                RmtReqCtrl.getByServer(url,null,function (err, res) {
-                    if(err){
-                        return reject(err);
+            var url = null;
+            if(dataPosition.posType == 'LOCAL'){
+                url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+            }
+            else if(dataPosition.posType == 'MODEL SERVICE'){
+                url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+            }
+            else if(dataPosition.posType == 'DATA SERVICE'){
+                url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+            }
+            // 先查询有没有
+            GeoDataCtrl.exist(dataPosition.gdid,function (err, exist) {
+                if (err) {
+
+                }
+                else {
+                    if (exist) {
+
                     }
                     else {
-                        return resolve(JSON.parse(res));
-                    }
-                })
-            })
-                // 保存数据
-                .then(function (gd) {
-                    return new Promise(function (resolve, reject) {
-                        if(gd.error){
-                            reject(new Error(gd.error));
-                        }
-                        if(gd.gd_type == 'FILE'){
-                            var path = Path.join(__dirname,'../../geo_data/' + dataPosition.gdid);
-                            fs.writeFile(path,gd.gd_value,function (err) {
-                                if (err) {
-                                    return reject(err);
-                                }
-                                else{
-                                    gd.gd_value = dataPosition.gdid + '.xml';
-                                    GeoDataCtrl.addData(gd,function (err, rst) {
-                                        if(err){
-                                            return reject(err);
-                                        }
-                                        else{
-                                            return resolve();
-                                        }
-                                    })
-                                }
-                            });
-                        }
-                        else if(gd.gd_type == 'STREAM'){
-                            GeoDataCtrl.addData(gd,function (err, rst) {
+                        // 请求数据
+                        new Promise(function (resolve, reject) {
+                            RmtReqCtrl.getByServer(url,null,function (err, res) {
                                 if(err){
                                     return reject(err);
                                 }
-                                else{
-                                    return resolve();
+                                else {
+                                    return resolve(JSON.parse(res));
                                 }
                             })
-                        }
-                    })
-                })
-                // 回复消息
-                .then(function () {
-                    // 添加过数据后的处理
-                    let replyData = {
-                        taskID: dataPosition.taskID,
-                        gdid: dataPosition.gdid,
-                        MSID: dataPosition.MSID,
-                        stateID: dataPosition.stateID,
-                        eventName: dataPosition.eventName,
-                        err: null
-                    };
-                    self.emitDataDownloaded(replyData, dataPosition.centerHost, dataPosition.centerPort);
-                })
-                .catch(function (err) {
-                    err.place = 'onReceivedDataPosition';
-                    console.log(err);
-                    let replyData = {
-                        taskID: dataPosition.taskID,
-                        gdid: dataPosition.gdid,
-                        MSID: dataPosition.MSID,
-                        stateID: dataPosition.stateID,
-                        eventName: dataPosition.eventName,
-                        err: err
-                    };
-                    self.emitDataDownloaded(replyData, dataPosition.centerHost, dataPosition.centerPort);
-                })
-        },
-
-        // TODO 轮询请求
-        // 下载完数据后回复消息（是否下载成功）
-        emitDataDownloaded: function (replyData, centerHost, centerPort) {
-            var url = 'http://' + centerHost + ':' + centerPort + '/aggregation/onReceivedDataDownloaded';
-            RmtReqCtrl.postByServer(url,replyData,function (err, res) {
-                if(err){
-                    // TODO 重新发送请求，当请求超过三次后放弃
+                        })
+                        // 保存数据
+                            .then(function (gd) {
+                                return new Promise(function (resolve, reject) {
+                                    if(gd.error){
+                                        reject(new Error(gd.error));
+                                    }
+                                    if(gd.gd_type == 'FILE'){
+                                        var path = Path.join(__dirname,'../../geo_data/' + dataPosition.gdid + '.xml');
+                                        fs.writeFile(path,gd.gd_value,function (err) {
+                                            if (err) {
+                                                return reject(err);
+                                            }
+                                            else{
+                                                gd.gd_value = dataPosition.gdid + '.xml';
+                                                GeoDataCtrl.addData(gd,function (err, rst) {
+                                                    if(err){
+                                                        return reject(err);
+                                                    }
+                                                })
+                                            }
+                                        });
+                                    }
+                                    else if(gd.gd_type == 'STREAM'){
+                                        GeoDataCtrl.addData(gd,function (err, rst) {
+                                            if(err){
+                                                return reject(err);
+                                            }
+                                        })
+                                    }
+                                })
+                            })
+                            .catch(function (err) {
+                                console.log(err);
+                            })
+                    }
                 }
-            })
+            });
         },
 
         // update data state

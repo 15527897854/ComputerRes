@@ -112,7 +112,7 @@ $().ready(function () {
         })
             .then((mss)=> {
                 return new Promise((reject)=> {
-                    MSAggreJS.buildMSListModal(mss, true, (err) => {
+                    MSAggreJS.buildMSListModal(mss, false, (err) => {
                         if(err){
                             reject(err);
                         }
@@ -130,9 +130,11 @@ $().ready(function () {
                 return;
             });
     }
+
     else if(url.indexOf('aggregation/solution/query') != -1){
         SolutionLibraryJS.init();
     }
+
     else if(url.indexOf('aggregation/solution/detail') != -1){
         CanvasJS.init('view','solution');
 
@@ -151,6 +153,7 @@ $().ready(function () {
         CanvasJS.initImport('SOLUTION',solution);
         CanvasJS.importSolution();
     }
+
     else if(url.indexOf('aggregation/solution/edit') != -1){
         CanvasJS.init('edit','solution');
 
@@ -170,9 +173,11 @@ $().ready(function () {
         CanvasJS.initImport('SOLUTION',solution);
         CanvasJS.importSolution();
     }
+
     else if(url.indexOf('aggregation/task/query') != -1){
         TaskListJS.init();
     }
+
     else if(url.indexOf('aggregation/task/new') != -1){
         $('#saveas-task-tool').remove();
         CanvasJS.init('configure','task');
@@ -192,6 +197,7 @@ $().ready(function () {
         CanvasJS.initImport('SOLUTION',solution);
         CanvasJS.importSolution();
     }
+
     else if(url.indexOf('aggregation/task/detail') != -1){
         CanvasJS.init('view','task');
 
@@ -210,6 +216,7 @@ $().ready(function () {
         CanvasJS.initImport('TASK',task);
         CanvasJS.importTask();
     }
+
     else if(url.indexOf('aggregation/task/edit') != -1){
         CanvasJS.init('configure','task');
 

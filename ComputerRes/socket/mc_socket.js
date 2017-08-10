@@ -95,28 +95,6 @@ function SocketTrans(app)
                 {
                     msr.msr_status = -1;
                 }
-
-                // region integrate scr
-                if(mi.isIntegrate){
-                    var finishedInfo = {
-                        centerHost: mi.centerHost,
-                        centerPort: mi.centerPort,
-                        taskID: mi.taskID,
-                        MSinsID: mi.MSinsID,
-                        host: app.centerHost,
-                        port: app.centerPort
-                    };
-                    if(finished) {
-                        finishedInfo.outputData = msr.msr_output;
-                        finishedInfo.MSState = MSState.finished;
-                    }
-                    else {
-                        finishedInfo.outputData = [];
-                        finishedInfo.MSState = MSState.collapsed;
-                    }
-                    DataDriver.emitMSFinished(finishedInfo)
-                }
-                // endregion scr
                 ModelSerRunCtrl.update(msr, function (err2, data) {
                     if(err2)
                     {

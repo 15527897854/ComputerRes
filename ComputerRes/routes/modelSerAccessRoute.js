@@ -80,8 +80,8 @@ module.exports = function(app){
             var outputData = req.query.outputData;
             if(ac == 'run'){
                 //读取输入文件参数
-                var inputData = JSON.parse(req.query.inputdata);
-                var outputData = req.query.outputdata;
+                var inputData = JSON.parse(inputData);
+                var outputData = req.query.outputData;
                 
                 var user = {
                     u_name : '[匿名]',

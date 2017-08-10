@@ -184,14 +184,21 @@ ModelService.getMSDetail = function(msid, cb){
         if (err) {
             return cb(err);
         }
-        ModelService.readMDL(ms,function (err, mdlJSON) {
-            if(err)
-                return cb(err);
-            return cb(null,{
-                MS:ms,
-                MDL:mdlJSON
-            });
-        })
+        ModelService.readCfg(ms, function (err, cfg) {
+            if(err) {
+                return callback(err);
+            }
+            fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
+                if(err) {
+                    console.log('Error in read mdl file : ' + err);
+                    return callback(err);
+                }
+                return cb(null,{
+                    MS:ms,
+                    MDLStr: data.toString()
+                });
+            })
+        });
     });
 };
 

@@ -229,7 +229,7 @@ module.exports = function (app) {
             return res.render('dataCollection');
         });
 
-    // 返回数据文件及数据标签
+    // scr 返回数据文件及数据标签
     app.route('/geodata/detail/:gdid')
         .get(function (req, res, next) {
             var gdid = req.params.gdid;
@@ -277,6 +277,20 @@ module.exports = function (app) {
                     res.end(JSON.stringify(gd));
                 }
             });
+        });
+
+    // scr
+    app.route('/geodata/exist/:gdid')
+        .get(function (req, res, next) {
+            var gdid = req.params.gdid;
+            GeoDataCtrl.exist(gdid,function (err, exist) {
+                if(err){
+                    return res.end(JSON.stringify({error:err}));
+                }
+                else{
+                    return res.end(JSON.stringify({error:null,exist:exist}));
+                }
+            })
         });
 
     //下载数据文件
