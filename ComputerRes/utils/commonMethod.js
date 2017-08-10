@@ -126,7 +126,7 @@ CommonMethod.Encode64 = function(a){
         d = enc2 = enc3 = enc4 = ""
     } while (i < a.length);
     return b;
-}
+};
 
 //启动一个Nodejs进程去执行JS文件 -- 一般用于高IO处理
 CommonMethod.childProcess = function(file, callback){
@@ -164,6 +164,7 @@ CommonMethod.getPort = function (cb) {
         cb(port);
     });
 };
+
 CommonMethod.getIP = function(request){
     var host = request.connection.remoteAddress;
     host = host.substr(host.lastIndexOf(':') + 1);
@@ -189,6 +190,16 @@ CommonMethod.createGUID = function () {
         return s ? "-" + p.substr(0,4) + "-" + p.substr(4,4) : p ;
     }
     return _p8() + _p8(true) + _p8(true) + _p8();
+};
+
+// 'yyyy-mm-dd hh:mm'
+CommonMethod.timestamp2String = function (timestamp) {
+    var date = new Date(timestamp);
+    return date.getFullYear() + '-' +
+        (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-' +
+        date.getDate() + ' ' +
+        (date.getHours() <10 ? '0' + date.getHours():date.getHours()) + ':' +
+        (date.getMinutes() < 10 ? '0' + (date.getMinutes()) : date.getMinutes());
 };
 
 module.exports = CommonMethod;

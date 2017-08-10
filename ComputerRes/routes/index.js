@@ -12,7 +12,7 @@ var ModelSerAccessRoute = require('./modelSerAccessRoute');
 var AdminAccessRoute = require('./adminAccessRoute');
 
 var sysCtrl = require('../control/sysControl');
-var AuthCtrl = require('../control/authControl')
+var AuthCtrl = require('../control/authControl');
 var ModelSerCtrl = require('../control/modelSerControl');
 var setting = require('../setting');
 var CommonMethod = require('../utils/commonMethod');

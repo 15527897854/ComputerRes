@@ -10,8 +10,12 @@ Author: ThemeBucket
 @import url('jquery-ui-1.10.3.css');
 @import url('../fonts/css/font-awesome.min.css');
 
+.panel{
+    margin-bottom:0 !important;
+}
+
 body {
-    background: #424f63;
+    background: #FFF;
     font-family: 'Open Sans', sans-serif;
     color: #7a7676;
     line-height: 20px;
@@ -222,7 +226,6 @@ hr {
 
 .left-side-collapsed .logo-icon {
     height: 45px;
-    margin-top: -48px;
     display: block !important;
 }
 
@@ -352,6 +355,7 @@ hr {
     vertical-align: middle;
     margin-right: 10px;
     width: 16px;
+    height: 17px;
     text-align: center;
 }
 
@@ -418,7 +422,7 @@ hr {
 
 .left-side-collapsed .left-side {
     width: 52px;
-    top: 52px;
+    /*top: 52px;*/
 }
 
 .left-side-collapsed .left-side-inner {
@@ -849,7 +853,9 @@ h5.left-nav-title {
     background: #424f63;
 
 }
-
+.left-side{
+    background: #424f63;
+}
 .sticky-header .left-side {
     /*top: 50px;*/
 }
@@ -902,7 +908,7 @@ h5.left-nav-title {
 .main-content {
     margin-left: 240px;
     background: #eff0f4;
-    min-height: 1000px;
+    margin-bottom:50px;
 }
 
 .page-heading {
@@ -929,10 +935,6 @@ h5.left-nav-title {
 
 .page-heading .breadcrumb li.active {
     color: #65CEA7;
-}
-
-.wrapper {
-    padding: 15px;
 }
 
 .wrapper::after {
@@ -4007,7 +4009,6 @@ ul.labels-info li a:hover, ul.labels-info li a:focus {
 .mail-list {
     overflow-x: hidden;
     overflow-y: auto;
-    height: 657px;
 }
 
 .mail-list .list-group-item {
