@@ -266,7 +266,7 @@ module.exports = function(app)
     //管理员页面渲染
     app.route('/admininfo')
         .get(function(req, res, next){
-            res.render('userinfo');
+            res.render('userInfo');
         });
     //获取IPToken
     app.route('/token')

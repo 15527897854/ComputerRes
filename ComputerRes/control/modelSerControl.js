@@ -702,7 +702,7 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                     var j;
                     for(j = 0; j < outputData.length; j++){
                         if(outputData[j].StateId == data[k].$.id && outputData[j].Event == data[k].Event[i].$.name){
-                            outputData[j].StateName = data[k].$.Name;
+                            outputData[j].StateName = data[k].$.name;
                             outputData[j].StateDes = data[k].$.description;
                             if(outputData[j].Destroyed == undefined || outputData[j].Destroyed == null){
                                 outputData[j]['Destroyed'] = false;
@@ -711,7 +711,7 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                                 outputData[j]['DataId'] = 'gd_' + uuid.v1();
                             }
                             if(outputData[j].Tag == undefined || outputData[j].Tag == null){
-                                outputData[j]['Tag'] = data[k].$.Name + '-' + data[k].Event[i].$.name;
+                                outputData[j]['Tag'] = data[k].$.name + '-' + data[k].Event[i].$.name;
                             }
                             break;
                         }
