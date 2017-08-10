@@ -25,7 +25,15 @@ var DataSelectTable = React.createClass({
     },
 
     getSelectedGDID : function(){
-        return $("input[name='rd_GDID']:checked").val();
+        var value =  $("input[name='rd_GDID']:checked").val();
+        var guid = value.substr(0, value.indexOf('\t\t\t'));
+        return guid;
+    },
+
+    getSelectedTAG : function(){
+        var value =  $("input[name='rd_GDID']:checked").val();
+        var tag = value.substr(value.indexOf('\t\t\t') + 3);
+        return tag;
     },
 
     refresh : function () {
@@ -60,20 +68,20 @@ var DataSelectTable = React.createClass({
                                 "bAutoWidth": true,
                                 //多语言配置
                                 "oLanguage": {
-                                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                                    "sInfoEmtpy": "找不到相关数据",
-                                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
-                                    "sProcessing": "正在加载中...",
-                                    "sSearch": "搜索",
+                                    "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
+                                    "sZeroRecords": window.LanguageConfig.TablePaging.ZeroRecords,
+                                    "sInfo": window.LanguageConfig.TablePaging.Info,
+                                    "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
+                                    "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
+                                    "sProcessing": window.LanguageConfig.TablePaging.Processing,
+                                    "sSearch": window.LanguageConfig.TablePaging.Search,
                                     //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
                                     "sUrl": "",
                                     "oPaginate": {
-                                        "sFirst":    "第一页",
-                                        "sPrevious": " 上一页 ",
-                                        "sNext":     " 下一页 ",
-                                        "sLast":     " 最后一页 "
+                                        "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
+                                        "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
+                                        "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
+                                        "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
                                     }
                                 }
                             }
@@ -92,7 +100,7 @@ var DataSelectTable = React.createClass({
         if(this.state.loading)
         {
             return (
-                <span>加载中...</span>
+                <span>Loading...</span>
             );
         }
         if(this.state.err)
@@ -102,13 +110,22 @@ var DataSelectTable = React.createClass({
             );
         }
         var dataItems = this.state.data.map(function(item){
-
+            var size = (parseInt(item.gd_size) / 1024).toFixed(2);
+            var unit = 'KB';
+            if(size > 1024){
+                size = (size / 1024).toFixed(2);
+                unit = 'MB';
+            }
+            if(size > 1024){
+                size = (size / 1024).toFixed(2);
+                unit = 'GB';
+            }
             return(
                 <tr key={item.gd_id}>
-                    <td><input className="radio " name="rd_GDID" type="radio" value={item.gd_id} /></td>
-                    <td>{item.gd_id}</td>
-                    <td>{item.gd_datetime}</td>
+                    <td><input className="radio " name="rd_GDID" type="radio" value={item.gd_id + '\t\t\t' + item.gd_tag} /></td>
                     <td>{item.gd_tag}</td>
+                    <td>{item.gd_datetime}</td>
+                    <td>{size + ' ' + unit}</td>
                 </tr>
             );
         }.bind(this));
@@ -117,10 +134,10 @@ var DataSelectTable = React.createClass({
                 <table className="display table table-bordered table-striped" id={'dataSelect-table' + this.state.id}>
                     <thead>
                     <tr>
-                        <th> </th>
-                        <th>数据ID</th>
-                        <th>生成时间</th>
-                        <th>标签</th>
+                        <th>#</th>
+                        <th>{window.LanguageConfig.DataTable.Tag}</th>
+                        <th>{window.LanguageConfig.DataTable.DateTime}</th>
+                        <th>Size</th>
                     </tr>
                     </thead>
                     <tbody>

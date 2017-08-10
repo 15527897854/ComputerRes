@@ -3,11 +3,11 @@
  */
 var SysCtrl = require('./control/sysControl');
 var FileOpera = require('./utils/fileOpera');
+var LanguageCtrl = require('./control/languagesCtrl');
 
 var Init = function(){
     console.log('Initializing...');
 
-    //Checking system fields is null
     var fields = [
         {
             name : 'portal_uname',
@@ -28,6 +28,10 @@ var Init = function(){
         {
             name : 'adminPwd',
             value : 'e10adc3949ba59abbe56e057f20f883e'
+        },
+        {
+            name : 'language',
+            value : 'en.json'
         },
     ];
 
@@ -59,6 +63,7 @@ var Init = function(){
     console.log('Checking directions...');
     var directions = [
         __dirname + '/geo_data/',
+        __dirname + '/geo_model/',
         __dirname + '/geo_model/packages/',
         __dirname + '/geo_model/tmp/',
         __dirname + '/public/tmp/'
@@ -81,6 +86,14 @@ var Init = function(){
     for(var i = 0; i < directions.length; i++){
         FileOpera.BuildDir(directions[i], pending_directions(i));
     }
+
+    console.log('Checking language config...');
+    LanguageCtrl.updateLanguage('en.json', function(err, result){
+        if(err){
+            return console.log('Error in initailizing language configuration!');
+        }
+        console.log('initailizing language configuration finished !');
+    });
 };
 
 module.exports = Init;

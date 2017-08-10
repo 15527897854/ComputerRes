@@ -8,6 +8,7 @@ var fs = require('fs');
 var uuid = require('node-uuid');
 
 var GeoDataCtrl = require('../control/geoDataControl');
+var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var setting = require('../setting');
 var remoteReqCtrl = require('../control/remoteReqControl');
 var request = require('request');
@@ -17,164 +18,6 @@ var RouteBase = require('./routeBase');
 var cp = require('../utils/child-process'); 
 
 module.exports = function (app) {
-    //上传地理模型数据文件
-    app.route('/geodata/file')
-        .post(function (req, res, next) {
-            var form = new formidable.IncomingForm();               //创建上传表单
-            form.encoding = 'utf-8';		                        //设置编辑
-            form.uploadDir = setting.modelpath + '/../geo_data/';   //设置上传目录
-            form.keepExtensions = true;                             //保留后缀
-            form.maxFieldsSize = 500 * 1024 * 1024;                 //文件大小
-
-            form.parse(req, function (err, fields, files) {
-                if(err)
-                {
-                    console.log(err);
-                    return res.end(JSON.stringify(
-                        {
-                            res:'err',
-                            mess:JSON.stringify(err)
-                        }));
-                }
-                //生成数据ID
-                var gdid = 'gd_' + uuid.v1();
-                var fname = gdid + '.xml';
-
-                //读取文件状态
-                if(files.myfile == undefined)
-                {
-                    return res.end("Error : Can not find files ! " );
-                }
-                var gd_tag = '';
-                if(fields.gd_tag)
-                {
-                    gd_tag = fields.gd_tag;
-                }
-                fs.stat(files.myfile.path, function (err, stats) {
-                    //判断文件大小
-                    if(stats.size - 16 > setting.data_size)
-                    {
-                        //重命名
-                        fs.rename(files.myfile.path, setting.modelpath + '/../geo_data/' + fname, function () {
-                            //存入数据库
-                            var geodata = {
-                                gd_id : gdid,
-                                gd_tag : gd_tag,
-                                gd_type : 'FILE',
-                                gd_value : fname
-                            };
-
-                            //添加记录
-                            GeoDataCtrl.addData(geodata, function (err, blsuc) {
-                                if(err)
-                                {
-                                    return res.end('Error : ' + err)
-                                }
-                                return res.end(JSON.stringify(
-                                    {
-                                        res : 'suc',
-                                        gd_id : gdid
-                                    }));
-                            });
-                        });
-                    }
-                    else
-                    {
-                        //读取数据
-                        fs.readFile(files.myfile.path, function (err, data) {
-                            var geodata = {
-                                gd_id : gdid,
-                                gd_tag : gd_tag,
-                                gd_type : 'STREAM',
-                                gd_value : data
-                            };
-
-                            //添加纪录
-                            GeoDataCtrl.addData(geodata, function (err, blsuc) {
-                                if(err)
-                                {
-                                    return res.end('Error : ' + err)
-                                }
-                                fs.unlinkSync(files.myfile.path);
-                                return res.end(JSON.stringify(
-                                    {
-                                        res : 'suc',
-                                        gd_id : gdid
-                                    }));
-                            });
-                        });
-
-                    }
-                });
-            });
-        });
-
-    //上传数据流
-    app.route('/geodata/stream')
-        .post(function (req, res, next) {
-            var data = req.body.data;
-            var gd_tag = '';
-            if(req.body.gd_tag)
-            {
-                gd_tag = req.body.gd_tag;
-            }
-
-            //生成数据ID
-            var gdid = 'gd_' + uuid.v1();
-            if(data.length > setting.data_size)
-            {
-                var filename = gdid + '.xml';
-                fs.writeFile(__dirname + '/../geo_data/' + filename, data, {encoding : 'uft8'},
-                    function (err, data) {
-                        if(err)
-                        {
-                            return res.end('Error in write file : ' + err);
-                        }
-                        //存入数据库
-                        var geodata = {
-                            gd_id : gdid,
-                            gd_tag : gd_tag,
-                            gd_type : 'FILE',
-                            gd_value : fname
-                        };
-
-                        //添加记录
-                        GeoDataCtrl.addData(geodata, function (err, blsuc) {
-                            if(err) {
-                                return res.end('Error : ' + err);
-                            }
-                            return res.end(JSON.stringify({
-                                    res : 'suc',
-                                    gd_id : gdid
-                                }));
-                        });
-                    });
-            }
-            else
-            {
-                //存入数据库
-                var geodata = {
-                    gd_id : gdid,
-                    gd_tag : gd_tag,
-                    gd_type : 'STREAM',
-                    gd_value : data
-                };
-
-                //添加记录
-                GeoDataCtrl.addData(geodata, function (err, blsuc) {
-                    if(err)
-                    {
-                        return res.end('Error : ' + err)
-                    }
-                    return res.end(JSON.stringify(
-                        {
-                            res : 'suc',
-                            gd_id : gdid
-                        }));
-                });
-            }
-        });
-
     //得到全部数据的JSON
     app.route('/geodata/json/all')
         .get(function (req, res, next) {
@@ -306,43 +149,65 @@ module.exports = function (app) {
                 {
                     return res.end('No Data!');
                 }
-                var filename = gd.gd_id + '.xml';
-                if(gd.gd_type == 'FILE')
-                {
-                    fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
-                        if (err) {
-                            GeoDataCtrl.delete(gdid, function (err, reslut) {
-                                return res.end('Data file do not exist!')
-                            });
+                ModelSerRunCtrl.IsOutputData2BDestroyed(gd.gd_id, function(err, destroyed){
+                    if(err){
+                        return res.end('error');
+                    }
+                    var filename = gd.gd_id + '.xml';
+                    if(gd.gd_type == 'FILE')
+                    {
+                        fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
+                            if (err) {
+                                GeoDataCtrl.delete(gdid, function (err, reslut) {
+                                    return res.end('Data file do not exist!')
+                                });
+                            }
+                            else {
+                                fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                                    if(err)
+                                    {
+                                        return res.end('error');
+                                    }
+                                    res.set({
+                                        'Content-Type': 'file/xml',
+                                        'Content-Length': data.length });
+                                    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                                    res.end(data);
+                                    //销毁数据
+                                    if(destroyed){
+                                        GeoDataCtrl.delete(gd.gd_id, function(err, result){});
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    else if(gd.gd_type == 'STREAM')
+                    {
+                        res.set({
+                            'Content-Type': 'file/xml',
+                            'Content-Length': gd.gd_value.length });
+                        res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
+                        res.end(gd.gd_value);
+                        //销毁数据
+                        if(destroyed){
+                            GeoDataCtrl.delete(gd.gd_id, function(err, result){});
                         }
-                        else {
-                            fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
-                                if(err)
-                                {
-                                    return res.end('error');
-                                }
-                                res.set({
-                                    'Content-Type': 'file/xml',
-                                    'Content-Length': data.length });
-                                res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                                res.end(data);
-                            });
-                        }
-                    });
-                }
-                else if(gd.gd_type == 'STREAM')
-                {
-                    res.set({
-                        'Content-Type': 'file/xml',
-                        'Content-Length': gd.gd_value.length });
-                    res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
-                    res.end(gd.gd_value);
-                }
+                    }
+                });
             });
         })
         .delete(function(req, res, next){
             var gdid = req.params.gdid;
-            GeoDataCtrl.delete(gdid, RouteBase.returnFunction(res, 'Error in delete a geo-data!'));
+            if(gdid == 'all'){
+                if(req.query.month){
+                    var month = req.query.month;
+                    month = parseInt(month);
+                    GeoDataCtrl.deleteByMonth(month, RouteBase.returnFunction(res, 'Error in delete geo-data by month'));
+                }
+            }
+            else{
+                GeoDataCtrl.delete(gdid, RouteBase.returnFunction(res, 'Error in delete a geo-data!'));
+            }
         });
 
     app.route('/geodata/snapshot/:gdid')
@@ -372,7 +237,7 @@ module.exports = function (app) {
                     }));
                 }
                 var port = child.port;
-                var url = 'http://' + host + ':' + port + '/geodata/file';
+                var url = 'http://' + host + ':' + port + '/geodata?type=file';
                 remoteReqCtrl.postRequest(req,url,function (err, data) {
                     if(err){
                         console.log('---------------------err--------------------\n'+err);
@@ -398,7 +263,7 @@ module.exports = function (app) {
                     }));
                 }
                 var port = child.port;
-                req.pipe(request.post('http://' + host + ':' + port +'/geodata/stream',function (err, respose, body) {
+                req.pipe(request.post('http://' + host + ':' + port +'/geodata?type=stream',function (err, respose, body) {
                     if(err){
                         console.log('---------------------err--------------------\n'+err);
                         return res.end(JSON.stringify({
@@ -465,4 +330,5 @@ module.exports = function (app) {
                 }
             })
         });
+
 };

@@ -9,6 +9,8 @@ var RemoteReqControl = require('./remoteReqControl');
 var CommonMethod = require('../utils/commonMethod');
 var FileOpera = require('../utils/fileOpera');
 var Settings = require('../setting');
+var fs = require('fs');
+var Promise = require('bluebird');
 
 function GeoDataCtrl() {}
 
@@ -34,6 +36,9 @@ GeoDataCtrl.getByKey = function (key, callback) {
         {
             return callback(err);
         }
+        //找到这个数据的权限信息
+
+
         return callback(null, data);
     });
 };
@@ -78,6 +83,37 @@ GeoDataCtrl.delete = function(key, callback){
         });
     });
 };
+
+//删除月份之前的数据
+GeoDataCtrl.deleteByMonth = function(month, callback){
+    if(ParamCheck.checkParam(callback, month)){
+        var date_now = new Date();
+        date_now.setMonth(date_now.getMonth() - month);
+        GeoDataCtrl.getAllData(function(err, data){
+            if(err){
+                return callback(err);
+            }
+            var count = data.length;
+            for(var i = 0; i < data.length; i++){
+                var date = new Date(data[i].gd_datetime);
+                if(date < date_now){
+                    GeoDataCtrl.delete(data[i].gd_id, function(err, data){
+                        count = count - 1;
+                        if(count == 0){
+                            return callback(null, true);
+                        }
+                    });
+                }
+                else{
+                    count = count - 1;
+                    if(count == 0){
+                        return callback(null, true);
+                    }
+                }
+            }
+        });
+    }
+}
 
 //获取全部数据
 GeoDataCtrl.getAllData = function(callback){
@@ -203,3 +239,76 @@ GeoDataCtrl.exist = function (gdid, cb) {
         return cb(null, false);
     });
 };
+
+// 拿到数据坐标，下载数据并添加到数据库中
+GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
+    var self = this;
+    var url = null;
+    if(dataPosition.posType == 'LOCAL'){
+        url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+    }
+    else if(dataPosition.posType == 'MODEL SERVICE'){
+        url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+    }
+    else if(dataPosition.posType == 'DATA SERVICE'){
+        url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+    }
+    // 先查询有没有
+    GeoDataCtrl.exist(dataPosition.gdid,function (err, exist) {
+        if (err) {
+
+        }
+        else {
+            if (exist) {
+
+            }
+            else {
+                // 请求数据
+                new Promise(function (resolve, reject) {
+                    RmtReqCtrl.getByServer(url,null,function (err, res) {
+                        if(err){
+                            return reject(err);
+                        }
+                        else {
+                            return resolve(JSON.parse(res));
+                        }
+                    })
+                })
+                // 保存数据
+                    .then(function (gd) {
+                        return new Promise(function (resolve, reject) {
+                            if(gd.error){
+                                reject(new Error(gd.error));
+                            }
+                            if(gd.gd_type == 'FILE'){
+                                var path = Path.join(__dirname,'../../geo_data/' + dataPosition.gdid + '.xml');
+                                fs.writeFile(path,gd.gd_value,function (err) {
+                                    if (err) {
+                                        return reject(err);
+                                    }
+                                    else{
+                                        gd.gd_value = dataPosition.gdid + '.xml';
+                                        GeoDataCtrl.addData(gd,function (err, rst) {
+                                            if(err){
+                                                return reject(err);
+                                            }
+                                        })
+                                    }
+                                });
+                            }
+                            else if(gd.gd_type == 'STREAM'){
+                                GeoDataCtrl.addData(gd,function (err, rst) {
+                                    if(err){
+                                        return reject(err);
+                                    }
+                                })
+                            }
+                        })
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                    })
+            }
+        }
+    });
+}

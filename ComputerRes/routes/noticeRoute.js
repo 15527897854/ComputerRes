@@ -1,4 +1,5 @@
 var NoticeCtrl = require('../control/noticeCtrl');
+var RouteBase = require('./routeBase');
 
 module.exports = function (app) {
     app.route('/note')
@@ -6,34 +7,32 @@ module.exports = function (app) {
             res.render('notice');
         });
 
-    app.route('/notices')
-        .get(function(req, res){
-            var noticeFilter = req.query.noticeFilter;
-            var noticeType = req.query.noticeType;
-            var where = {};
-            if(noticeFilter == '已读'){
-                where.hasRead = true;
-            }
-            else if(noticeFilter == '未读'){
-                where.hasRead = false;
-            }
-            if(noticeType && noticeType != 'all'){
-                where.type = noticeType;
-            }
-            NoticeCtrl.getByWhere(where,function (err, data){
-                if(err){
-                    return res.end(JSON.stringify({status:0}));
+    app.route('/notices/:oid')
+        .get(function(req, res, next){
+            var oid = req.params.oid;
+            if(oid == 'all'){
+                var type = null;
+                var read = null;
+                if(req.query.type && req.query.type != 'all'){
+                    type = req.query.type;
                 }
-                else {
-                    data = data.reverse();
-                    return res.end(JSON.stringify({status:1,data:data}));
+                if(req.query.read && req.query.read != 'all'){
+                    read = req.query.read;
                 }
-            })
+                NoticeCtrl.getAllNoticeByTypeAndRead(type, read, RouteBase.returnFunction(res, 'Error in getting all notices'));
+            }
         })
-        .post(function (req, res) {
-            var id = req.body._id;
-            NoticeCtrl.updateState({_id:id},function (err, data) {
-                res.end(data);
-            });
-    });
+        .put(function(req, res, next){
+            var oid = req.params.oid;
+            if(req.query.type == 'read'){
+                if(oid == 'all'){
+                    NoticeCtrl.markAllAsRead(RouteBase.returnFunction(res, 'Error in marking all notices as read'));
+                }
+                else{
+                    NoticeCtrl.markAsRead(oid, RouteBase.returnFunction(res, 'Error in marking all notices as read'));
+                }
+            }
+        });
+    
+
 };

@@ -284,7 +284,7 @@ SysControl.setPortalInfo = function(username, pwd, callback){
             pwd = CommonMethod.decrypto(pwd);
             SysControl.loginPortal(username, pwd, function(err, result){
                 if(err){
-                    return callhback(err);
+                    return callback(err);
                 }
                 if(result){
                     var ss_uname = {

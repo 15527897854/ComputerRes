@@ -4,6 +4,9 @@
 
 var React = require('react');
 var Axios = require('axios');
+var CopyToClipBoard = require('copy-to-clipboard');
+
+var NoteDialog = require('../../action/utils/noteDialog');
 
 var ModelSerInfo = React.createClass({
     getInitialState : function () {
@@ -24,20 +27,26 @@ var ModelSerInfo = React.createClass({
             }
         );
     },
+
+    copyToClipBoard : function(text){
+        CopyToClipBoard(text);
+        NoteDialog.openNoteDia(window.LanguageConfig.ModelServiceDetail.CopySuccessfully);
+    },
+
     render : function () {
         if(this.state.loading){
             return (
-                <span className="" >加载中...</span>
+                <span className="" >loading...</span>
             );
         }
         if(this.state.ms == null)
         {
             return (
-                <span>未查询到数据</span>
+                <span>Can not find data</span>
             );
         }
         var platform = (
-            <span className="label label-info">未知平台</span>);
+            <span className="label label-info">Unknown</span>);
         if(this.state.ms.ms_platform == 1)
         {
             platform = (
@@ -53,53 +62,62 @@ var ModelSerInfo = React.createClass({
                 </span>);
         }
         var status = (
-            <span className="badge badge-defult">不可用</span>);
+            <span className="badge badge-defult">{window.LanguageConfig.ModelService.Unavai}</span>);
         if(this.state.ms.ms_status == 1)
         {
             status = (
-                <span className="badge badge-success">可用</span>
+                <span className="badge badge-success">{window.LanguageConfig.ModelService.Avai}</span>
             );
         }
         var detail = '';
         if(this.state.ms.ms_model.m_url)
         {
             detail = (
-                <a style="more" href={ms.ms_model.m_url} >更多信息</a>
+                <a href={this.state.ms.ms_model.m_url} >MORE</a>
             );
+        }
+        var img = (<img src="/images/modelImg/default.png" alt=""  />);
+        if(this.state.ms.ms_img != null && this.state.ms.ms_img.trim() != ''){
+            img = (<img height="128px" width="128px" src={ '/images/modelImg/' + this.state.ms.ms_img } alt=""  />)
+        }
+        var url = window.location.href;
+        url = url.substr(0, url.lastIndexOf(':') + 5);
+        var permission = null;
+        if(this.state.ms.ms_permission == 1){
+            permission = (
+                    <span className="label label-default tooltips" data-toggle="tooltip" data-placement="top" data-original-title={window.LanguageConfig.ModelService.Auth} >
+                        <i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}
+                    </span>);
+        }
+        else{
+            permission = (
+                    <span className="label label-success tooltips" data-toggle="tooltip" data-placement="top" data-original-title="Open" >
+                        <i className="fa fa-unlock" ></i>&nbsp;Open
+                    </span>);
         }
         return (
             <div className="panel panel-primary">
                 <div className="panel-heading">
-                    模型服务信息
-                    <span className="tools pull-right">
-                        <a href="javascript:;" className="fa fa-chevron-down"> </a>
-                    </span>
+                    {window.LanguageConfig.ModelServiceDetail.Title}
                 </div>
                 <div className="panel-body">
                     <div className="row">
                         <div className="col-md-2">
                             <div className="blog-img">
-                                <img src="/images/modelImg/default.png" alt=""  />
+                                {img}
                             </div>
                         </div>
                         <div className="col-md-7">
-                            <p style={{"fontSize" : "14px", "color" : "#aaa"}}  >
-                                <strong>模型名称&nbsp;:&nbsp;{this.state.ms.ms_model.m_name}</strong>
-                                <br />
-                                <strong>模型类型&nbsp;:&nbsp;{this.state.ms.ms_model.m_type}</strong>
-                                <br />
-                                <strong>版本号&nbsp;:&nbsp;{this.state.ms.ms_model.mv_type}</strong>
-                                <br />
-                                <strong>所在平台&nbsp;:&nbsp;{platform}</strong>
-                                <br />
-                                <strong>部署时间&nbsp;:&nbsp;{this.state.ms.ms_model.ms_update}</strong>
-                                <br />
-                                <strong>状态&nbsp;:&nbsp;{status}</strong>
-                                <br />
-                                <strong>描述&nbsp;:&nbsp;{this.state.ms.ms_model.ms_des}</strong>
-                                <br />{detail}
-                                <br />
-                            </p>
+                            <p className="muted" >{window.LanguageConfig.ModelService.Name}&nbsp;:&nbsp;{this.state.ms.ms_model.m_name}</p>
+                            <p className="muted" >{window.LanguageConfig.ModelService.Type}&nbsp;:&nbsp;{this.state.ms.ms_model.m_type}</p>
+                            <p className="muted" >{window.LanguageConfig.ModelService.Version}&nbsp;:&nbsp;{this.state.ms.mv_num}</p>
+                            <p className="muted" >{window.LanguageConfig.ModelService.Platform}&nbsp;:&nbsp;{platform}</p>
+                            <p className="muted" >{window.LanguageConfig.ModelServiceDetail.DeploymentTime}&nbsp;:&nbsp;{this.state.ms.ms_update}</p>
+                            <p className="muted" >{window.LanguageConfig.ModelService.Status}&nbsp;:&nbsp;{status}</p>
+                            <p className="muted" >Permission&nbsp;:&nbsp;{permission}</p>
+                            <p  className="muted" >{window.LanguageConfig.ModelServiceDetail.Description}&nbsp;:&nbsp;{this.state.ms.ms_des}</p>
+                            <br />{detail}
+                            <br />
                         </div>
                     </div>
                 </div>

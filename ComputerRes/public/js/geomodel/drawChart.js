@@ -6,8 +6,8 @@ function getData(series,flag,that) {
         {
             // var jsonResult = eval('(' + xmlhttp.responseText + ')');
             var jsonResult = JSON.parse(xmlhttp.responseText);
-            var stringInfo = "主机名："+
-                jsonResult.hostname+"       系统类型："+jsonResult.systemtype+"      发布版本："+jsonResult.release;
+            var stringInfo = window.LanguageConfig.Status.Machine + '&nbsp;:&nbsp;' +
+                jsonResult.hostname+"       " + window.LanguageConfig.Status.System + "："+jsonResult.systemtype+"      " + window.LanguageConfig.Status.Release + "："+jsonResult.release;
             $("#data").html(stringInfo);
             if (flag == 1){
                 var usedSpace = parseFloat(jsonResult.totalmem) - parseFloat(jsonResult.freemem);
@@ -18,8 +18,8 @@ function getData(series,flag,that) {
             }
             else if(flag == 2){
                 var diskName = jsonResult.disk[1];
-                series.setData([['占用',jsonResult.disk[0]],['空闲',100-jsonResult.disk[0]]],true,true);
-                that.setTitle({text: diskName + '盘使用率'},null,true);
+                series.setData([[window.LanguageConfig.Status.CPUUsage,jsonResult.disk[0]],[window.LanguageConfig.Status.CPUIdle,100-jsonResult.disk[0]]],true,true);
+                that.setTitle({text: diskName + ':\\ ' + window.LanguageConfig.Status.DiskUsage},null,true);
             }
             else if (flag == 3){
                 var cpus = jsonResult.cpus;
@@ -64,7 +64,7 @@ $(function drawDynamicLine() {
             }
         },
         title: {
-            text: '服务器运行记录'  //图表标题
+            text: window.LanguageConfig.Status.ComputerStatus  //图表标题
         },
         xAxis: { //设置X轴
             title:{text:'Time'},
@@ -106,7 +106,7 @@ $(function drawDynamicLine() {
             }
         },
         series: [{
-            name:'内存使用率',
+            name:window.LanguageConfig.Status.MemoryUsage,
             data: (function() { //设置默认数据，
                 var data = [],
                     time = (new Date()).getTime(),
@@ -121,7 +121,7 @@ $(function drawDynamicLine() {
                 return data;
             })()
         },{
-            name:'CPU使用率',
+            name:window.LanguageConfig.Status.CPUUsageTitle,
             data: (function() { //设置默认数据，
                 var data = [],
                     time = (new Date()).getTime(),

@@ -8,6 +8,7 @@ var registerCtrl = require('../control/registerCtrl');
 var sweCtrl = require('../control/softwareEnCtrl');
 var hweCtrl = require('../control/hardwareEnCtrl');
 var commonMethod = require('../utils/commonMethod');
+var fs = require('fs');
 
 module.exports = function(app)
 {
@@ -90,14 +91,14 @@ module.exports = function(app)
         .get(function (req, res, next) {
             res.render('enviro',{
                 openli:'setting-li'
-            });
+        });
         });
 
     app.route('/setting')
         .get(function (req, res, next) {
             res.render('setting',{
                 openli:'setting-li'
-            });
+        });
         });
 
 
@@ -223,7 +224,7 @@ module.exports = function(app)
                     }));
                 }
                 if(result){
-                    req.session.admin = true;
+                    req.session.admin = req.body.adminname;
                     return res.end(JSON.stringify({
                         result : 'suc',
                         data : true
@@ -277,4 +278,5 @@ module.exports = function(app)
         .get(function(req, res, next){
             SysControl.getToken(req.query.ip, RouteBase.returnFunction(res, 'Error in getting token!'));
         });
+    
 };

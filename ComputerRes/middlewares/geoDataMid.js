@@ -17,11 +17,15 @@ module.exports = GeoDataMid;
 GeoDataMid.postStreamData = function(req, callback){
     var data = req.body.data;
     var gd_tag = '';
+    var gd_destroy = 'FALSE';
     if(req.body.gd_tag)
     {
         gd_tag = req.body.gd_tag;
     }
-
+    if(req.body.gd_destroy)
+    {
+        gd_destroy = req.body.gd_destroy;
+    }
     //生成数据ID
     var gdid = 'gd_' + uuid.v1();
     if(data.length > setting.data_size)
@@ -38,6 +42,7 @@ GeoDataMid.postStreamData = function(req, callback){
                     gd_id : gdid,
                     gd_tag : gd_tag,
                     gd_type : 'FILE',
+                    gd_size : data.length,
                     gd_value : fname
                 };
 
@@ -57,6 +62,7 @@ GeoDataMid.postStreamData = function(req, callback){
             gd_id : gdid,
             gd_tag : gd_tag,
             gd_type : 'STREAM',
+            gd_size : data.length,
             gd_value : data
         };
 
@@ -112,6 +118,7 @@ GeoDataMid.postFileData = function(req, callback){
                         gd_id : gdid,
                         gd_tag : gd_tag,
                         gd_type : 'FILE',
+                        gd_size : stats.size - 16,
                         gd_value : fname
                     };
 
@@ -136,6 +143,7 @@ GeoDataMid.postFileData = function(req, callback){
                         gd_id : gdid,
                         gd_tag : gd_tag,
                         gd_type : 'STREAM',
+                        gd_size : stats.size - 16,
                         gd_value : data
                     };
 
@@ -153,4 +161,8 @@ GeoDataMid.postFileData = function(req, callback){
             }
         });
     });
+}
+
+GeoDataMid.postUrlData = function(req, callback){
+    
 }

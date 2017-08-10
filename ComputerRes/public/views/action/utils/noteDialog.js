@@ -5,6 +5,9 @@
 var NoteDialog = function(){};
 
 NoteDialog.openNoteDia = function(title, text){
+    if(text == undefined){
+        text = ' ';
+    }
     $.gritter.add({
         // (string | mandatory) the heading of the notification
         title: title,

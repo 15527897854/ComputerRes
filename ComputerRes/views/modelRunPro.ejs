@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>模型服务调用</title>
+    <title>Invoking</title>
     <%- include headInclude.ejs %>
     <link href="/css/uploadfile.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="/js/gritter/css/jquery.gritter.css" />
@@ -23,105 +23,12 @@
     <div class="main-content">
         <!-- 上导航栏 -->
         <%- include nav.ejs %>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                模型服务信息
-                <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
-                 </span>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="blog-img">
-                            <% if(host == 'localhost'){ %>
-                            <% if(modelSer.ms_img == null || modelSer.ms_img == ''){
-                            %><img src="/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="/images/modelImg/<%=modelSer.ms_img %>" alt="<%=modelSer.ms_model.m_name %>" ><%
-                            }%>
-                            <% }else{ %>
-                            <% if(modelSer.ms_img == null || modelSer.ms_img == ''){
-                            %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" ><%
-                            }
-                            else {
-                            %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=modelSer.ms_img %>" alt="<%=modelSer.ms_model.m_name %>" ><%
-                            }%>
-                            <% } %>
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <p style="font-size: 14px; color:#aaa" >
-                            <strong>模型名称&nbsp;:&nbsp;</strong><%=modelSer.ms_model.m_name  %>
-                            <br />
-                            <strong>模型类型&nbsp;:&nbsp;</strong><%=modelSer.ms_model.m_type %>
-                            <br />
-                            <strong>版本号&nbsp;:&nbsp;</strong><%=modelSer.mv_num %>
-                            <br />
-                            <strong>所在平台&nbsp;:&nbsp;</strong><%
-                            if(modelSer.ms_platform == 1)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-windows"></i>
-                                    windows
-                                </span><%
-                            }
-                            else if(modelSer.ms_platform == 2)
-                            {
-                            %><span class="label label-info">
-                                    <i class="fa fa-linux"></i>
-                                    linux
-                                </span><%
-                            }
-                            else
-                            {
-                            %><span class="label label-info">
-                                    未知平台
-                                </span><%
-                            }
-                            %>
-                            <br />
-                            <strong>部署时间&nbsp;:&nbsp;</strong><%=modelSer.ms_update %>
-                            <br />
-                            <strong>状态&nbsp;:&nbsp;</strong><% if(modelSer.ms_status == 1){
-                            %><span class="badge badge-success">可用</span><%
-                            }else {
-                            %><span class="badge badge-defult">不可用</span><%
-                            }%>
-                            <br />
-                            <strong>描述&nbsp;:&nbsp;</strong>
-                            <br />
-                            <%=modelSer.ms_des %>
-                        </p>
-                        <% if(modelSer.ms_model.m_url != null)
-                        {
-                        %><a style="more" href="<%=modelSer.ms_model.m_url %>" >更多信息</a><%
-                        }%>
-                        <br />
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel panel-info" id="testify-panel">
-            <div class="panel-heading" style="background-color: #46B8DA;border-color: #46B8DA; ">
-                测试数据
-                <span class="tools pull-right">
-                    <a href="javascript:;" class="fa fa-chevron-down"></a>
-                 </span>
-            </div>
-            <div class="panel-body">
-                <div id="testify-body" class="panel-body" style="padding: 15px;margin-right: 80px">
-
-                </div>
-            </div>
-        </div>
+        <div id="modelserinfo" data-source="/modelser/json/<%=modelSer._id %>" ></div>
+        <div id="TestifyDataPanel" data-source="/modelser/testify/<%=modelSer._id %>" ></div>
 
         <div class="panel panel-info">
             <div class="panel-heading" style="background-color: #5CB85C;border-color: #5CB85C; ">
-                数据输入
+                <%=global.LanguageConfig.InputData.Title %>
                 <span class="tools pull-right">
                     <a href="javascript:;" class="fa fa-chevron-down"></a>
                 </span>
@@ -131,14 +38,14 @@
         </div>
         <div class="panel panel-danger">
             <div class="panel-heading">
-                操作
+                <%=global.LanguageConfig.ModelServiceRunOperation.Title %>
             </div>
             <div class="panel-body" style="text-align: center; min-height: 100px;">
                 <button id="btn_run" class="btn btn-success" style="width: 20%" >
-                    <i class="fa fa-cogs"></i>运行
+                    <i class="fa fa-cogs"></i><%=global.LanguageConfig.ModelServiceRunOperation.Run %>
                 </button>
                 <button href="#" class="btn btn-warning" style="width: 20%" onclick="window.close()" >
-                    <i class="fa fa-reply"></i>取消
+                    <i class="fa fa-reply"></i><%=global.LanguageConfig.ModelServiceRunOperation.Cancel %>
                 </button>
             </div>
         </div>
@@ -178,202 +85,39 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-        var msid = '<%=modelSer._id %>';
+        var msid = "<%=modelSer._id %>";
         $('#btn_run').click(function(e){
-            for(var i = 0; i < window.allInputData.length; i++)
-            {
-                if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 )
-                {
-                    return alert('数据未全准备！');
-                }
+            var result = window.checkGeoData();
+            if(result.result == 'fail'){
+                return alert(result.message);
             }
-
-            for(var i = 0; i < window.allOutputData.length; i++)
-            {
-                window.allOutputData[i].Tag = $('#dataTag_' + window.allOutputData[i].StateId + '_' + window.allOutputData[i].Event).val();
-            }
-            $.ajax({
-                url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData),
-                type:'GET',
-                success : function(data){
-                    var resJson = JSON.parse(data);
-                    if(resJson.res = 'suc')
-                    {
-                        window.location.href = '/modelserrun/' + resJson.msr_id;
-                    }
+            else if(result.result == 'suc'){
+                var auth = '&auth=';
+                if(window.limited == 1){
+                    auth = auth + $('#authToken').val();
                 }
-            });
-        });
-    });
-</script>
-<script type="text/javascript">
-    //加载所有测试数据条目
-    $(document).ready(function () {
-        $.ajax({
-            url:'/modelser/testify/<%=modelSer._id%>',
-            method:'get',
-            success:function (msg) {
-                testifies = JSON.parse(msg);
-                if(testifies.status ==1){
-                    var testifies = testifies.testifies;
-                    if(testifies.length == 0){
-                        $('#testify-body').empty();
-                        $('#testify-body').append('<h4>没有测试数据！</h4>');
-
-                        $.gritter.add({
-                            title: '提示：',
-                            text: '没有测试数据！',
-                            sticky: false,
-                            time: 2000
-                        });
-                        return false;
-                    }
-                    var child = '<h4 >Tag:</h4>'
-                                +'<select style="margin: 0 50px 0 15px;width: 30%;" id="testifies" class="form-control m-bot15">'
-                                +'</select>'
-                                +'<h4>Detail:</h4>'
-                                +'<p style="margin-left: 15px;" id="testify-detail"></p>'
-                                +'<div style="text-align: center">'
-                                +'<input id="btn_testify_load" type="button" class="btn btn-warning" value="加载测试数据" style="width: 15%;font-family: \'Microsoft YaHei\';margin: 0 10px;">'
-                                +'<input id="btn_testify_del" type="button" class="btn btn-danger" value="删除测试数据" style="width: 15%;font-family: \'Microsoft YaHei\';margin: 0 10px;">'
-                                +'</div>';
-                    $('#testify-body').append($(child));
-                    for(var i=0;i<testifies.length;i++){
-                        var option = $('<option>');
-                        option.append(testifies[i].tag);
-                        $('#testifies').append(option);
-                    }
-                    $('#testifies option:first').attr('selected','selected');
-                    $('#testify-detail').append(testifies[0].detail);
-                    $('#testifies').change(function () {
-                        if($('#testifies option').length == 0){
-                            $('#testify-body').empty();
-                            $('#testify-body').append('<h4>没有测试数据！</h4>');
-
-                            $.gritter.add({
-                                title: '提示：',
-                                text: '没有测试数据！',
-                                sticky: false,
-                                time: 2000
-                            });
-                            return false;
+                $.ajax({
+                    url : '/modelser/'+ msid + '?ac=run&inputdata=' + JSON.stringify(window.allInputData) + '&outputdata=' + JSON.stringify(window.allOutputData) + auth,
+                    type:'GET',
+                    success : function(data){
+                        var resJson = JSON.parse(data);
+                        if(resJson.res == 'suc')
+                        {
+                            window.location.href = '/modelserrun/' + resJson.msr_id;
                         }
                         else{
-                            $('#testify-detail').text(testifies[$('#testifies option:selected')[0].index].detail);
-                        }
-                    });
-
-                    //加载测试数据
-                    $('#btn_testify_load').click(function () {
-                        var selectedTestify = testifies[$('#testifies option:selected')[0].index];
-                        for(var i=0;i<selectedTestify.inputs.length;i++){
-                            for(var j=0;j<window.allInputData.length;j++){
-                                if(window.allInputData[j].Event == selectedTestify.inputs[i].Event){
-                                    window.allInputData[j].DataId = selectedTestify.inputs[i].DataId;
-                                    //添加数据提示标签
-                                    var dataP = $('#data_pre_p_'+ selectedTestify.inputs[i].StateId + '_' + selectedTestify.inputs[i].Event);
-                                    $(dataP).empty();
-                                    $(dataP).append($('<strong>数据准备情况&nbsp;:&nbsp;</strong>'));
-                                    $(dataP).append($('<span class="label label-warning">未准备</span>'));
-                                    var dataTag = $('#data_pre_p_'+ selectedTestify.inputs[i].StateId + '_' + selectedTestify.inputs[i].Event + ' span')[0];
-                                    $(dataTag).attr('class','label label-success');
-                                    $(dataTag).text('已准备');
-                                    $(dataP).append('&nbsp;&nbsp;' + selectedTestify.inputs[i].DataId + '&nbsp;&nbsp;');
-                                    var parentID = $(dataP).attr('id');
-                                    var removeData = $('<button class="btn btn-danger btn-xs" onclick="rmData('+j+ ',\''+ parentID+'\')">移除</button>');
-                                    $(dataP).append(removeData);
-                                    //移除已经加载的数据函数
-                                    rmData = function (index,parentID) {
-                                        if(confirm("确认移除数据?"))
-                                        {
-                                            window.allInputData[index].DataId = '';
-                                            $('#'+parentID ).empty();
-                                            $('#'+parentID ).append($('<strong>数据准备情况&nbsp;:&nbsp;</strong>'));
-                                            $('#'+parentID ).append($('<span class="label label-warning">未准备</span>'));
-                                        }
-                                    };
-                                }
-                            }
-                        }
-
-                        //悬浮提示框
-                        $.gritter.add({
-                            title: '加载测试数据成功！',
-                            text: '<p><strong style="">Tag:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].tag+'</p><p><strong>Detail:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].detail + '</p>',
-                            sticky: false,
-                            time: 2000
-                        });
-                        return false;
-                    });
-
-                    //删除测试数据
-                    $('#btn_testify_del').click(function () {
-                        //TODO默认测试数据不能删除
-                        if(testifies[$('#testifies option:selected')[0].index].tag == 'default'){
                             $.gritter.add({
-                                title: '警告：',
-                                text: '不能删除默认测试数据！',
-                                sticky: false,
-                                time: 2000
-                            });
-                            return false;
-                        }
-                        else if(confirm("确认删除测试数据?")) {
-                            var selectedTestify = testifies[$('#testifies option:selected')[0].index];
-                            var path = selectedTestify.path;
-                            $.ajax({
-                                url: '/modelser/testify/<%= modelSer._id %>?path=' + path,
-                                method: 'delete',
-                                success: function (msg) {
-                                    msg = JSON.parse(msg);
-                                    var title;
-                                    if(msg.suc){
-                                        //删除select中的option
-                                        $('#testifies option')[$('#testifies option:selected')[0].index].remove();
-                                        $('#testifies').trigger('change');
-                                        title = '删除测试数据成功！';
-                                    }
-                                    else if(!msg.suc){
-                                        title = '删除测试数据失败！';
-                                    }
-                                    $.gritter.add({
-                                        title: title,
-                                        text: '<p><strong style="">Tag:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].tag+'</p><p><strong>Detail:&nbsp;&nbsp;</strong>' + testifies[$('#testifies option:selected')[0].index].detail + '</p>',
-                                        sticky: false,
-                                        time: 2000
-                                    });
-                                    return false;
-                                }
+                                // (string | mandatory) the heading of the notification
+                                title: 'Fail!',
+                                // (string | mandatory) the text inside the notification
+                                text: resJson.message
                             });
                         }
-                    });
-                }
-                else if(testifies.status == 0){
-                    $('#testify-body').empty();
-                    $('#testify-body').append('<h4>没有测试数据！</h4>');
-
-                    $.gritter.add({
-                        title: '提示：',
-                        text: '没有测试数据！',
-                        sticky: false,
-                        time: 2000
-                    });
-                    return false;
-                }
-                else if(testifies.status == -1){
-                    $.gritter.add({
-                        title: '警告：',
-                        text: '加载测试数据失败！',
-                        sticky: false,
-                        time: 2000
-                    });
-                    return false;
-                }
+                    }
+                });
             }
         });
-
     });
-
 </script>
 </body>
 </html>

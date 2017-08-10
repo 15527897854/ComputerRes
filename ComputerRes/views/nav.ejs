@@ -1,5 +1,6 @@
 
 <script src="/js/jquery-1.10.2.min.js"></script>
+<script src="/js/jquery.cookies.js"></script>
 
 <script id="nav-news-li" type="text/html">
     <li class="new">
@@ -29,8 +30,19 @@
                     <span id="newsNum" class="badge"></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-head pull-right">
-                    <h5 class="title">消息</h5>
+                    <h5 class="title"><%=global.LanguageConfig.Heading.Notice %></h5>
                     <ul id="nav-news-ul" class="dropdown-list normal-list"></ul>
+                </div>
+            </li>
+            <li>
+                <a href="#"  class="btn btn-default dropdown-toggle info-number" data-toggle="dropdown">
+                    <%=global.LanguageConfig.SelectButton %>
+                    <span id="newsNum" class="badge"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-head pull-right">
+                    <h5 class="title"></h5>
+                    <ul id="nav-language-ul" class="dropdown-list normal-list">
+                    </ul>
                 </div>
             </li>
             <li>
@@ -39,12 +51,11 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-usermenu pull-right">
-                    <li><a href="/admininfo"><i class="fa fa-user"></i>信息</a></li>
-                    <li><a href="/setting"><i class="fa fa-cog"></i>设置</a></li>
-                    <li><a href="/login"><i class="fa fa-sign-out"></i>登出</a></li>
+                    <li><a href="/admininfo"><i class="fa fa-user"></i><%=global.LanguageConfig.Navigation.User.Info %></a></li>
+                    <li><a href="/setting"><i class="fa fa-cog"></i><%=global.LanguageConfig.Navigation.User.Settings %></a></li>
+                    <li><a href="/login"><i class="fa fa-sign-out"></i><%=global.LanguageConfig.Navigation.User.SignOut %></a></li>
                 </ul>
             </li>
-
         </ul>
     </div>
     <!--notification menu end -->
@@ -53,14 +64,25 @@
 <!-- header section end-->
 
 <script type="text/javascript">
+    function setLanguage(language){
+        $.ajax({ 
+            url : '/languages?language=' + language,
+            method : 'PUT',
+            success : function(data){
+                setCookie('language', language);
+                window.location.reload();
+            }.bind(this)
+        });
+    }
+
     $(document).ready(function () {
         window.Polling = function() {
             $.ajax({
-                url:'/notices?noticeFilter=未读',
+                url:'/notices/all?read=false',
                 type:'GET',
                 success:function (msg){
                     var data = JSON.parse(msg);
-                    if(data.status == 1 && data.data.length){
+                    if(data.result == 'suc' && data.data.length){
                         $('#newsNum').html(data.data.length);
                         renderNews(data.data);
                     }
@@ -87,16 +109,29 @@
                     });
                     $('#nav-news-ul').append(tmp);
                 }
-                $('#nav-news-ul').append('<li class="new"><a href="/note">查看所有消息</a></li>');
+                $('#nav-news-ul').append('<li class="new"><a href="/note" >show all notices</a></li>');
             }
             else {
                 $('#nav-news-ul').html('');
-                $('#nav-news-ul').append('<li class="new"><a href="/note">没有未读消息</a></li>');
+                $('#nav-news-ul').append('<li class="new"><a href="/note" >no new notice</a></li>');
             }
         }
 
         Polling();
 
-        timer = setInterval(Polling,600000);
+        timer = setInterval(Polling, 600000);
+
+        $.ajax({
+            url : '/languages',
+            success : function(data){
+                var resJson = JSON.parse(data);
+                if(resJson.result == 'suc'){
+                    var configs = resJson.data;
+                    for(var i = 0; i < configs.length; i++){
+                        $('#nav-language-ul').append('<li><a href="#" onClick="setLanguage(\'' + configs[i].File + '\')" >' + configs[i].ConfigName + '</a></li>');
+                    }
+                }
+            }
+        });
     });
 </script>

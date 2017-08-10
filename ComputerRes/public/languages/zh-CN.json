@@ -1,0 +1,293 @@
+{
+    "ConfigName" : "中文",
+    "SelectButton" : "语言",
+    "Name" : "模型服务容器",
+    "Heading" : {
+        "Administrator" : {
+            "Title" : "管理员",
+            "Signature" : "我是管理员"
+        },
+        "User" : {
+            "Title" : "用户信息",
+            "Info" : "信息",
+            "Settings"  : "设置",
+            "SignOut" : "退出"
+        },
+        "Homepage" : "主页",
+        "Status" : "服务器状态",
+        "Notice" : "通知",
+        "LocalModelService" : {
+            "Title" : "本地模型服务",
+            "Checking" : "查看模型服务",
+            "Instances" : "查看运行实例",
+            "Records" : "查看运行记录",
+            "Deployment" : "部署模型服务"
+        },
+        "RemoteModelService" : {
+            "Title" : "远程模型服务",
+            "Checking" : "查看模型服务",
+            "Instances" : "查看运行实例",
+            "Records" : "查看运行记录",
+            "Network" : "查看运算网络"
+        },
+        "CloudModelService" : "门户云模型",
+        "DataCenter" : "数据中心",
+        "Settings" : {
+            "Title" : "设置",
+            "General" : "常规",
+            "Environment" : "环境字典"
+        }
+    },
+    "Navigation" : {
+        "Notice" : {
+            "Title" : "通知消息",
+            "NoMessage" : "没有未读消息"
+        },
+        "User" : {
+            "Info" : "信息",
+            "Settings"  : "设置",
+            "SignOut" : "登出"
+        }
+    },
+    "Homepage" : {
+        "Welcome" : "欢迎来到模型服务容器",
+        "ModelService" : "本地模型服务",
+        "Notice" : "通知消息",
+        "Status" : "服务器状态",
+        "Deployment" : "部署模型服务",
+        "ModelServiceRuningRecords" : "模型运行记录",
+        "Network" : "运算网络"
+    },
+    "Status" : {
+        "Machine" : "计算机名",
+        "System" : "系统类型",
+        "Release" : "发布版本",
+        "CPUUsage" : "占用",
+        "CPUIdle" : "空闲",
+        "DiskUsage" : "使用率",
+        "ComputerStatus" : "服务器运行状态",
+        "MemoryUsage" : "内存使用率",
+        "CPUUsageTitle" : "CPU使用率",
+        "DiskUsageTitle" : "磁盘使用率",
+        "DiskUsagePercentage" : "百分比"
+    },
+    "Notice" : {
+        "NoticeTable" : "消息列表",
+        "Classify" : "分类查看",
+        "Start" : "开始运行",
+        "Stop" : "停止运行",
+        "Delete" : "删除服务",
+        "AllMessage" : "所有",
+        "AllReadMessage" : "已读",
+        "AllUnreadMessage" : "未读",
+        "MarkAllRead " : "全部标记已读",
+        "InfoTitle" : "提示",
+        "AllMessageMarkedRead" : "已全部标为已读!",
+        "MessageMarkedRead" : "标为已读成功!",
+        "WarningTitle" : "警告",
+        "MessageMarkedReadFailed" : "标为已读失败!",
+        "GettingNoticeFailed" : "查找通知失败!"
+    },
+    "ModelService" : {
+        "Name" : "名称",
+        "Status" : "状态",
+        "Type" : "类型",
+        "Version" : "版本",
+        "Platform" : "平台",
+        "Avai" : "可用",
+        "Unavai" : "不可用",
+        "Address" : "地址",
+        "Start" : "开启服务",
+        "Stop" : "关闭服务",
+        "Delete" : "删除",
+        "Invoking" : "调用",
+        "Auth" : "权限模型",
+        "Private" : "私人模型",
+        "Public" : "公开模型"
+    },
+    "ModelServiceTable" : {
+        "localTitle" : "本地模型服务列表",
+        "RemoteTitle" : "远程模型服务列表",
+        "Instances" : "应用池",
+        "Address" : "地址",
+        "Operation" : "操作",
+        "Detail" : "详情",
+        "Register" : "登记"
+    },
+    "ModelServiceDetail" : {
+        "Title" : "模型服务信息",
+        "Deployer" : "部署人",
+        "DeploymentTime" : "部署时间",
+        "Limited" : "权限情况",
+        "URLInvoking" : "调用地址",
+        "API" : "运行API",
+        "Copy" : "复制",
+        "CopySuccessfully" : "复制成功",
+        "Description" : "描述",
+        "PublicInvoking" : "公开调用",
+        "AdminInvoking" : "管理员调用"
+    },
+    "ModelServiceRecord" : {
+        "StartTime" : "开始时间",
+        "Address" : "地址",
+        "User" : "调用者",
+        "InstanceID" : "实例ID",
+        "InputData" : "输入数据",
+        "OutputData" : "输出数据",
+        "Log" : "日志信息",
+        "Span" : "运行时间",
+        "Status" : "状态",
+        "Operation" : "操作",
+        "Detail" : "详情",
+        "Process" : "当前进度",
+        "Finished" : "已完成",
+        "Unfinished" : "未完成",
+        "Error" : "出现异常",
+        "SetAsTestify" : "设为测试数据",
+        "StandOutput" : "标准输出",
+        "StandError" : "运行错误信息",
+        "InvokingError" : "调用错误信息"
+    },
+    "TablePaging" : {
+        "LengthMenu" : "每页显示 _MENU_ 条记录",
+        "ZeroRecords" : "对不起，查询不到任何相关数据",
+        "Info" : "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
+        "InfoEmtpy" : "找不到相关数据",
+        "InfoFiltered" : "数据表中共为 _MAX_ 条记录)",
+        "Processing" : "正在加载中...",
+        "Search" : "搜索",
+        "Paginate" : {
+            "First" : "第一页",
+            "Previous" : "上一页",
+            "Next" : "下一页",
+            "Last" : "最后一页"
+        }
+    },
+    "ModelInstancesTable" : {
+        "LocalTitle" : "本地模型运行实例",
+        "RemoteTitle" : "远程模型运行实例",
+        "ID" : "ID",
+        "Version" : "版本",
+        "ModelName" : "模型名称",
+        "StartTime" : "开始时间",
+        "Status" :"状态",
+        "Operation" :"操作",
+        "Address" :"地址",
+        "Kill" : "结束",
+        "Killed" : "成功结束"
+    },
+    "TestData" : {
+        "Title" : "测试数据",
+        "Tag" : "标签",
+        "Description" : "描述",
+        "LoadTestData" : "加载测试数据",
+        "NoTestData" : "没有测试数据",
+        "DeleteTestData" : "删除测试数据",
+        "LoadTestDataSuccessfully" : "加载测试数据成功!",
+        "LoadTestifyFailed" : "测试数据加载错误!",
+        "DeleteTestDataSuccessfully" : "删除测试数据成功!"
+    },
+    "InputData" : {
+        "Title" : "数据输入",
+        "State" : {
+            "Title" : "状态信息",
+            "Name" :"名称",
+            "ID" : "ID",
+            "Description" : "描述",
+            "Type" :"类型"
+        },
+        "Event" : {
+            "Title" : "事件",
+            "Name" : "名称",
+            "Type" :"类型",
+            "Required" :"必选参数",
+            "Control" :"可选参数",
+            "Response" :"输出参数",
+            "Description" : "描述",
+            "DataReference" : "数据参考",
+            "Ready" : "数据准备情况",
+            "DataReady" : "已准备",
+            "DataNoReady" : "未准备",
+            "DataNoReadyMessage" : "数据未完全准备",
+            "DataRemove" : "移除",
+            "Destoryed" : "使用后销毁",
+            "ResponseDataTag" : "结果数据标签"
+        },
+        "Data" : {
+            "Input" : "手动输入",
+            "File" : "上传文件",
+            "Link" : "链接数据",
+            "UDXData" : "UDX数据",
+            "DataFile" : "数据文件",
+            "FileUpload" : "上传文件",
+            "FileCancel" : "取消文件",
+            "DragUpload" : "拖拽上传",
+            "UploadDone" : "完成上传",
+            "PleaseChooseData" : "请选择一个数据!",
+            "DataUploadSuccessfully" : "数据上传成功!",
+            "Tag" : "数据标签",
+            "ConfigData" : "半自动配置数据",
+            "Confirm" : "确认",
+            "Close" : "关闭"
+        }
+    },
+    "ModelServiceRunOperation" : {
+        "Title" : "操作",
+        "Run" : "运行",
+        "Cancel" : "取消"
+    },
+    "CloudModelService" : {
+        "CloudModelServiceCategory" : "门户模型分类",
+        "CloudModelServiceItems" : "门户模型条目",
+        "Pulled" : "已拉取",
+        "NotPulled" : "未拉取",
+		"Detail" : "详情"
+    },
+    "DataTable" : {
+        "Title" : "数据中心",
+        "ID" : "ID",
+        "Storage" : "存储方式",
+        "DateTime" : "生成时间",
+        "Tag" : "标签",
+        "Operation" : "操作",
+        "File" : "文件",
+        "Stream" : "数据流",
+        "Check" : "查看",
+        "Render" : "渲染",
+        "Download" : "下载",
+        "Delete" : "删除",
+        "DeleteConfirm" : "确认删除此数据?",
+        "DeleteFinished" : "删除成功"
+    },
+    "Settings" :{
+        "Title" : "设置",
+        "Version" : "当前版本",
+        "OID" : "计算机资源OID",
+        "Port" : "开放端口",
+        "Platform" : "平台",
+        "DBTitle" : "模型信息库",
+        "DBName" : "数据库名称",
+        "DBHost" : "服务器",
+        "DBPort" : "端口",
+        "UDXDBTitle" : "UDX数据库",
+        "UDXDBHost" : "服务器",
+        "UDXDBPort" : "端口",
+        "SocketTitle" : "Socket",
+        "SocketHost" : "服务器",
+        "SocketPort" : "端口",
+        "Demarcation" : "数据分界点",
+        "DebugMode" : "调试状态",
+        "Register" : "注册"
+    },
+    "CustomIndex" : {
+        "ModelService" : "模型服务",
+        "ComputerInfo" : "服务器信息",
+        "Manager" : "服务管理",
+        "Help" : "帮助文档",
+        "Demo" : "演示实例",
+        "NewFeatures" : "最新特性"
+    },
+    "Footer" : {
+        "NNU" : "南京师范大学"
+    }
+}

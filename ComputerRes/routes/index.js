@@ -9,7 +9,7 @@ var modelInsRoute = require('./modelInstanceRoute');
 var noticeRoute = require('./noticeRoute');
 var childRoute = require('./childRoute');
 var ModelSerAccessRoute = require('./modelSerAccessRoute');
-var aggreRoute = require('./aggreRoute');
+var AdminAccessRoute = require('./adminAccessRoute');
 
 var sysCtrl = require('../control/sysControl');
 var AuthCtrl = require('../control/authControl');
@@ -62,6 +62,24 @@ module.exports = function(app)
                     }));
                 }
             }
+        })
+        .put(function(req, res, next){
+            var code = AuthCtrl.postAuth(req);
+            switch(code){
+                case 1:{
+                    next();
+                    break;
+                }
+                case -1:{
+                    res.redirect('login');
+                }
+                case -2:{
+                    res.end(JSON.stringify({
+                        result : 'fail',
+                        message : 'auth failed'
+                    }));
+                }
+            }
         });
 
     //use route for systemsetting
@@ -84,8 +102,6 @@ module.exports = function(app)
 
     //use route for child-node
     childRoute(app);
-
-    aggreRoute(app);
 
     //Homepage
     app.route('/index')
@@ -114,11 +130,37 @@ module.exports = function(app)
     //             }
     //         });
     //     });
-
     //Test
     app.route('/test')
         .get(function (req, res, next) {
-            
             res.render('test');
         });
+
+    app.route('*')
+        .get(function(req, res, next){
+            if(AuthCtrl.authByAdmin(req) == 1){
+                next();
+            }
+            else{
+                res.end(JSON.stringify({err : 'no auth!'}));
+            }
+        })
+        .post(function(req, res, next){
+            if(AuthCtrl.authByAdmin(req) == 1){
+                next();
+            }
+            else{
+                res.end(JSON.stringify({err : 'no auth!'}));
+            }
+        })
+        .put(function(req, res, next){
+            if(AuthCtrl.authByAdmin(req) == 1){
+                next();
+            }
+            else{
+                res.end(JSON.stringify({err : 'no auth!'}));
+            }
+        });
+
+    AdminAccessRoute(app);
 };

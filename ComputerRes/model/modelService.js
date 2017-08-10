@@ -6,6 +6,7 @@
 var ObjectId = require('mongodb').ObjectID;
 var fs = require('fs');
 var exec = require('child_process').exec;
+var ObjectId = require('mongodb').ObjectID;
 var xmlparse = require('xml2js').parseString;
 var setting = require('../setting');
 var mongoose = require('./mongooseModel');
@@ -29,6 +30,7 @@ function ModelService(modelser)
         this.ms_status = modelser.ms_status;
         this.ms_user = modelser.ms_user;
         this.ms_limited = modelser.ms_limited;
+        this.ms_permission = modelser.ms_permission;
     }
     else
     {
@@ -42,6 +44,7 @@ function ModelService(modelser)
         this.ms_status = 0;
         this.ms_user = '';
         this.ms_limited = 0;
+        this.ms_permission = 0;
     }
     return this;
 }
@@ -58,7 +61,8 @@ var msSchema = new mongoose.Schema({
     ms_path : String,
     ms_xml : String,
     ms_status : Number,
-    ms_limited : Number,    //权限：是否只能该节点可用，父节点不可用。
+    ms_limited : Number,
+    ms_permission : Number,
     ms_user : mongoose.Schema.Types.Mixed,
     ms_img : String
 },{collection:'modelservice'});
@@ -74,20 +78,24 @@ ModelService.getAll = function(flag, callback){
         if(flag == 'ALL'){
             where = {};
         }
-        else{
+        else if(flag == 'ADMIN'){
             where = { ms_status : { $ne : -1 }}
         }
-        MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
+        else{
+            where = { ms_status : { $ne : -1 }, ms_limited : { $ne : 1 }}
+        }
+        MS.find(where).sort({'ms_update':-1}).exec(this.returnFunction(callback, 'Error in getting all model service'));
     }
 };
 
-//通过PID查询
-ModelService.getByPid = function (pid, callback) {
-    if(ParamCheck.checkParam(callback, pid))
-    {
-        var where = { "ms_model.p_id" : pid, "ms_status" : {$ne:-1}};
-        this.getByWhere(where, callback);
-    }
+//分页查询
+ModelService.getAllByPage = function(start, count, callback){
+    var where = {ms_status : { $ne : -1 }, ms_limited : { $ne : 1 }};
+    var query = MS.find({});
+    query.where(where);
+    query.skip(start);
+    query.limit(count);
+    query.exec(this.returnFunction(callback, 'Error in getting model services by paging'));
 };
 
 //通过MID查询
@@ -100,12 +108,63 @@ ModelService.getByMID = function (mid, callback) {
 };
 
 //通过PID查询
-ModelService.getByPID = function (mid, callback) {
-    if(ParamCheck.checkParam(callback, mid))
+ModelService.getByPID = function (pid, callback) {
+    if(ParamCheck.checkParam(callback, pid))
     {
-        var where = { "ms_model.p_id" : mid, "ms_status" : {$ne:-1}};
+        var where = { "ms_model.p_id" : pid, "ms_status" : {$ne:-1}, ms_limited : {$ne:-1}};
         this.getByWhere(where, callback);
     }
+};
+
+//通过PID查询(用于门户查询可用服务资源)
+ModelService.getByPIDforPortal = function (pid, callback) {
+    if(ParamCheck.checkParam(callback, pid))
+    {
+        var where = { "ms_model.p_id" : pid, "ms_model.m_register" : true, "ms_status" : {$ne:-1}, ms_limited : {$ne:-1}};
+        this.getByWhere(where, callback);
+    }
+};
+
+//批量开启模型
+ModelService.batchStart = function(msids, callback){
+    var update = {"ms_status" : 1};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量关闭模型
+ModelService.batchStop = function(msids, callback){
+    var update = {"ms_status" : 0};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量锁定模型
+ModelService.batchLock = function(msids, callback){
+    var update = {"ms_limited" : 1};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量解锁模型
+ModelService.batchUnlock = function(msids, callback){
+    var update = {"ms_limited" : 0};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量更新
+ModelService.batchUpdate = function(msids, update, callback){
+    for(var i = 0; i < msids.length; i++){
+        msids[i] = new ObjectId(msids[i]);
+    }
+    var where = {'_id': { $in : msids }};
+    update = {$set : update};
+    this.baseModel.update(where, update, {multi : true}, this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
 };
 
 //启动一个模型服务实例
@@ -203,21 +262,23 @@ ModelService.getMSDetail = function(msid, cb){
 };
 
 ModelService.readMDLByPath = function (path, callback) {
-    fs.readFile(path, function (err, data) {
-        if(err)
-        {
-            console.log('Error in read mdl file : ' + err);
-            return callback(err);
-        }
-        var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+    if(ParamCheck.checkParam(callback, path)){
+        fs.readFile(path, function (err, data) {
             if(err)
             {
-                console.log('Error in parse mdl file : ' + err);
+                console.log('Error in read mdl file : ' + err);
                 return callback(err);
             }
-            return callback(null, json);
+            var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
+                if(err)
+                {
+                    console.log('Error in parse mdl file : ' + err);
+                    return callback(err);
+                }
+                return callback(null, json);
+            });
         });
-    })
+    }
 };
 
 ModelService.parseMDLStr = function (mdlStr, callback) {

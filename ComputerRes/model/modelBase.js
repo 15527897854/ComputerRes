@@ -73,7 +73,8 @@ ModelBase.save = function (item, callback) {
             return callback(err);
         }
         else{
-            callback(null,rst);
+            rst = JSON.parse(JSON.stringify(rst));
+            return callback(null,rst);
         }
     });
 };

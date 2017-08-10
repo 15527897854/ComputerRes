@@ -9,9 +9,7 @@ var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var GeoDataCtrl = require('../control/geoDataControl');
 var NoticeCtrl = require('../control/noticeCtrl');
 var ModelInsCtrl = require('../control/ModelInsCtrl');
-var DataDriver = require('../control/Integrate/DataDriver');
 var SysCtrl = require('../control/sysControl');
-var WebSocketCtrl = require('../control/Integrate/WebSocketCtrl');
 
 function SocketTrans(app)
 {
@@ -104,6 +102,16 @@ function SocketTrans(app)
                     if(!setting.debug){
                         //移除该实例
                         app.modelInsColl.removeBySocekt(socket);
+                    }
+                    
+
+                    //销毁必要数据
+                    for(var i = 0; i < msr.msr_input.length; i++){
+                        if(msr.msr_input[i].Destroyed){
+                            GeoDataCtrl.delete(msr.msr_input[i].DataId, function(err, result){
+
+                            });
+                        }
                     }
 
                     //通知消息数据

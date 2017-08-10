@@ -10,21 +10,21 @@ var ParamCheck = require('../utils/paramCheck');
 function ModelSerAccess(msa) {
     if(msa != null)
     {
-        this.username = msa.username;
-        this.pwd = msa.pwd;
-        this.platform = msa.platform;
-        this.accepted = msa.accepted;
+        this._id = msa._id;
+        this.token = msa.token;
+        this.deadline = msa.deadline;
+        this.times = msa.times;
         this.pid = msa.pid;
-        this.path = msa.path;
+        this.msrs = msa.msrs;
     }
     else
     {
-        this.username = '';
-        this.pwd = 0;
-        this.platform = 0;
-        this.accepted = 0;
+        this._id = new ObjectId();
+        this.token = '';
+        this.deadline = '';
+        this.times = 0;
         this.pid = '';
-        this.path = '';
+        this.msrs = [];
     }
 }
 
@@ -32,17 +32,21 @@ ModelSerAccess.__proto__ = ModelBase;
 module.exports = ModelSerAccess;
 
 var ModelSerAccessSchema = new mongoose.Schema({
-    username:String,
-    pwd:String,
-    deadline:String,
-    times:Number,
-    pid :String,
-    path :String
+    _id : mongoose.Schema.Types.ObjectId,
+    token : String,
+    deadline : String,
+    times : Number,
+    pid : String,
+    msrs : Array
 },{collection:'modelseraccess'});
 var ModelSerAccessModel = mongoose.model('modelseraccess',ModelSerAccessSchema);
 ModelSerAccess.baseModel = ModelSerAccessModel;
 ModelSerAccess.modelName = "modelseraccess";
 
-ModelSerAccess.getByPath = function(path, callback){
-    ModelSerAccess.getByWhere({path : path}, ModelBase.returnFunction(callback, 'error in getting ModelSerAccess by path in model layer!'));
+ModelSerAccess.getByPIDAndToken = function(pid, token, callback){
+    ModelSerAccess.getByWhere({pid : pid, token : token}, this.returnFunction(callback, 'error in getting ModelSerAccess by PID in model layer!'));
+}
+
+ModelSerAccess.getByMSRID = function(msrid, callback){
+    ModelSerAccess.getByWhere({msrs : msrid }, this.returnFunction(callback, 'error in getting ModelSerAccess by MSRID in model layer!'))
 }

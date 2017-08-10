@@ -49,20 +49,20 @@ var ChildrenTable = React.createClass({
                                 "bAutoWidth": true,
                                 //多语言配置
                                 "oLanguage": {
-                                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                                    "sInfoEmtpy": "找不到相关数据",
-                                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",
-                                    "sProcessing": "正在加载中...",
-                                    "sSearch": "搜索",
+                                    "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
+                                    "sZeroRecords": window.LanguageConfig.TablePaging.ZeroRecords,
+                                    "sInfo": window.LanguageConfig.TablePaging.Info,
+                                    "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
+                                    "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
+                                    "sProcessing": window.LanguageConfig.TablePaging.Processing,
+                                    "sSearch": window.LanguageConfig.TablePaging.Search,
                                     //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
                                     "sUrl": "",
                                     "oPaginate": {
-                                        "sFirst":    "第一页",
-                                        "sPrevious": " 上一页 ",
-                                        "sNext":     " 下一页 ",
-                                        "sLast":     " 最后一页 "
+                                        "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
+                                        "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
+                                        "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
+                                        "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
                                     }
                                 }
                             }
@@ -82,18 +82,22 @@ var ChildrenTable = React.createClass({
         window.location.href = '/modelser/rmt/' + host + '/new';
     },
 
+    openChildNodePageHandle : function(e, host){
+        window.location.href = '/child-node/' + host;
+    },
+
     acceptChild : function(e, id, host){
-        if(confirm('确认接受 ' + host + ' 作为子节点？')){
+        if(confirm('accept [' + host + '] as child node?')){
             Axios.put('/child-node/' + id + '?ac=accept').then(
                 data => {
                     if(data.data.result == 'suc'){
                         if(data.data.data.n == 1){
-                            NoteDialog.openNoteDia('接受成功！','接受子节点请求 ' + host + ' 成功！');
+                            NoteDialog.openNoteDia('Info','Accept child node [' + host + '] successfully');
                             this.refresh();
                             return;
                         }
                     }
-                    NoteDialog.openNoteDia('接受失败！','接受子节点请求 ' + host + ' 失败！！');
+                    NoteDialog.openNoteDia('Info','Accept child node [' + host + '] failed');
                     this.refresh();
                 },
                 err => {}
@@ -102,11 +106,11 @@ var ChildrenTable = React.createClass({
     },
 
     removeChild : function(e, cid, host){
-        if(confirm('确认删除子节点: ' + host)){
+        if(confirm('Delete this child node : [' + host + ']')){
             Axios.delete('/child-node/' + cid).then(
                 data => {
                     if(data.data.result == 'suc'){
-                        NoteDialog.openNoteDia('删除成功!','子节点 ' + host + ' 删除成功！');
+                        NoteDialog.openNoteDia('Info','Child node : [' + host + '] deleted failed！');
                         this.refresh();
                     }
                 },
@@ -119,7 +123,7 @@ var ChildrenTable = React.createClass({
         if(this.state.loading)
         {
             return (
-                <span>加载中...</span>
+                <span>loading...</span>
             );
         }
         if(this.state.err)
@@ -132,11 +136,11 @@ var ChildrenTable = React.createClass({
             var platform;
             if(child.platform == 1)
             {
-                platform = (<span className="label label-info"><i className="fa fa-windows"></i>windows</span>);
+                platform = (<span className="label label-info"><i className="fa fa-windows"></i> windows</span>);
             }
             else if(child.platform == 2)
             {
-                platform = (<span className="label label-info"><i className="fa fa-linux"></i>linux</span>);
+                platform = (<span className="label label-info"><i className="fa fa-linux"></i> linux</span>);
             }
             else
             {
@@ -144,26 +148,29 @@ var ChildrenTable = React.createClass({
             }
             var status;
             var button;
+            var button_detail;
             if(child.accepted == false){
-                status = (<span className="badge badge-warning">未接受</span>);
+                status = (<span className="badge badge-warning">Unaccepted</span>);
                 button = (
                     <button className="btn btn-success btn-xs" type="button"  onClick={ (e)=>{this.acceptChild(e, child._id, child.host)} } >
-                        <i className="fa fa-check"> </i>接受
+                        <i className="fa fa-check"> </i>Accept
                     </button>);
             }
             else{
                 if(child.ping == 1)
                 {
-                    status = (<span className="badge badge-success">可用</span>);
+                    status = (<span className="badge badge-success" >Online</span>);
                     button = (
                         <button className="btn btn-default btn-xs" type="button"  onClick={ (e)=>{this.openUploadModelSerHandle(e, child.host)} } >
-                            <i className="fa fa-cloud-upload"> </i>上传模型
+                            <i className="fa fa-cloud-upload"> </i> Deployment
                         </button>);
                 }
                 else
                 {
-                    status = (<span className="badge badge-defult">不可用</span>);
+                    status = (<span className="badge badge-defult">Offline</span>);
                 }
+                button_detail = (
+                        <button className="btn btn-info btn-xs" type="button"  onClick={ (e) => {this.openChildNodePageHandle(e, child._id)} } ><i className="fa fa-book"> </i> Detail</button>);
             }
             return (
                 <tr key={child.host}>
@@ -172,9 +179,9 @@ var ChildrenTable = React.createClass({
                     <td>{platform}</td>
                     <td>{status}</td>
                     <td>
-                        <button className="btn btn-info btn-xs" type="button"  ><i className="fa fa-book"> </i>详情</button>&nbsp;
+                        {button_detail}&nbsp;
                         {button}&nbsp;
-                        <button className="btn btn-danger btn-xs" type="button" onClick={(e) => { this.removeChild(e, child._id, child.host) }} ><i className="fa fa-trash-o"> </i></button>
+                        <button className="btn btn-danger btn-xs" type="button" onClick={(e) => { this.removeChild(e, child._id, child.host) }} ><i className="fa fa-trash-o"> Delete</i></button>
                     </td>
                 </tr>
             );
@@ -183,11 +190,11 @@ var ChildrenTable = React.createClass({
             <table className="display table table-bordered table-striped" id="dynamic-table">
                 <thead>
                 <tr>
-                    <th>地址</th>
-                    <th>端口</th>
-                    <th>平台</th>
-                    <th>状态</th>
-                    <th>操作</th>
+                    <th>Address</th>
+                    <th>Port</th>
+                    <th>Platform</th>
+                    <th>Status</th>
+                    <th>Operation</th>
                 </tr>
                 </thead>
                 <tbody>

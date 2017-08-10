@@ -1187,6 +1187,16 @@ footer.sticky-footer {
     box-shadow: 0 5px 0 #42b5b6;
 }
 
+.state-overview .yellow {
+    background: #FCB322;
+    box-shadow: 0 5px 0 #F0AD4E;
+}
+
+.state-overview .grey {
+    background: #49586E;
+    box-shadow: 0 5px 0 #474747;
+}
+
 .state-overview .symbol, .state-overview .state-value {
     display: inline-block;
 }
@@ -4722,3 +4732,13 @@ ol.comment-list {
     border-radius: 5px;
     -webkit-border-radius: 5px;
 }
+
+.label-open {
+    background-color: #00CD66
+}
+
+.label-open[href]:hover,.label-open[href]:focus {
+    background-color: #00CD00
+}
+
+.hand {cursor:pointer}

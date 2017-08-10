@@ -26,11 +26,18 @@ ModelSerMid.NewModelSer = function (req, callback) {
     form.encoding = 'utf-8';    	                //设置编辑
     form.uploadDir = Setting.modelpath + 'tmp/';	//设置上传目录
     form.keepExtensions = true;                     //保留后缀
-    form.maxFieldsSize = 500 * 1024 * 1024;         //文件大小
+    form.maxFieldsSize = 1024 * 1024 * 1024;         //文件大小
     //解析请求
     form.parse(req, function (err, fields, files) {
         if (err) {
             return callback(err);
+        }
+        fields.u_name = '[Unknown]';
+        fields.u_email = '[Unknown]';
+        fields.ms_permission = 0;
+        if(req.session.admin){
+            fields.u_name = req.session.admin;
+            fields.u_email = '[Unknown]';
         }
         ModelSerControl.addNewModelSer(fields, files, this.returnFunction(callback, "err in new a service"));
 
@@ -60,11 +67,16 @@ ModelSerMid.NewRmtModelSer = function (req, callback) {
     form.uploadDir = Setting.modelpath + 'tmp/';	//设置上传目录
     form.keepExtensions = true;                     //保留后缀
     form.maxFieldsSize = 500 * 1024 * 1024;         //文件大小
+    
     //解析请求
     form.parse(req, function (err, fields, files) {
         if (err) {
             return callback(err);
         }
+        
+        fields.u_name = CommonMethod.getIP(req);
+        fields.u_email = '[Unknown]';
+        fields.ms_permission = 0;
         ModelSerControl.addNewModelSer(fields, files, this.returnFunction(callback, "err in new a service"));
 
     }.bind(this));
@@ -103,6 +115,7 @@ ModelSerMid.getCloudPackage = function(fields, pid, callback){
                 mv_num : 1,
                 ms_des : fields.model_description,
                 ms_xml : null,
+                ms_permission : 0,
                 u_name : fields.model_author,
                 m_model_append : {
                     m_id : fields.model_id,

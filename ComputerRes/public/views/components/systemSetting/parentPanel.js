@@ -109,7 +109,7 @@ var ParentPanel = React.createClass({
     render : function () {
         if(this.state.loading){
             return (
-                <span>加载中...</span>
+                <span>loading...</span>
             );
         }
         if(this.state.err){
@@ -123,28 +123,28 @@ var ParentPanel = React.createClass({
         }
         return (
             <div>
-                <p><strong>父节点</strong>&nbsp;:&nbsp;<span>{this.state.parent}</span></p>
-                <button className="btn btn-info" data-toggle="modal" href="#diaParent" >变更父节点</button> &nbsp;&nbsp;
-                <button className="btn btn-info" data-toggle="modal" href="#diaToken" >获取Token</button>
+                <p><strong>Parent IP</strong>&nbsp;:&nbsp;<span>{this.state.parent}</span></p>
+                <button className="btn btn-info" data-toggle="modal" href="#diaParent" >Change Parent Node</button> &nbsp;&nbsp;
+                <button className="btn btn-info" data-toggle="modal" href="#diaToken" >Get Token</button>
                 <div aria-hidden="true" aria-labelledby="parentAlterDialog" role="dialog" tabIndex="-1" id="diaParent" className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">变更父节点</h4>
+                                <h4 className="modal-title">Change Parent Node</h4>
                             </div>
                             <div className="modal-body">
                                 <form className="form-horizontal" >
-                                    <strong>当前父节点</strong>&nbsp;:&nbsp;{this.state.parent}<br />
-                                    <label htmlFor="txtNewParentHost" >服务器</label>
+                                    <strong>Current Parent Node</strong>&nbsp;:&nbsp;{this.state.parent}<br />
+                                    <label htmlFor="txtNewParentHost" >Host</label>
                                     <input id="txtNewParentHost" placeholder="127.0.0.1" type="text" className="form-control" onBlur={this.checkServer} onFocus={this.disablePatentBtn} />
-                                    <label htmlFor="txtNewParentPort" >端口</label>
+                                    <label htmlFor="txtNewParentPort" >Port</label>
                                     <input id="txtNewParentPort" placeholder="8060" type="text" className="form-control" onBlur={this.checkServer} onFocus={this.disablePatentBtn} />
                                 </form>
                             </div>
                             <div className="modal-footer">
-                                <button id="btn_close" type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
-                                <button id="btn_ok" type="button" className="btn btn-success" disabled={parentDisable} onClick={this.onSubmit } >确定</button>
+                                <button id="btn_close" type="button" className="btn btn-default" data-dismiss="modal" >Close</button>
+                                <button id="btn_ok" type="button" className="btn btn-success" disabled={parentDisable} onClick={this.onSubmit } >Confirm</button>
                             </div>
                         </div>
                     </div>
@@ -154,19 +154,19 @@ var ParentPanel = React.createClass({
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">获取Token</h4>
+                                <h4 className="modal-title">Get Token</h4>
                             </div>
                             <div className="modal-body">
                                 <form className="form-horizontal" >
-                                    <label htmlFor="txtTargetHost" >目标服务器</label>
+                                    <label htmlFor="txtTargetHost" >Target Host</label>
                                     <input id="txtTargetHost" placeholder="127.0.0.1" type="text" className="form-control"  />
                                     <label htmlFor="txtToken" >Token</label>
                                     <input id="txtToken" readOnly="readOnly" type="text" className="form-control" />
                                 </form>
                             </div>
                             <div className="modal-footer">
-                                <button id="btn_token_close" type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
-                                <button id="btn_token_ok" type="button" className="btn btn-success" onClick={this.getToken } >确定</button>
+                                <button id="btn_token_close" type="button" className="btn btn-default" data-dismiss="modal" >Close</button>
+                                <button id="btn_token_ok" type="button" className="btn btn-success" onClick={this.getToken } >Confirm</button>
                             </div>
                         </div>
                     </div>

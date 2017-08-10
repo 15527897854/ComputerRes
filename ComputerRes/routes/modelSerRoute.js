@@ -10,6 +10,7 @@ var formidable = require('formidable');
 var uuid = require('node-uuid');
 var unzip = require('unzip');
 
+var NoticeCtrl = require('../control/noticeCtrl');
 var setting = require('../setting');
 var ModelSerRunCtrl = require('../control/modelSerRunControl');
 var ModelSerCtrl = require('../control/modelSerControl');
@@ -26,19 +27,7 @@ var NoticeCtrl = require('../control/noticeCtrl');
 
 module.exports = function(app)
 {
-    //新增模型服务
     app.route('/modelser')
-        //查询模型服务
-        .get(function(req, res, next){
-            if(req.query.ac = 'search'){
-                if(req.query.mid){
-                    ModelSerCtrl.getByMID(req.query.mid, RouteBase.returnFunction(res, 'error in searching model services!'));
-                }
-                else if(req.query.pid){
-                    ModelSerCtrl.getByPID(req.query.pid, RouteBase.returnFunction(res, 'error in searching model services!'));
-                }
-            }
-        })
         //新增模型服务
         .post(function(req, res, next) {
             ModelSerMid.NewModelSer(req, function(err, rst){
@@ -258,7 +247,9 @@ module.exports = function(app)
     ///////////云服务
     app.route('/modelser/cloud')
         .get(function(req, res, next){
-            res.render('cloudModelSers');
+            res.render('cloudModelSers', {
+                blmodelser : true
+            });
         });
 
     app.route('/modelser/cloud/modelsers')
@@ -269,7 +260,11 @@ module.exports = function(app)
     app.route('/modelser/cloud/json/modelsers')
         .get(function(req, res, next){
             var cid = req.query.cid;
-            ModelSerCtrl.getCloudModelByCategoryId(cid, RouteBase.returnFunction(res, 'error in getting cloud modelsers!'));
+            var page = 1;
+            if(req.query.page){
+                page = parseInt(req.query.page);
+            }
+            ModelSerCtrl.getCloudModelByCategoryId(cid, page, RouteBase.returnFunction(res, 'error in getting cloud modelsers!'));
         });
 
     app.route('/modelser/cloud/category')
@@ -338,40 +333,15 @@ module.exports = function(app)
             }
             else
             {
-                //点击运行操作
-                if(req.query.ac == 'run')
-                {
-                    //读取输入文件参数
-                    var inputData = JSON.parse(req.query.inputdata);
-                    var outputData = req.query.outputdata;
-                    
-                    var user = {
-                        u_name : '[匿名]',
-                        u_type : 2
-                    };
-                    if(req.session.admin){
-                        user = {
-                            u_name : req.session.admin,
-                            u_type : 0
-                        };
-                    }
-
-                    ModelSerCtrl.run(msid, inputData, outputData, user, function(err, msr){
-                        return res.end(JSON.stringify({
-                            res : 'suc',
-                            msr_id : msr._id
-                        }));
-                    });
-
-                }
                 //上传模型服务
-                else if(req.query.ac == 'upload')
+                if(req.query.ac == 'upload')
                 {
                     var mid = req.query.mid;
                     var pkg_name = req.query.pkg_name;
                     var pkg_version = req.query.pkg_version;
                     var pkg_des = req.query.pkg_des;
-                    ModelSerCtrl.uploadPackage(msid, mid, pkg_name, pkg_version, pkg_des, null, null, RouteBase.returnFunction(res, 'err in upload model package'));
+                    var m_upload = req.query.mupload;
+                    ModelSerCtrl.uploadPackage(msid, mid, pkg_name, pkg_version, pkg_des, m_upload, null, null, RouteBase.returnFunction(res, 'err in upload model package'));
                 }
                 //单个模型的详情页面
                 else
@@ -412,72 +382,172 @@ module.exports = function(app)
             //停止服务
             if(req.query.ac == "stop")
             {
-                // console.log('---------------------------------------remote request');
-                // console.log(req.url);
-                ModelSerCtrl.getByOID(msid,function (err, ms) {
-                    if(err)
-                    {
-                        return res.end(JSON.stringify({
-                            "res":"Error",
-                            "mess":JSON.stringify(err)
-                        }));
-                    }
-                    if(ms.ms_status == 0)
-                    {
-                        return res.end(JSON.stringify({
-                            "res":"Stopped"
-                        }));
-                    }
-                    else
-                    {
-                        ms.ms_status = 0;
-                        ModelSerCtrl.update(ms, function (err, data){
-                            if(err) {
-                                return res.end(JSON.stringify({
-                                    "res":"Error",
-                                    "mess":JSON.stringify(err)
-                                }));
-                            }
+                if(msid == 'all'){
+                    msids = req.query.msids;
+                    ModelSerCtrl.batchStop(msids, RouteBase.returnFunction(res, 'Error in batch starting model services!'));
+                }
+                else{
+                    ModelSerCtrl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
                             return res.end(JSON.stringify({
-                                "res":"Success"
+                                "res":"Error",
+                                "mess":JSON.stringify(err)
                             }));
-                        })
-                    }
-                });
+                        }
+                        if(ms.ms_status == 0)
+                        {
+                            return res.end(JSON.stringify({
+                                "res":"Stopped"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_status = 0;
+                            ModelSerCtrl.update(ms, function (err, data){
+                                if(err) {
+                                    return res.end(JSON.stringify({
+                                        "res":"Error",
+                                        "mess":JSON.stringify(err)
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    "res":"Success"
+                                }));
+                            })
+                        }
+                    });
+                }
             }
             //开启服务
             else if(req.query.ac == "start")
             {
-                ModelSerCtrl.getByOID(msid,function (err, ms) {
-                    if(err)
-                    {
-                        return res.end(JSON.stringify({
-                            "res":"Error",
-                            "mess": JSON.stringify(err)
-                        }));
-                    }
-                    if(ms.ms_status == 1)
-                    {
-                        return res.end(JSON.stringify({
-                            "res":"Started"
-                        }));
-                    }
-                    else
-                    {
-                        ms.ms_status = 1;
-                        ModelSerCtrl.update(ms, function (err, data) {
-                            if(err) {
-                                return res.end(JSON.stringify({
-                                    "res":"Error",
-                                    "mess":JSON.stringify(err)
-                                }));
-                            }
+                if(msid == 'all'){
+                    msids = req.query.msids;
+                    ModelSerCtrl.batchStart(msids, RouteBase.returnFunction(res, 'Error in batch starting model services!'));
+                }
+                else{
+                    ModelSerCtrl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
                             return res.end(JSON.stringify({
-                                "res":"Success"
+                                "res":"Error",
+                                "mess": JSON.stringify(err)
                             }));
-                        })
-                    }
-                });
+                        }
+                        if(ms.ms_status == 1)
+                        {
+                            return res.end(JSON.stringify({
+                                "res":"Started"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_status = 1;
+                            ModelSerCtrl.update(ms, function (err, data) {
+                                if(err) {
+                                    return res.end(JSON.stringify({
+                                        "res":"Error",
+                                        "mess":JSON.stringify(err)
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    "res":"Success"
+                                }));
+                            })
+                        }
+                    });
+                }
+            }
+            //锁定服务
+            else if(req.query.ac == "lock")
+            {
+                if(msid == 'all'){
+                    msids = req.query.msids;
+                    ModelSerCtrl.batchLock(msids, RouteBase.returnFunction(res, 'Error in batch starting model services!'));
+                }
+                else{
+                    ModelSerCtrl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
+                            return res.end(JSON.stringify({
+                                result : "err",
+                                message : JSON.stringify(err)
+                            }));
+                        }
+                        if(ms.ms_limited == 1)
+                        {
+                            return res.end(JSON.stringify({
+                                result : "locked"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_limited = 1;
+                            ModelSerCtrl.update(ms, function (err, data) {
+                                if(err) {
+                                    return res.end(JSON.stringify({
+                                        result : "err",
+                                        message : err
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    result : "suc",
+                                    data : data
+                                }));
+                            })
+                        }
+                    });
+                }
+            }
+            //解锁服务
+            else if(req.query.ac == "unlock")
+            {
+                if(msid == 'all'){
+                    msids = req.query.msids;
+                    ModelSerCtrl.batchUnlock(msids, RouteBase.returnFunction(res, 'Error in batch starting model services!'));
+                }
+                else{
+                    ModelSerCtrl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
+                            return res.end(JSON.stringify({
+                                result : "err",
+                                message : JSON.stringify(err)
+                            }));
+                        }
+                        if(ms.ms_limited == 0)
+                        {
+                            return res.end(JSON.stringify({
+                                result : "unlocked"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_limited = 0;
+                            ModelSerCtrl.update(ms, function (err, data) {
+                                if(err) {
+                                    return res.end(JSON.stringify({
+                                        result : "err",
+                                        message : err
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    result : "suc",
+                                    data : data
+                                }));
+                            })
+                        }
+                    });
+                }
+            }
+            //登记服务
+            else if(req.query.ac == 'register'){
+                ModelSerCtrl.RegisterModelService(msid, RouteBase.returnFunction(res, 'Error in registering model service'));
+            }
+            //退登服务
+            else if(req.query.ac == 'unregister'){
+                ModelSerCtrl.UnregisterModelService(msid, RouteBase.returnFunction(res, 'Error in registering model service'));
             }
         })
         //删除模型服务
@@ -596,24 +666,12 @@ module.exports = function(app)
 
     //get 所有测试数据
     app.route('/modelser/testify/:msid')
-        .get(function (req, res) {
-            var msid = req.params.msid;
-            //暂时放到这里，用来生成已经部署过的模型的测试数据
-            //以后就不用加这一句，生成测试数据是在用户上传模型时就生成了
-            ModelSerCtrl.addDefaultTestify(msid.toString(),function () {
-                testifyCtrl.getTestify(msid,function (data) {
-                    res.end(data);
-                });
-            });
-        })
         .delete(function (req, res, next) {
             var msid = req.params.msid;
             var path = req.query.path;
-            testifyCtrl.delTestify(msid,path,function (data) {
-                res.end(data);
-            });
+            testifyCtrl.delTestify(msid, path, RouteBase.returnFunction(res, 'Error in deleting test data!'));
         });
-
+    
     app.route('/modelser/enmatch/:pid')
         .get(function (req, res) {
             return res.render('enMatch',{
@@ -639,7 +697,12 @@ module.exports = function(app)
             var msid = req.params.msid;
             if(msid == 'all')
             {
-                ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'Error in getting all local model services'));
+                if(req.query.type == 'admin'){
+                    next();
+                }
+                else{
+                    ModelSerCtrl.getLocalModelSer(RouteBase.returnFunction(res, 'Error in getting all local model services'));
+                }
             }
             else
             {
@@ -712,7 +775,7 @@ module.exports = function(app)
                 });
             }
         });
-
+    
     //从门户或者本机得到runtime节点
     // app.route('/modelser/demands/:pid')
     //     .get(function (req, res) {

@@ -1,203 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>模型服务器</title>
+    <title><%=global.LanguageConfig.Heading.LocalModelService.Checking %></title>
     <%- include headInclude.ejs %>
     <!--dynamic table-->
     <!--<link href="/js/advanced-datatable/css/demo_page.css" rel="stylesheet" />-->
     <!--<link href="/js/advanced-datatable/css/demo_table.css" rel="stylesheet" />-->
     <link rel="stylesheet" href="/js/data-tables/DT_bootstrap.css" />
 </head>
-<body class="sticky-header">
-<section>
-    <!-- 左导航栏 -->
-    <%- include header.ejs %>
-    <div class="main-content">
-        <!-- 上导航栏 -->
-        <%- include nav.ejs %>
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="blog-img">
-                            <% if(host == 'localhost'){ %>
-                                <% if(modelSer.ms_img == null || modelSer.ms_img == ''){ %>
-                                <img src="/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" >
-                            <%} else { %>
-                            <img width="128" height="128" src="/images/modelImg/<%=modelSer.ms_img %>" alt="<%=modelSer.ms_model.m_name %>" >
-                            <%}%>
-                            <% }else{ %>
-                                <% if(modelSer.ms_img == null || modelSer.ms_img == ''){
-                                %><img src="http://<%=host %>:<%=port %>/images/modelImg/default.png" alt="<%=modelSer.ms_model.m_name %>" ><%
-                                }
-                                else {
-                                %><img width="128" height="128" src="http://<%=host %>:<%=port %>/images/modelImg/<%=modelSer.ms_img %>" alt="<%=modelSer.ms_model.m_name %>" ><%
-                                }%>
-                            <% } %>
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <h1 class="mtop35"><%=modelSer.ms_model.m_name  %></h1>
-                        <p style="font-size: 14px; color:#aaa" >
-                            部署人&nbsp;:&nbsp;<%=modelSer.ms_user.u_name %>&nbsp;&nbsp;&nbsp;&nbsp;
-                            Email&nbsp;:&nbsp;<%=modelSer.ms_user.u_email %>
-                            <br />
-                            模型类型&nbsp;:&nbsp;<%=modelSer.ms_model.m_type %>
-                            <br />
-                            版本号&nbsp;:&nbsp;<%=modelSer.mv_num %>
-                            <br />
-                            所在平台&nbsp;:&nbsp;<%
-                            if(modelSer.ms_platform == 1)
-                            {
-                                %><span class="label label-info">
-                                    <i class="fa fa-windows"></i>
-                                    windows
-                                </span><%
-                            }
-                            else if(modelSer.ms_platform == 2)
-                            {
-                                %><span class="label label-info">
-                                    <i class="fa fa-linux"></i>
-                                    linux
-                                </span><%
-                            }
-                            else
-                            {
-                                %><span class="label label-info">
-                                    未知平台
-                                </span><%
-                            }
-                            %>
-                            <br />
-                            部署时间&nbsp;:&nbsp;<%=modelSer.ms_update %>
-                            <br />
-                            状态&nbsp;:&nbsp;<% if(modelSer.ms_status == 1){
-                                %><span class="badge badge-success">可用</span><%
-                            }else {
-                                %><span class="badge badge-defult">不可用</span><%
-                            }%>
-                            <br />
-                            描述&nbsp;:&nbsp;
-                            <br />
-                            <%=modelSer.ms_des %>
-                        </p>
-                        <% if(modelSer.ms_model.m_url != null)
-                        {
-                            %><a style="more" href="<%=modelSer.ms_model.m_url %>" >更多信息</a><%
-                        }%>
-                        <br />
-                        <div class="btn-group btn-group-justified" style="width: 50%">
-                            <a href="#" class="btn btn-default"
-                               <% if(host == 'localhost') { %>
-                                    onclick="window.open('/modelser/preparation/<%=modelSer._id %>')"
-                               <% } else { %>
-                                    onclick="window.open('/modelser/rmt/preparation/<%=host %>/<%=modelSer._id %>')"
-                                <% } %>
-                            <%if(modelSer.ms_status == 0)
-                            {
-                                %>disabled="disable" <%
-                            }%>>
-                                <i class="fa fa-retweet"></i>调用
-                            </a>
-                            <% if(modelSer.ms_status == 0)
-                            {
-                                %>
-                            <a href="#" class="btn btn-success" onclick="ms_start('<%=modelSer._id %>','<%=host %>')" >
-                                <i class="fa fa-play"></i>启动服务
-                            </a>
-                            <a href="#" class="btn btn-warning" onclick="ms_delete('<%=modelSer._id %>','<%=host %>')">
-                                <i class="fa fa-trash-o"></i>删除服务
-                            </a><%
-                            }
-                            else if(modelSer.ms_status == 1)
-                            {
-                                %>
-                            <a href="#" class="btn btn-danger" onclick="ms_stop('<%=modelSer._id %>','<%=host %>')" >
-                                <i class="fa fa-stop"></i>关闭服务
-                            </a><%
-                            }%>
-                        </div>
-                    </div>
-                </div>
+    <body class="sticky-header">
+        <section>
+            <!-- 左导航栏 -->
+            <%- include header.ejs %>
+            <div class="main-content">
+                <!-- 上导航栏 -->
+                <%- include nav.ejs %>
+                <div id="ModelSerDetail" 
+                    data-source="/modelser/json/<%=modelSer._id %>"
+                    data-source-msr="/modelserrun/json/all?msid=<%=modelSer._id %>"
+                    data-source-msrstatistic="/modelserrun/json/all?type=statistic&msid=<%=modelSer._id %>"
+                    data-type="admin" ></div>
+                <%- include footer.ejs %>
             </div>
-        </div>
+        </section>
+        <%- include footerInclude.ejs %>
+        <!--dynamic table-->
+        <script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
+        <script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+        <script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
 
-        <div class="panel panel-info">
-            <div class="panel-heading" >
-                模型运行记录
-            </div>
-            <div class="panel-body">
-                <table class="display table table-bordred table-striped" id="tb_msr">
-                    <thead>
-                        <tr>
-                            <th>记录ID</th>
-                            <th>调用时间</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <% for(var i = 0; i < msrs.length; i++){%>
-                    <tr>
-                        <td><%= msrs[i]._id %></td>
-                        <td><%= msrs[i].msr_date%></td>
-                        <% if(host != 'localhost'){ %>
-                            <td><a href="/modelserrun/rmt/<%= host %>/<%= msrs[i]._id %>" >查看详情</a></td>
-                        <% }else{ %>
-                            <td><a href="/modelserrun/<%= msrs[i]._id %>" >查看详情</a></td>
-                        <% } %>
-                    </tr>
-                    <% }%>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <%- include footer.ejs %>
-    </div>
-</section>
-<%- include footerInclude.ejs %>
-<!--dynamic table-->
-<script type="text/javascript" language="javascript" src="/js/advanced-datatable/js/jquery.dataTables.js"></script>
-<script type="text/javascript" src="/js/data-tables/DT_bootstrap.js"></script>
+        <!-- jQuery Flot Chart-->
+        <script src="/js/flot-chart/jquery.flot.js"></script>
+        <script src="/js/flot-chart/jquery.flot.tooltip.js"></script>
+        <script src="/js/flot-chart/jquery.flot.resize.js"></script>
+        <script src="/js/flot-chart/jquery.flot.pie.resize.js"></script>
+        <script src="/js/flot-chart/jquery.flot.selection.js"></script>
+        <script src="/js/flot-chart/jquery.flot.stack.js"></script>
+        <script src="/js/flot-chart/jquery.flot.time.js"></script>
 
-<script type="text/javascript" src="/js/geomodel/modelser.js" ></script>
-<script type="text/javascript" >
-    $('#tb_msr').dataTable(
-            {
-                //表格汉化
-                "data-locale":"zh-US",
-                //载入数据的时候是否显示“正在加载中...”
-                "processing": true,
-                //是否显示分页
-                "bPaginate": true,
-                //每页显示条目数
-                "bLengthChange": true,
-                //搜索栏
-                "bFilter": true,
-                //排序
-                "bSort": true,
-                //排序配置
-                "aaSorting": [[1, "desc"]],
-                //自适应宽度
-                "bAutoWidth": true,
-                //多语言配置
-                "oLanguage": {
-                    "sLengthMenu": "每页显示 _MENU_ 条记录",
-                    "sZeroRecords": "对不起，查询不到任何相关数据",
-                    "sInfo": "当前显示 _START_ 到 _END_ 条，共 _TOTAL_ 条记录",
-                    "sInfoEmtpy": "找不到相关数据",
-                    "sInfoFiltered": "数据表中共为 _MAX_ 条记录",
-                    "sProcessing": "正在加载中...",
-                    "sSearch": "搜索",
-                    //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
-                    "sUrl": "",
-                    "oPaginate": {
-                        "sFirst":    "第一页",
-                        "sPrevious": " 上一页 ",
-                        "sNext":     " 下一页 ",
-                        "sLast":     " 最后一页 "
-                    }
-                }
-            });
-</script>
-</body>
+        <script type="text/javascript" src="/js/output/bundle.js" ></script>
+
+    </body>
 </html>

@@ -8,8 +8,8 @@ var GeoDataCtrl = require('./geoDataControl');
 var ModelSerRunModel = require('../model/modelSerRun');
 
 var testifyCtrl = function () {
-
 };
+
 module.exports = testifyCtrl;
 
 testifyCtrl.addDefaultTestify = function (msid,getInputData,callback) {
@@ -284,15 +284,15 @@ testifyCtrl.delTestify = function (msid,testifyPath, callback) {
         for(var i=0;i<configJSON.length;i++){
             if(testifyPath == configJSON[i].path){
                 configJSON.splice(i,1);
-                break;
+                fs.writeFileSync(configPath,JSON.stringify(configJSON));
+                //删除文件
+                FileOpera.rmdir(testifyFolder);
+                return callback(null, true);
             }
         }
-        fs.writeFileSync(configPath,JSON.stringify(configJSON));
-        //删除文件
-        FileOpera.rmdir(testifyFolder);
-        callback(JSON.stringify({suc:true}));
+        return callback(null, false);
     }
-    catch(e){
-        return callback(JSON.stringify({suc:false}));
+    catch(ex){
+        return callback(ex);
     }
 };

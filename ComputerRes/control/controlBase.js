@@ -9,6 +9,25 @@ ControlBase.model = null;
 
 module.exports = ControlBase;
 
+ControlBase.returnRemoteFunction = function(callback, errMess){
+    return (function (err, res) {
+        if(err)
+        {
+            if(errMess != null && typeof errMess == "string")
+            {
+                console.log(errMess);
+            }
+            return callback(err);
+        }
+        if(res.result == 'suc'){
+            return callback(null, res.data);
+        }
+        else{
+            return callback(new Error('Error in requesting'));
+        }
+    });
+}
+
 ControlBase.getByOID = function (oid, callback) {
     this.model.getByOID(oid,function (err, data) {
         if(err){
