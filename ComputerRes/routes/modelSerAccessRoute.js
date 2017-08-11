@@ -205,8 +205,8 @@ module.exports = function(app){
         .get(function(req, res, next){
             var ac = req.query.ac;
             var msid = req.params.msid;
-            var inputData = req.query.inputData;
-            var outputData = req.query.outputData;
+            var inputData = req.query.inputdata;
+            var outputData = req.query.outputdata;
             if(ac == 'run'){
                 //读取输入文件参数
                 var inputData = JSON.parse(inputData);
