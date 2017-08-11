@@ -11,6 +11,7 @@ var FileOpera = require('../utils/fileOpera');
 var Settings = require('../setting');
 var fs = require('fs');
 var Promise = require('bluebird');
+var Path = require('path');
 
 function GeoDataCtrl() {}
 
@@ -281,7 +282,7 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
                                 reject(new Error(gd.error));
                             }
                             if(gd.gd_type == 'FILE'){
-                                var path = Path.join(__dirname,'../../geo_data/' + dataPosition.gdid + '.xml');
+                                var path = Path.join(__dirname,'../geo_data/' + dataPosition.gdid + '.xml');
                                 fs.writeFile(path,gd.gd_value,function (err) {
                                     if (err) {
                                         return reject(err);

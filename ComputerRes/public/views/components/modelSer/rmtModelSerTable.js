@@ -439,15 +439,18 @@ var RmtModelSerTable = React.createClass({
                     if(name.length > 25){
                         name = name.substr(0, 25) + '...';
                     }
-                    var tyep = item.ms_model.m_type;
-                    if(tyep.length > 20){
-                        tyep = tyep.substr(0, 20) + '...';
+                    var type = item.ms_model.m_type;
+                    if(type == undefined || type == null){
+                        type = '';
+                    }
+                    if(type.length > 20){
+                        type = type.substr(0, 20) + '...';
                     }
                     return (
                         <tr>
                             <td  title={item.ms_model.m_name + '-' + item.ms_des} >{name}</td>
                             <td>{item.mv_num}</td>
-                            <td title={item.ms_model.m_type}>{tyep}</td>
+                            <td title={item.ms_model.m_type}>{type}</td>
                             <td>{host.host}</td>
                             <td>{platform}</td>
                             <td>{status}</td>
