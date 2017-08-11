@@ -118,6 +118,17 @@ var DataPreparation = React.createClass({
         return (<p id={ 'data_pre_p_' + stateId + '_' + eventName }><strong>{window.LanguageConfig.InputData.Event.Ready}&nbsp;:&nbsp;</strong><span className="label label-warning">{window.LanguageConfig.InputData.Event.DataNoReady}</span></p>);
     },
 
+    getDataStateBool : function(stateId, eventName){
+        for(var i = 0; i < this.state.allInputData.length; i++)
+        {
+            if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName && this.state.allInputData[i].DataId != '')
+            {
+                return true;
+            }
+        }
+        return false;
+    },
+
     checkGeoData : function(){
         for(var i = 0; i < window.allInputData.length; i++){
             if(window.allInputData[i].DataId == '' && window.allInputData[i].Optional != 1 ){
@@ -176,19 +187,24 @@ var DataPreparation = React.createClass({
             var mark = true;
             var EventHead = State.Event.map(function(Event){
                 var tag = '';
+                var flag = '';
+                var hasData = this.getDataStateBool(State.$.id, Event.$.name);
                 if(mark)
                 {
                     tag = 'active';
                     mark = false;
                 }
+                if(Event.$.type == 'response' && !hasData){
+                    flag = (<i className="fa fa-cloud-upload"> </i>);
+                }
                 return (
                     <li key={'head' + State.$.id + '_' + Event.$.name} className={tag}>
                         <a style={{ paddingRight : '8px !important' }} href={'#' + State.$.id + '_' + Event.$.name} data-toggle="tab">
-                            <i className="fa fa-flash"> </i>{Event.$.name}&nbsp;&nbsp;&nbsp;&nbsp;
+                            <i className="fa fa-flash"> </i>{Event.$.name} &nbsp;{flag}&nbsp;&nbsp;&nbsp;&nbsp;
                         </a>
                     </li>
                 );
-            });
+            }.bind(this));
 
             mark = true;
             var EventBody = State.Event.map(function(Event){
@@ -217,6 +233,7 @@ var DataPreparation = React.createClass({
                                                 data-type={dataType}
                                                 data-rmt={this.state.rmt}
                                                 data-host={this.state.host}
+                                                data-title={'[' + State.$.name + '] - [' + Event.$.name + ']'}
                                                 onFinish={ (gdid, tag) => { this.onDataReady(State.$.id, Event.$.name, gdid, tag) } } />);
                     dataReady = this.getDataState(State.$.id, Event.$.name);
                     if(Event.$.optional == '1'){

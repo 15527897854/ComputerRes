@@ -164,5 +164,19 @@ GeoDataMid.postFileData = function(req, callback){
 }
 
 GeoDataMid.postUrlData = function(req, callback){
+    var url = req.body.url;
+    var gd_tag = '';
+    var gd_destroy = 'FALSE';
+    if(req.body.gd_tag)
+    {
+        gd_tag = req.body.gd_tag;
+    }
+    if(req.body.gd_destroy)
+    {
+        gd_destroy = req.body.gd_destroy;
+    }
+    //生成数据ID
+    var gdid = 'gd_' + uuid.v1();
+
     
 }
