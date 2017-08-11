@@ -14,7 +14,7 @@ function RemoteReqControl() {}
 
 module.exports = RemoteReqControl;
 
-//使用request模块，以get方式请求url中的内容
+//使锟斤拷request模锟介，锟斤拷get锟斤拷式锟斤拷锟斤拷url锟叫碉拷锟斤拷锟斤拷
 RemoteReqControl.getRequest = function (req, url, callback) {
     req.pipe(request.get(url, function (err, response, data) {
         if(err)
@@ -25,7 +25,7 @@ RemoteReqControl.getRequest = function (req, url, callback) {
     }));
 };
 
-//使用request模块，以post方式请求url中的内容，post的表单在req中
+//使锟斤拷request模锟介，锟斤拷post锟斤拷式锟斤拷锟斤拷url锟叫碉拷锟斤拷锟捷ｏ拷post锟侥憋拷锟斤拷req锟斤拷
 RemoteReqControl.postRequest = function (req, url, callback) {
     req.pipe(request.post(url, function (err, response, data) {
         if(err)
@@ -36,21 +36,21 @@ RemoteReqControl.postRequest = function (req, url, callback) {
     }));
 };
 
-//使用request模块，以post方式请求url，表单在form中
+//使锟斤拷request模锟介，锟斤拷post锟斤拷式锟斤拷锟斤拷url锟斤拷锟斤拷锟斤拷form锟斤拷
 RemoteReqControl.postByServer = function (url, form, callback) {
     var options;
     if(form){
         options = {
             method:'POST',
             uri:url,
-            // 两种写法
-            // 写法1
+            // 锟斤拷锟斤拷写锟斤拷
+            // 写锟斤拷1
             // body:JSON.stringify(form),
-            // headers:{    // 设置这个是为了让服务端能够解析发过去的信息，没有这个会出错，req.body中没有值
+            // headers:{    // 锟斤拷锟斤拷锟斤拷锟斤拷锟轿拷锟斤拷梅锟斤拷锟斤拷锟杰癸拷锟斤拷锟斤拷锟斤拷锟斤拷去锟斤拷锟斤拷息锟斤拷没锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷req.body锟斤拷没锟斤拷值
             //     'Content-Type': 'application/json;charset=utf-8'
             // },
-            // 写法2
-            // 同样的json会自动把form格式化为string，并设置content-type
+            // 写锟斤拷2
+            // 同锟斤拷锟斤拷json锟斤拷锟皆讹拷锟斤拷form锟斤拷式锟斤拷为string锟斤拷锟斤拷锟斤拷锟斤拷content-type
             body:form,
             json:true
         };
@@ -70,7 +70,7 @@ RemoteReqControl.postByServer = function (url, form, callback) {
         });
 };
 
-//使用request模块，以get方式请求url，表单在form中
+//使锟斤拷request模锟介，锟斤拷get锟斤拷式锟斤拷锟斤拷url锟斤拷锟斤拷锟斤拷form锟斤拷
 RemoteReqControl.getByServer = function (url, form, callback) {
     var options = {
         url:url,
@@ -190,6 +190,12 @@ RemoteReqControl.postDownload = function(url, form, path, callback){
     request.post(url,
         {form : form }
     ).pipe(fs.createWriteStream(path)).on('close', function(){
+        return callback();
+    });
+};
+
+RemoteReqControl.getDownload = function(url, path, callback){
+    request.get(url).pipe(fs.createWriteStream(path)).on('close', function(){
         return callback();
     });
 };
