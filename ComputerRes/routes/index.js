@@ -10,6 +10,7 @@ var noticeRoute = require('./noticeRoute');
 var childRoute = require('./childRoute');
 var ModelSerAccessRoute = require('./modelSerAccessRoute');
 var AdminAccessRoute = require('./adminAccessRoute');
+var aggreRoute = require('./aggreRoute');
 
 var sysCtrl = require('../control/sysControl');
 var AuthCtrl = require('../control/authControl');
@@ -102,6 +103,8 @@ module.exports = function(app)
 
     //use route for child-node
     childRoute(app);
+
+    aggreRoute(app);
 
     //Homepage
     app.route('/index')
