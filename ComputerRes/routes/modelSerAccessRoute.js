@@ -209,8 +209,7 @@ module.exports = function(app){
             var outputData = req.query.outputdata;
             if(ac == 'run'){
                 //读取输入文件参数
-                var inputData = JSON.parse(inputData);
-                var outputData = req.query.outputData;
+                inputData = JSON.parse(inputData);
                 ModelSerCtrl.getByOID(msid, function(err, ms){
                     if(err){
                         return res.end(
