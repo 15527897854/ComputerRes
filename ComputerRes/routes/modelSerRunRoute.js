@@ -85,6 +85,7 @@ module.exports = function (app) {
             }
             else
             {
+                // deprecated
                 ModelSerRunCtrl.getByOID(msrid, function (err, msr) {
                     if(err)
                     {

@@ -245,12 +245,12 @@ ModelService.getMSDetail = function(msid, cb){
         }
         ModelService.readCfg(ms, function (err, cfg) {
             if(err) {
-                return callback(err);
+                return cb(err);
             }
             fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
                 if(err) {
                     console.log('Error in read mdl file : ' + err);
-                    return callback(err);
+                    return cb(err);
                 }
                 return cb(null,{
                     MS:ms,

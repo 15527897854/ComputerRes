@@ -266,7 +266,7 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
             else {
                 // 请求数据
                 new Promise(function (resolve, reject) {
-                    RmtReqCtrl.getByServer(url,null,function (err, res) {
+                    RemoteReqControl.getByServer(url,null,function (err, res) {
                         if(err){
                             return reject(err);
                         }

@@ -105,7 +105,7 @@ module.exports = function (app) {
                                 //     'Content-Length': data.length });
                                 // res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(filename));
                                 // res.end(data);
-                                gd.gd_value = data;
+                                gd.gd_value = data.toString();
                                 res.end(JSON.stringify(gd));
                             });
                         }
