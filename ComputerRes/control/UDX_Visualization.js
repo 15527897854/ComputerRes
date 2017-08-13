@@ -768,6 +768,10 @@ UDXVisualization.AsciiGridDataset = function (gdid,srcDataset, factor, callback)
     });
 };
 
+UDXVisualization.DEMDataset = function(gdid, srcDataset, factor, callback){
+
+};
+
 UDXVisualization.TableDataset = function (gdid, srcDataset, callback) {
     var srcRootNode = lib_udx.getDatasetNode(srcDataset);
     var count = lib_udx.getNodeChildCount(srcRootNode);

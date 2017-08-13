@@ -380,6 +380,9 @@ module.exports = function(app){
                         }));
                 });
             }
+            else if(type == 'url'){
+
+            }
         });
 
     //下载数据
@@ -390,6 +393,13 @@ module.exports = function(app){
                 next();
             }
             else{
+                var ac = req.query.ac;
+                if(ac == 'visualize'){
+                    res.render('visualization',{
+                        gdid : gdid
+                    });
+                }
+                else{
                 GeoDataCtrl.getByKey(gdid, function (err, gd) {
                     if(err)
                     {
@@ -467,6 +477,7 @@ module.exports = function(app){
                                         }
                                     });
                                 }
+            }
                             });
                         }
                     });

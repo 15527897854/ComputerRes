@@ -21,7 +21,7 @@
                 Model Services
             </div>
             <div class="panel-body">
-                <div id="rmtModelSerTable" data-type="rmthost" data-source="/modelser/rmt/json/<%=host %>/all" ></div>
+                <div id="rmtModelSerTable" data-type="rmthost" data-host="<%=host %>" data-source="/modelser/rmt/json/<%=host %>/all" ></div>
             </div>
         </div>
         
@@ -48,7 +48,7 @@
                 </section>
                 <div id="rmtModelSerRunTable" 
                     data-source="/modelserrun/rmt/json/<%=host %>/all" 
-                    data-type="rmthost"
+                    data-type="rms"
                     data-host="<%=host %>"
                     ></div>
             </div>

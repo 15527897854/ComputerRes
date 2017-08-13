@@ -6,6 +6,7 @@
 var ObjectId = require('mongodb').ObjectID;
 var fs = require('fs');
 var exec = require('child_process').exec;
+var ObjectId = require('mongodb').ObjectID;
 var xmlparse = require('xml2js').parseString;
 var setting = require('../setting');
 var mongoose = require('./mongooseModel');
@@ -83,7 +84,7 @@ ModelService.getAll = function(flag, callback){
         else{
             where = { ms_status : { $ne : -1 }, ms_limited : { $ne : 1 }}
         }
-        MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
+        MS.find(where).sort({'ms_update':-1}).exec(this.returnFunction(callback, 'Error in getting all model service'));
     }
 };
 

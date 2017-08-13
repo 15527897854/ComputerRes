@@ -382,146 +382,172 @@ module.exports = function(app)
             //停止服务
             if(req.query.ac == "stop")
             {
-                // console.log('---------------------------------------remote request');
-                // console.log(req.url);
-                ModelSerCtrl.getByOID(msid,function (err, ms) {
-                    if(err)
-                    {
-                        return res.end(JSON.stringify({
-                            "res":"Error",
-                            "mess":JSON.stringify(err)
-                        }));
-                    }
-                    if(ms.ms_status == 0)
-                    {
-                        return res.end(JSON.stringify({
-                            "res":"Stopped"
-                        }));
-                    }
-                    else
-                    {
-                        ms.ms_status = 0;
-                        ModelSerCtrl.update(ms, function (err, data){
-                            if(err) {
-                                return res.end(JSON.stringify({
-                                    "res":"Error",
-                                    "mess":JSON.stringify(err)
-                                }));
-                            }
+                if(msid == 'all'){
+                    msids = req.query.msids;
+                    ModelSerCtrl.batchStop(msids, RouteBase.returnFunction(res, 'Error in batch starting model services!'));
+                }
+                else{
+                    ModelSerCtrl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
                             return res.end(JSON.stringify({
-                                "res":"Success"
+                                "res":"Error",
+                                "mess":JSON.stringify(err)
                             }));
-                        })
-                    }
-                });
+                        }
+                        if(ms.ms_status == 0)
+                        {
+                            return res.end(JSON.stringify({
+                                "res":"Stopped"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_status = 0;
+                            ModelSerCtrl.update(ms, function (err, data){
+                                if(err) {
+                                    return res.end(JSON.stringify({
+                                        "res":"Error",
+                                        "mess":JSON.stringify(err)
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    "res":"Success"
+                                }));
+                            })
+                        }
+                    });
+                }
             }
             //开启服务
             else if(req.query.ac == "start")
             {
-                ModelSerCtrl.getByOID(msid,function (err, ms) {
-                    if(err)
-                    {
-                        return res.end(JSON.stringify({
-                            "res":"Error",
-                            "mess": JSON.stringify(err)
-                        }));
-                    }
-                    if(ms.ms_status == 1)
-                    {
-                        return res.end(JSON.stringify({
-                            "res":"Started"
-                        }));
-                    }
-                    else
-                    {
-                        ms.ms_status = 1;
-                        ModelSerCtrl.update(ms, function (err, data) {
-                            if(err) {
-                                return res.end(JSON.stringify({
-                                    "res":"Error",
-                                    "mess":JSON.stringify(err)
-                                }));
-                            }
+                if(msid == 'all'){
+                    msids = req.query.msids;
+                    ModelSerCtrl.batchStart(msids, RouteBase.returnFunction(res, 'Error in batch starting model services!'));
+                }
+                else{
+                    ModelSerCtrl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
                             return res.end(JSON.stringify({
-                                "res":"Success"
+                                "res":"Error",
+                                "mess": JSON.stringify(err)
                             }));
-                        })
-                    }
-                });
+                        }
+                        if(ms.ms_status == 1)
+                        {
+                            return res.end(JSON.stringify({
+                                "res":"Started"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_status = 1;
+                            ModelSerCtrl.update(ms, function (err, data) {
+                                if(err) {
+                                    return res.end(JSON.stringify({
+                                        "res":"Error",
+                                        "mess":JSON.stringify(err)
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    "res":"Success"
+                                }));
+                            })
+                        }
+                    });
+                }
             }
             //锁定服务
             else if(req.query.ac == "lock")
             {
-                ModelSerCtrl.getByOID(msid,function (err, ms) {
-                    if(err)
-                    {
-                        return res.end(JSON.stringify({
-                            result : "err",
-                            message : JSON.stringify(err)
-                        }));
-                    }
-                    if(ms.ms_limited == 1)
-                    {
-                        return res.end(JSON.stringify({
-                            result : "locked"
-                        }));
-                    }
-                    else
-                    {
-                        ms.ms_limited = 1;
-                        ModelSerCtrl.update(ms, function (err, data) {
-                            if(err) {
-                                return res.end(JSON.stringify({
-                                    result : "err",
-                                    message : err
-                                }));
-                            }
+                if(msid == 'all'){
+                    msids = req.query.msids;
+                    ModelSerCtrl.batchLock(msids, RouteBase.returnFunction(res, 'Error in batch starting model services!'));
+                }
+                else{
+                    ModelSerCtrl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
                             return res.end(JSON.stringify({
-                                result : "suc",
-                                data : data
+                                result : "err",
+                                message : JSON.stringify(err)
                             }));
-                        })
-                    }
-                });
+                        }
+                        if(ms.ms_limited == 1)
+                        {
+                            return res.end(JSON.stringify({
+                                result : "locked"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_limited = 1;
+                            ModelSerCtrl.update(ms, function (err, data) {
+                                if(err) {
+                                    return res.end(JSON.stringify({
+                                        result : "err",
+                                        message : err
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    result : "suc",
+                                    data : data
+                                }));
+                            })
+                        }
+                    });
+                }
             }
             //解锁服务
             else if(req.query.ac == "unlock")
             {
-                ModelSerCtrl.getByOID(msid,function (err, ms) {
-                    if(err)
-                    {
-                        return res.end(JSON.stringify({
-                            result : "err",
-                            message : JSON.stringify(err)
-                        }));
-                    }
-                    if(ms.ms_limited == 0)
-                    {
-                        return res.end(JSON.stringify({
-                            result : "unlocked"
-                        }));
-                    }
-                    else
-                    {
-                        ms.ms_limited = 0;
-                        ModelSerCtrl.update(ms, function (err, data) {
-                            if(err) {
-                                return res.end(JSON.stringify({
-                                    result : "err",
-                                    message : err
-                                }));
-                            }
+                if(msid == 'all'){
+                    msids = req.query.msids;
+                    ModelSerCtrl.batchUnlock(msids, RouteBase.returnFunction(res, 'Error in batch starting model services!'));
+                }
+                else{
+                    ModelSerCtrl.getByOID(msid,function (err, ms) {
+                        if(err)
+                        {
                             return res.end(JSON.stringify({
-                                result : "suc",
-                                data : data
+                                result : "err",
+                                message : JSON.stringify(err)
                             }));
-                        })
-                    }
-                });
+                        }
+                        if(ms.ms_limited == 0)
+                        {
+                            return res.end(JSON.stringify({
+                                result : "unlocked"
+                            }));
+                        }
+                        else
+                        {
+                            ms.ms_limited = 0;
+                            ModelSerCtrl.update(ms, function (err, data) {
+                                if(err) {
+                                    return res.end(JSON.stringify({
+                                        result : "err",
+                                        message : err
+                                    }));
+                                }
+                                return res.end(JSON.stringify({
+                                    result : "suc",
+                                    data : data
+                                }));
+                            })
+                        }
+                    });
+                }
             }
             //登记服务
             else if(req.query.ac == 'register'){
                 ModelSerCtrl.RegisterModelService(msid, RouteBase.returnFunction(res, 'Error in registering model service'));
+            }
+            //退登服务
+            else if(req.query.ac == 'unregister'){
+                ModelSerCtrl.UnregisterModelService(msid, RouteBase.returnFunction(res, 'Error in registering model service'));
             }
         })
         //删除模型服务

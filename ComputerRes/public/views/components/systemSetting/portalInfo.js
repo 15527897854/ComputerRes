@@ -19,7 +19,6 @@ var PortalInfo = React.createClass({
         };
     },
 
-
     componentDidMount : function(){
         this.refresh();
     },

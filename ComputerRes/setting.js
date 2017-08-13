@@ -42,7 +42,7 @@ module.exports =  {
         port:'80'
     },
     // portal:{
-    //     host:'223.2.33.35',
+    //     host:'223.2.45.225',
     //     port:'8080'
     // },
     modelpath : __dirname + '/geo_model/',

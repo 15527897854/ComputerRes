@@ -188,3 +188,7 @@ GeoDataMid.postUrlData = function(req, callback){
 
     
 }
+
+GeoDataMid.postUrlData = function(req, callback){
+    
+}

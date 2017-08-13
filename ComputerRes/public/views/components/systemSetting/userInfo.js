@@ -128,7 +128,7 @@ var UserInfo = React.createClass({
         return (
         <section className="panel" >
             <header className="panel-heading" >
-                用户信息
+                User Infomation
             </header>
             <div className="panel-body">
                 <p>Administator User Name&nbsp;:&nbsp;{this.state.data} &nbsp;&nbsp;&nbsp;<button className="btn btn-sm btn-info" data-toggle="modal"
