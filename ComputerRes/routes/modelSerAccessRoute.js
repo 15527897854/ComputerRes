@@ -459,7 +459,7 @@ module.exports = function(app){
         });
     
     // 接收到数据坐标后主动下载数据
-    app.route('/aggregation/onReceivedDataPosition')
+    app.route('/integration/onReceivedDataPosition')
         .post(function (req, res, next) {
             // var centerHost = ;
             // var centerPort = ;

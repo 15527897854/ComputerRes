@@ -6,7 +6,7 @@ var ModelSerCtrl = require('../control/modelSerControl');
 
 module.exports = function (app) {
     // 接收到数据坐标
-    app.route('/aggregation/onReceivedDataPosition')
+    app.route('/integration/onReceivedDataPosition')
         .post(function (req, res, next) {
             // var centerHost = ;
             // var centerPort = ;
@@ -21,7 +21,7 @@ module.exports = function (app) {
             res.end('');
         });
 
-    app.route('/aggregation/SADL/getMSDetail')
+    app.route('/integration/SADL/getMSDetail')
         .get(function (req, res, next) {
             var _id = req.query._id;
             ModelSerCtrl.getMSDetail(_id,function (err,rst) {
