@@ -36,43 +36,45 @@ var RmtModelSerTable = React.createClass({
                     this.setState({loading : false, err : false, data : data.data.data});
                     if(this.state.init)
                     {
-                        //初始化完成
-                        $('#modelservice-table').dataTable(
-                            {
-                                //数据URL
-                                "data": "/modelser/json/rmtall",
-                                //载入数据的时候是否显示“正在加载中...”
-                                "processing": true,
-                                //是否显示分页
-                                "bPaginate": true,
-                                //每页显示条目数
-                                "bLengthChange": true,
-                                //排序
-                                "bSort": true,
-                                //排序配置
-                                //"aaSorting": [[0, "desc"]],
-                                //自适应宽度
-                                "bAutoWidth": true,
-                                //多语言配置
-                                "oLanguage": {
-                                    "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
-                                    "sZeroRecords": window.LanguageConfig.TablePaging.ZeroRecords,
-                                    "sInfo": window.LanguageConfig.TablePaging.Info,
-                                    "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
-                                    "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
-                                    "sProcessing": window.LanguageConfig.TablePaging.Processing,
-                                    "sSearch": window.LanguageConfig.TablePaging.Search,
-                                    //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
-                                    "sUrl": "",
-                                    "oPaginate": {
-                                        "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
-                                        "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
-                                        "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
-                                        "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
-                                    }
+                        var options = {
+                            //数据URL
+                            "data": "/modelser/json/rmtall",
+                            //载入数据的时候是否显示“正在加载中...”
+                            "processing": true,
+                            //是否显示分页
+                            "bPaginate": true,
+                            //每页显示条目数
+                            "bLengthChange": true,
+                            //排序
+                            "bSort": true,
+                            //排序配置
+                            //"aaSorting": [[0, "desc"]],
+                            //自适应宽度
+                            "bAutoWidth": true,
+                            //多语言配置
+                            "oLanguage": {
+                                "sLengthMenu": window.LanguageConfig.TablePaging.LengthMenu,
+                                "sZeroRecords": window.LanguageConfig.TablePaging.ZeroRecords,
+                                "sInfo": window.LanguageConfig.TablePaging.Info,
+                                "sInfoEmtpy": window.LanguageConfig.TablePaging.InfoEmtpy,
+                                "sInfoFiltered": window.LanguageConfig.TablePaging.InfoFiltered,
+                                "sProcessing": window.LanguageConfig.TablePaging.Processing,
+                                "sSearch": window.LanguageConfig.TablePaging.Search,
+                                //多语言配置文件，可将oLanguage的设置放在一个txt文件中，例：Javascript/datatable/dtCH.txt
+                                "sUrl": "",
+                                "oPaginate": {
+                                    "sFirst":    window.LanguageConfig.TablePaging.Paginate.First,
+                                    "sPrevious": window.LanguageConfig.TablePaging.Paginate.Previous,
+                                    "sNext":     window.LanguageConfig.TablePaging.Paginate.Next,
+                                    "sLast":     window.LanguageConfig.TablePaging.Paginate.Last
                                 }
                             }
-                        );
+                        };
+                        if(this.state.type == 'admin'){
+                            options["aoColumnDefs"] = [ { "bSortable": false, "aTargets": [ 0 ] }];
+                        }
+                        //初始化完成
+                        $('#modelservice-table').dataTable(options);
                         this.setState({init : false});
                     }
 
@@ -188,22 +190,43 @@ var RmtModelSerTable = React.createClass({
             data => {
                 if(data.data.result == 'suc'){
                     NoteDialog.openNoteDia('Info', 'Model service register successfully!');
-                    this.setState({item : null, progress : true});
+                    this.setState({item : null, progress : false});
                     this.refresh();
                     $('#mdModelSerRegister').modal('hide');
                 }
                 else{
-                    this.setState({item : null, progress : true});
+                    this.setState({item : null, progress : false});
+                    NoteDialog.openNoteDia('Error', 'Error in registering a model service! Please go to Pottal to build Model Item. Message : ' + data.data.message);
                     this.refresh();
                     $('#mdModelSerRegister').modal('hide');
                 }
             },
             err => {
-                this.setState({item : null, progress : true});
+                this.setState({item : null, progress : false});
                 this.refresh();
                 $('#mdModelSerRegister').modal('hide');
             }
         );
+    },
+
+    unregisterHandle : function(e, id, name){
+        if(confirm('Unregister this model service [' + name + ']?')){
+            Axios.put('/modelser/' + id + '?ac=unregister').then(
+                data => {
+                    if(data.data.result == 'suc'){
+                        NoteDialog.openNoteDia('Info', 'Model service unregister successfully!');
+                        this.refresh();
+                    }
+                    else{
+                        NoteDialog.openNoteDia('Error', 'Error in unregistering a model service! Message : ' + data.data.message);
+                        this.refresh();
+                    }
+                },
+                err => {
+                    this.refresh();
+                }
+            );
+        }
     },
 
     lockHandle : function(e, host, msid){
@@ -243,6 +266,93 @@ var RmtModelSerTable = React.createClass({
                     }
                 );
             }
+        }
+    },
+
+    getCheckedList : function(){
+        var inputs = $('input[name="ms_check"]:checked');
+        if(inputs.length == 0){ return null; }
+        var msids = [];
+        for(var i = 0; i < inputs.length; i++){
+            msids.push(inputs[i].value);
+        };
+        return msids;
+    },
+
+    batchStart : function(e){
+        var msids = this.getCheckedList();
+        if(msids == null){
+            return;
+        }
+        if(confirm('Start these model services?')){
+            Axios.put('/modelser/all?ac=start&msids=' + JSON.stringify(msids)).then(
+                data => {
+                    if(data.data.result == 'suc'){
+                        this.refresh();
+                    }
+                },
+                err => {}
+            );
+        }
+    },
+
+    batchStop : function(e){
+        var msids = this.getCheckedList();
+        if(msids == null){
+            return;
+        }
+        if(confirm('Stop these model services?')){
+            Axios.put('/modelser/all?ac=stop&msids=' + JSON.stringify(msids)).then(
+                data => {
+                    if(data.data.result == 'suc'){
+                        this.refresh();
+                    }
+                },
+                err => {}
+            );
+        }
+    },
+
+    batchLock : function(e){
+        var msids = this.getCheckedList();
+        if(msids == null){
+            return;
+        }
+        if(confirm('Lock these model services?')){
+            Axios.put('/modelser/all?ac=lock&msids=' + JSON.stringify(msids)).then(
+                data => {
+                    if(data.data.result == 'suc'){
+                        this.refresh();
+                    }
+                },
+                err => {}
+            );
+        }
+    },
+
+    batchUnlock : function(e){
+        var msids = this.getCheckedList();
+        if(msids == null){
+            return;
+        }
+        if(confirm('Unlock these model services?')){
+            Axios.put('/modelser/all?ac=unlock&msids=' + JSON.stringify(msids)).then(
+                data => {
+                    if(data.data.result == 'suc'){
+                        this.refresh();
+                    }
+                },
+                err => {}
+            );
+        }
+    },
+
+    checkAll : function(e){
+        if($('#cb_checkall').is(':checked')){
+            $('input[name="ms_check"]').attr("checked",'false');
+        }
+        else{
+            $('input[name="ms_check"]').removeAttr("checked");
         }
     },
 
@@ -325,11 +435,19 @@ var RmtModelSerTable = React.createClass({
                         //     </button>
                         // );
                     }
+                    var name = item.ms_model.m_name;
+                    if(name.length > 25){
+                        name = name.substr(0, 25) + '...';
+                    }
+                    var tyep = item.ms_model.m_type;
+                    if(tyep.length > 20){
+                        tyep = tyep.substr(0, 20) + '...';
+                    }
                     return (
                         <tr>
-                            <td  title={item.ms_des} >{item.ms_model.m_name}</td>
+                            <td  title={item.ms_model.m_name + '-' + item.ms_des} >{name}</td>
                             <td>{item.mv_num}</td>
-                            <td>{item.ms_model.m_type}</td>
+                            <td title={item.ms_model.m_type}>{tyep}</td>
                             <td>{host.host}</td>
                             <td>{platform}</td>
                             <td>{status}</td>
@@ -378,11 +496,19 @@ var RmtModelSerTable = React.createClass({
                 else{
                     permission = (<span className="label label-success tooltips" title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
                 }
+                var name = item.ms_model.m_name;
+                if(name.length > 25){
+                    name = name.substr(0, 25) + '...';
+                }
+                var tyep = item.ms_model.m_type;
+                if(tyep.length > 20){
+                    tyep = tyep.substr(0, 20) + '...';
+                }
                 return (
                     <tr key={item._id}>
-                        <td>{item.ms_model.m_name}</td>
+                        <td title={item.ms_model.m_name + '-' + item.ms_des}>{name}</td>
                         <td>{item.mv_num}</td>
-                        <td>{item.ms_model.m_type}</td>
+                        <td title={item.ms_model.m_type}>{tyep}</td>
                         <td>{permission}</td>
                         <td>{status}</td>
                         <td>
@@ -394,10 +520,69 @@ var RmtModelSerTable = React.createClass({
                 );
             }.bind(this));
         }
-        //! local model services
-        else {
+        //! remote host model services
+        else if(this.state.type == 'rmthost'){
             Heading = (
                 <tr>
+                    <th>{window.LanguageConfig.ModelService.Name}</th>
+                    <th>{window.LanguageConfig.ModelService.Version}</th>
+                    <th>{window.LanguageConfig.ModelService.Type}</th>
+                    <th>Permission</th>
+                    <th>{window.LanguageConfig.ModelService.Status}</th>
+                    <th>{window.LanguageConfig.ModelServiceTable.Operation}</th>
+                </tr>
+            );
+            MsItems = this.state.data.map(function (item) {
+                var status;
+                var button;
+                if(item.ms_status == 1)
+                {
+                    status = (<span className="badge badge-success">Online</span>);
+                    button = (
+                        <button className="btn btn-primary btn-xs" type="button" onClick={(e) => { this.openModelSerProHandle(e, this.props['data-host'], item._id) }} >
+                            <i className="fa fa-retweet"> </i>{window.LanguageConfig.ModelService.Invoking}
+                        </button>);
+                }
+                else
+                {
+                    status = (<span className="badge badge-defult">Offline</span>);
+                }
+                var permission = null;
+                if(item.ms_permission == 1){
+                    permission = (<span className="label label-default tooltips" title={window.LanguageConfig.ModelService.Auth} ><i className="fa fa-lock" ></i>&nbsp;{window.LanguageConfig.ModelService.Auth}</span>);
+                }
+                else{
+                    permission = (<span className="label label-success tooltips" title={window.LanguageConfig.ModelService.Public} ><i className="fa fa-unlock" ></i>&nbsp;{window.LanguageConfig.ModelService.Public}</span>);
+                }
+                var name = item.ms_model.m_name;
+                if(name.length > 25){
+                    name = name.substr(0, 25) + '...';
+                }
+                var tyep = item.ms_model.m_type;
+                if(tyep.length > 20){
+                    tyep = tyep.substr(0, 20) + '...';
+                }
+                return (
+                    <tr key={item._id}>
+                        <td title={item.ms_model.m_name + '-' + item.ms_des}>{name}</td>
+                        <td>{item.mv_num}</td>
+                        <td title={item.ms_model.m_type}>{tyep}</td>
+                        <td>{permission}</td>
+                        <td>{status}</td>
+                        <td>
+                            <button className="btn btn-info btn-xs" type="button" onClick={ (e) =>
+                            { this.openModelSerInfoHandle(e, this.props['data-host'], item._id ) } }  ><i className="fa fa-book"> </i>{window.LanguageConfig.ModelServiceTable.Detail}</button>&nbsp;
+                            {button}
+                        </td>
+                    </tr>
+                );
+            }.bind(this));
+        }
+        //! local model services
+        else if(this.state.type == 'admin'){
+            Heading = (
+                <tr>
+                    <th onClick={this.test} ><input id="cb_checkall" type="checkbox" onChange={this.checkAll} /></th>
                     <th>{window.LanguageConfig.ModelService.Name}</th>
                     <th>{window.LanguageConfig.ModelService.Version}</th>
                     <th>{window.LanguageConfig.ModelService.Type}</th>
@@ -433,7 +618,7 @@ var RmtModelSerTable = React.createClass({
                 }
                 else{
                     button3 = (
-                        <button className="btn btn-default btn-xs" type="button" onClick={(e) => {  }} >
+                        <button className="btn btn-default btn-xs" type="button" onClick={(e) => { this.unregisterHandle(e, item._id, item.ms_model.m_name) }} >
                             <i className="fa fa-share-square-o"> </i>&nbsp;Unregister
                         </button>);
                 }
@@ -491,6 +676,7 @@ var RmtModelSerTable = React.createClass({
                 }
                 return (
                     <tr key={item._id} >
+                        <td><input name="ms_check" type="checkbox" value={item._id} /></td>
                         <td title={ item.ms_model.m_name + ' - ' +item.ms_des}>{name}</td>
                         <td>{item.mv_num}</td>
                         <td title={ item.ms_model.m_type }>{tyep}</td>
@@ -512,8 +698,31 @@ var RmtModelSerTable = React.createClass({
             ms_name = this.state.item.ms_model.m_name;
             ms_des = this.state.item.ms_des;
         }
+        var btnDisabled = null;
+        var progress = null;
+        var operation = null;
+        if(this.state.type == 'admin' ){
+            operation = (
+                <div>
+                    <button className="btn btn-success btn-sm" onClick={this.batchStart} ><i className="fa fa-play"></i> Start</button>&nbsp;
+                    <button className="btn btn-danger btn-sm" onClick={this.batchStop}><i className="fa fa-stop"></i> Stop</button>&nbsp;
+                    <button className="btn btn-warning btn-sm" onClick={this.batchLock}><i className="fa fa-user"></i> hidden</button>&nbsp;
+                    <button className="btn btn-success btn-sm" onClick={this.batchUnlock}><i className="fa fa-users"></i> publish</button>
+                </div>
+            );
+        }
+        if(this.state.progress){
+            btnDisabled = 'disabled';
+            progress = (
+            <div className="progress progress-striped active progress-sm">
+                <div id="upload_bar" style={{"width": "100%"}} aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" role="progressbar" className="progress-bar progress-bar-success">
+                        <span className="sr-only"></span>
+                    </div>
+                </div>);
+        }
         return (
             <div>
+                {operation}
                 <table className="display table table-bordered table-striped" id="modelservice-table">
                     <thead>
                         {Heading}
@@ -530,14 +739,16 @@ var RmtModelSerTable = React.createClass({
                                 <h4 className="modal-title">Register</h4>
                             </div>
                             <div className="modal-body">
-                                <PortalInfo />
+                                <PortalInfo data-type="show" />
                                 <h5 >Service Name : {ms_name} </h5>
                                 <h5 >Service Description : {ms_des} </h5>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-success" onClick={ this.registerConfim } >Confirm</button>
+                                <button type="button" className="btn btn-success" disabled={btnDisabled} onClick={ this.registerConfim } >Confirm</button>
                                 <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+                                <br />
                             </div>
+                            {progress}
                         </div>
                     </div>
                 </div>

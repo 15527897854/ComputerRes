@@ -101,13 +101,29 @@ function SocketTrans(app)
                 }
                 case 'onPostErrorInfo':{
                     var errorinfo = '';
+                    var queryStr = cmd.split('&');
+
                     ModelInsCtrl.PostErrorInfo(id, errorinfo);
                     break;
                 }
-                case 'GetDataMappingMethod':{
+                case 'onPostWarningInfo':{
+                    var warninginfo = '';
                     var queryStr = cmd.split('&');
-                    var mappingMethod = queryStr[1];
-                    ModelInsCtrl.GetDataMapping(id, mappingMethod);
+
+                    ModelInsCtrl.PostWarningInfo(id, warninginfo);
+                    break;
+                }
+                case 'onPostMessageInfo':{
+                    var messageinfo = '';
+                    var queryStr = cmd.split('&');
+
+                    ModelInsCtrl.PostMessageInfo(id, messageinfo);
+                    break;
+                }
+                case 'onGetModelAssembly':{
+                    var queryStr = cmd.split('&');
+                    var assemblyName = queryStr[1];
+                    ModelInsCtrl.GetModelAssembly(id, assemblyName);
                     break;
                 }
                 case 'onLeaveState':{

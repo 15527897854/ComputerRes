@@ -55,8 +55,16 @@ ModelInsCtrl.PostErrorInfo = function(id, errorinfo){
     global.app.modelInsColl.postErrorInfo(id, errorinfo);
 }
 
-ModelInsCtrl.GetDataMapping = function(id, errorinfo){
-    global.app.modelInsColl.getDataMapping(id, errorinfo);
+ModelInsCtrl.PostWarningInfo = function(id, warninginfo){
+    global.app.modelInsColl.postWarningInfo(id, warninginfo);
+}
+
+ModelInsCtrl.PostMessageInfo = function(id, messageinfo){
+    global.app.modelInsColl.postMessageInfo(id, messageinfo);
+}
+
+ModelInsCtrl.GetModelAssembly = function(id, assemblyName){
+    global.app.modelInsColl.getModelAssembly(id, assemblyName);
 }
 
 ModelInsCtrl.LeaveState = function(id, state){

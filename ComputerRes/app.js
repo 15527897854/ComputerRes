@@ -90,97 +90,82 @@ if(settings.debug)
     guid : settings.debugGUID,
     socket : null,
     ms : {
-        "_id" : "597fc4fa2e72f22ac0799a7a",
+        "_id" : "5989c9c350aed72b1c8a9b1e",
         "ms_model" : {
             "m_register" : false,
             "m_id" : null,
-            "p_id" : "c42aa27059c22e634f5a285f500663d9",
-            "m_url" : "http://en.njnu.edu.cn",
-            "m_type" : "DEM分类/基本地形参数 - DEM分类",
-            "m_name" : "TestModel"
+            "p_id" : "469f7bc5f572d284bbad8863dc27d4b4",
+            "m_url" : "http://hydrology.usu.edu/taudem/taudem5/",
+            "m_type" : "TauDEM_AreaD8 - DEM",
+            "m_name" : "TauDEM_AreaD8"
         },
-        "mv_num" : "1.0",
-        "ms_des" : "TestModel",
+        "mv_num" : "1.1.0.0",
+        "ms_des" : "TauDEM_AreaD8",
         "ms_platform" : 1,
-        "ms_update" : "2017-8-1 08:02:02",
-        "ms_path" : "597fc4fa2e72f22ac0799a7a/",
+        "ms_update" : "2017-8-8 22:25:07",
+        "ms_path" : "TauDEM_AreaD8_5989c9c350aed72b1c8a9b1e/",
         "ms_img" : null,
-        "ms_xml" : "{\"ModelClass\":{\"$\":{\"name\":\"TestModel\",\"uid\":\"EB7CD4DF-E606-4B43-907E-1C5B4C024A59\",\"style\":\"SimpleCalculation\"},\"AttributeSet\":{\"Categories\":{\"Category\":{\"$\":{\"principle\":\"DEM分类\",\"path\":\"DEM分类/基本地形参数\"}}},\"LocalAttributes\":{\"LocalAttribute\":{\"$\":{\"local\":\"EN_US\",\"wiki\":\"http://en.njnu.edu.cn\",\"localName\":\"TestModel\"},\"Keywords\":\"TestModel\",\"Abstract\":\"TestModel\"}}},\"Behavior\":{\"RelatedDatasets\":{\"DatasetItem\":[{\"$\":{\"name\":\"INIT_PARAMETER\",\"description\":\"初始参数数据集\",\"type\":\"internal\"},\"UdxDeclaration\":{\"$\":{\"name\":\"INIT_PARAMETER\",\"description\":\"\"},\"UdxNode\":{\"UdxNode\":[{\"$\":{\"name\":\"sourceFileName\",\"type\":\"external\",\"description\":\"\",\"externalId\":\"F73F31FF-2F23-4C7A-A57D-39D0C7A6C4E6\"}},{\"$\":{\"name\":\"winSize\",\"type\":\"DTKT_INT\",\"description\":\"\"}}]}}},{\"$\":{\"name\":\"OUTPUT_PARAMETER\",\"description\":\"运算结果数据集\",\"type\":\"external\",\"externalId\":\"F73F31FF-2F23-4C7A-A57D-39D0C7A6C4E6\"}}]},\"StateGroup\":{\"States\":{\"State\":[{\"$\":{\"id\":\"851a1985-a3f6-4c13-be53-f1c765022929\",\"name\":\"state1\",\"description\":\"模型开始运行\",\"type\":\"basic\"},\"Event\":[{\"$\":{\"name\":\"event1\",\"description\":\"加载运行参数\",\"type\":\"response\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"INIT_PARAMETER\"}}},{\"$\":{\"name\":\"event2\",\"description\":\"计算并返回运算结果\",\"type\":\"noresponse\"},\"DispatchParameter\":{\"$\":{\"datasetReference\":\"OUTPUT_PARAMETER\"}}}]},{\"$\":{\"id\":\"B62ACC53-0DDF-4553-B71E-132753AD160F\",\"name\":\"state2\",\"description\":\"模型结束运行\",\"type\":\"basic\"},\"Event\":{\"$\":{\"name\":\"event1\",\"description\":\"加载运行参数\",\"type\":\"noresponse\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"INIT_PARAMETER\"}}}}]},\"StateTransitions\":\"\"}},\"Runtime\":{\"$\":{\"name\":\"tets_model\",\"version\":\"1.0\",\"baseDir\":\"$modelServicePath\\\\ModelName1\\\\model\\\\\",\"entry\":\"client.exe\"},\"HardwareConfigures\":\"\",\"SoftwareConfigures\":\"\",\"Assemblies\":{\"Add\":{\"$\":{\"name\":\"DemoMappingMethod\",\"value\":\"$dataMappingPath\\\\DemoMappingMethod\\\\DemoMappingMethod.exe\"}}},\"SupportiveResources\":\"\"}}}",
+        "ms_xml" : "{\"ModelClass\":{\"$\":{\"name\":\"TauDEM_AreaD8\",\"uid\":\"d91e7c3f-41b3-4f62-a457-21c459dc8cfe\",\"style\":\"SimpleCalculation\"},\"AttributeSet\":{\"Categories\":{\"Category\":{\"$\":{\"principle\":\"DEM\",\"path\":\"TauDEM_AreaD8\"}}},\"LocalAttributes\":{\"LocalAttribute\":{\"$\":{\"local\":\"EN_US\",\"localName\":\"TauDEM_AreaD8\",\"wiki\":\"http://hydrology.usu.edu/taudem/taudem5/\"},\"Keywords\":\"TauDEM; AreaD8\",\"Abstract\":\"TauDEM_AreaD8\"}}},\"Behavior\":{\"RelatedDatasets\":{\"DatasetItem\":[{\"$\":{\"name\":\"Raster_Template\",\"type\":\"external\",\"externalId\":\"F73F31FF-2F23-4C7A-A57D-39D0C7A6C4E6\",\"description\":\"Raster_Data\"}},{\"$\":{\"name\":\"Vector_Template\",\"type\":\"external\",\"externalId\":\"4996E027-209B-4121-907B-1ED36A417D22\",\"description\":\"Vector_Data\"}},{\"$\":{\"name\":\"EdgeContamination_Param\",\"type\":\"internal\",\"description\":\"EdgeContamination\"},\"UdxDeclaration\":{\"UdxNode\":{\"UdxNode\":{\"$\":{\"name\":\"checkEdge\",\"type\":\"DTKT_INT\",\"description\":\"checkEdge\"}}}}}]},\"StateGroup\":{\"States\":{\"State\":{\"$\":{\"id\":\"851a1985-a3f6-4c13-be53-f1c765022929\",\"name\":\"RUNSTATE\",\"type\":\"basic\",\"description\":\"Model Start Runing\"},\"Event\":[{\"$\":{\"name\":\"D8FlowDirection\",\"type\":\"response\",\"optional\":\"False\",\"description\":\"Input D8FlowDirection\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"Outlets\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input Outlets\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Vector_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"WeightGrid\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input WeightGrid\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"EdgeContamination\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input EdgeContamination\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"EdgeContamination_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"AreaD8\",\"type\":\"noresponse\",\"optional\":\"False\",\"description\":\"Ouput AreaD8\"},\"DispatchParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Export\"}}}]}},\"StateTransitions\":\"\"}},\"Runtime\":{\"$\":{\"name\":\"TauDEM_AreaD8\",\"version\":\"1.1.0.0\",\"baseDir\":\"$(ModelServicePath)\\\\TauDEM_AreaD8\",\"entry\":\"TauDEM_AreaD8.exe\"},\"HardwareConfigures\":{\"Add\":{\"$\":{\"key\":\"Main Frequency\",\"value\":\"2.8\"}}},\"SoftwareConfigures\":{\"Add\":{\"$\":{\"key\":\"Memory Size\",\"value\":\"50M\"}}},\"Assemblies\":{\"Assembly\":[{\"$\":{\"name\":\"GDALRasterMapping.exe\",\"path\":\"$(DataMappingPath)\\\\GDALRasterMapping\\\\\"}},{\"$\":{\"name\":\"OGRVectorMapping.exe\",\"path\":\"$(DataMappingPath)\\\\OGRVectorMapping\\\\\"}}]},\"SupportiveResources\":{\"Add\":[{\"$\":{\"type\":\"library\",\"name\":\"GDAL\"}},{\"$\":{\"type\":\"runtime\",\"name\":\"MSMPI\"}}]}}}}",
         "ms_status" : 1,
         "ms_user" : {
             "u_email" : "[Unknown]",
-            "u_name" : "[Unknown]"
+            "u_name" : "[Batch]"
         },
-        "ms_limited" : 0,
         "ms_permission" : 0,
         "__v" : 0
     },
     log : [],
     input : [
-      {
-            "StateId" : "c183e8c3-ba2b-4c8c-a517-09d03d8b4c05",
-            "StateName" : "state1",
-            "StateDes" : "模型开始运行",
-            "Event" : "event1",
-            "DataId" : "gd_f3469ab0-763e-11e7-8ea6-51d288fc30c6",
-            "Tag" : "udx_zip_data.zip",
-            "Destroyed" : false
-        }, 
         {
-            "StateId" : "922d29c4-9d09-4153-97a3-6f96a89f2cea",
-            "StateName" : "state2",
-            "StateDes" : "模型开始运行",
-            "Event" : "event1",
-            "DataId" : "gd_f3469ab0-763e-11e7-8ea6-51d288fc30c6",
-            "Tag" : "udx_zip_data.zip",
-            "Destroyed" : false
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "D8FlowDirection",
+            "DataId" : "gd_309ecda0-7c49-11e7-9659-a1f3754f22b6",
+            "Tag" : "udx_zip_D8FlowDir.zip",
+            "Destroyed" : false,
+            "Optional" : "False"
         }, 
         {
             "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
-            "StateName" : "state3",
-            "StateDes" : "模型开始运行",
-            "Event" : "event1",
-            "DataId" : "",
-            "Tag" : "",
-            "Destroyed" : false
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "Outlets",
+            "DataId" : "gd_9c78dc40-7c4a-11e7-935e-f33d689b3c28",
+            "Tag" : "udx_zip_Outlets.zip",
+            "Destroyed" : false,
+            "Optional" : "True"
+        }, 
+        {
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "WeightGrid",
+            "DataId" : "gd_489d2a60-7cd4-11e7-b70f-750b08f27d27",
+            "Tag" : "udx_zip_PeukerDouglas.zip",
+            "Destroyed" : false,
+            "Optional" : "1"
+        }, 
+        {
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "EdgeContamination",
+            "DataId" : "gd_4fb2d340-7cd4-11e7-b70f-750b08f27d27",
+            "Tag" : "udx_xml_EdgeFlag.xml",
+            "Destroyed" : false,
+            "Optional" : "1"
         }
     ],
-    output : [ 
-        {
-            "StateId" : "c183e8c3-ba2b-4c8c-a517-09d03d8b4c05",
-            "StateName" : "state1",
-            "StateDes" : "模型开始运行",
-            "Event" : "event2",
-            "Destroyed" : false,
-            "Tag" : "state1-event2",
-            "DataId" : "gd_8b9648f0-7848-11e7-b6fe-7bbf552d12e4"
-        }, 
-        {
-            "StateId" : "922d29c4-9d09-4153-97a3-6f96a89f2cea",
-            "StateName" : "state2",
-            "StateDes" : "模型开始运行",
-            "Event" : "event2",
-            "Destroyed" : false,
-            "Tag" : "state2-event2",
-            "DataId" : "gd_8b9648f1-7848-11e7-b6fe-7bbf552d12e4"
-        }, 
+    output : [
         {
             "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
-            "StateName" : "state3",
-            "StateDes" : "模型开始运行",
-            "Event" : "event2",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "AreaD8",
             "Destroyed" : false,
-            "Tag" : "state3-event2",
-            "DataId" : "gd_8b9648f2-7848-11e7-b6fe-7bbf552d12e4"
-        }, 
-        {
-            "StateId" : "B62ACC53-0DDF-4553-B71E-132753AD160F",
-            "StateName" : "state4",
-            "StateDes" : "模型结束运行",
-            "Event" : "event1",
-            "Destroyed" : false,
-            "Tag" : "state4-event1",
-            "DataId" : "gd_8b9648f3-7848-11e7-b6fe-7bbf552d12e4"
+            "Tag" : "RUNSTATE-AreaD8",
+            "DataId" : "gd_64275620-7cd4-11e7-b70f-750b08f27d27"
         }
 
     ],

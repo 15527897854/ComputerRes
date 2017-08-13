@@ -126,23 +126,62 @@ SysControl.getState = function(callback) {
     }
 };
 
-SysControl.getIP = function (callback) {
+SysControl.getIPSync = function () {
+    // windows
+    if(setting.platform == 1)
+    {
+        var hasFind = false;
+        var interfaces = os.networkInterfaces();
+        var IPv4 = '127.0.0.1';
+        for (var key in interfaces) {
+            if(key.match(/\s*vmware\s*network\s*adapter/i))
+                continue;
+            for(let i=0;i<interfaces[key].length;i++){
+                var details = interfaces[key][i];
+                if (details.family == 'IPv4') {
+                    if(details.address != '127.0.0.1'){
+                        IPv4 = details.address;
+                        hasFind = true;
+                        return IPv4;
+                    }
+                }
+            }
+        }
+        if(!hasFind){
+            return null;
+        }
+    }
+    else if(setting.platform == 2)
+    {
+        //TODO get ip of linux
+    }
+};
+
+SysControl.getIP = function (cb) {
     var exec = require('child_process').exec;
     //windows disk
     if(setting.platform == 1)
     {
+        var hasFind = false;
         var interfaces = os.networkInterfaces();
         var IPv4 = '127.0.0.1';
         for (var key in interfaces) {
+            if(key.match(/\s*vmware\s*network\s*adapter/i))
+                continue;
             var alias = 0;
             interfaces[key].forEach(function(details){
                 if (details.family == 'IPv4') {
-                    if(details.address != '127.0.0.1')
+                    if(details.address != '127.0.0.1'){
                         IPv4 = details.address;
+                        hasFind = true;
+                        return cb(null,IPv4);
+                    }
                 }
             });
         }
-        callback(null,IPv4);
+        if(!hasFind){
+            return cb('can\'t find local IP!');
+        }
     }
     else if(setting.platform == 2)
     {
@@ -245,7 +284,7 @@ SysControl.setPortalInfo = function(username, pwd, callback){
             pwd = CommonMethod.decrypto(pwd);
             SysControl.loginPortal(username, pwd, function(err, result){
                 if(err){
-                    return callhback(err);
+                    return callback(err);
                 }
                 if(result){
                     var ss_uname = {

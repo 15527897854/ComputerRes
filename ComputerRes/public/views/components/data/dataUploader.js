@@ -25,7 +25,12 @@ var DataUploader = React.createClass({
         if(this.props['isCtrl']){
             isCtrl = true;
         }
+        var title = '';
+        if(this.props['data-title']){
+            title = this.props['data-title'];
+        }
         return {
+            title : title,
             isCtrl: isCtrl,
             id : id,
             tag : '',
@@ -252,7 +257,7 @@ var DataUploader = React.createClass({
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.Input}</h4>
+                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.Input + '-' + this.state.title}</h4>
                             </div>
                             <div className="modal-body">
                                 <h4>{window.LanguageConfig.InputData.Data.Tag}</h4>
@@ -272,7 +277,7 @@ var DataUploader = React.createClass({
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.File}</h4>
+                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.File + '-' + this.state.title}</h4>
                             </div>
                             <div className="modal-body">
                                 <h4>{window.LanguageConfig.InputData.Data.Tag}</h4>
@@ -292,7 +297,7 @@ var DataUploader = React.createClass({
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.Link}</h4>
+                                <h4 className="modal-title">{window.LanguageConfig.InputData.Data.Link + '-' + this.state.title}</h4>
                             </div>
                             <div className="modal-body">
                                 <DataSelectTabel source={ this.state.selectUrl } ref="selectedTB" data-id={id} />

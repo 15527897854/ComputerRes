@@ -131,31 +131,31 @@ var UserInfo = React.createClass({
                 用户信息
             </header>
             <div className="panel-body">
-                <p>本机管理员用户名&nbsp;:&nbsp;{this.state.data} &nbsp;&nbsp;&nbsp;<button className="btn btn-sm btn-info" data-toggle="modal"
-                        data-target="#adminPwdChange" >更改信息</button></p>
+                <p>Administator User Name&nbsp;:&nbsp;{this.state.data} &nbsp;&nbsp;&nbsp;<button className="btn btn-sm btn-info" data-toggle="modal"
+                        data-target="#adminPwdChange" >Set</button></p>
                 <PortalInfo />
                 <div aria-hidden="true" aria-labelledby="adminPwdChange" role="dialog" tabIndex="-1" id="adminPwdChange" className="modal fade">
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <button aria-hidden="true" data-dismiss="modal" className="close" type="button">×</button>
-                                <h4 className="modal-title">更改信息</h4>
+                                <h4 className="modal-title">Update Infomation</h4>
                             </div>
                             <div className="modal-body">
-                                <label htmlFor="txtAdminName" className="control-label">请输入新管理员用户名: </label>
-                                <input id="txtAdminName" name="txtAdminName" type="text" placeholder="管理员用户名" className="form-control"/>
-                                <label htmlFor="txtPwdNow" className="control-label">请输入当前密码: </label>
+                                <label htmlFor="txtAdminName" className="control-label">Please Input Administator Username: </label>
+                                <input id="txtAdminName" name="txtAdminName" type="text" placeholder="User Name" className="form-control"/>
+                                <label htmlFor="txtPwdNow" className="control-label">Currect Password: </label>
                                 <input id="txtPwdNow" name="txtPwdNow" type="password" className="form-control"/>
-                                <label htmlFor="txtPwdNew" className="control-label">请输入新密码: </label>
+                                <label htmlFor="txtPwdNew" className="control-label">New Password: </label>
                                 <input id="txtPwdNew" name="txtPwdNew" type="password" className="form-control"/>
-                                <label htmlFor="txtPwdNew_r" className="control-label">请再次输入新密码: </label>
+                                <label htmlFor="txtPwdNew_r" className="control-label">New Password Again: </label>
                                 <input id="txtPwdNew_r" name="txtPwdNew_r" type="password" className="form-control" onBlur={this.checkNewPwd} />
                                 <br />
                                 {warning}
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-success" onClick={this.onSubmit} >确认</button>
-                                <button type="button" className="btn btn-default" data-dismiss="modal" >关闭</button>
+                                <button type="button" className="btn btn-success" onClick={this.onSubmit} >Comfirm</button>
+                                <button type="button" className="btn btn-default" data-dismiss="modal" >Close</button>
                             </div>
                         </div>
                     </div>

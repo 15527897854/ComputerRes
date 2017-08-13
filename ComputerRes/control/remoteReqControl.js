@@ -43,10 +43,8 @@ RemoteReqControl.postByServer = function (url, form, callback) {
         options = {
             method:'POST',
             uri:url,
-            formData:form,
-            headers:{
-                'Content-Type': 'multipart/form-data'
-            }
+            body:form,
+            json:true
         };
     }
     else{
@@ -184,6 +182,12 @@ RemoteReqControl.postDownload = function(url, form, path, callback){
     request.post(url,
         {form : form }
     ).pipe(fs.createWriteStream(path)).on('close', function(){
+        return callback();
+    });
+};
+
+RemoteReqControl.getDownload = function(url, path, callback){
+    request.get(url).pipe(fs.createWriteStream(path)).on('close', function(){
         return callback();
     });
 };

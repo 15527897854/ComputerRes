@@ -235,13 +235,20 @@ ModelInsCollection.prototype.requestData = function(guid, state, event){
         
         for(var i = 0; i < mis.input.length; i++){
             if(mis.input[i].StateName == state && mis.input[i].Event == event){
+                var op = mis.input[i].Optional;
                 if(mis.input[i].DataId == ''){
-                    mis.socket.write('{kill}');
+                    if (op ==0)
+                        mis.socket.write('{Request Data Notified}[ERROR][XML|FILE]');
+                    else
+                        mis.socket.write('{Request Data Notified}[OK][XML|FILE]');
                     return;
                 }
                 GeoDataCtrl.getByKey(mis.input[i].DataId, function(err, dat){
                     if(err){
-                        mis.socket.write('{kill}');
+                        if (op==0)
+                            mis.socket.write('{Request Data Notified}[ERROR][XML|FILE]');
+                        else
+                            mis.socket.write('{Request Data Notified}[OK][XML|FILE]');
                     }
                     if(dat.gd_type == 'FILE'){
                         mis.socket.write('{Request Data Notified}[OK][XML|FILE]' + __dirname + '/../geo_data/' + dat.gd_value);
@@ -306,32 +313,73 @@ ModelInsCollection.prototype.postErrorInfo = function(guid, errorinfo){
     var mis = this.getByGUID(guid);
     if(mis != -1){
         mis.log.push('Error info : ' + errorinfo);
+        return mis.socket.write('{Post Error Info Notified}' + mis.guid);
     }
 }
 
-//! 获取数据映射目录
-ModelInsCollection.prototype.getDataMapping = function(guid, mapping, callback){
+//! 获取警告信息
+ModelInsCollection.prototype.postWarningInfo = function(guid, warninginfo){
+    var mis = this.getByGUID(guid);
+    if(mis != -1){
+        mis.log.push('Warning info : ' + warninginfo);
+        return mis.socket.write('{Post Warning Info Notified}' + mis.guid);
+    }
+}
+
+//! 获取提示信息
+ModelInsCollection.prototype.postMessageInfo = function(guid, messageinfo){
+    var mis = this.getByGUID(guid);
+    if(mis != -1){
+        mis.log.push('Message info : ' + messageinfo);
+        return mis.socket.write('{Post Message Info Notified}' + mis.guid);
+    }
+}
+
+//! 获取模型依赖组件目录
+ModelInsCollection.prototype.getModelAssembly = function(guid, assemblyName, callback){
     var mis = this.getByGUID(guid);
     ModelSerModel.readMDL(mis.ms, function(err, mdl){
         if(err){
-            return mis.socket.write('{onGetDataMappingMethod}' + mis.guid);
+            return mis.socket.write('{GetModelAssembly Notified}' + mis.guid);
         }
         var assemblies = mdl.ModelClass.Runtime.Assemblies.Assembly;
         if(assemblies instanceof Array){
             for(var i = 0; i < assemblies.length; i++){
-                if(assemblies[i].$.name == mapping){
+                if(assemblies[i].$.name == assemblyName){
                     var path = assemblies[i].$.path;
-                    return mis.socket.write('{onGetDataMappingMethod}' + mis.guid + '&' + __dirname + '/../gao_dataMapping/' + path);
+                    var idx1 = -1;
+                    if (path.indexOf('$(DataMappingPath)')!=-1){
+                        idx1 = path.indexOf('$(DataMappingPath)');
+                        path = path.substr(idx1+18);
+                        path = '/../geo_dataMapping/' + path
+                    }
+                    else if (path.indexOf('$(ModelServicePath)')!=-1){
+                        idx1 = path.indexOf('$(ModelServicePath)');
+                        path = path.substr(idx1+19);
+                        path = '/../geo_model/' + path;
+                    }
+                    return mis.socket.write('{GetModelAssembly Notified}' + __dirname + path);
                 }
             }
         }
         else{
-            if(assemblies.$.name == mapping){
-                var path = assemblies.$.path;
-                return mis.socket.write('{onGetDataMappingMethod}' + mis.guid + '&' + __dirname + '/../gao_dataMapping/' + path);
+            if(assemblies.$.name == assemblyName){
+                var path = assemblies[i].$.path;
+                var idx1 = -1;
+                if (path.indexOf('$(DataMappingPath)')!=-1){
+                    idx1 = path.indexOf('$(DataMappingPath)');
+                    path = path.substr(idx1+1);
+                    path = '/../geo_dataMapping/' + path
+                }
+                else if (path.index('$(ModelServicePath)')!=-1){
+                    idx1 = path.index('$(ModelServicePath)');
+                    path = path.substr(idx1+19);
+                    path = '/../geo_model/' + path;
+                }
+                return mis.socket.write('{GetModelAssembly Notified}' + mis.guid + '&' + __dirname + path);
             }
         }
-        return mis.socket.write('{onGetDataMappingMethod}' + mis.guid);
+        return mis.socket.write('{GetModelAssembly Notified}' + mis.guid);
     });
 }
 

@@ -604,6 +604,50 @@ ModelSerControl.getByPIDforPortal = function(mid, callback){
     ModelSerModel.getByPIDforPortal(mid, this.returnFunction(callback, 'error in getting model service by PID for portal'));
 };
 
+//批量开启模型
+ModelSerControl.batchStart = function(msids, callback){
+    try{
+        var msids = JSON.parse(msids);
+        ModelSerModel.batchStart(msids, this.returnFunction(callback, 'error in batch updating model service!'));
+    }
+    catch(ex){
+        return callback(ex);
+    }
+}
+
+//批量开启模型
+ModelSerControl.batchStop = function(msids, callback){
+    try{
+        var msids = JSON.parse(msids);
+        ModelSerModel.batchStop(msids, this.returnFunction(callback, 'error in batch updating model service!'));
+    }
+    catch(ex){
+        return callback(ex);
+    }
+}
+
+//批量锁定模型
+ModelSerControl.batchLock = function(msids, callback){
+    try{
+        var msids = JSON.parse(msids);
+        ModelSerModel.batchLock(msids, this.returnFunction(callback, 'error in batch updating model service!'));
+    }
+    catch(ex){
+        return callback(ex);
+    }
+}
+
+//批量解锁启模型
+ModelSerControl.batchUnlock = function(msids, callback){
+    try{
+        var msids = JSON.parse(msids);
+        ModelSerModel.batchUnlock(msids, this.returnFunction(callback, 'error in batch updating model service!'));
+    }
+    catch(ex){
+        return callback(ex);
+    }
+}
+
 //更新模型服务信息
 ModelSerControl.update = function(ms, callback){
     ModelSerModel.update(ms, function (err, data) {
@@ -616,7 +660,97 @@ ModelSerControl.update = function(ms, callback){
 
 //运行模型服务
 ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
-    function run_next(){
+    if(inputData == undefined || inputData == null){
+        return callback(new Error('No input data!'));
+    }
+
+    if(outputData == undefined || outputData == null){
+        outputData = [];
+    }
+    if(typeof outputData == 'string'){
+        outputData = JSON.parse(outputData);
+    }
+    ModelSerControl.getInputData(msid, function(err, data){
+        if(err) { return callback(err);}
+        data = data.States;
+        // Data Info Completion
+        for(var k = 0; k < data.length; k++) {
+            for(var i = 0; i < data[k].Event.length; i++)
+            {
+                if(data[k].Event[i].$.type == 'noresponse')
+                {
+                    //! Output Data
+                    var j;
+                    for(j = 0; j < outputData.length; j++){
+                        if(outputData[j].StateId == data[k].$.id && outputData[j].Event == data[k].Event[i].$.name){
+                            outputData[j].StateName = data[k].$.name;
+                            outputData[j].StateDes = data[k].$.description;
+                            if(outputData[j].Destroyed == undefined || outputData[j].Destroyed == null){
+                                outputData[j]['Destroyed'] = false;
+                            }
+                            if(outputData[j].DataId == undefined || outputData[j].DataId == null){
+                                outputData[j]['DataId'] = 'gd_' + uuid.v1();
+                            }
+                            if(outputData[j].Tag == undefined || outputData[j].Tag == null){
+                                outputData[j]['Tag'] = data[k].$.name + '-' + data[k].Event[i].$.name;
+                            }
+                            break;
+                        }
+                    }
+                    if(j == outputData.length){
+                        var dataid = 'gd_' + uuid.v1();
+                        var item = {
+                            StateId : data[k].$.id,
+                            StateName : data[k].$.name,
+                            StateDes : data[k].$.description,
+                            Event : data[k].Event[i].$.name,
+                            Destroyed : false,
+                            Tag : data[k].$.name + '-' + data[k].Event[i].$.name,
+                            DataId : dataid
+                        };
+                        outputData.push(item);
+                    }
+                }
+                else if(data[k].Event[i].$.type == 'response'){
+                    //! Input Data
+                    var j;
+                    for(j = 0; j < inputData.length; j++){
+                        if(inputData[j].StateId == data[k].$.id && inputData[j].Event == data[k].Event[i].$.name){
+                            inputData[j].StateName = data[k].$.name;
+                            inputData[j].StateDes = data[k].$.description;
+                            if(inputData[j].Destroyed == undefined || inputData[j].Destroyed == null){
+                                inputData[j].Destroyed = false;
+                            }
+                            if(inputData[j].DataId == undefined || inputData[j].DataId == null){
+                                inputData[j].DataId = 'gd_' + uuid.v1();
+                            }
+                            if(inputData[j].Tag == undefined || inputData[j].Tag == null){
+                                //! TODO GET IN REDIS
+                                inputData[j].Tag = '';
+                            }
+                            break;
+                        }
+                    }
+                    
+                }
+            }
+        }
+
+
+        //生成唯一字符串GUID
+        var guid = uuid.v4();
+
+        //向内存中添加模型运行记录条目
+        var date = new Date();
+        var mis = {
+            guid : guid,
+            socket : null,
+            ms : null,
+            start : date.toLocaleString(),
+            state : 'MC_READY'
+        };
+        var modelIns = new ModelIns(mis);
+        app.modelInsColl.addIns(modelIns);
 
         ModelSerModel.getByOID(msid, function(err, ms){
             if(err){
@@ -626,25 +760,6 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
             {
                 return callback(new Error('Service is not available'));
             }
-            
-            //生成唯一字符串GUID
-            var guid = uuid.v4();
-
-            //向内存中添加模型运行记录条目
-            var date = new Date();
-            var mis = {
-                guid : guid,
-                socket : null,
-                ms : ms,
-                input : inputData,
-                output : outputData,
-                log : [],
-                start : date.toLocaleString(),
-                state : 'MC_READY'
-            };
-            var modelIns = new ModelIns(mis);
-            app.modelInsColl.addIns(modelIns);
-
             //添加纪录
             var msr = {
                 ms_id : ms._id,
@@ -730,49 +845,8 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
                 });
             });
         });
-    }
-
-    if(outputData == undefined || outputData == null) {
-        ModelSerControl.getInputData(msid, function(err, data){
-            if(err)
-            {
-                return res.end(JSON.stringify(err));
-            }
-            //指定输出文件参数
-            outputData = [];
-            for(var k = 0; k < data.length; k++) {
-                for(var i = 0; i < data[k].Event.length; i++)
-                {
-                    if(data[k].Event[i].$.type == 'noresponse')
-                    {
-                        var dataid = 'gd_' + uuid.v1();
-                        var item = {
-                            StateId : data[k].$.id,
-                            StateName : data[k].$.Name,
-                            StateDes : data[k].$.description,
-                            Event : data[k].Event[i].$.name,
-                            Destroyed : false,
-                            Tag : data[k].$.Name + '-' + data[k].Event[i].$.name,
-                            DataId : dataid
-                        };
-                        outputData.push(item);
-                    }
-                }
-            }
-            run_next();
-        });
-    }
-    else
-    {
-        outputData = JSON.parse(outputData);
-        //指定输出文件参数
-        for(var k = 0; k < outputData.length; k++) {
-            var dataid = 'gd_' + uuid.v1();
-            outputData[k]['DataId'] = dataid;
-        }
-
-        run_next();
-    }
+        
+    });
 };
 
 //获取所有门户网站模型服务
@@ -1071,7 +1145,7 @@ ModelSerControl.RegisterModelService = function(msid, callback){
                                 return callback(null, true);
                             });
                         }
-                        else if(data.res == 'error'){
+                        else if(data.result == 'error'){
                             return callback(new Error('Error : ' + data.message));
                         }
                         else{
@@ -1083,6 +1157,56 @@ ModelSerControl.RegisterModelService = function(msid, callback){
             });
         });
     });
+};
+
+//退登模型服务
+ModelSerControl.UnregisterModelService = function(msid, callback){
+    ModelSerModel.getByOID(msid, function(err, ms){
+        if(err){
+            return callback(err);
+        }
+        if(ms == null){
+            return callback(new Error('Can not find model service'));
+        }
+        
+        SystemCtrl.getPortalToken(function(err, token){
+            if(err){
+                return callback(err);
+            }
+            portal_uname = token['portal_uname'];
+            portal_pwd = token['portal_pwd'];
+            SystemCtrl.loginPortal(portal_uname, portal_pwd, function(err, result){
+                if(err){
+                    return callback(new Error('Can not login Portal'));
+                }
+                remoteReqCtrl.postRequestJSONWithForm('http://' + setting.portal.host + ':' + setting.portal.port + '/GeoModeling/CancelComputerServiceServlet', {
+                    id : ms.ms_model.p_id,
+                    port : setting.port
+                }, function(err, data){
+                    if(err){
+                        return callback(err);
+                    }
+                    if(data.result == 'suc'){
+                        ms.ms_model.m_register = false;
+                        ModelSerModel.update(ms, function(err, result){
+                            if(err){
+                                return callback(err);
+                            }
+                            return callback(null, true);
+                        });
+                    }
+                    else if(data.result == 'error'){
+                        return callback(new Error('Error : ' + data.message));
+                    }
+                    else{
+                        return callback(new Error('Unknown Error '));
+                    }
+                    ms.ms_model.m_register = false;
+                    ModelSerControl.update(ms, this.returnFunction(callback, 'Error in unregistering this model service!'));
+                }.bind(this));
+            }.bind(this));
+        }.bind(this));
+    }.bind(this));
 };
 
 //根据OID更新门户的ModelItemID
@@ -1237,6 +1361,12 @@ ModelSerControl.readMDLByPath = function (path, callback) {
             return callback(err);
         }
         return callback(null,data);
+    })
+};
+
+ModelSerControl.getMSDetail = function (msid, cb) {
+    ModelSerModel.getMSDetail(msid,function (err, rst) {
+        err?cb(err):cb(null,rst);
     })
 };
 

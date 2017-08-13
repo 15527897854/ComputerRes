@@ -159,7 +159,7 @@ var RmtModelSerRunTable = React.createClass({
                 return msrs;
             }.bind(this));
         }
-        if(this.state.type == 'ms'){
+        else if(this.state.type == 'ms'){
             Heading = (
                 <tr>
                     <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
@@ -194,7 +194,7 @@ var RmtModelSerRunTable = React.createClass({
                 );
             }.bind(this));
         }
-        if(this.state.type == 'rms'){
+        else if(this.state.type == 'rms'){
             Heading = (
                 <tr>
                     <th>{window.LanguageConfig.ModelServiceRecord.StartTime}</th>
@@ -229,7 +229,7 @@ var RmtModelSerRunTable = React.createClass({
                 );
             }.bind(this));
         }
-        if(this.state.type == 'rmthost'){
+        else if(this.state.type == 'rmthost'){
             Heading = (
                 <tr>
                     <th>{window.LanguageConfig.ModelService.Name}</th>

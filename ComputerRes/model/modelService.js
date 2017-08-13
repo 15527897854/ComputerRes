@@ -124,6 +124,48 @@ ModelService.getByPIDforPortal = function (pid, callback) {
     }
 };
 
+//批量开启模型
+ModelService.batchStart = function(msids, callback){
+    var update = {"ms_status" : 1};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量关闭模型
+ModelService.batchStop = function(msids, callback){
+    var update = {"ms_status" : 0};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量锁定模型
+ModelService.batchLock = function(msids, callback){
+    var update = {"ms_limited" : 1};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量解锁模型
+ModelService.batchUnlock = function(msids, callback){
+    var update = {"ms_limited" : 0};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量更新
+ModelService.batchUpdate = function(msids, update, callback){
+    for(var i = 0; i < msids.length; i++){
+        msids[i] = new ObjectId(msids[i]);
+    }
+    var where = {'_id': { $in : msids }};
+    update = {$set : update};
+    this.baseModel.update(where, update, {multi : true}, this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
+};
+
 //启动一个模型服务实例
 ModelService.run = function (ms_id, guid, exeoutcb, callback) {
     if(ParamCheck.checkParam(callback, ms_id)){
@@ -212,8 +254,69 @@ ModelService.readMDLByPath = function (path, callback) {
                     console.log('Error in parse mdl file : ' + err);
                     return callback(err);
                 }
+                if (json.ModelClass.Behavior.StateGroup.States.length==undefined)
+                {
+                    var temp_state = json.ModelClass.Behavior.StateGroup.States.State;
+                    var event_count = temp_state.Event.length;
+                    for(var iEvent=0; iEvent<event_count; iEvent++)
+                    {
+                        var op = temp_state.Event[iEvent].$.optional;
+                        if (op=='False')
+                        {
+                            temp_state.Event[iEvent].$.optional = 0;
+                        }
+                        else if (op=="True")
+                        {
+                            temp_state.Event[iEvent].$.optional = 1;
+                        }
+                    }
+                }
+                else
+                {
+                    var state_count = json.ModelClass.Behavior.StateGroup.States.length;
+                    for (var iState=0; iState<state_count; iState++)
+                    {
+                        var temp_state = json.ModelClass.Behavior.StateGroup.States[iState];
+                        var event_count = temp_state.Event.length;
+                        for(var iEvent=0; iEvent<event_count; iEvent++)
+                        {
+                            var op = temp_state.Event[iEvent].$.optional;
+                            if (op=='False')
+                            {
+                                temp_state.Event[iEvent].$.optional = 0;
+                            }
+                            else if (op=="True")
+                            {
+                                temp_state.Event[iEvent].$.optional = 1;
+                            }
+                        }
+                    }
+                }
                 return callback(null, json);
             });
+        });
+    });
+};
+
+ModelService.getMSDetail = function(msid, cb){
+    ModelService.getByOID(msid, function (err, ms) {
+        if (err) {
+            return cb(err);
+        }
+        ModelService.readCfg(ms, function (err, cfg) {
+            if(err) {
+                return callback(err);
+            }
+            fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
+                if(err) {
+                    console.log('Error in read mdl file : ' + err);
+                    return callback(err);
+                }
+                return cb(null,{
+                    MS:ms,
+                    MDLStr: data.toString()
+                });
+            })
         });
     });
 };
