@@ -6,7 +6,6 @@
 var ObjectId = require('mongodb').ObjectID;
 var fs = require('fs');
 var exec = require('child_process').exec;
-var ObjectId = require('mongodb').ObjectID;
 var xmlparse = require('xml2js').parseString;
 var setting = require('../setting');
 var mongoose = require('./mongooseModel');
@@ -84,7 +83,7 @@ ModelService.getAll = function(flag, callback){
         else{
             where = { ms_status : { $ne : -1 }, ms_limited : { $ne : 1 }}
         }
-        MS.find(where).sort({'ms_update':-1}).exec(this.returnFunction(callback, 'Error in getting all model service'));
+        MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
     }
 };
 
@@ -123,48 +122,6 @@ ModelService.getByPIDforPortal = function (pid, callback) {
         var where = { "ms_model.p_id" : pid, "ms_model.m_register" : true, "ms_status" : {$ne:-1}, ms_limited : {$ne:-1}};
         this.getByWhere(where, callback);
     }
-};
-
-//批量开启模型
-ModelService.batchStart = function(msids, callback){
-    var update = {"ms_status" : 1};
-    ModelService.batchUpdate(msids, update, function(err, result){
-        return callback(err, result);
-    });
-};
-
-//批量关闭模型
-ModelService.batchStop = function(msids, callback){
-    var update = {"ms_status" : 0};
-    ModelService.batchUpdate(msids, update, function(err, result){
-        return callback(err, result);
-    });
-};
-
-//批量锁定模型
-ModelService.batchLock = function(msids, callback){
-    var update = {"ms_limited" : 1};
-    ModelService.batchUpdate(msids, update, function(err, result){
-        return callback(err, result);
-    });
-};
-
-//批量解锁模型
-ModelService.batchUnlock = function(msids, callback){
-    var update = {"ms_limited" : 0};
-    ModelService.batchUpdate(msids, update, function(err, result){
-        return callback(err, result);
-    });
-};
-
-//批量更新
-ModelService.batchUpdate = function(msids, update, callback){
-    for(var i = 0; i < msids.length; i++){
-        msids[i] = new ObjectId(msids[i]);
-    }
-    var where = {'_id': { $in : msids }};
-    update = {$set : update};
-    this.baseModel.update(where, update, {multi : true}, this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
 };
 
 //启动一个模型服务实例
@@ -255,7 +212,7 @@ ModelService.readMDLByPath = function (path, callback) {
                     console.log('Error in parse mdl file : ' + err);
                     return callback(err);
                 }
-                if (json.ModelClass.Behavior.StateGroup.States.length==undefined)
+                if (json.ModelClass.Behavior.StateGroup.States.State.length==undefined)
                 {
                     var temp_state = json.ModelClass.Behavior.StateGroup.States.State;
                     var event_count = temp_state.Event.length;
@@ -274,10 +231,10 @@ ModelService.readMDLByPath = function (path, callback) {
                 }
                 else
                 {
-                    var state_count = json.ModelClass.Behavior.StateGroup.States.length;
+                    var state_count = json.ModelClass.Behavior.StateGroup.States.State.length;
                     for (var iState=0; iState<state_count; iState++)
                     {
-                        var temp_state = json.ModelClass.Behavior.StateGroup.States[iState];
+                        var temp_state = json.ModelClass.Behavior.StateGroup.States.State[iState];
                         var event_count = temp_state.Event.length;
                         for(var iEvent=0; iEvent<event_count; iEvent++)
                         {
@@ -295,29 +252,6 @@ ModelService.readMDLByPath = function (path, callback) {
                 }
                 return callback(null, json);
             });
-        });
-    });
-};
-
-ModelService.getMSDetail = function(msid, cb){
-    ModelService.getByOID(msid, function (err, ms) {
-        if (err) {
-            return cb(err);
-        }
-        ModelService.readCfg(ms, function (err, cfg) {
-            if(err) {
-                return callback(err);
-            }
-            fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
-                if(err) {
-                    console.log('Error in read mdl file : ' + err);
-                    return callback(err);
-                }
-                return cb(null,{
-                    MS:ms,
-                    MDLStr: data.toString()
-                });
-            })
         });
     });
 };
