@@ -124,6 +124,48 @@ ModelService.getByPIDforPortal = function (pid, callback) {
     }
 };
 
+//批量开启模型
+ModelService.batchStart = function(msids, callback){
+    var update = {"ms_status" : 1};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量关闭模型
+ModelService.batchStop = function(msids, callback){
+    var update = {"ms_status" : 0};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量锁定模型
+ModelService.batchLock = function(msids, callback){
+    var update = {"ms_limited" : 1};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量解锁模型
+ModelService.batchUnlock = function(msids, callback){
+    var update = {"ms_limited" : 0};
+    ModelService.batchUpdate(msids, update, function(err, result){
+        return callback(err, result);
+    });
+};
+
+//批量更新
+ModelService.batchUpdate = function(msids, update, callback){
+    for(var i = 0; i < msids.length; i++){
+        msids[i] = new ObjectId(msids[i]);
+    }
+    var where = {'_id': { $in : msids }};
+    update = {$set : update};
+    this.baseModel.update(where, update, {multi : true}, this.returnFunction(callback, 'Error in updating a ' + this.modelName + ' by where'));
+};
+
 //启动一个模型服务实例
 ModelService.run = function (ms_id, guid, exeoutcb, callback) {
     if(ParamCheck.checkParam(callback, ms_id)){
