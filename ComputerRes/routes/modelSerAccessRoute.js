@@ -477,13 +477,13 @@ module.exports = function(app){
                                         }
                                     });
                                 }
-            }
                             });
                         }
                     });
                 });
             }
-        });
+        }
+    });
 
     //数据快照
     app.route('/geodata/snapshot/:gdid')
