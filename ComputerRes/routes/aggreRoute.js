@@ -1,7 +1,7 @@
 /**
  * Created by SCR on 2017/8/11.
  */
-
+var GeoDataCtrl = require('../control/geoDataControl');
 var ModelSerCtrl = require('../control/modelSerControl');
 
 module.exports = function (app) {
@@ -16,7 +16,7 @@ module.exports = function (app) {
             // 立即回复，收到回复后数据状态将更新为 PENDING
 
             // 收到数据坐标，开始请求数据
-            DataDriver.onReceivedDataPosition(dataLocation);
+            GeoDataCtrl.onReceivedDataPosition(dataLocation);
 
             res.end('');
         });
