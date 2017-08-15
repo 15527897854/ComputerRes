@@ -232,9 +232,11 @@ ModelInsCollection.prototype.requestData = function(guid, state, event){
     var mis = this.getByGUID(guid);
     if(mis != -1){
         mis.log.push('Request Data : state - ' + state + ' event - ' + event);
-        
+
+        var hasFound = false;
         for(var i = 0; i < mis.input.length; i++){
             if(mis.input[i].StateName == state && mis.input[i].Event == event){
+                hasFound = true;
                 var op = mis.input[i].Optional;
                 if(mis.input[i].DataId == ''){
                     if (op ==0)
@@ -256,10 +258,12 @@ ModelInsCollection.prototype.requestData = function(guid, state, event){
                     else if(dat.gd_type == 'ZIP'){
                         mis.socket.write('{Request Data Notified}[OK][ZIP|FILE]' + __dirname + '/../geo_data/' + dat.gd_value);
                     }
-                })
+                });
                 break;
             }
         }
+        if(!hasFound)
+            mis.socket.write('{Request Data Notified}[ERROR][XML|FILE]');
     }
 }
 
@@ -295,16 +299,13 @@ ModelInsCollection.prototype.responseData = function(guid, state, event, data, d
                                 if(err){
                                     console.log('OMG!')
                                 }
-                                else{
-                                    
-                                    mis.socket.write('{Response Data Received}' + mis.guid);
-                                }
                             });
                         });
                     }
                 }
             }
         }
+        mis.socket.write('{Response Data Received}' + mis.guid);
     }
 }
 

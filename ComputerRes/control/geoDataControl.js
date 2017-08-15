@@ -11,6 +11,7 @@ var FileOpera = require('../utils/fileOpera');
 var Settings = require('../setting');
 var fs = require('fs');
 var Promise = require('bluebird');
+var Path = require('path');
 
 function GeoDataCtrl() {}
 
@@ -265,7 +266,7 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
             else {
                 // 请求数据
                 new Promise(function (resolve, reject) {
-                    RmtReqCtrl.getByServer(url,null,function (err, res) {
+                    RemoteReqControl.getByServer(url,null,function (err, res) {
                         if(err){
                             return reject(err);
                         }
@@ -280,14 +281,37 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
                             if(gd.error){
                                 reject(new Error(gd.error));
                             }
-                            if(gd.gd_type == 'FILE'){
-                                var path = Path.join(__dirname,'../../geo_data/' + dataPosition.gdid + '.xml');
-                                fs.writeFile(path,gd.gd_value,function (err) {
+
+                            // if(gd.gd_type == 'STREAM'){
+                            //     GeoDataCtrl.addData(gd,function (err, rst) {
+                            //         if(err){
+                            //             return reject(err);
+                            //         }
+                            //     })
+                            // }
+                            // else if(gd.gd_type == 'FILE'){
+                                var fname = gd.gd_fname;
+                                var extName = Path.extname(fname);
+                                var path = Path.join(__dirname,'../geo_data/' + dataPosition.gdid + extName);
+                                var fdata = null;
+                                if(gd.gd_type == 'STREAM'){
+                                    fdata = gd.gd_value;
+                                }
+                                else if(gd.gd_type == 'FILE'){
+                                    fdata = new Uint8Array(gd.gd_value.data);
+                                }
+                                fs.writeFile(path, fdata, function (err) {
                                     if (err) {
                                         return reject(err);
                                     }
                                     else{
-                                        gd.gd_value = dataPosition.gdid + '.xml';
+                                        if(extName == '.xml'){
+                                            gd.gd_type = 'FILE';
+                                        }
+                                        else if(extName == '.zip'){
+                                            gd.gd_type = 'ZIP';
+                                        }
+                                        gd.gd_value = dataPosition.gdid + extName;
                                         GeoDataCtrl.addData(gd,function (err, rst) {
                                             if(err){
                                                 return reject(err);
@@ -295,14 +319,7 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
                                         })
                                     }
                                 });
-                            }
-                            else if(gd.gd_type == 'STREAM'){
-                                GeoDataCtrl.addData(gd,function (err, rst) {
-                                    if(err){
-                                        return reject(err);
-                                    }
-                                })
-                            }
+                            // }
                         })
                     })
                     .catch(function (err) {

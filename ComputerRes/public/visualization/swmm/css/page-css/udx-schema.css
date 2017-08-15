@@ -1,0 +1,166 @@
+body{background-color: #eef1f5;}
+
+.basic-info{
+    padding: 10px;
+    background-color: #fff;
+    border: none;
+    box-shadow: 2px 2px 2px #cccccc;
+
+}
+/* #node_type[disabled]{
+    background-color: #fff;
+} */
+
+
+.list-group-item{
+    border: none;
+}
+input[type=text]{
+     border-radius: 0px;
+    border: none;
+    border-bottom: 1px solid #c2cad8;
+    color:#555;
+    box-shadow: none!important;
+    outline: none!important;
+}
+input[type=text]:focus{
+      border-bottom: 2px solid #32c5d2;
+}
+.input-group{
+    margin-bottom: 6px;
+}
+.input-group-addon{
+    border: none;
+    border-radius: 0px;
+    
+}
+.form-group label{
+    margin-bottom: 11px;
+}
+
+
+#udx-schema-tree-view{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
+height:570px;
+}
+#udx-schema-tree-view > .panel-body{
+
+    padding: 0px 2px 0px 2px;
+    height:500px;
+    overflow: auto;
+}
+
+.additional_desc_body{
+    height: 300px;
+    max-height: 300px;
+    overflow: auto;
+}
+
+pre{
+    background-color: #eee;
+    height: 250px;
+}
+.desc_tree ul{
+   padding: 2px 5px 2px 15px;
+}
+.desc_tree_body{
+    max-height: 300px;
+    overflow: auto;
+}
+
+.desc_tree ul li{
+    list-style: none;
+   
+}
+.desc_tree ul li > a{
+    text-decoration: none;
+    color:#777777;
+}
+.desc_tree ul li > a> i {
+    font-size: 14px!important;
+    color:#66CC66;
+    letter-spacing: 5px;
+}
+.desc_tree ul li > a:hover{
+     text-shadow: 2px 2px 2px #cccccc;
+    transition: text-shadow 0.2s;
+    -moz-transition: text-shadow 0.2s;	/* Firefox 4 */
+    -webkit-transition: text-shadow 0.2s;	/* Safari 和 Chrome */
+    -o-transition: text-shadow 0.2s;	/* Opera */
+}
+
+span > i{
+    font-size: 20px!important;
+    color:#999999;
+    letter-spacing: 5px;
+}
+
+.desc_list_body{
+    height: 380px; 
+    max-height: 380px;
+    overflow: auto;
+    border: 1px solid #ccc;
+}
+
+.page-nav-hide{
+    display: none!important;
+}
+li{
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+}
+.form-control[disabled]{
+    cursor: default;
+    border-radius: 0px;
+    border: none;
+    background-color:#f5f5f5;
+	
+}
+
+textarea{
+    resize: none;
+}
+
+
+#UnitsDescription,#ConceptDescription,#SpatialRefType,#DataTemplateDescription{
+    height: 190px;
+    max-height: 190px;
+    overflow: auto;
+}
+#load-schema{
+    margin-left: 130px;
+}
+
+.tabs span{
+    margin-right:4px;
+}
+
+@media(min-height:800px){
+    #load-schema{
+            margin-left: 400px;
+    }
+
+     #UnitsDescription,#ConceptDescription,#SpatialRefType,#DataTemplateDescription{
+            height: 300px;
+            max-height: 300px;
+    }
+    #udx-schema-tree-view {
+    height:680px;
+    }
+
+}
+.shadow-border{
+    box-shadow: 4px 4px 4px #66CC66;
+}
+
+#view-xml{
+    padding: 2px;
+    height: 340px;
+    overflow: auto;
+}

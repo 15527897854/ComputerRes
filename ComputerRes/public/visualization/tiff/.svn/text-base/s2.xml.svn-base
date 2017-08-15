@@ -1,0 +1,31 @@
+<UdxDeclaration name="Tiff" description="Tiff udx schema">
+	<UdxNode>
+		<UdxNode name="header" kernelType="any">
+			<UdxNode name="upper left corner X" kernelType="real" />
+			<UdxNode name="pixel width" kernelType="real" />
+			<UdxNode name="tansform param 1" kernelType="real" />
+			<UdxNode name="upper left corner Y" kernelType="real" />
+			<UdxNode name="tansform param 2" kernelType="real" />
+			<UdxNode name="pixel height" kernelType="real" />
+			<UdxNode name="width" kernelType="int" />
+			<UdxNode name="height" kernelType="int" />
+		</UdxNode>
+		<UdxNode name="bands" kernelType="list">
+			<UdxNode name="band1" kernelType="any">
+				<UdxNode name="nodata" kernelType="real" />
+				<UdxNode name="offset" kernelType="real" />
+				<UdxNode name="scale" kernelType="real" />
+				<UdxNode name="unit" kernelType="string" />
+				<UdxNode name="value" kernelType="list">
+					<UdxNode name="line" kernelType="real_array" />
+				</UdxNode>
+			</UdxNode>
+		</UdxNode>
+	</UdxNode>
+	<SemanticAttachment>
+		<Concepts/>
+		<SpatialRefs/>
+		<Units/>
+		<DataTemplates/>
+	</SemanticAttachment>
+</UdxDeclaration>

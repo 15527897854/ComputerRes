@@ -36,7 +36,7 @@ var RmtModelSerRunTable = React.createClass({
                         if(this.props['data-type'] == 'rmt'){
                             sortIndex = 3;
                         }
-                        else if(this.props['data-type'] == 'ms'){
+                        else if(this.props['data-type'] == 'ms' || this.props['data-type'] == 'rms'){
                             sortIndex = 0;
                         }
                         //初始化完成

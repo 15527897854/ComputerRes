@@ -1,0 +1,55 @@
+<DataVisualizationMethod id="cabe3ffc-f30a-4bc7-a98f-592d0bb2e7pc" wkname="Swmm_Visualization" version="">
+	<Localizations>
+		<Localization local="ZH_CN" localName="Swmm_Visualization">
+			<Abstract>
+				Swmm_Visualization
+			</Abstract>
+			<Wiki>
+				<Add></Add>
+			</Wiki>
+		</Localization>
+		<Localization local="EN_US" localName="Swmm_Visualization">
+			<Abstract>
+				Swmm_Visualization
+			</Abstract>
+			<Wiki>
+				<Add></Add>
+			</Wiki>
+		</Localization>
+	</Localizations>
+	
+	<!-- 输入参数类型 -->
+	<Params>
+		<Item>
+			<Param name='swmm_data' type='in' schema='schema.xml' description="swmm input data" />
+		</Item>
+	</Params>
+	
+	<!--
+	<SupportedUdxSchema>
+		<Item name="风场数据可视化" description="风场数据的可视化" >
+			<UdxDeclaration id='s1'>
+				<UdxNode kernelType="any" description="Json Data"></UdxNode>
+			</UdxDeclaration>		
+			<UdxDeclaration id='s2'>
+				<UdxNode kernelType="any" description="Img Data"></UdxNode>
+			</UdxDeclaration>
+		</Item>
+	</SupportedUdxSchema>
+	-->
+	
+	<RelatedSoftware snapshot="true | false">
+		<Package type="internal | external">
+			<PackageName value="xx_snapshot.zip/SWAT_Editor.zip | name_string" />
+			<packageUI value="XX.html/XX.exe/XX.jar | description_string" />
+			<Link value="null | www.paraView.com" />
+		</Package>
+		<Runtime>
+			<Hardware></Hardware>
+			<Software></Software>
+			<Assembly></Assembly>
+			<Supportive></Supportive>
+		</Runtime>
+	</RelatedSoftware>
+
+</DataVisualizationMethod>

@@ -7,6 +7,7 @@ var RouteBase = require('./routeBase');
 var registerCtrl = require('../control/registerCtrl');
 var sweCtrl = require('../control/softwareEnCtrl');
 var hweCtrl = require('../control/hardwareEnCtrl');
+var commonMethod = require('../utils/commonMethod');
 var fs = require('fs');
 
 module.exports = function(app)
@@ -88,12 +89,16 @@ module.exports = function(app)
         });
 	app.route('/setting/enviroment')
         .get(function (req, res, next) {
-            res.render('enviro');
+            res.render('enviro',{
+                openli:'setting-li'
+        });
         });
 
     app.route('/setting')
         .get(function (req, res, next) {
-            res.render('setting');
+            res.render('setting',{
+                openli:'setting-li'
+        });
         });
 
 

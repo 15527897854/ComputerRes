@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-16">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Udx Data Generater 1.0</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="plugins/bootstrap-table/bootstrap-table.css" />
+
+    <link rel="stylesheet" href="css/bootstrap-treeview.css" />
+    <link rel="stylesheet" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="js/bootstrap-toastr/toastr.min.css" type="text/css">
+    <link rel="stylesheet" href="css/custom-css/Custom-style.css" type="text/css">
+    <link rel="stylesheet" href="css/page-css/udx-data.css" type="text/css">
+    <link rel="stylesheet" href="css/page-css/style.css" type="text/css">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+             <div id="udx-tree-view" class="panel panel-default col col-md-3">
+                <div id="udx-tree-view-head" class="panel-heading">Udx Schema</div>
+                <div class="panel-body">
+                    <div id="tree">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-md-9">
+                <div id="node-view">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Name</span>
+                        <input id="node_name" type="text" disabled class="form-control" placeholder="No node name to show" aria-describedby="basic-addon1">
+                    </div>
+                     <br/>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon2">Node Type</span>
+                        <input id="node_type" type="text" disabled="true" class="form-control" placeholder="No node type to show" aria-describedby="basic-addon2">
+                    </div>
+                    <br/>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon2">Node Description</span>
+                        <input id="current_node_value" type="text" disabled="true" class="form-control" placeholder="No node description to show" aria-describedby="basic-addon3">
+                    </div>
+                    </br>
+                    <div id="node-value-table-panel" class="panel panel-default">
+                        <div class="panel-heading">Choose Visualizaiton Data</div>
+                        <div id="table-panel-body" class="panel-body">
+                            <span id="add-to-table" title="add current node to table" class="custom-btn custom-btn-blue">Add</span>
+                            <span id="delete-row" title="add current node to table" class="custom-btn custom-btn-red">Delete</span>
+                            <span id="visualizaiton" title="add current node to table" class="custom-btn custom-btn-green" data-toggle="modal" data-target="#view_modal">Preview</span>
+
+                            <br/>
+                            <table id="node-value-table" data-height="250"></table>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="pull-right" style="margin-right:50px;">
+                    <button type="button" class="btn btn-primary" id="visualization-ensure">Ensure</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <ul id="contextMenu" class="dropdown-menu">
+            <li>
+                <a id="add-sub" href="javascript:void(0);" data-toggle="modal" data-target="#add_node_modal">Add Sub Node</a>
+            </li>
+            <li>
+                <a id="delete" href="javascript:void(0);">Delete</a>
+            </li>
+        </ul>
+        <!-- <a id="close-window" data-toggle="modal" data-target="#notification_modal" style="display:none"></a> -->
+         <!--begin show-view Modal -->
+        <div class="modal fade" id="view_modal" tabindex="-1" role="dialog" aria-labelledby="view_modalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="view_modalLabel">Udx Data View</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <pre id="view-xml">
+               xml
+            </pre>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <span class="custom-btn custom-btn-default" data-dismiss="modal">Close</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end show-view Modal-->
+    </div>
+        <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap-treeview.js"></script>
+        <script type="text/javascript" src="js/UDX.js"></script>
+        <script type="text/javascript" src="js/custom-js/GUdxData.js"></script>
+        <script type="text/javascript" src="js/custom-js/GSchema.js"></script>
+
+        <script type="text/javascript" src="js/bootstrap-toastr/toastr.min.js"></script>
+        <script type="text/javascript" src="plugins/bootstrap-table/bootstrap-table.js"></script>
+        <script type="text/javascript" src="js/custom-js/contextMenu.js"></script>
+        <script type="text/javascript" src="js/custom-js/JsHandle.js"></script>
+
+        <script type="text/javascript" src="js/page-js/TestForOms.js"></script>
+        <script type="text/javascript" src="js/custom-js/my-table.js"></script>
+        <script type="text/javascript" src="js/page-js/index.js"></script>
+</body>

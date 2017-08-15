@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OMS数据可视化</title>
+    <link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <script src="../js/jquery-3.2.1.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../plugins/echars/echarts.min.js"></script>
+    <script>
+        window.onload = function () {
+            var mychart = echarts.init(document.getElementById("main"));
+             var testData = {
+                 "dataX": [
+                     {
+                         "name": "Time",
+                         "value": ["1990/1/1 12:00", "1990/1/2 12:00", "1990/1/3 12:00", "1990/1/4 12:00", "1990/1/5 12:00", "1990/1/6 12:00", "1990/1/7 12:00", "1990/1/8 12:00", "1990/1/9 12:00", "1990/1/10 12:00", "1990/1/11 12:00", "1990/1/12 12:00", "1990/1/13 12:00", "1990/1/14 12:00", "1990/1/15 12:00", "1990/1/16 12:00", "1990/1/17 12:00"]
+                     }
+                 ],
+                 "dataY": [{
+                     "name": 1,
+                    "value": [0.134236, 0.140442, 0.130435, 0.119914, 0.110072, 0.100971, 0.092571, 0.084827, 0.078283, 0.0708, 0.06485, 0.059495, 0.05442, 0.049737, 0.045554, 0.041546, 0.037935]
+                 }, {
+                     "name": 2,
+                     "value": [0.226021, 0.254553, 0.256543, 0.256466, 0.256212, 0.255943, 0.255674, 0.255405, 0.256854, 0.253975, 0.253897, 0.254236, 0.254062, 0.253806, 0.254077, 0.25358, 0.253392]
+                 },
+                 {
+                     "name": 3,
+                     "value": [0, 0, 0, 0, 0, 0, 0, 0, 0.05266, 0.02092, 0.002375, 0.000214, 0.000018, 0.000001, 0.012436, 0.019336, 0.028591]
+                 }]
+             };
+            //var aaa = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+            //var testData = JSON.parse(sessionStorage.getItem('TempData'));
+            var legendData = [];
+            for (var i = 0; i < testData.dataY.length; i++) {
+                var temporarydata = testData.dataY[i].name;
+                legendData.push(temporarydata.toString());
+            }
+            // var tt = testData.dataY[2].value;
+            //console.log(tt);
+
+            mychart.hideLoading();
+            //console.log(JSON.stringify(data));
+
+             var dataSeries = new Array();
+
+            for (var j = 0; j < testData.dataY.length; j++) {
+
+                var linePropertiesObject = {
+                    'name': '',
+                    'type': 'line',
+                    'data': undefined,
+                    'smooth': true,
+                    lineStyle: {
+                            normal: { opacity: 0.5 }
+                        },
+                    'markPoint': {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                }
+
+                linePropertiesObject.name = testData.dataY[j].name.toString();
+                linePropertiesObject.data = testData.dataY[j].value;
+                dataSeries.push(linePropertiesObject);
+            }
+
+            var Option = {
+                backgroundColor: '#eee',
+                animation: false,
+                title: {
+                    text: '数据可视化',
+                    left: 0
+                },
+                legend: {
+
+                    left: 'center',
+                    data: legendData
+                },
+                grid: {
+                    left: '10%',
+                    right: '10%',
+                    bottom: '15%'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                toolbox: {
+                    show: true,
+                    feature: {
+                        dataZoom: {
+                            yAxisIndex: false
+                        },
+                        dataView: { show: true, readOnly: false },
+                        magicType: { show: true, type: ['line', 'bar'] },
+                        restore: { show: true },
+                        saveAsImage: { show: true }
+                    }
+                },
+
+                xAxis: [{
+                    type: 'category',
+                    data: testData.dataX[0].value,
+                    scale: true,
+                    boundaryGap: false,
+                    axisLine: { onZero: false },
+                    splitLine: { show: false },
+                    splitNumber: 20,
+                    min: 'dataMin',
+                    max: 'dataMax'
+                }],
+                yAxis: [{
+                    scale: true,
+                    splitArea: {
+                        show: true
+                    }
+                }],
+                dataZoom: [{
+                    type: 'inside',
+                    start: 0,
+                    end: 100
+                },
+                {
+                    show: true,
+                    type: 'slider',
+                    y: '90%',
+                    start: 0,
+                    end: 100
+                }
+                    // {
+                    //     start: 0,
+                    //     end: 100,
+                    //     handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                    //     handleSize: '80%',
+                    //     handleStyle: {
+                    //         color: '#fff',
+                    //         shadowBlur: 3,
+                    //         shadowColor: 'rgba(0, 0, 0, 0.6)',
+                    //         shadowOffsetX: 2,
+                    //         shadowOffsetY: 2
+                    //     }
+                ],
+
+                series:dataSeries
+
+            };
+            mychart.setOption(Option);
+
+        }
+    </script>
+</head>
+
+<body>
+    <center>
+        <div class="container" style="width: 100%">
+            <div id="main" style="width: 1000px; height: 800px; position: relative"></div>
+        </div>
+    </center>
+</body>
+
+</html>
