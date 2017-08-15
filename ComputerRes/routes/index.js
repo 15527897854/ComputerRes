@@ -10,9 +10,10 @@ var noticeRoute = require('./noticeRoute');
 var childRoute = require('./childRoute');
 var ModelSerAccessRoute = require('./modelSerAccessRoute');
 var AdminAccessRoute = require('./adminAccessRoute');
+var aggreRoute = require('./aggreRoute');
 
 var sysCtrl = require('../control/sysControl');
-var AuthCtrl = require('../control/authControl')
+var AuthCtrl = require('../control/authControl');
 var ModelSerCtrl = require('../control/modelSerControl');
 var setting = require('../setting');
 var CommonMethod = require('../utils/commonMethod');
@@ -23,6 +24,8 @@ module.exports = function(app)
         .get(function(req, res, next){
             res.end('OK');
         });
+
+    aggreRoute(app);
 
     ModelSerAccessRoute(app);
     

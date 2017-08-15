@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Configuration Page</title>
+    <link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="../libs/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body style="padding: 10px;">
+    <ul id="myTab" class="nav nav-tabs">
+        <li class="active"><a href="#unique_values" data-toggle="tab">Unique Values</a></li>
+        <li><a href="#classified" data-toggle="tab">Classified</a></li>
+        <li><a href="#stretched" data-toggle="tab">Stretched</a></li>
+        <li><a href="#discrete_color" data-toggle="tab">Discrete Color</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade in active" style="margin-top:10px;" id="unique_values">
+            <label class="label label-info">Color Schema</label>
+            <div style="margin-top:10px;">
+                <input type="text" value='请选择颜色条带' id="SelectColor" style="width: 110px;" />
+                <canvas id="nowShow" width="128" height="20"></canvas>
+            </div>
+
+            <!--预览图  -->
+            <label class="label label-info">Preview</label>
+            <canvas id='unique_preview_canvas' width="550px" height="300px" style="border:1px solid #000;margin-top:10px;"></canvas>
+
+            <div class="pull-right">
+                <button class="btn btn-info" style="width:100px;" id="btn_cfg_unique_ok">OK</button>
+                <button class="btn btn-info" style="width:100px;" id="btn_cfg_unique_apply">Apply</button>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="classified">
+            <p>即将开发。。。</p>
+        </div>
+        <div class="tab-pane fade" id="stretched">
+            <p>即将开发。。。</p>
+        </div>
+        <div class="tab-pane fade" id="discrete_color">
+            <p>即将开发。。。</p>
+        </div>
+    </div>
+</body>
+
+<script src="../js/jquery-1.11.3.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/ramp.js"></script>
+<script src="../libs/ligerUI/js/core/base.js" type="text/javascript"></script>
+<script src="../libs/ligerUI/js/plugins/ligerComboBox.js" type="text/javascript"></script>
+<!-- udx底层实现-->
+<script src="../js/udx.js"></script>
+<!-- udx面向对象实现-->
+<script src="../js/udx_wrapper.js"></script>
+<script src="../js/algorithms/common.js"></script>
+<!--唯一值算法  -->
+<script src="../js/algorithms/unique_value.js"></script>
+<!--分类  -->
+<script src="../js/algorithms/classified.js"></script>
+<!--拉伸  -->
+<script src="../js/algorithms/stretched.js"></script>
+<!--离散颜色  -->
+<script src="../js/algorithms/discrete_color.js"></script>
+<!--proj4  -->
+<script src="../js/proj4.js"></script>
+
+<script>
+  
+    var dataset = null;
+
+    $(function () {
+        
+        
+        var filename = sessionStorage.filename;
+
+        $.get(filename, {}, function (data) {
+            var udx_xml = (new XMLSerializer()).serializeToString(data);
+
+            dataset = new UdxDataset();
+            dataset.createDataset();
+            dataset.loadFromXmlStream(udx_xml);
+
+            process_unique_value_display();
+
+        });
+    });
+
+</script>
+
+</html>

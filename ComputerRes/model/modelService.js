@@ -6,6 +6,7 @@
 var ObjectId = require('mongodb').ObjectID;
 var fs = require('fs');
 var exec = require('child_process').exec;
+var ObjectId = require('mongodb').ObjectID;
 var xmlparse = require('xml2js').parseString;
 var setting = require('../setting');
 var mongoose = require('./mongooseModel');
@@ -293,6 +294,58 @@ ModelService.readMDLByPath = function (path, callback) {
                     }
                 }
                 return callback(null, json);
+            });
+        });
+    });
+};
+
+// return String!
+ModelService.getMDLStr = function (ms, callback) {
+    var path = __dirname + '/../geo_model/' + ms.ms_path + 'model/';
+    fs.readdir(path, function(err, dirs){
+        if(err){
+            return callback(err);
+        }
+        var mdlPath = null;
+        for(var i = 0; i < dirs.length; i++){
+            var dotIndex = dirs[i].lastIndexOf('.');
+            if(dotIndex == -1){
+                continue;
+            }
+            var ext = dirs[i].substr(dotIndex + 1);
+            if(ext == 'mdl'){
+                mdlPath = path + dirs[i];
+                break;
+            }
+        }
+        if(mdlPath == null){
+            return callback(new Error('Error!'));
+        }
+        fs.readFile(mdlPath, 'utf8', function (err, data) {
+            if(err)
+            {
+                console.log('Error in read mdl file : ' + err);
+                return callback(err);
+            }
+            else{
+                return callback(null, data);
+            }
+        });
+    });
+};
+
+ModelService.getMSDetail = function(msid, cb){
+    ModelService.getByOID(msid, function (err, ms) {
+        if (err) {
+            return cb(err);
+        }
+        ModelService.getMDLStr(ms, function (err, mdlStr) {
+            if(err) {
+                return cb(err);
+            }
+            return cb(null,{
+                MS:ms,
+                MDLStr: mdlStr
             });
         });
     });

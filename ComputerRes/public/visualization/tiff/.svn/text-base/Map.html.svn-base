@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cesium Demo</title>
+    <link href="css/index.css" rel="stylesheet">
+    <link href="Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="js/Sandcastle-header.js"></script>
+    <script src="js/require.min.js" data-main="./js/main"></script>
+    <!-- <script async type="text/javascript" src="js/nxdat.js"></script> -->
+
+    <style>
+        @import url(../templates/bucket.css);
+        #toolbar {
+            background: rgba(42, 42, 42, 0.8);
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        #toolbar input {
+            vertical-align: middle;
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+
+        #toolbar .header {
+            font-weight: bold;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="sandcastle-loading">
+
+    <div id="cesiumContainer">
+        <!-- <div id="toolbar"></div> -->
+    </div>
+    <div id="loadingOverlay">
+        <h1>Loading...</h1>
+    </div>
+
+    <div id="toolbar">
+        <table>
+            <tbody>
+                <tr>
+                    <td class="header">Alpha</td>
+                    <td>
+                        <input type="range" min="0.0" max="1.0" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
+                        <input type="text" size="5" data-bind="value: alpha">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="header">Position</td>
+                    <td>
+                        <input type='button' style="float:right" value='定位' id='btnPosition'>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+
+<script>
+    function onload(Cesium) {
+        var newImgLayer = null;
+
+        // 修改透明度
+        // The viewModel tracks the state of our mini application.
+        var viewModel = {
+            alpha: 1.0
+        };
+        // Convert the viewModel members into knockout observables.
+        Cesium.knockout.track(viewModel);
+        // Bind the viewModel to the DOM elements of the UI that call for it.
+        var toolbar = document.getElementById('toolbar');
+        Cesium.knockout.applyBindings(viewModel, toolbar);
+        Cesium.knockout.getObservable(viewModel, 'alpha').subscribe(
+            function (newValue) {
+                //entity.model.color = getColor(viewModel.color, newValue);
+                // console.log(newValue);
+                newImgLayer.alpha = newValue;
+            }
+        );
+
+        var ulx = sessionStorage.ulx, uly = sessionStorage.uly, brx = sessionStorage.brx, bry = sessionStorage.bry;
+
+        var west = parseFloat(ulx) < parseFloat(brx) ? parseFloat(ulx) : parseFloat(brx);
+        var east = parseFloat(ulx) > parseFloat(brx) ? parseFloat(ulx) : parseFloat(brx);
+        var south = parseFloat(uly) < parseFloat(bry) ? parseFloat(uly) : parseFloat(bry);
+        var north = parseFloat(uly) > parseFloat(bry) ? parseFloat(uly) : parseFloat(bry);
+
+        // console.log(west, south, east, north);
+
+        var viewer = new Cesium.Viewer('cesiumContainer', { animation: false, timeline: false });
+        viewer._cesiumWidget._creditContainer.style.display = 'none';
+
+        var layers = viewer.imageryLayers;
+        newImgLayer = layers.addImageryProvider(new Cesium.SingleTileImageryProvider({
+            url: sessionStorage.dataurl,
+            // (west, south, east, north, result)
+            // rectangle: Cesium.Rectangle.fromDegrees(118.724, 32.002, 118.727, 32.004)
+            rectangle: Cesium.Rectangle.fromDegrees(west, south, east, north)
+        }));
+
+        // newImgLayer.alpha = 0.5;
+
+        viewer.flyTo(newImgLayer);
+
+        //Sandcastle_End
+        Sandcastle.finishedLoading();
+
+        // });
+        document.getElementById('btnPosition').onmousedown = function(){
+            viewer.flyTo(newImgLayer);
+        };
+    }
+
+</script>
+
+</html>

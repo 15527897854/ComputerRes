@@ -510,6 +510,8 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                     catch(ex){
                         return callback(ex);
                     }
+                    //新路径
+                    var newPath = setting.modelpath + fields.m_name + '_' + oid.toString();
 
                     //生成新的纪录
                     var newmodelser = {
@@ -545,9 +547,9 @@ ModelSerControl.addNewModelSer = function(fields, files, callback){
                             callback(null,{status:0});
                         }
                         else{
-                            fs.renameSync(setting.modelpath + oid, setting.modelpath + fields.m_name + '_' + oid.toString());
+                            fs.renameSync(model_path, newPath);
                             //添加运行实例临时文件目录
-                            FileOpera.BuildDir(setting.modelpath + fields.m_name + '_' + oid.toString() + '/instance/', function(){});
+                            FileOpera.BuildDir(newPath + '/instance/', function(){});
                             callback(null,{isValidate:true, data : ms});
                         }
                     });

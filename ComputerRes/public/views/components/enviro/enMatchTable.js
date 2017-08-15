@@ -275,7 +275,7 @@ var EnMatchTable = React.createClass({
                         var modalColumns1 = [{
                             id: 'title',
                             header: 'Key',
-                            template: '{common.space()}{common.treecheckbox()}{common.icon()}{common.folder()}#title#',
+                            template: '{common.space()}{common.treecheckbox()}{common.icon()}#title#',
                             width: width
                         }, {
                             id: 'Value',
@@ -286,7 +286,7 @@ var EnMatchTable = React.createClass({
                         var modalColumns2 = [{
                             id: 'title',
                             header: 'Key',
-                            template: '{common.space()}{common.treecheckbox()}{common.icon()}{common.folder()}#title#',
+                            template: '{common.space()}{common.treecheckbox()}{common.icon()}#title#',
                             width: width
                         }, {
                             id: 'Value',

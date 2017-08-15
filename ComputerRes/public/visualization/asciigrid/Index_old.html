@@ -1,0 +1,246 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>UDX可视化</title>
+    <link href="libs/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <link href="libs/ligerUI/skins/ligerui-icons.css" rel="stylesheet" type="text/css" />
+    <link href="libs/ligerUI/skins/ligerui-icons.css" rel="stylesheet" type="text/css" />
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/simsCheckbox.css" rel="stylesheet" type="text/css" />
+    <link href="http://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- <h1>UDX可视化入口</h1>
+    <input id="selectFile" type="file" onchange="select_file(this.files);" name="file" value="请选择文件" />   -->
+    <div id="selectModal" class="modal fade" aria-labelledby="selectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <!--content-->
+            <div class="modal-content">
+                <!--header-->
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="selectModalLabel">Choose the udx node that you want to presentation</h4>
+                </div>
+                <!--body-->
+                <div class="modal-body">
+                    <label>Choose one udx node you want to dispaly  :</label>
+                    <!-- <input type="text" id='ins_alias' class="form-control" placeholder="please input current instance alias"> -->
+                    <div>
+                        <ul class="sims-batch-nodelist">
+                        </ul>
+                    </div>
+                </div>
+                <!--footer-->
+                <div class="modal-footer">
+                    <button id="btn_ok" type="button" class="btn btn-primary" style="width:80px;" data-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<script src="js/jquery-1.11.3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<!--<script src="libs/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="libs/ligerUI/js/plugins/ligerDrag.js" type="text/javascript"></script>
+    <script src="libs/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>-->
+<script src="libs/ligerUI/ligerui.min.js"></script>
+<!-- udx底层实现-->
+<script src="js/udx.js"></script>
+<!-- udx面向对象实现-->
+<script src="js/udx_wrapper.js"></script>
+<script src="js/simsCheckbox.js"></script>
+
+<script>
+    //获取地址栏url参数
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+
+    var win1;
+    var g_listnodes = new Array();
+
+    // 判断某个list是不是一个纯粹的单节点（即只包含唯一的item：real_array|int_array）
+    function isSingleType(listnode) {
+        // 第一个子节点的 KernelType
+        var kernel_type = listnode.getChildNode(0).getKernel().getType();
+        var array_count = listnode.getChildNode(0).getKernel().getArrayCount();
+        var isPure = true;
+        for (var i = 0; i < listnode.getChildNodeCount(); i++) {
+            if (listnode.getChildNode(i).getKernel().getType() != kernel_type) {
+                isPure = false;
+            }
+
+            if(listnode.getChildNode(i).getKernel().getArrayCount() != array_count){
+                isPure = false;
+            }
+        }
+        return isPure;
+    }
+
+    // 遍历udx
+    function tranverseUdx(node, listnodes) {
+        for (var i = 0; i < node.getChildNodeCount(); i++) {
+            // console.log(node.getChildNode(i).getKernel().getType() === EKernelType.EKT_NODE);
+            // console.log(node.getChildNode(i).getKernel().getType() === EKernelType.EKT_LIST);
+            var listnode = node.getChildNode(i);
+            // 如果是list
+            if (listnode.getKernel().getType() === EKernelType.EKT_LIST) {
+                if (listnode.getChildNodeCount() <= 0) {
+                    continue;
+                }
+
+                // 先看list的第一个孩子节点  real_array 或者是  int_array
+                if (listnode.getChildNode(0).getKernel().getType() === EKernelType.EKT_REAL_LIST || listnode.getChildNode(0).getKernel().getType() === EKernelType.EKT_INT_LIST) {
+                    //  说明底下都是一个类型的节点
+                    if (isSingleType(listnode)) {
+                        // 直接返回listnode
+                        // return listnode;
+                        listnodes.push(listnode);
+                    }
+                }
+            }
+            tranverseUdx(listnode, listnodes);
+        }
+    }
+
+    // 选择好要显示的数据
+    $('#btn_ok').click(function () {
+        if ($('.sims-batch-nodelist li i.fa-check-square-o').length > 1) {
+            alert('You just could choose only one node.');
+            return false;
+        }
+
+        // 得到选择的节点数据，进行绘制
+        var index = $('.sims-batch-nodelist li i').index($('.sims-batch-nodelist li i.fa-check-square-o'));
+        // 要显示的数据,sessionStorage只能存字符串
+        // sessionStorage.udx_str = g_listnodes[index].formatToXmlStream();
+        // 传递要显示的节点的名字
+        sessionStorage.nodename = g_listnodes[index].getName();//名字唯一
+
+        // 打开配置窗口
+        win1 = $.ligerDialog.open({ title: 'Configuration Page ', url: 'pages/config.html', height: 550, width: 600, isResize: false });
+
+    });
+
+
+    $(function () {
+        // udx 数据
+        // url:http://localhost:8899/visualization/597c411815ebfee8037edee7/Main.html?filename1=/user/download?filename=596071cfe0f1de330ce74eb4
+        var filename = GetQueryString('filename1');
+        // 返回的data就是udx data
+        $.get(filename, {}, function (data) {
+            var udx_xml = (new XMLSerializer()).serializeToString(data);
+            // 1. TODO: 检查udx与udx schema是否匹配
+            // console.log(udx_xml);
+            // 传递udx字符串
+            sessionStorage.udx_xml = udx_xml;
+
+            var dataset = new UdxDataset();
+            dataset.createDataset();
+            dataset.loadFromXmlStream(udx_xml);
+
+            // 2.遍历udx，帮用户自动判断支持显示的udx节点。获取对应的数据进行显示，本可视化包，只支持list结构的二维数据（如：ascii grid、 tiff等）
+            // console.log(dataset.getChildNode(0));
+
+
+            // 获取所有符合要求显示的udx节点（list节点）
+            tranverseUdx(dataset, g_listnodes);
+
+            if(g_listnodes.length <=0){
+                alert('opps, can not support your data for display.');
+                return;
+            }
+
+            // 循环数据
+            var li_str = '';
+            for (var i = 0; i < g_listnodes.length; i++) {
+                // 获取list节点的名字
+                var listname = g_listnodes[i].getName();
+                if (i === 0) {
+                    li_str += '<li class="checked">' + listname + '</li>';
+                } else {
+                    li_str += '<li>' + listname + '</li>';
+                }
+            }
+            $(".sims-batch-nodelist").append($(li_str));
+            // 设置checkbox的样式
+            $(".sims-batch-nodelist").simsCheckbox({});
+
+            // 弹出提示框，要求用户选择要进行显示的数据。默认显示第一个
+            $('#selectModal').modal();
+
+
+        });
+    });
+
+    var win1, win2 = '';//win1中选择的可视化类型
+    var udxDataStr = '';
+
+    //选择文件回调方法
+    function select_file(files) {
+        if (files.length <= 0)
+            return;
+
+        if (typeof FileReader == 'undefined') {
+            alert('sorry,你的浏览器不支持读取文件。');
+        }
+
+        var tmpFile = files[0];
+        var reader = new FileReader();
+        reader.readAsText(tmpFile);
+        reader.onload = function (e) {
+            //加载数据成功
+            udxDataStr = e.target.result;
+
+            showProcessDialog();
+        }
+        reader.onerror = function (e) {
+            alert(e.target.error.code);
+        }
+    }
+
+    //显示数据可视化设置窗口
+    function showProcessDialog() {
+        //弹出数据可视化设置对话框
+        if (win1) {
+            win1.show();
+        }
+        else {
+            win1 = $.ligerDialog.open({ title: '数据可视化设置', url: 'pages/step1.html', height: 550, width: 600, isResize: false });
+        }
+    }
+
+    //将udx数据传递到step2
+    function getUDXData() {
+        return udxDataStr;
+    }
+
+    // 下一步
+    function goStep2(pageUrl) {
+        win1.hide();
+
+        win2 = $.ligerDialog.open({ title: '数据可视化设置', url: pageUrl, width: 680, height: 550, isResize: true });
+    }
+
+    // 上一步
+    function goStep1(pageUrl) {
+        if (win1)
+            win1.show();
+        win2.hide();
+    }
+    //取消
+    function cancel() {
+        win1.hide();
+        win2.hide();
+    }
+
+</script>
+
+</html>

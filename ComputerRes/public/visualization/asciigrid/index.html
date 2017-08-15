@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>UDX可视化</title>
+    <link href="libs/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+    <link href="libs/ligerUI/skins/ligerui-icons.css" rel="stylesheet" type="text/css" />
+    <link href="libs/ligerUI/skins/ligerui-icons.css" rel="stylesheet" type="text/css" />
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/simsCheckbox.css" rel="stylesheet" type="text/css" />
+    <link href="http://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body>
+</body>
+
+<script src="js/jquery-1.11.3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<!--<script src="libs/ligerUI/js/core/base.js" type="text/javascript"></script>
+    <script src="libs/ligerUI/js/plugins/ligerDrag.js" type="text/javascript"></script>
+    <script src="libs/ligerUI/js/plugins/ligerDialog.js" type="text/javascript"></script>-->
+<script src="libs/ligerUI/ligerui.min.js"></script>
+<!-- udx底层实现-->
+<script src="js/udx.js"></script>
+<!-- udx面向对象实现-->
+<script src="js/udx_wrapper.js"></script>
+<script src="js/simsCheckbox.js"></script>
+
+<script>
+    //获取地址栏url参数
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+
+    var win1;
+    var g_listnodes = new Array();
+
+    // 判断某个list是不是一个纯粹的单节点（即只包含唯一的item：real_array|int_array）
+    function isSingleType(listnode) {
+        // 第一个子节点的 KernelType
+        var kernel_type = listnode.getChildNode(0).getKernel().getType();
+        var array_count = listnode.getChildNode(0).getKernel().getArrayCount();
+        var isPure = true;
+        for (var i = 0; i < listnode.getChildNodeCount(); i++) {
+            if (listnode.getChildNode(i).getKernel().getType() != kernel_type) {
+                isPure = false;
+            }
+
+            if (listnode.getChildNode(i).getKernel().getArrayCount() != array_count) {
+                isPure = false;
+            }
+        }
+        return isPure;
+    }
+
+    // 遍历udx
+    function tranverseUdx(node, listnodes) {
+        for (var i = 0; i < node.getChildNodeCount(); i++) {
+            // console.log(node.getChildNode(i).getKernel().getType() === EKernelType.EKT_NODE);
+            // console.log(node.getChildNode(i).getKernel().getType() === EKernelType.EKT_LIST);
+            var listnode = node.getChildNode(i);
+            // 如果是list
+            if (listnode.getKernel().getType() === EKernelType.EKT_LIST) {
+                if (listnode.getChildNodeCount() <= 0) {
+                    continue;
+                }
+
+                // 先看list的第一个孩子节点  real_array 或者是  int_array
+                if (listnode.getChildNode(0).getKernel().getType() === EKernelType.EKT_REAL_LIST || listnode.getChildNode(0).getKernel().getType() === EKernelType.EKT_INT_LIST) {
+                    //  说明底下都是一个类型的节点
+                    if (isSingleType(listnode)) {
+                        // 直接返回listnode
+                        // return listnode;
+                        listnodes.push(listnode);
+                    }
+                }
+            }
+            tranverseUdx(listnode, listnodes);
+        }
+    }
+
+    $(function () {
+        // udx 数据
+        // url:http://localhost:8899/visualization/597c411815ebfee8037edee7/Main.html?filename1=/user/download?filename=596071cfe0f1de330ce74eb4
+        var filename = GetQueryString('filename1');
+        // 返回的data就是udx data
+        $.get(filename, {}, function (data) {
+            var udx_xml = (new XMLSerializer()).serializeToString(data);
+
+            sessionStorage.filename = filename;
+
+            var dataset = new UdxDataset();
+            dataset.createDataset();
+            dataset.loadFromXmlStream(udx_xml);
+
+            // 获取所有符合要求显示的udx节点（list节点）
+            tranverseUdx(dataset, g_listnodes);
+
+            if (g_listnodes.length != 1) {
+                alert('opps, 暂不支持的udx格式.');
+                return;
+            }
+
+            sessionStorage.nodename = g_listnodes[0].getName();//名字唯一
+
+            win1 = $.ligerDialog.open({ title: 'Configuration Page ', url: 'pages/config.html', height: 550, width: 600, isResize: false });
+        });
+    });
+
+</script>
+
+</html>

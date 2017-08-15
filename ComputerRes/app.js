@@ -11,6 +11,7 @@ var ModelInsCollection = require('./model/modelInsCollection');
 var FileUploadRecord = require('./model/fileUpload');
 var init = require('./init');
 var settings = require('./setting');
+var SysCtrl = require('./control/sysControl');
 
 var routes = require('./routes/index');
 
@@ -27,7 +28,7 @@ app.set('view engine', 'ejs');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit:'10000000kb'}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   secret:'wfsiudhjkfhoihiewhrlkjflkjasd',
@@ -177,4 +178,9 @@ if(settings.debug)
   global.debug = '调试模式';
 }
 
+var ip = SysCtrl.getIPSync();
+if(ip){
+    app.centerHost = SysCtrl.getIPSync();
+    app.centerPort = settings.port;
+}
 module.exports = app;

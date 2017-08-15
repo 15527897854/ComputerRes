@@ -50,10 +50,10 @@ var EnviroTableTree = React.createClass({
                 };
                 var template = '';
                 if(self.props.tabletree.checkbox){
-                    template = "{common.space()}{common.treecheckbox()}{common.icon()}{common.folder()}#title#";
+                    template = "{common.space()}{common.treecheckbox()}{common.icon()}#title#";
                 }
                 else{
-                    template = '{common.treetable()} #title#';
+                    template = '{common.space()}{common.icon()}#title#';
                 }
 
                 //将tabletree结构的json转换位正常的json

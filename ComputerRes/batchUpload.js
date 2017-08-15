@@ -32,6 +32,7 @@ fs.readdir(path, function(err, dirs){
         })
     });
     for(var i = 0; i < dirs.length; i++){
-        ModelSerCtrl.addNewModelSer(fields, {file_model : {path : path + dirs[i]}}, pending(i));
+        if(dirs[i].substr(dirs[i].lastIndexOf('.')) == '.zip')
+            ModelSerCtrl.addNewModelSer(fields, {file_model : {path : path + dirs[i]}}, pending(i));
     }
 });
