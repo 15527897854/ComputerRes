@@ -21,7 +21,7 @@ module.exports =  {
         key : 'ae3e712c-ccdf-4964-b819-c85770146485'
     },
     mongodb:{
-        name:'ComputerRes',
+        name:'yss_scr_zfy_model_container',
         host:'127.0.0.1',
         port:'27017'
     },
@@ -29,7 +29,7 @@ module.exports =  {
         host:'127.0.0.1',
         port:'6379',
         pwd:'fsa',
-        dbIndex:'0'
+        dbIndex:'3'
     },
     socket:
     {
