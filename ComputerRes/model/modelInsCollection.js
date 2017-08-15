@@ -293,14 +293,19 @@ ModelInsCollection.prototype.responseData = function(guid, state, event, data, d
                             gd_type: dataType,
                             gd_value: filename
                         };
-                        fs.rename(data, __dirname + '/../geo_data/' + filename, function(err, result){
-                            if(err){}
-                            GeoDataCtrl.addData(gd, function(err, result){
-                                if(err){
-                                    console.log('OMG!')
-                                }
+                        if(fs.existsSync(data)){
+                            fs.rename(data, __dirname + '/../geo_data/' + filename, function(err, result){
+                                if(err){}
+                                GeoDataCtrl.addData(gd, function(err, result){
+                                    if(err){
+                                        console.log('OMG!')
+                                    }
+                                });
                             });
-                        });
+                        }
+                        else{
+                            console.log('No Response Data!');
+                        }
                     }
                 }
             }
