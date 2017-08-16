@@ -85,8 +85,9 @@ module.exports = function (app) {
                 {
                     return res.end(JSON.stringify({error:'error'}));
                 }
-                if(gd.gd_type == 'FILE')
+                if(gd.gd_type == 'FILE' || gd.gd_type == 'ZIP'  || gd.gd_type == 'XML')
                 {
+                    gd.gd_fname = gd.gd_value;
                     fs.access(__dirname + '/../geo_data/' + gd.gd_value, fs.R_OK, function(err) {
                         if (err) {
                             GeoDataCtrl.delete(gdid, function (err, reslut) {
@@ -94,7 +95,7 @@ module.exports = function (app) {
                             });
                         }
                         else {
-                            fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, function (err, data) {
+                            fs.readFile(__dirname + '/../geo_data/' + gd.gd_value, 'binary', function (err, data) {
                                 if(err)
                                 {
                                     return res.end(JSON.stringify({error:'error'}));

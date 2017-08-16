@@ -12,6 +12,8 @@ var Settings = require('../setting');
 var fs = require('fs');
 var Promise = require('bluebird');
 var Path = require('path');
+var request = require('request');
+var uuid = require('node-uuid');
 
 function GeoDataCtrl() {}
 
@@ -247,12 +249,15 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
     var url = null;
     if(dataPosition.posType == 'LOCAL'){
         url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+        // url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/' + dataPosition.gdid;
     }
     else if(dataPosition.posType == 'MODEL SERVICE'){
         url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+        // url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/' + dataPosition.gdid;
     }
     else if(dataPosition.posType == 'DATA SERVICE'){
         url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/detail/' + dataPosition.gdid;
+        // url = 'http://' + dataPosition.host + ':' + dataPosition.port + '/geodata/' + dataPosition.gdid;
     }
     // 先查询有没有
     GeoDataCtrl.exist(dataPosition.gdid,function (err, exist) {
@@ -264,8 +269,40 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
 
             }
             else {
-                // 请求数据
+                // 请求数据文件
                 new Promise(function (resolve, reject) {
+                    // request(url,function (err, response, body) {
+                    //     if(err){
+                    //         console.log(err);
+                    //         // let data = JSON.stringify({error:err});
+                    //         // return res.end(data);
+                    //     }
+                    //     else{
+                    //         // res.set({
+                    //         //     'Content-Type': response.headers['Content-Type'],
+                    //         //     'Content-Length': response.headers['Content-Length']
+                    //         // });
+                    //         // res.setHeader('Content-Disposition', response.headers['content-disposition']);
+                    //         // return res.end(new Buffer(body));
+                    //
+                    //         // save file
+                    //         var hasFname = false;
+                    //         var fname = response.headers['content-disposition'];
+                    //         if(fname){
+                    //             var index = fname.indexOf('filename=');
+                    //             if(index != -1){
+                    //                 fname = fname.substring(index + 9);
+                    //                 hasFname = true;
+                    //             }
+                    //         }
+                    //         if(!hasFname){
+                    //             fname = 'gd_' + uuid.v1();
+                    //         }
+                    //         fname = Path.join(__dirname, '../geo_data',fname);
+                    //         var stream = fs.createWriteStream(fname).pipe(body);
+                    //     }
+                    // });
+
                     RemoteReqControl.getByServer(url,null,function (err, res) {
                         if(err){
                             return reject(err);
@@ -279,7 +316,7 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
                     .then(function (gd) {
                         return new Promise(function (resolve, reject) {
                             if(gd.error){
-                                reject(new Error(gd.error));
+                                return reject(new Error(gd.error));
                             }
 
                             // if(gd.gd_type == 'STREAM'){
@@ -290,35 +327,43 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
                             //     })
                             // }
                             // else if(gd.gd_type == 'FILE'){
-                                var fname = gd.gd_fname;
-                                var extName = Path.extname(fname);
-                                var path = Path.join(__dirname,'../geo_data/' + dataPosition.gdid + extName);
-                                var fdata = null;
-                                if(gd.gd_type == 'STREAM'){
-                                    fdata = gd.gd_value;
+
+                            // output data has no fname!
+                            var fname = gd.gd_fname;
+                            var extName = Path.extname(fname);
+                            // var extName = null;
+                            var path = Path.join(__dirname,'../geo_data/' + fname);
+                            var fdata = null;
+                            if(gd.gd_type == 'STREAM'){
+                                fdata = gd.gd_value;
+                            }
+                            else if(gd.gd_type == 'FILE' || gd.gd_type == 'XML'){
+                                fdata = new Buffer(gd.gd_value, 'binary');
+                            }
+                            else if(gd.gd_type == 'ZIP'){
+                                fdata = new Buffer(gd.gd_value,'binary');
+                            }
+                            // TODO 写入二进制数据有时候不对！
+                            fs.writeFile(path, fdata, function (err) {
+                                if (err) {
+                                    return reject(err);
                                 }
-                                else if(gd.gd_type == 'FILE'){
-                                    fdata = new Uint8Array(gd.gd_value.data);
+                                else{
+                                    if(extName == '.zip'){
+                                        gd.gd_type = 'ZIP';
+                                    }
+                                    else if(extName == '.xml'){
+                                        gd.gd_type = 'FILE';
+                                    }
+
+                                    gd.gd_value = fname;
+                                    GeoDataCtrl.addData(gd,function (err, rst) {
+                                        if(err){
+                                            return reject(err);
+                                        }
+                                    })
                                 }
-                                fs.writeFile(path, fdata, function (err) {
-                                    if (err) {
-                                        return reject(err);
-                                    }
-                                    else{
-                                        if(extName == '.xml'){
-                                            gd.gd_type = 'FILE';
-                                        }
-                                        else if(extName == '.zip'){
-                                            gd.gd_type = 'ZIP';
-                                        }
-                                        gd.gd_value = dataPosition.gdid + extName;
-                                        GeoDataCtrl.addData(gd,function (err, rst) {
-                                            if(err){
-                                                return reject(err);
-                                            }
-                                        })
-                                    }
-                                });
+                            });
                             // }
                         })
                     })
