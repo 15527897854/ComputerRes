@@ -252,11 +252,14 @@ ModelInsCollection.prototype.requestData = function(guid, state, event){
                         else
                             mis.socket.write('{Request Data Notified}[OK][XML|FILE]');
                     }
-                    if(dat.gd_type == 'FILE'){
+                    if(dat.gd_type == 'FILE' || dat.gd_type == 'XML'){
                         mis.socket.write('{Request Data Notified}[OK][XML|FILE]' + __dirname + '/../geo_data/' + dat.gd_value);
                     }
                     else if(dat.gd_type == 'ZIP'){
                         mis.socket.write('{Request Data Notified}[OK][ZIP|FILE]' + __dirname + '/../geo_data/' + dat.gd_value);
+                    }
+                    else{
+                        mis.socket.write('{Request Data Notified}[ERROR][XML|FILE]');
                     }
                 });
                 break;
