@@ -283,17 +283,17 @@ ModelInsCollection.prototype.responseData = function(guid, state, event, data, d
             for(var i = 0; i < mis.output.length; i++){
                 if(mis.output[i].StateName == state && mis.output[i].Event == event){
                     if(dataFormat == 'FIL' || dataFormat == 'FILE'){
-                        var ext = data.substr(data.lastIndexOf('.'));
-                        var filename = mis.output[i].DataId + ext;
-                        var stat = fs.statSync(data);
-                        var gd = {
-                            gd_id : mis.output[i].DataId,
-                            gd_tag : mis.output[i].Tag,
-                            gd_size: stat.size,
-                            gd_type: dataType,
-                            gd_value: filename
-                        };
                         if(fs.existsSync(data)){
+                            var ext = data.substr(data.lastIndexOf('.'));
+                            var filename = mis.output[i].DataId + ext;
+                            var stat = fs.statSync(data);
+                            var gd = {
+                                gd_id : mis.output[i].DataId,
+                                gd_tag : mis.output[i].Tag,
+                                gd_size: stat.size,
+                                gd_type: dataType,
+                                gd_value: filename
+                            };
                             fs.rename(data, __dirname + '/../geo_data/' + filename, function(err, result){
                                 if(err){}
                                 GeoDataCtrl.addData(gd, function(err, result){
