@@ -49,7 +49,7 @@
                                 <td><%=msr.msr_input[i].Destroyed %></td>
                                 <td>
                                     <button class="btn btn-default btn-xs" onclick="window.open('/geodata/<%=msr.msr_input[i].DataId %>')"><i class="fa fa-download"></i>  Download</button>
-                                    <button class="btn btn-success btn-xs" onclick="window.open('/geodata/<%=msr.msr_input[i].DataId %>?ac=visualize')"><i class="fa fa-picture-o"></i>  Visualization</button>
+                                    <button class="btn btn-success btn-xs"><i class="fa fa-picture-o"></i>  Visualization</button>
                                 </td>
                             </tr>
                             <%}%>
@@ -478,7 +478,7 @@
                                                 output += '<td title="' + jsItem.data.msr_output[i].DataId  + '">' +  jsItem.data.msr_output[i].Tag + '</td>';
                                                 output += '<td>' + jsItem.data.msr_output[i].Destroyed + '</td>';
                                                 output += '<td><button class="btn btn-default btn-xs" onclick="window.open(\'/geodata/' + jsItem.data.msr_output[i].DataId + '\')"><i class="fa fa-download"></i> Download</button> ' + 
-                                                '<button class="btn btn-success btn-xs" onclick="window.open(\'/geodata/' + jsItem.data.msr_output[i].DataId + '?ac=visualize \')" ><i class="fa fa-picture-o"></i>  Visualization</button></td>';
+                                                '<button class="btn btn-success btn-xs"><i class="fa fa-picture-o"></i>  Visualization</button></td>';
                                                 output += '</tr>';
                                             }
 
@@ -573,6 +573,7 @@
             $('#progressMess').append('<span class="label label-danger">Unfinished</span>');
         }
     }
+
 
 </script>
 </body>

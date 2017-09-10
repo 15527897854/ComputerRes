@@ -335,8 +335,8 @@ softwareEnCtrl.enMatched = function (demand, cb) {
         else {
             var query = {
                 $text:{
-                    $search:demand.name + ' ' + demand.platform,
-                    $caseSensitive:false
+                    $search:demand.name + ' ' + demand.platform
+                    // $caseSensitive:false
                 }
             };
             softwareEnCtrl.getByTextSearch(query,function (err, data) {

@@ -22,8 +22,7 @@ ModelInsCollection.prototype.addIns = function (mis)
 }
 
 //! 根据GUID删除模型运行实例
-ModelInsCollection.prototype.removeByGUID = function (guid)
-{
+ModelInsCollection.prototype.removeByGUID = function (guid){
     for(var i = 0 ; i < this.ModelInsArr.length; i++)
     {
         if(this.ModelInsArr[i].guid == guid)
@@ -214,6 +213,7 @@ ModelInsCollection.prototype.enterState = function(guid, state){
     var mis = this.getByGUID(guid);
     if(mis != -1){
         mis.log.push('Enter State : ' + state);
+        mis.state = state;
         mis.socket.write('{Enter State Notified}');
     }
 }
@@ -252,8 +252,11 @@ ModelInsCollection.prototype.requestData = function(guid, state, event){
                         else
                             mis.socket.write('{Request Data Notified}[OK][XML|FILE]');
                     }
-                    if(dat.gd_type == 'FILE' || dat.gd_type == 'XML'){
+                    if(dat.gd_type == 'XML'){
                         mis.socket.write('{Request Data Notified}[OK][XML|FILE]' + __dirname + '/../geo_data/' + dat.gd_value);
+                    }
+                    else if(dat.gd_type == 'FILE'){
+                        mis.socket.write('{Request Data Notified}[OK][RAW|FILE]' + __dirname + '/../geo_data/' + dat.gd_value);
                     }
                     else if(dat.gd_type == 'ZIP'){
                         mis.socket.write('{Request Data Notified}[OK][ZIP|FILE]' + __dirname + '/../geo_data/' + dat.gd_value);

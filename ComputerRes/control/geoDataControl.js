@@ -335,6 +335,7 @@ GeoDataCtrl.onReceivedDataPosition = function (dataPosition) {
                             var path = Path.join(__dirname,'../geo_data/' + fname);
                             var fdata = null;
                             if(gd.gd_type == 'STREAM'){
+                                gd.gd_type = 'FILE';
                                 fdata = gd.gd_value;
                             }
                             else if(gd.gd_type == 'FILE' || gd.gd_type == 'XML'){
