@@ -294,7 +294,7 @@ ModelSerRunCtrl.getRmtModelSerRunsByHostAndMsid = function (host, msid, callback
                 this.returnRemoteFunction(callback, 'Error in getting rmt model serivce running records by Host and Msid'));
         }
         else{
-            return callback(new Error('No child!'))
+            return callback(new Error('No child!'));
         }
     }.bind(this));
 };

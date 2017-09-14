@@ -52,23 +52,22 @@ module.exports = ModelSerRun;
 var MSRSchema = new mongoose.Schema({
     ms_id : mongoose.Schema.Types.ObjectId,
     msr_ms :  mongoose.Schema.Types.Mixed,
-    msr_date :  Date,
-    msr_time : Number,
+    msr_datetime :  Date,
+    msr_span : Number,
     msr_user :  mongoose.Schema.Types.Mixed,
     msr_guid :  String,
     msr_input :  Array,
     msr_output :  Array,
     msr_status : Number,
-    msr_des :  String,
-    msr_log :  Array
+    msr_runninginfo :  mongoose.Schema.Types.Mixed,
+    msr_logs :  Array
 },{collection:'modelserrun'});
 var MSR = mongoose.model('modelserrun',MSRSchema);
 
 ModelSerRun.baseModel = MSR;
 
 //获取模型运行服务
-ModelSerRun.getAll = function(callback)
-{
+ModelSerRun.getAll = function(callback){
     MSR.find({}, this.returnFunction(callback, "error in getting all model service runs"));
 };
 
@@ -135,21 +134,21 @@ ModelSerRun.getStatisticInfoByMsidAndDate = function(msid, start, end, callback)
     }
 }
 
-//
+//得到次数统计信息
 ModelSerRun.getTimesStatisticInfoByMSID = function(callback){
     MSR.aggregate([{$group : { _id : {"ms_id" : "$ms_id",}, count : {$sum:1} }}], this.returnFunction(callback, 'Error in getting times statistic info'));
 };
 
-//更新描述信息
-ModelSerRun.updateDes = function (_oid, msr_des, callback) {
+//更新运行信息
+ModelSerRun.updateRunningInfo = function (_oid, msr_runninginfo, callback) {
     if(CheckParam.checkParam(callback, _oid))
     {
-        if(CheckParam.checkParam(callback, msr_des))
+        if(CheckParam.checkParam(callback, msr_runninginfo))
         {
             var oid = new ObjectId(_oid);
             var where = {'_id' : oid};
             var update = {
-                msr_des : msr_des
+                msr_runninginfo : msr_runninginfo
             };
             MSR.update(where, update, this.returnFunction(callback, 'Error in updating msr_des a ' + this.modelName + ' by where'));
         }
@@ -157,18 +156,17 @@ ModelSerRun.updateDes = function (_oid, msr_des, callback) {
 };
 
 //更新日志信息
-ModelSerRun.updateLog = function (_oid, msr_log, callback) {
+ModelSerRun.updateLog = function (_oid, msr_logs, callback) {
     if(CheckParam.checkParam(callback, _oid))
     {
-        if(CheckParam.checkParam(callback, msr_log))
+        if(CheckParam.checkParam(callback, msr_logs))
         {
             var oid = new ObjectId(_oid);
             var where = {'_id' : oid};
             var update = {
-                msr_log : msr_log
+                msr_logs : msr_logs
             };
             MSR.update(where, update, this.returnFunction(callback, 'Error in updating msr_log a ' + this.modelName + ' by where'));
         }
     }
 };
-

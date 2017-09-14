@@ -204,7 +204,12 @@ ModelInsCollection.prototype.initialize = function(guid ,socket){
         var mis = this.getByGUID(guid);
         mis.state = 'Initialized';
         socket.write('{Initialized}' + guid + '[' + __dirname + '/../geo_dataMapping/CommonShell/x64' +  ']' + '[' + setting.modelpath + mis.ms.ms_path + '/instance/' + guid + ']');
-        this.getByGUID(guid).log.push('Initalized');
+        this.getByGUID(guid).log.push({
+            Type : 'Initalize',
+            State : '',
+            Event : '',
+            Message : ''
+        });
     }
 }
 
@@ -212,7 +217,12 @@ ModelInsCollection.prototype.initialize = function(guid ,socket){
 ModelInsCollection.prototype.enterState = function(guid, state){
     var mis = this.getByGUID(guid);
     if(mis != -1){
-        mis.log.push('Enter State : ' + state);
+        mis.log.push({
+            Type : 'EnterState',
+            State : state,
+            Event : '',
+            Message : ''
+        });
         mis.state = state;
         mis.socket.write('{Enter State Notified}');
     }
@@ -222,7 +232,12 @@ ModelInsCollection.prototype.enterState = function(guid, state){
 ModelInsCollection.prototype.fireEvent = function(guid, state, event){
     var mis = this.getByGUID(guid);
     if(mis != -1){
-        mis.log.push('Fire Event : state - ' + state + ' event - ' + event);
+        mis.log.push({
+            Type : 'FireEvent',
+            State : state,
+            Event : event,
+            Message : ''
+        });
         mis.socket.write('{Fire Event Notified}');
     }
 }
@@ -231,7 +246,12 @@ ModelInsCollection.prototype.fireEvent = function(guid, state, event){
 ModelInsCollection.prototype.requestData = function(guid, state, event){
     var mis = this.getByGUID(guid);
     if(mis != -1){
-        mis.log.push('Request Data : state - ' + state + ' event - ' + event);
+        mis.log.push({
+            Type : 'RequestData',
+            State : state,
+            Event : event,
+            Message : ''
+        });
 
         var hasFound = false;
         for(var i = 0; i < mis.input.length; i++){
@@ -239,7 +259,7 @@ ModelInsCollection.prototype.requestData = function(guid, state, event){
                 hasFound = true;
                 var op = mis.input[i].Optional;
                 if(mis.input[i].DataId == ''){
-                    if (op ==0)
+                    if (op == 0)
                         mis.socket.write('{Request Data Notified}[ERROR][XML|FILE]');
                     else
                         mis.socket.write('{Request Data Notified}[OK][XML|FILE]');
@@ -247,7 +267,7 @@ ModelInsCollection.prototype.requestData = function(guid, state, event){
                 }
                 GeoDataCtrl.getByKey(mis.input[i].DataId, function(err, dat){
                     if(err){
-                        if (op==0)
+                        if (op == 0)
                             mis.socket.write('{Request Data Notified}[ERROR][XML|FILE]');
                         else
                             mis.socket.write('{Request Data Notified}[OK][XML|FILE]');
