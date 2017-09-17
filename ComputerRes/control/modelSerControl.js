@@ -748,184 +748,187 @@ ModelSerControl.run = function (msid, inputData, outputData, user, callback) {
         if(typeof outputData == 'string'){
             outputData = JSON.parse(outputData);
         }
-        // Data Info Completion
-        for(var k = 0; k < data.length; k++) {
-            for(var i = 0; i < data[k].Event.length; i++)
-            {
-                if(data[k].Event[i].$.type == 'noresponse')
+        ModelSerControl.getInputData(msid, function(err, data){
+            if(err) { return callback(err);}
+            data = data.States;
+            // Data Info Completion
+            for(var k = 0; k < data.length; k++) {
+                for(var i = 0; i < data[k].Event.length; i++)
                 {
-                    //! Output Data
-                    var j;
-                    for(j = 0; j < outputData.length; j++){
-                        if(outputData[j].StateId == data[k].$.id && outputData[j].Event == data[k].Event[i].$.name){
-                            outputData[j].StateName = data[k].$.name;
-                            outputData[j].StateDes = data[k].$.description;
-                            if(outputData[j].Destroyed == undefined || outputData[j].Destroyed == null){
-                                outputData[j]['Destroyed'] = false;
-                            }
-                            if(outputData[j].DataId == undefined || outputData[j].DataId == null){
-                                outputData[j]['DataId'] = 'gd_' + uuid.v1();
-                            }
-                            if(outputData[j].Tag == undefined || outputData[j].Tag == null){
-                                outputData[j]['Tag'] = data[k].$.Name + '-' + data[k].Event[i].$.name;
-                            }
-                            break;
-                        }
-                    }
-                    if(j == outputData.length){
-                        var dataid = 'gd_' + uuid.v1();
-                        var item = {
-                            StateId : data[k].$.id,
-                            StateName : data[k].$.name,
-                            StateDes : data[k].$.description,
-                            Event : data[k].Event[i].$.name,
-                            Destroyed : false,
-                            Tag : data[k].$.name + '-' + data[k].Event[i].$.name,
-                            DataId : dataid
-                        };
-                        outputData.push(item);
-                    }
-                }
-                else if(data[k].Event[i].$.type == 'response'){
-                    //! Input Data
-                    var j;
-                    for(j = 0; j < inputData.length; j++){
-                        if(inputData[j].StateId == data[k].$.id && inputData[j].Event == data[k].Event[i].$.name){
-                            inputData[j].StateName = data[k].$.name;
-                            inputData[j].StateDes = data[k].$.description;
-                            if(inputData[j].Destroyed == undefined || inputData[j].Destroyed == null){
-                                inputData[j].Destroyed = false;
-                            }
-                            if(inputData[j].DataId == undefined || inputData[j].DataId == null){
-                                inputData[j].DataId = 'gd_' + uuid.v1();
-                            }
-                            if(inputData[j].Tag == undefined || inputData[j].Tag == null){
-                                //! TODO GET IN REDIS
-                                inputData[j].Tag = '';
-                            }
-                            break;
-                        }
-                    }
-                    
-                }
-            }
-        }
-
-
-        //生成唯一字符串GUID
-        var guid = uuid.v4();
-
-        ModelSerModel.getByOID(msid, function(err, ms){
-            if(err){
-                return callback(err);
-            }
-            if(ms.ms_status != 1)
-            {
-                return callback(new Error('Service is not available'));
-            }
-            
-            //向内存中添加模型运行记录条目
-            var date = new Date();
-            var mis = {
-                guid : guid,
-                socket : null,
-                ms : ms,
-                input : inputData,
-                output : outputData,
-                log : [],
-                start : date.toLocaleString(),
-                state : 'MC_READY'
-            };
-            var modelIns = new ModelIns(mis);
-            app.modelInsColl.addIns(modelIns);
-
-            //添加纪录
-            var msr = {
-                ms_id : ms._id,
-                msr_ms : ms,
-                msr_datetime : date.toLocaleString(),
-                msr_span : 0,
-                msr_user : user,
-                msr_guid : guid,
-                msr_input : inputData,
-                msr_output : outputData,
-                msr_status : 0,
-                msr_logs : [],
-                msr_runninginfo : {}
-            };
-            ModelSerRunCtrl.save(msr ,function (err, msr) {
-                if(err) {
-                    return res.end('Error : ' + err);
-                }
-                ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
-                    ModelSerRunModel.getByGUID(guid, function (err2, item) {
-                        if(err2)
-                        {
-                            return console.log(JSON.stringify(err2));
-                        }
-                        if(item == null)
-                        {
-                            return console.log( 'Can not find MSR when it is ended !');
-                        }
-                        if(err){
-                            item.msr_runninginfo.InvokeErr = JSON.stringify(err);
-                        }
-                        if(stdout){
-                            item.msr_runninginfo.StdOut = JSON.stringify(err);
-                        }
-                        if(stderr){
-                            item.msr_runninginfo.StdErr = JSON.stringify(err);
-                        }
-                        var mis = global.app.modelInsColl.getByGUID(guid);
-                        //没有配置环境，进程无法启动
-                        if(mis.state == "MC_READY" && mis.socket == null){
-                            global.app.modelInsColl.removeByGUID(guid);
-                            item.msr_status = -1;
-                            ModelSerRunModel.update(item, function (err, res) {
-                                if(err)
-                                {
-                                    return console.log(JSON.stringify(err2));
-                                }
-                            })
-                        }
-                        else {
-                            ModelSerRunModel.updateRunningInfo(item._id, item.msr_des, function (err, res) {
-                                if(err)
-                                {
-                                    return console.log(JSON.stringify(err2));
-                                }
-                            });
-                        }
-                    });
-                    
-                }, function (err, ms) {
-                    if(err)
+                    if(data[k].Event[i].$.type == 'noresponse')
                     {
-                        return callback(err);
+                        //! Output Data
+                        var j;
+                        for(j = 0; j < outputData.length; j++){
+                            if(outputData[j].StateId == data[k].$.id && outputData[j].Event == data[k].Event[i].$.name){
+                                outputData[j].StateName = data[k].$.name;
+                                outputData[j].StateDes = data[k].$.description;
+                                if(outputData[j].Destroyed == undefined || outputData[j].Destroyed == null){
+                                    outputData[j]['Destroyed'] = false;
+                                }
+                                if(outputData[j].DataId == undefined || outputData[j].DataId == null){
+                                    outputData[j]['DataId'] = 'gd_' + uuid.v1();
+                                }
+                                if(outputData[j].Tag == undefined || outputData[j].Tag == null){
+                                    outputData[j]['Tag'] = data[k].$.Name + '-' + data[k].Event[i].$.name;
+                                }
+                                break;
+                            }
+                        }
+                        if(j == outputData.length){
+                            var dataid = 'gd_' + uuid.v1();
+                            var item = {
+                                StateId : data[k].$.id,
+                                StateName : data[k].$.name,
+                                StateDes : data[k].$.description,
+                                Event : data[k].Event[i].$.name,
+                                Destroyed : false,
+                                Tag : data[k].$.name + '-' + data[k].Event[i].$.name,
+                                DataId : dataid
+                            };
+                            outputData.push(item);
+                        }
                     }
-                    //绑定内存实例的ms属性
-                    global.app.modelInsColl.bindMs(guid, ms);
+                    else if(data[k].Event[i].$.type == 'response'){
+                        //! Input Data
+                        var j;
+                        for(j = 0; j < inputData.length; j++){
+                            if(inputData[j].StateId == data[k].$.id && inputData[j].Event == data[k].Event[i].$.name){
+                                inputData[j].StateName = data[k].$.name;
+                                inputData[j].StateDes = data[k].$.description;
+                                if(inputData[j].Destroyed == undefined || inputData[j].Destroyed == null){
+                                    inputData[j].Destroyed = false;
+                                }
+                                if(inputData[j].DataId == undefined || inputData[j].DataId == null){
+                                    inputData[j].DataId = 'gd_' + uuid.v1();
+                                }
+                                if(inputData[j].Tag == undefined || inputData[j].Tag == null){
+                                    //! TODO GET IN REDIS
+                                    inputData[j].Tag = '';
+                                }
+                                break;
+                            }
+                        }
+                        
+                    }
+                }
+            }
 
-                    //存储通知消息
-                    var notice = {
-                        time : new Date(),
-                        title : ms.ms_model.m_name + '开始运行！',
-                        detail : '',
-                        type : 'start-run',
-                        hasRead : false
-                    };
-                    NoticeCtrl.save(notice, function (err, data) {
+
+            //生成唯一字符串GUID
+            var guid = uuid.v4();
+
+            ModelSerModel.getByOID(msid, function(err, ms){
+                if(err){
+                    return callback(err);
+                }
+                if(ms.ms_status != 1)
+                {
+                    return callback(new Error('Service is not available'));
+                }
+                
+                //向内存中添加模型运行记录条目
+                var date = new Date();
+                var mis = {
+                    guid : guid,
+                    socket : null,
+                    ms : ms,
+                    input : inputData,
+                    output : outputData,
+                    log : [],
+                    start : date.toLocaleString(),
+                    state : 'MC_READY'
+                };
+                var modelIns = new ModelIns(mis);
+                app.modelInsColl.addIns(modelIns);
+
+                //添加纪录
+                var msr = {
+                    ms_id : ms._id,
+                    msr_ms : ms,
+                    msr_date : date.toLocaleString(),
+                    msr_time : 0,
+                    msr_user : user,
+                    msr_guid : guid,
+                    msr_input : inputData,
+                    msr_output : outputData,
+                    msr_status : 0,
+                    msr_des : ''
+                };
+                ModelSerRunCtrl.save(msr ,function (err, msr) {
+                    if(err) {
+                        return res.end('Error : ' + err);
+                    }
+                    ModelSerModel.run(msid, guid, function (err, stdout, stderr) {
+                        ModelSerRunModel.getByGUID(guid, function (err2, item) {
+                            if(err2)
+                            {
+                                return console.log(JSON.stringify(err2));
+                            }
+                            if(item == null)
+                            {
+                                return console.log( 'Can not find MSR when it is ended !');
+                            }
+                            if(err){
+                                item.msr_des += 'Error Message : ' + JSON.stringify(err) + '\r\n';
+                            }
+                            if(stdout){
+                                item.msr_des += 'Stand Output Message : ' + JSON.stringify(stdout) + '\r\n';
+                            }
+                            if(stderr){
+                                item.msr_des += 'Stand Error Message : ' + JSON.stringify(stderr) + '\r\n';
+                            }
+                            var mis = global.app.modelInsColl.getByGUID(guid);
+                            //没有配置环境，进程无法启动
+                            if(mis.state == "MC_READY" && mis.socket == null){
+                                global.app.modelInsColl.removeByGUID(guid);
+                                item.msr_status = -1;
+                                ModelSerRunModel.update(item, function (err, res) {
+                                    if(err)
+                                    {
+                                        return console.log(JSON.stringify(err2));
+                                    }
+                                })
+                            }
+                            else {
+                                ModelSerRunModel.updateDes(item._id, item.msr_des, function (err, res) {
+                                    if(err)
+                                    {
+                                        return console.log(JSON.stringify(err2));
+                                    }
+                                });
+                            }
+                        });
+                        
+                    }, function (err, ms) {
                         if(err)
                         {
-                            console.log(JSON.stringify(err));
+                            return callback(err);
                         }
-                    });
+                        //绑定内存实例的ms属性
+                        global.app.modelInsColl.bindMs(guid, ms);
 
-                    return callback(null, msr);
+                        //存储通知消息
+                        var notice = {
+                            time : new Date(),
+                            title : ms.ms_model.m_name + '开始运行！',
+                            detail : '',
+                            type : 'start-run',
+                            hasRead : false
+                        };
+                        NoticeCtrl.save(notice, function (err, data) {
+                            if(err)
+                            {
+                                console.log(JSON.stringify(err));
+                            }
+                        });
+
+                        return callback(null, msr);
+                    });
                 });
             });
+            
         });
-
     });
 }
 

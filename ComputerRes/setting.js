@@ -21,7 +21,7 @@ module.exports =  {
         key : 'ae3e712c-ccdf-4964-b819-c85770146485'
     },
     mongodb:{
-        name:'ComputerRes',
+        name:'yss_scr_zfy_model_container',
         host:'127.0.0.1',
         port:'27017'
     },
@@ -38,7 +38,7 @@ module.exports =  {
     },
     portal:
     {
-        host:'222.192.7.74',
+        host:'222.192.7.75',
         port:'80'
     },
     // portal:{
@@ -49,5 +49,5 @@ module.exports =  {
     data_size : 1,
     auth : false,
     debug : false,
-    debugGUID : 'b176affa-06bd-4c8a-bc93-3f86deb84aa2'
+    debugGUID : 'a62b8ff3-fac8-47cb-80a6-d7d15c5ac6ee'
 };

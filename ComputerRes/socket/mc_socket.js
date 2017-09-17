@@ -198,11 +198,11 @@ function SocketTrans(app)
                 }
                 //计算时间
                 var date_now = new Date();
-                var data_begin = new Date(msr.msr_datetime);
+                var data_begin = new Date(msr.msr_date);
                 var time_span = date_now.getTime() - data_begin.getTime();
                 time_span = time_span / 1000;
-                msr.msr_span = time_span;
-                msr.msr_logs = mi.log;
+                msr.msr_time = time_span;
+                msr.msr_log = mi.log;
                 if(finished)
                 {
                     msr.msr_status = 1;

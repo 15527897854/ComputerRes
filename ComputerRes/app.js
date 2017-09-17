@@ -91,203 +91,82 @@ if(settings.debug)
     guid : settings.debugGUID,
     socket : null,
     ms : {
-        "_id" : "59b14396ae51264b5473825f",
+        "_id" : "5989c9c350aed72b1c8a9b1e",
         "ms_model" : {
             "m_register" : false,
             "m_id" : null,
-            "p_id" : "efc078ce7205ea84a3d78901c5edd5eb",
+            "p_id" : "469f7bc5f572d284bbad8863dc27d4b4",
             "m_url" : "http://hydrology.usu.edu/taudem/taudem5/",
-            "m_type" : "TaiHu_Fvcom - DEM",
-            "m_name" : "TaiHu_Fvcom"
+            "m_type" : "TauDEM_AreaD8 - DEM",
+            "m_name" : "TauDEM_AreaD8"
         },
         "mv_num" : "1.1.0.0",
-        "ms_des" : "TaiHu_Fvcom",
+        "ms_des" : "TauDEM_AreaD8",
         "ms_platform" : 1,
-        "ms_update" : "2017-9-7 21:03:18",
-        "ms_path" : "TaiHu_Fvcom_59b14396ae51264b5473825f/",
+        "ms_update" : "2017-8-8 22:25:07",
+        "ms_path" : "TauDEM_AreaD8_5989c9c350aed72b1c8a9b1e/",
         "ms_img" : null,
-        "ms_xml" : "{\"ModelClass\":{\"$\":{\"name\":\"TaiHu_Fvcom\",\"uid\":\"227f5ee8-cdb9-4a8a-a849-05c693936303\",\"style\":\"SimpleCalculation\"},\"AttributeSet\":{\"Categories\":{\"Category\":{\"$\":{\"principle\":\"DEM\",\"path\":\"TaiHu_Fvcom\"}}},\"LocalAttributes\":{\"LocalAttribute\":{\"$\":{\"local\":\"EN_US\",\"localName\":\"TaiHu_Fvcom\",\"wiki\":\"http://hydrology.usu.edu/taudem/taudem5/\"},\"Keywords\":\"TaiHu; Fvcom\",\"Abstract\":\"TaiHu_Fvcom\"}}},\"Behavior\":{\"RelatedDatasets\":{\"DatasetItem\":[{\"$\":{\"name\":\"TaiHu_Run_Param\",\"type\":\"internal\",\"description\":\"TaiHu_Run\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_COD_Param\",\"type\":\"internal\",\"description\":\"TaiHu_COD\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_DO_Param\",\"type\":\"internal\",\"description\":\"TaiHu_DO\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_PHYT_Param\",\"type\":\"internal\",\"description\":\"TaiHu_PHYT\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_bfw_Param\",\"type\":\"internal\",\"description\":\"TaiHu_bfw\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_cor_Param\",\"type\":\"internal\",\"description\":\"TaiHu_cor\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_dep_Param\",\"type\":\"internal\",\"description\":\"TaiHu_dep\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_grd_Param\",\"type\":\"internal\",\"description\":\"TaiHu_grd\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_its_Param\",\"type\":\"internal\",\"description\":\"TaiHu_its\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_mc_Param\",\"type\":\"internal\",\"description\":\"TaiHu_mc\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_obc_Param\",\"type\":\"internal\",\"description\":\"TaiHu_obc\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_riv_Param\",\"type\":\"internal\",\"description\":\"TaiHu_riv\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_riv_wqm_Param\",\"type\":\"internal\",\"description\":\"TaiHu_riv_wqm\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_spg_Param\",\"type\":\"internal\",\"description\":\"TaiHu_spg\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_grd_topo_Param\",\"type\":\"internal\",\"description\":\"TaiHu_grd_topo\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"TaiHu_windstaion_Param\",\"type\":\"internal\",\"description\":\"TaiHu_windstaion\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}},{\"$\":{\"name\":\"Taihu_topo_Param\",\"type\":\"internal\",\"description\":\"Taihu_topo\"},\"UdxDeclaration\":{\"UdxNode\":\"\"}}]},\"StateGroup\":{\"States\":{\"State\":{\"$\":{\"id\":\"680b2271-26d9-4cad-b85d-92511c0867ad\",\"name\":\"TaiHuFvcomState\",\"type\":\"basic\",\"description\":\"TaiHuFvcomState\"},\"Event\":[{\"$\":{\"name\":\"TaiHu_Run\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_Run\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_Run_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_COD\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_COD\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_COD_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_DO\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_DO\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_DO_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_PHYT\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_PHYT\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_PHYT_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_bfw\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_bfw\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_bfw_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_cor\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_cor\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_cor_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_dep\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_dep\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_dep_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_grd\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_grd\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_grd_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_its\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_its\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_its_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_mc\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_mc\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_mc_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_obc\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_obc\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_obc_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_riv\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_riv\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_riv_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_riv_wqm\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_riv_wqm\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_riv_wqm_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_spg\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_spg\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_spg_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_grd_topo\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_grd_topo\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_grd_topo_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"TaiHu_windstaion\",\"type\":\"response\",\"optional\":0,\"description\":\"Input TaiHu_windstaion\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"TaiHu_windstaion_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"Taihu_topo\",\"type\":\"noresponse\",\"optional\":0,\"description\":\"Ouput Taihu_topo\"},\"DispatchParameter\":{\"$\":{\"datasetReference\":\"Taihu_topo_Param\",\"description\":\"Export\"}}}]}},\"StateTransitions\":\"\"}},\"Runtime\":{\"$\":{\"name\":\"TaiHu_Fvcom\",\"version\":\"1.1.0.0\",\"baseDir\":\"$(ModelServicePath)\\\\TaiHu_Fvcom\",\"entry\":\"TaiHu_Fvcom.exe\"},\"HardwareConfigures\":{\"Add\":{\"$\":{\"key\":\"Main Frequency\",\"value\":\"2.8\"}}},\"SoftwareConfigures\":{\"Add\":[{\"$\":{\"key\":\"Operation Platform\",\"value\":\"Windows\"}},{\"$\":{\"key\":\"Language Platform\",\"value\":\"MSVC 2013 x64\"}},{\"$\":{\"key\":\"Language Platform\",\"value\":\"C# 2010\"}},{\"$\":{\"key\":\"Memory Size\",\"value\":\"50M\"}}]},\"Assemblies\":{\"Assembly\":[{\"$\":{\"name\":\"GDALRasterMapping.exe\",\"path\":\"$(DataMappingPath)\\\\GDALRasterMapping\\\\\"}},{\"$\":{\"name\":\"OGRVectorMapping.exe\",\"path\":\"$(DataMappingPath)\\\\OGRVectorMapping\\\\\"}},{\"$\":{\"name\":\"TauDEM_Path\",\"path\":\"$(ModelServicePath)\\\\TauDEM5Exe\\\\\"}}]},\"SupportiveResources\":{\"Add\":[{\"$\":{\"type\":\"library\",\"name\":\"GDAL\"}},{\"$\":{\"type\":\"runtime\",\"name\":\"MSMPI\"}}]}}}}",
+        "ms_xml" : "{\"ModelClass\":{\"$\":{\"name\":\"TauDEM_AreaD8\",\"uid\":\"d91e7c3f-41b3-4f62-a457-21c459dc8cfe\",\"style\":\"SimpleCalculation\"},\"AttributeSet\":{\"Categories\":{\"Category\":{\"$\":{\"principle\":\"DEM\",\"path\":\"TauDEM_AreaD8\"}}},\"LocalAttributes\":{\"LocalAttribute\":{\"$\":{\"local\":\"EN_US\",\"localName\":\"TauDEM_AreaD8\",\"wiki\":\"http://hydrology.usu.edu/taudem/taudem5/\"},\"Keywords\":\"TauDEM; AreaD8\",\"Abstract\":\"TauDEM_AreaD8\"}}},\"Behavior\":{\"RelatedDatasets\":{\"DatasetItem\":[{\"$\":{\"name\":\"Raster_Template\",\"type\":\"external\",\"externalId\":\"F73F31FF-2F23-4C7A-A57D-39D0C7A6C4E6\",\"description\":\"Raster_Data\"}},{\"$\":{\"name\":\"Vector_Template\",\"type\":\"external\",\"externalId\":\"4996E027-209B-4121-907B-1ED36A417D22\",\"description\":\"Vector_Data\"}},{\"$\":{\"name\":\"EdgeContamination_Param\",\"type\":\"internal\",\"description\":\"EdgeContamination\"},\"UdxDeclaration\":{\"UdxNode\":{\"UdxNode\":{\"$\":{\"name\":\"checkEdge\",\"type\":\"DTKT_INT\",\"description\":\"checkEdge\"}}}}}]},\"StateGroup\":{\"States\":{\"State\":{\"$\":{\"id\":\"851a1985-a3f6-4c13-be53-f1c765022929\",\"name\":\"RUNSTATE\",\"type\":\"basic\",\"description\":\"Model Start Runing\"},\"Event\":[{\"$\":{\"name\":\"D8FlowDirection\",\"type\":\"response\",\"optional\":\"False\",\"description\":\"Input D8FlowDirection\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"Outlets\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input Outlets\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Vector_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"WeightGrid\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input WeightGrid\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"EdgeContamination\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input EdgeContamination\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"EdgeContamination_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"AreaD8\",\"type\":\"noresponse\",\"optional\":\"False\",\"description\":\"Ouput AreaD8\"},\"DispatchParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Export\"}}}]}},\"StateTransitions\":\"\"}},\"Runtime\":{\"$\":{\"name\":\"TauDEM_AreaD8\",\"version\":\"1.1.0.0\",\"baseDir\":\"$(ModelServicePath)\\\\TauDEM_AreaD8\",\"entry\":\"TauDEM_AreaD8.exe\"},\"HardwareConfigures\":{\"Add\":{\"$\":{\"key\":\"Main Frequency\",\"value\":\"2.8\"}}},\"SoftwareConfigures\":{\"Add\":{\"$\":{\"key\":\"Memory Size\",\"value\":\"50M\"}}},\"Assemblies\":{\"Assembly\":[{\"$\":{\"name\":\"GDALRasterMapping.exe\",\"path\":\"$(DataMappingPath)\\\\GDALRasterMapping\\\\\"}},{\"$\":{\"name\":\"OGRVectorMapping.exe\",\"path\":\"$(DataMappingPath)\\\\OGRVectorMapping\\\\\"}}]},\"SupportiveResources\":{\"Add\":[{\"$\":{\"type\":\"library\",\"name\":\"GDAL\"}},{\"$\":{\"type\":\"runtime\",\"name\":\"MSMPI\"}}]}}}}",
         "ms_status" : 1,
         "ms_user" : {
             "u_email" : "[Unknown]",
-            "u_name" : "[Unknown]"
+            "u_name" : "[Batch]"
         },
-        "ms_limited" : 0,
         "ms_permission" : 0,
+        "__v" : 0
     },
     log : [],
     input : [
-        
         {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_Run",
-            "DataId" : "gd_85068e20-93c1-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_run.dat",
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "D8FlowDirection",
+            "DataId" : "gd_309ecda0-7c49-11e7-9659-a1f3754f22b6",
+            "Tag" : "udx_zip_D8FlowDir.zip",
             "Destroyed" : false,
-            "Optional" : 0
+            "Optional" : "False"
         }, 
         {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_COD",
-            "DataId" : "gd_a7065230-93c1-11e7-adf5-016261c89e77",
-            "Tag" : "COD.dat",
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "Outlets",
+            "DataId" : "gd_9c78dc40-7c4a-11e7-935e-f33d689b3c28",
+            "Tag" : "udx_zip_Outlets.zip",
             "Destroyed" : false,
-            "Optional" : 0
+            "Optional" : "True"
         }, 
         {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_DO",
-            "DataId" : "gd_ac469ed0-93c1-11e7-adf5-016261c89e77",
-            "Tag" : "DO.dat",
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "WeightGrid",
+            "DataId" : "gd_489d2a60-7cd4-11e7-b70f-750b08f27d27",
+            "Tag" : "udx_zip_PeukerDouglas.zip",
             "Destroyed" : false,
-            "Optional" : 0
+            "Optional" : "1"
         }, 
         {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_PHYT",
-            "DataId" : "gd_affc2cc0-93c1-11e7-adf5-016261c89e77",
-            "Tag" : "PHYT.dat",
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "EdgeContamination",
+            "DataId" : "gd_4fb2d340-7cd4-11e7-b70f-750b08f27d27",
+            "Tag" : "udx_xml_EdgeFlag.xml",
             "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_bfw",
-            "DataId" : "gd_d9da2ef0-93c3-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_bfw.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_cor",
-            "DataId" : "gd_f5f2b800-93c3-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_cor.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_dep",
-            "DataId" : "gd_fecc09e0-93c3-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_dep.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_grd",
-            "DataId" : "gd_02f36c70-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_grd.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_its",
-            "DataId" : "gd_1196fb70-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_its.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_mc",
-            "DataId" : "gd_1b86ed70-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_mc.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_obc",
-            "DataId" : "gd_2ed7fef0-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_obc.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_riv",
-            "DataId" : "gd_354077e0-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_riv.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_riv_wqm",
-            "DataId" : "gd_67f0b1f0-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_riv_wqm.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_spg",
-            "DataId" : "gd_6fa3d350-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "taihu_spg.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_grd_topo",
-            "DataId" : "gd_72a3a5d0-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "taihut_grd_topo.dat",
-            "Destroyed" : false,
-            "Optional" : 0
-        }, 
-        {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "TaiHu_windstaion",
-            "DataId" : "gd_7f0d7170-93c4-11e7-adf5-016261c89e77",
-            "Tag" : "windstation.dat",
-            "Destroyed" : false,
-            "Optional" : 0
+            "Optional" : "1"
         }
     ],
     output : [
         {
-            "StateId" : "680b2271-26d9-4cad-b85d-92511c0867ad",
-            "StateName" : "TaiHuFvcomState",
-            "StateDes" : "TaiHuFvcomState",
-            "Event" : "Taihu_topo",
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "AreaD8",
             "Destroyed" : false,
-            "Tag" : "TaiHuFvcomState-Taihu_topo",
-            "DataId" : "gd_643ce2a0-93cd-11e7-96fa-0b4283413b10"
+            "Tag" : "RUNSTATE-AreaD8",
+            "DataId" : "gd_64275620-7cd4-11e7-b70f-750b08f27d27"
         }
 
     ],
