@@ -34,3 +34,10 @@ redis.conf
 /ComputerRes/.vscode
 fancytree
 geojson
+MongoDB
+Redis
+ComputerResourceConsole.exe
+CRC.config
+dump.rdb
+help
+Log
