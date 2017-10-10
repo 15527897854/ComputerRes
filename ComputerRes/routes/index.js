@@ -18,70 +18,90 @@ var ModelSerCtrl = require('../control/modelSerControl');
 var setting = require('../setting');
 var CommonMethod = require('../utils/commonMethod');
 
-module.exports = function(app)
-{
+module.exports = function(app) {
+    app.all('*', function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
+        res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+        if (req.method == "OPTIONS") {
+            // 预检请求直接返回
+            return res.send(200);
+        } else {
+            return next();
+        }
+    });
+
     app.route('/ping')
-        .get(function(req, res, next){
+        .get(function(req, res, next) {
             res.end('OK');
         });
 
     aggreRoute(app);
 
     ModelSerAccessRoute(app);
-    
+
     app.route('*')
-        .get(function(req, res, next){
+        .get(function(req, res, next) {
             var code = AuthCtrl.getAuth(req);
-            switch(code){
-                case 1:{
-                    next();
-                    break;
-                }
-                case -1:{
-                    return res.redirect('/login');
-                }
-                case -2:{
-                    return res.end(JSON.stringify({
-                        result : 'fail',
-                        message : 'auth failed'
-                    }));
-                }
+            switch (code) {
+                case 1:
+                    {
+                        next();
+                        break;
+                    }
+                case -1:
+                    {
+                        return res.redirect('/login');
+                    }
+                case -2:
+                    {
+                        return res.end(JSON.stringify({
+                            result: 'fail',
+                            message: 'auth failed'
+                        }));
+                    }
             }
         })
-        .post(function(req, res, next){
+        .post(function(req, res, next) {
             var code = AuthCtrl.postAuth(req);
-            switch(code){
-                case 1:{
-                    next();
-                    break;
-                }
-                case -1:{
-                    res.redirect('login');
-                }
-                case -2:{
-                    res.end(JSON.stringify({
-                        result : 'fail',
-                        message : 'auth failed'
-                    }));
-                }
+            switch (code) {
+                case 1:
+                    {
+                        next();
+                        break;
+                    }
+                case -1:
+                    {
+                        res.redirect('login');
+                    }
+                case -2:
+                    {
+                        res.end(JSON.stringify({
+                            result: 'fail',
+                            message: 'auth failed'
+                        }));
+                    }
             }
         })
-        .put(function(req, res, next){
+        .put(function(req, res, next) {
             var code = AuthCtrl.postAuth(req);
-            switch(code){
-                case 1:{
-                    next();
-                    break;
-                }
-                case -1:{
-                    res.redirect('login');
-                }
-                case -2:{
-                    res.end(JSON.stringify({
-                        result : 'fail',
-                        message : 'auth failed'
-                    }));
-                }
+            switch (code) {
+                case 1:
+                    {
+                        next();
+                        break;
+                    }
+                case -1:
+                    {
+                        res.redirect('login');
+                    }
+                case -2:
+                    {
+                        res.end(JSON.stringify({
+                            result: 'fail',
+                            message: 'auth failed'
+                        }));
+                    }
             }
         });
 
@@ -108,10 +128,10 @@ module.exports = function(app)
 
     //Homepage
     app.route('/index')
-        .get(function(req, res, next){
-            res.render('index',{
-                title:'GeoModeling'
-                // user: req.session.user
+        .get(function(req, res, next) {
+            res.render('index', {
+                title: 'GeoModeling'
+                    // user: req.session.user
             });
         });
 
@@ -135,33 +155,30 @@ module.exports = function(app)
     //     });
     //Test
     app.route('/test')
-        .get(function (req, res, next) {
+        .get(function(req, res, next) {
             res.render('test');
         });
 
     app.route('*')
-        .get(function(req, res, next){
-            if(AuthCtrl.authByAdmin(req) == 1){
+        .get(function(req, res, next) {
+            if (AuthCtrl.authByAdmin(req) == 1) {
                 next();
-            }
-            else{
-                res.end(JSON.stringify({err : 'no auth!'}));
+            } else {
+                res.end(JSON.stringify({ err: 'no auth!' }));
             }
         })
-        .post(function(req, res, next){
-            if(AuthCtrl.authByAdmin(req) == 1){
+        .post(function(req, res, next) {
+            if (AuthCtrl.authByAdmin(req) == 1) {
                 next();
-            }
-            else{
-                res.end(JSON.stringify({err : 'no auth!'}));
+            } else {
+                res.end(JSON.stringify({ err: 'no auth!' }));
             }
         })
-        .put(function(req, res, next){
-            if(AuthCtrl.authByAdmin(req) == 1){
+        .put(function(req, res, next) {
+            if (AuthCtrl.authByAdmin(req) == 1) {
                 next();
-            }
-            else{
-                res.end(JSON.stringify({err : 'no auth!'}));
+            } else {
+                res.end(JSON.stringify({ err: 'no auth!' }));
             }
         });
 
