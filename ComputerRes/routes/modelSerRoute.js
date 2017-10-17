@@ -623,9 +623,8 @@ module.exports = function(app)
                 {
                     return res.end('error');
                 }
-                ModelSerCtrl.readCfg(ms,function (err, cfg) {
-                    var filename = cfg.mdl;
-                    var cfgPath = __dirname + '/../geo_model/' + ms.ms_path + filename;
+                    var filename = ms.ms_model.m_name + '.mdl';
+                    var cfgPath = __dirname + '/../geo_model/' + ms.ms_path + 'model/' + filename;
                     fs.readFile(cfgPath, function (err, data) {
                         if(err)
                         {
@@ -638,7 +637,6 @@ module.exports = function(app)
                         res.setHeader('Content-Disposition', 'attachment; filename=' + encodeURIComponent(name));
                         res.end(data);
                     })
-                });
             });
         });
 

@@ -15,9 +15,9 @@ var setting = require('./../setting');
 // var UDXVisualization = require('./UDX_Visualization');
 var child_process = require('../utils/child-process');
 
-sysCtrl.autoDetectSW(function (err,data) {
-    console.log(data);
-});
+// sysCtrl.autoDetectSW(function (err,data) {
+//     console.log(data);
+// });
 
 //全文索引示例
 // var query = {
@@ -67,20 +67,19 @@ sysCtrl.autoDetectSW(function (err,data) {
 //     }
 // });
 
-// var url = 'http://127.0.0.1:1000/post';
-// var form = {
-//     field:'1',
-//     my_file:fs.createReadStream(__dirname+ '/../public/images/404-error.png')
-// };
-// // url += '?a='+ JSON.stringify(form);
-// RemoteReqControl.postByServer(url,form,function (err, data) {
-//     if(err){
-//         return console.log(err);
-//     }
-//     else{
-//         console.log(data);
-//     }
-// });
+var url = 'http://127.0.0.1:8060/geodata?type=file&gd_tag=';
+var form = {
+    myfile:fs.createReadStream(__dirname+ '/../public/images/404-error.png')
+};
+// url += '?a='+ JSON.stringify(form);
+RemoteReqControl.postByServer(url,form,function (err, data) {
+    if(err){
+        return console.log(err);
+    }
+    else{
+        console.log(data);
+    }
+});
 
 // ModelSerCtrl.addBatchDeployItemsByMDL({u_name:'scr',u_email:'1374316846@qq.com'},'E:\\SAGA Models\\',true);
 
