@@ -42,7 +42,7 @@
     },
     "devDependencies": {},
     "scripts": {
-        "start": "node .\\bin\\www",
+        "start": "node .\\bin\\www --legacy",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",

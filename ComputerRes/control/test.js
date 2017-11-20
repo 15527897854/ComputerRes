@@ -2,6 +2,7 @@ var fs = require('fs');
 var request = require('request-promise');
 var convert = require('convert-units');
 var http = require('http');
+var path = require('path');
 
 var ModelSerCtrl = require('./modelSerControl');
 var sysCtrl = require('./sysControl');
@@ -14,6 +15,19 @@ var verCtrl = require('./versionCtrl');
 var setting = require('./../setting');
 // var UDXVisualization = require('./UDX_Visualization');
 var child_process = require('../utils/child-process');
+var unzip = require('unzip');
+
+const zipPath = path.join(__dirname, '../geo_data/gd_4c5e3910-bae5-11e7-9365-d3ad225fc5d9.zip');
+const unzipPath = path.join(__dirname, '../geo_data/gd_04003170-bae8-11e7-9365-d3ad225fc5d9');
+const unzipExtractor = unzip.Extract({ path: unzipPath });
+unzipExtractor.on('error', (err) => {
+    console.log(err);
+});
+unzipExtractor.on('close', (rst) => {
+    console.log(rst);
+});
+fs.createReadStream(zipPath).pipe(unzipExtractor);
+
 
 // sysCtrl.autoDetectSW(function (err,data) {
 //     console.log(data);
@@ -67,19 +81,19 @@ var child_process = require('../utils/child-process');
 //     }
 // });
 
-var url = 'http://127.0.0.1:8060/geodata?type=file&gd_tag=';
-var form = {
-    myfile:fs.createReadStream(__dirname+ '/../public/images/404-error.png')
-};
-// url += '?a='+ JSON.stringify(form);
-RemoteReqControl.postByServer(url,form,function (err, data) {
-    if(err){
-        return console.log(err);
-    }
-    else{
-        console.log(data);
-    }
-});
+// var url = 'http://127.0.0.1:8060/geodata?type=file&gd_tag=';
+// var form = {
+//     myfile:fs.createReadStream(__dirname+ '/../public/images/404-error.png')
+// };
+// // url += '?a='+ JSON.stringify(form);
+// RemoteReqControl.postByServer(url,form,function (err, data) {
+//     if(err){
+//         return console.log(err);
+//     }
+//     else{
+//         console.log(data);
+//     }
+// });
 
 // ModelSerCtrl.addBatchDeployItemsByMDL({u_name:'scr',u_email:'1374316846@qq.com'},'E:\\SAGA Models\\',true);
 
