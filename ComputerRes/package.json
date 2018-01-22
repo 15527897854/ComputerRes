@@ -19,6 +19,7 @@
         "express": "^4.13.4",
         "express-session": "^1.14.0",
         "formidable": "^1.0.17",
+        "graceful-fs": "^4.1.11",
         "iconv-lite": "^0.4.16",
         "jsx-loader": "^0.13.2",
         "mongoose": "^4.8.5",
@@ -42,8 +43,8 @@
     },
     "devDependencies": {},
     "scripts": {
-        "start": "node .\\bin\\www --legacy",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "node --inspect=0.0.0.0:65533 ./bin/www",
+        "serve": "nodemon --inspect=0.0.0.0:65533 ./bin/www"
     },
     "author": "",
     "license": "ISC",

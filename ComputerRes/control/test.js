@@ -29,6 +29,10 @@ unzipExtractor.on('close', (rst) => {
 fs.createReadStream(zipPath).pipe(unzipExtractor);
 
 
+var Canvas = require('canvas');
+var canvas = new Canvas(200, 200);
+canvas.getContent('2d');
+
 // sysCtrl.autoDetectSW(function (err,data) {
 //     console.log(data);
 // });

@@ -287,6 +287,7 @@ GeoDataCtrl.onReceivedDataPosition = function(dataPosition) {
                     .then(function(gd) {
                         return new Promise(function(resolve, reject) {
                             if (gd.error) {
+                                // TODO error
                                 return reject(new Error(gd.error));
                             }
 
