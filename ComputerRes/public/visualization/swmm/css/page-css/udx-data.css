@@ -1,0 +1,136 @@
+body{background-color: #eef1f5;}
+
+li{
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    overflow:hidden;
+}
+.container-fluid{
+    margin-left:1%;
+    margin-top:2%;
+}
+
+#node-view{
+    border: none;
+    padding: 10px 10px 20px 10px;
+    box-shadow: 2px 2px 2px #cccccc;
+    background-color: #fff;
+     height:600px;
+}
+
+.operate-btn{
+    margin-top:-10px;
+    margin-left: 56%;
+}
+#udx-tree-view{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
+
+    border-radius: 0px;
+    border: none;
+    box-shadow: 2px 2px 2px #cccccc;
+    height: 600px;
+}
+
+#udx-tree-view > .panel-body{
+
+    padding: 0px 2px 0px 2px;
+    height:600px;
+    overflow: auto;
+}
+#node-value-table-panel{
+   border: 1px solid #ccc;
+   box-shadow: none;
+   height: 347px;
+}
+#tree{
+    font-size: 12px;
+    margin-top:2px;
+}
+.list-group li{
+    border: none;
+}
+.m_active{
+    background-color: #66CC99;
+    color: #fff;
+}
+tbody tr{
+     transition: background-color 0.2s,box-shadow 0.2s;
+    -moz-transition: background-color 0.2s,box-shadow 0.2s;	/* Firefox 4 */
+    -webkit-transition: background-color 0.2s,box-shadow 0.2s;	/* Safari 和 Chrome */
+    -o-transition: background-color 0.2s,box-shadow 0.2s;	/* Opera */
+}
+tbody tr:hover{
+    box-shadow: 1px 1px 1px #777;
+}
+tbody tr td{
+    cursor: pointer;
+}
+
+@media(min-height:800px){
+    #udx-tree-view{
+        height: 680px;
+    }
+
+    #node-view{
+        height:680px;
+    }
+
+    .operate-btn{
+        margin-left: 70%;
+    }
+   #node-value-table-panel{
+        height: 460px;
+    }
+
+}
+
+#edit-input{
+    margin: 0px;
+    width:100px;
+    height: 20px;
+}
+.custom-btn{
+margin-left: 8px;
+}
+#node-value-table{
+    margin-top:10px;
+    max-height:400px;
+    overflow: auto;
+}
+
+.input-group-addon{
+    border: none;
+    border-radius: 0px;
+}
+.form-control{
+    outline: none;
+}
+
+.form-control[disabled]{
+    cursor: default;
+    border-radius: 0px;
+    border: none;
+    background-color:#f5f5f5;
+	
+}
+input[type=text]{
+     border-radius: 0px;
+    border: none;
+    border-bottom: 1px solid #c2cad8;
+    color:#555;
+    box-shadow: none!important;
+    outline: none!important;
+}
+input[type=text]:focus{
+      border-bottom: 2px solid #32c5d2;
+}
+#view-xml{
+    padding: 2px;
+    height: 340px;
+    overflow: auto;
+}

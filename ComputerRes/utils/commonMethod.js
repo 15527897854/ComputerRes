@@ -56,7 +56,7 @@ CommonMethod.Uncompress = function(zip_file, file_path, callback){
     else if(settings.platform == 1){
         fs.createReadStream(zip_file).pipe(unzip.Extract({path: file_path}))
             .on('close',function () {
-                return callback()
+                return callback();
             });
     }
     

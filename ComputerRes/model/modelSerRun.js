@@ -25,6 +25,7 @@ function ModelSerRun( modelserRun )
         this.msr_output = modelserRun.msr_output;
         this.msr_status = modelserRun.msr_status;
         this.msr_des = modelserRun.msr_des;
+        this.msr_log = modelserRun.msr_log;
     }
     else
     {
@@ -39,6 +40,7 @@ function ModelSerRun( modelserRun )
         this.msr_output = [];
         this.msr_status = -1;
         this.msr_des = '';
+        this.msr_log = [];
     }
     return this;
 }
@@ -57,7 +59,8 @@ var MSRSchema = new mongoose.Schema({
     msr_input :  Array,
     msr_output :  Array,
     msr_status : Number,
-    msr_des :  String
+    msr_des :  String,
+    msr_log :  Array
 },{collection:'modelserrun'});
 var MSR = mongoose.model('modelserrun',MSRSchema);
 
@@ -149,6 +152,22 @@ ModelSerRun.updateDes = function (_oid, msr_des, callback) {
                 msr_des : msr_des
             };
             MSR.update(where, update, this.returnFunction(callback, 'Error in updating msr_des a ' + this.modelName + ' by where'));
+        }
+    }
+};
+
+//更新日志信息
+ModelSerRun.updateLog = function (_oid, msr_log, callback) {
+    if(CheckParam.checkParam(callback, _oid))
+    {
+        if(CheckParam.checkParam(callback, msr_log))
+        {
+            var oid = new ObjectId(_oid);
+            var where = {'_id' : oid};
+            var update = {
+                msr_log : msr_log
+            };
+            MSR.update(where, update, this.returnFunction(callback, 'Error in updating msr_log a ' + this.modelName + ' by where'));
         }
     }
 };

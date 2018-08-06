@@ -106,10 +106,18 @@ var DataPreparation = React.createClass({
         {
             if(this.state.allInputData[i].StateId == stateId && this.state.allInputData[i].Event == eventName && this.state.allInputData[i].DataId != '')
             {
+                var fname = null;
+                var tag = allInputData[i].Tag;
+                if(tag != null && tag != ''){
+                    fname = tag;
+                }
+                else{
+                    fname = allInputData[i].DataId;
+                }
                 return (
                     <p id={ 'data_pre_p_' + stateId + '_' + eventName }>
                         <strong>{window.LanguageConfig.InputData.Event.Ready}&nbsp;:&nbsp;</strong><span className="label label-success">{window.LanguageConfig.InputData.Event.DataReady}</span>&nbsp;&nbsp;
-                        { this.state.allInputData[i].DataId }&nbsp;&nbsp;
+                        { fname }&nbsp;&nbsp;
                         <button className="btn btn-danger btn-xs" onClick={(e) => { this.onRemoveData(e, stateId, eventName) }} >{window.LanguageConfig.InputData.Event.DataRemove}</button>
                     </p>
                 );

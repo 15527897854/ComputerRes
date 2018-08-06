@@ -1,0 +1,34 @@
+<UdxDeclaration name="UdxDescription" description="">
+    <UdxNode>
+        <UdxNode name="Header" type="DTKT_ANY" description="">
+            <UdxNode name="UpperLeftX" type="DTKT_REAL" description=""/>
+            <UdxNode name="PixelWidth" type="DTKT_REAL" description=""/>
+            <UdxNode name="TransParam1" type="DTKT_REAL" description=""/>
+            <UdxNode name="UpperLeftY" type="DTKT_REAL" description=""/>
+            <UdxNode name="TransParam2" type="DTKT_REAL" description=""/>
+            <UdxNode name="PixelHeight" type="DTKT_REAL" description=""/>
+            <UdxNode name="Width" type="DTKT_INT" description=""/>
+            <UdxNode name="Height" type="DTKT_INT" description=""/>
+            <UdxNode name="BandCount" type="DTKT_INT" description=""/>
+        </UdxNode>
+        <UdxNode name="Bands" type="DTKT_LIST" description="">
+            <UdxNode name="Band_Item" type="DTKT_ANY" description="">
+                <UdxNode name="NoDataValue" type="DTKT_REAL" description=""/>
+                <UdxNode name="Scale" type="DTKT_REAL" description=""/>
+                <UdxNode name="Offset" type="DTKT_REAL" description=""/>
+                <UdxNode name="UnitType" type="DTKT_STRING" description=""/>
+                <UdxNode name="DataType" type="DTKT_INT" description=""/>
+                <UdxNode name="Value" type="DTKT_LIST" description="">
+                    <UdxNode name="Row_Item" type="DTKT_REAL | DTKT_LIST" description=""/>
+                </UdxNode>
+            </UdxNode>
+        </UdxNode>
+        <UdxNode name="Projection" type="DTKT_STRING" description=""/>
+    </UdxNode>
+    <SemanticAttachment>
+        <Concepts/>
+        <SpatialRefs/>
+        <Units/>
+        <DataTemplates/>
+    </SemanticAttachment>
+</UdxDeclaration>

@@ -1,0 +1,15 @@
+{
+    "verbose": true,
+    "ignore": [
+        "node_modules/**/*",
+        "public/**/*",
+        "test/**/*",
+        "views/**/*",
+        "visualization_service/**/*",
+        ".vscode/**/*",
+        "geo_data/**/*",
+        "helper/**/*",
+        "geo_model/**/*",
+        "geo_dataMapping/**/*"
+    ]
+}

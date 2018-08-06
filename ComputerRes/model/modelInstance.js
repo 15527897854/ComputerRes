@@ -9,19 +9,22 @@ function ModelInstance(mis) {
         this.guid = '';
         this.socket = null;
         this.ms = null;
+        this.input = null;
+        this.output = null;
+        this.log = [];
         this.start = null;
         this.state = null;
     }
     else
     {
-        // this.guid = mis.guid;
-        // this.socket = mis.socket;
-        // this.ms = mis.ms;
-        // this.start = mis.start;
-        // this.state = mis.state;
-        for(var key in mis){
-            this[key] = mis[key];
-        }
+        this.guid = mis.guid;
+        this.socket = mis.socket;
+        this.ms = mis.ms;
+        this.input = mis.input;
+        this.output = mis.output;
+        this.log = mis.log;
+        this.start = mis.start;
+        this.state = mis.state;
     }
     return this;
 }

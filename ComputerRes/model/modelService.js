@@ -84,7 +84,7 @@ ModelService.getAll = function(flag, callback){
         else{
             where = { ms_status : { $ne : -1 }, ms_limited : { $ne : 1 }}
         }
-        MS.find(where).sort({'ms_update':-1}).exec(this.returnFunction(callback, 'Error in getting all model service'));
+        MS.find(where, this.returnFunction(callback, 'Error in getting all model service'));
     }
 };
 
@@ -177,26 +177,25 @@ ModelService.run = function (ms_id, guid, exeoutcb, callback) {
                 }
                 if(ParamCheck.checkParam(callback, ms))
                 {
-                    ModelService.readCfg(ms, function (err, cfg) {
-                        if (err) {
-                            return callback(err);
+                    ModelService.readMDL(ms, function(err, jsMDL){
+                        if(err){
+
                         }
-                        //执行程序
-                        var cmd;
-                        if (cfg.type == 'exe') {
-                            cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        var entry = jsMDL.ModelClass.Runtime.$.entry;
+                        
+                        var ext = entry.substr(entry.lastIndexOf('.') + 1);
+                        var cmd = '';
+                        if(ext == 'exe'){
+                            cmd = setting.modelpath + ms.ms_path + '/model/' + entry + ' ' + setting.socket.host + ' ' + setting.socket.port + ' ' + guid;
                         }
-                        else if (cfg.type == 'java') {
-                            cmd = 'java -jar ' + setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        else if(ext == 'jar'){
+                            cmd = 'java -jar ' + baseDir + entry + ' ' + setting.socket.host + ' ' + setting.socket.port + ' ' + guid;
                         }
-                        else if (cfg.type == 'lnx') {
-                            cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        else if(ext == 'sh'){
+                            cmd ='sh ' +  baseDir + entry + ' ' + setting.socket.host + ' ' + setting.socket.port + ' ' + guid;
                         }
-                        else if (cfg.type == 'sh') {
-                            cmd ='sh ' +  setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
-                        }
-                        else {
-                            cmd = setting.modelpath + ms.ms_path + cfg.start + '  ' + guid;
+                        else{
+                            cmd = baseDir + entry + ' ' + setting.socket.host + ' ' + setting.socket.port + ' ' + guid;
                         }
                         console.log('ModelService Run CMD : ' + cmd);
                         exec(cmd, {
@@ -214,56 +213,37 @@ ModelService.run = function (ms_id, guid, exeoutcb, callback) {
 ModelService.readMDL = function (ms, callback) {
     if(ParamCheck.checkParam(callback, ms))
     {
-        ModelService.readCfg(ms, function (err, cfg) {
-            if(err)
-            {
+        ModelService.readMDLByPath(__dirname + '/../geo_model/' + ms.ms_path + 'model/', function(err, jsMDL){
+            if(err){
                 return callback(err);
             }
-            fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
-                if(err)
-                {
-                    console.log('Error in read mdl file : ' + err);
-                    return callback(err);
-                }
-                var mdl = xmlparse(data, { explicitArray : false, ignoreAttrs : false }, function (err, json) {
-                    if(err)
-                    {
-                        console.log('Error in parse mdl file : ' + err);
-                        return callback(err);
-                    }
-                    return callback(null, json);
-                });
-            })
+            return callback(null, jsMDL);
         });
     }
 };
 
-ModelService.getMSDetail = function(msid, cb){
-    ModelService.getByOID(msid, function (err, ms) {
-        if (err) {
-            return cb(err);
-        }
-        ModelService.readCfg(ms, function (err, cfg) {
-            if(err) {
-                return cb(err);
-            }
-            fs.readFile(__dirname + '/../geo_model/' + ms.ms_path + cfg.mdl, function (err, data) {
-                if(err) {
-                    console.log('Error in read mdl file : ' + err);
-                    return cb(err);
-                }
-                return cb(null,{
-                    MS:ms,
-                    MDLStr: data.toString()
-                });
-            })
-        });
-    });
-};
-
+//通过路径读取MDL
 ModelService.readMDLByPath = function (path, callback) {
-    if(ParamCheck.checkParam(callback, path)){
-        fs.readFile(path, function (err, data) {
+    fs.readdir(path, function(err, dirs){
+        if(err){
+            return callback(err);
+        }
+        var mdlPath = null;
+        for(var i = 0; i < dirs.length; i++){
+            var dotIndex = dirs[i].lastIndexOf('.');
+            if(dotIndex == -1){
+                continue;
+            }
+            var ext = dirs[i].substr(dotIndex + 1);
+            if(ext == 'mdl'){
+                mdlPath = path + dirs[i];
+                break;
+            }
+        }
+        if(mdlPath == null){
+            return callback(new Error('Error!'));
+        }
+        fs.readFile(mdlPath, function (err, data) {
             if(err)
             {
                 console.log('Error in read mdl file : ' + err);
@@ -275,10 +255,100 @@ ModelService.readMDLByPath = function (path, callback) {
                     console.log('Error in parse mdl file : ' + err);
                     return callback(err);
                 }
+                if (json.ModelClass.Behavior.StateGroup.States.State.length==undefined)
+                {
+                    var temp_state = json.ModelClass.Behavior.StateGroup.States.State;
+                    var event_count = temp_state.Event.length;
+                    for(var iEvent=0; iEvent<event_count; iEvent++)
+                    {
+                        var op = temp_state.Event[iEvent].$.optional;
+                        if (op=='False')
+                        {
+                            temp_state.Event[iEvent].$.optional = 0;
+                        }
+                        else if (op=="True")
+                        {
+                            temp_state.Event[iEvent].$.optional = 1;
+                        }
+                    }
+                }
+                else
+                {
+                    var state_count = json.ModelClass.Behavior.StateGroup.States.State.length;
+                    for (var iState=0; iState<state_count; iState++)
+                    {
+                        var temp_state = json.ModelClass.Behavior.StateGroup.States.State[iState];
+                        var event_count = temp_state.Event.length;
+                        for(var iEvent=0; iEvent<event_count; iEvent++)
+                        {
+                            var op = temp_state.Event[iEvent].$.optional;
+                            if (op=='False')
+                            {
+                                temp_state.Event[iEvent].$.optional = 0;
+                            }
+                            else if (op=="True")
+                            {
+                                temp_state.Event[iEvent].$.optional = 1;
+                            }
+                        }
+                    }
+                }
                 return callback(null, json);
             });
         });
-    }
+    });
+};
+
+// return String!
+ModelService.getMDLStr = function (ms, callback) {
+    var path = __dirname + '/../geo_model/' + ms.ms_path + 'model/';
+    fs.readdir(path, function(err, dirs){
+        if(err){
+            return callback(err);
+        }
+        var mdlPath = null;
+        for(var i = 0; i < dirs.length; i++){
+            var dotIndex = dirs[i].lastIndexOf('.');
+            if(dotIndex == -1){
+                continue;
+            }
+            var ext = dirs[i].substr(dotIndex + 1);
+            if(ext == 'mdl'){
+                mdlPath = path + dirs[i];
+                break;
+            }
+        }
+        if(mdlPath == null){
+            return callback(new Error('Error!'));
+        }
+        fs.readFile(mdlPath, 'utf8', function (err, data) {
+            if(err)
+            {
+                console.log('Error in read mdl file : ' + err);
+                return callback(err);
+            }
+            else{
+                return callback(null, data);
+            }
+        });
+    });
+};
+
+ModelService.getMSDetail = function(msid, cb){
+    ModelService.getByOID(msid, function (err, ms) {
+        if (err) {
+            return cb(err);
+        }
+        ModelService.getMDLStr(ms, function (err, mdlStr) {
+            if(err) {
+                return cb(err);
+            }
+            return cb(null,{
+                MS:ms,
+                MDLStr: mdlStr
+            });
+        });
+    });
 };
 
 ModelService.parseMDLStr = function (mdlStr, callback) {

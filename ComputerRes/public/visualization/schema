@@ -1,0 +1,226 @@
+<UdxDeclaration>
+  <UdxNode>
+    <UdxNode name="Title" type="DTKT_ANY" description="Title of the RptData">
+      <UdxNode name="Title_Version" type="DTKT_STRING" description="Version description" />
+      <UdxNode name="Title_Title and Warning" type="DTKT_STRING" description="Title and Warning description" />
+      <UdxNode name="Title_Notes" type="DTKT_STRING" description="Notes description" />
+    </UdxNode>
+    <UdxNode name="Analysis Options" type="DTKT_ANY" description="Analysis Options">
+      <UdxNode name="Analysis Flow Units" type="DTKT_STRING" description="Flow Units" />
+      <UdxNode name="Analysis Rainfall/Runoff" type="DTKT_STRING" description="Rainfall/Runoff" />
+      <UdxNode name="Analysis RDII" type="DTKT_STRING" description="RDII" />
+      <UdxNode name="Analysis Snowmelt" type="DTKT_STRING" description="Snowmelt" />
+      <UdxNode name="Analysis Groundwater " type="DTKT_STRING" description="Groundwater" />
+      <UdxNode name="Analysis Flow Routing" type="DTKT_STRING" description="Flow Routing" />
+      <UdxNode name="Analysis Ponding Allowed" type="DTKT_STRING" description="Ponding Allowed" />
+      <UdxNode name="Analysis Water Quality" type="DTKT_STRING" description="Water Quality" />
+      <UdxNode name="Analysis Infiltration Method" type="DTKT_STRING" description="Infiltration MethodS" />
+      <UdxNode name="Analysis Flow Routing Method" type="DTKT_STRING" description="Flow Routing Method" />
+      <UdxNode name="Analysis Starting Date" type="DTKT_STRING" description="Starting Date" />
+      <UdxNode name="Analysis Ending Date" type="DTKT_STRING" description="Ending Date" />
+      <UdxNode name="Analysis Antecedent Dry Days" type="DTKT_STRING" description="Antecedent Dry Days" />
+      <UdxNode name="Analysis Report Time Step" type="DTKT_STRING" description="Report Time Step" />
+      <UdxNode name="Analysis Wet Time Step" type="DTKT_STRING" description="Wet Time Step" />
+      <UdxNode name="Analysis Dry Time Step" type="DTKT_STRING" description="Dry Time Step" />
+      <UdxNode name="Analysis Routing Time Step" type="DTKT_STRING" description="Routing Time Step" />
+    </UdxNode>
+    <UdxNode name="Runoff Quantity Continuity" type="DTKT_ANY" description="Runoff Quantity Continuity">
+      <UdxNode name="RQC Total Precipitation" type="DTKT_ANY" description="RQC Total Precipitation">
+        <UdxNode name="RQC Total Precipitation Volume" type="DTKT_REAL" description="Volume" />
+        <UdxNode name="RQC Total Precipitation Depth" type="DTKT_REAL" description="Depth" />
+      </UdxNode>
+      <UdxNode name="RQC Evaporation Loss" type="DTKT_ANY" description="RQC Evaporation Loss">
+        <UdxNode name="RQC Evaporation Loss Volume" type="DTKT_REAL" description="Volume" />
+        <UdxNode name="RQC Evaporation Loss Depth" type="DTKT_REAL" description="Depth" />
+      </UdxNode>
+      <UdxNode name="RQC Infiltration Loss" type="DTKT_ANY" description="RQC Infiltration Loss">
+        <UdxNode name="RQC Infiltration Loss Volume" type="DTKT_REAL" description="Volume" />
+        <UdxNode name="RQC Infiltration Loss Depth" type="DTKT_REAL" description="Depth" />
+      </UdxNode>
+      <UdxNode name="RQC Surface Runoff" type="DTKT_ANY" description="RQC Surface Runoff">
+        <UdxNode name="RQC Surface Runoff Volume" type="DTKT_REAL" description="Volume" />
+        <UdxNode name="RQC Surface Runoff Depth" type="DTKT_REAL" description="Depth" />
+      </UdxNode>
+      <UdxNode name="RQC Final Surface Storage" type="DTKT_ANY" description="RQC Final Surface Storage">
+        <UdxNode name="RQC Final Surface Storage Volume" type="DTKT_REAL" description="Volume" />
+        <UdxNode name="RQC Final Surface Storage Depth" type="DTKT_REAL" description="Depth" />
+      </UdxNode>
+      <UdxNode name="RQC Continuity Error" type="DTKT_REAL" description="RQC Continuity Error" />
+    </UdxNode>
+    <UdxNode name="Flow Routing Continuity" type="DTKT_ANY" description="Flow Routing Continuity">
+      <UdxNode name="FRC Dry Weather Inflow" type="DTKT_ANY" description="FRC Dry Weather Inflow">
+        <UdxNode name="FRC Dry Weather Inflow hectare-m" type="DTKT_REAL" description="Dry Weather Inflow hectare-m" />
+        <UdxNode name="FRC Dry Weather Inflow Depth" type="DTKT_REAL" description="Dry Weather Inflow Depth" />
+      </UdxNode>
+      <UdxNode name="FRC Wet Weather Inflow" type="DTKT_ANY" description="FRC Wet Weather Inflow">
+        <UdxNode name="FRC Wet Weather Inflow hectare-m" type="DTKT_REAL" description="FRC Wet Weather Inflow hectare-m" />
+        <UdxNode name="FRC Wet Weather Inflow Depth" type="DTKT_REAL" description="FRC Wet Weather Inflow Depth" />
+      </UdxNode>
+      <UdxNode name="FRC Groundwater Inflow" type="DTKT_ANY" description="FRC Groundwater Inflow">
+        <UdxNode name="FRC Groundwater Inflow hectare-m" type="DTKT_REAL" description="FRC Groundwater Inflow hectare-m" />
+        <UdxNode name="FRC Groundwater Inflow Depth" type="DTKT_REAL" description="FRC Groundwater Inflow Depth" />
+      </UdxNode>
+      <UdxNode name="FRC RDII Inflow" type="DTKT_ANY" description="FRC RDII Inflow">
+        <UdxNode name="FRC RDII Inflow hectare-m" type="DTKT_REAL" description="FRC RDII Inflow hectare-m" />
+        <UdxNode name="FRC RDII Inflow Depth" type="DTKT_REAL" description="FRC RDII Inflow Depth" />
+      </UdxNode>
+      <UdxNode name="FRC External Inflow" type="DTKT_ANY" description="FRC External Inflow">
+        <UdxNode name="FRC External Inflow hectare-m" type="DTKT_REAL" description="FRC External Inflow hectare-m" />
+        <UdxNode name="FRC External Inflow Depth" type="DTKT_REAL" description="FRC External Inflow Depth" />
+      </UdxNode>
+      <UdxNode name="FRC External Outflow" type="DTKT_ANY" description="FRC External Outflow">
+        <UdxNode name="FRC External Outflow hectare-m" type="DTKT_REAL" description="FRC External Outflow hectare-m" />
+        <UdxNode name="FRC External Outflow Depth" type="DTKT_REAL" description="FRC External Outflow Depth" />
+      </UdxNode>
+      <UdxNode name="FRC Internal Outflow" type="DTKT_ANY" description="FRC Internal Outflow">
+        <UdxNode name="FRC Internal Outflow hectare-m" type="DTKT_REAL" description="FRC Internal Outflow hectare-m" />
+        <UdxNode name="FRC Internal Outflow Depth" type="DTKT_REAL" description="FRC Internal Outflow Depth" />
+      </UdxNode>
+      <UdxNode name="FRC Evaporation Loss" type="DTKT_ANY" description="FRC Evaporation Loss">
+        <UdxNode name="FRC Evaporation Loss hectare-m" type="DTKT_REAL" description="FRC Evaporation Loss hectare-m" />
+        <UdxNode name="FRC Evaporation Loss Depth" type="DTKT_REAL" description="FRC Evaporation Loss Depth" />
+      </UdxNode>
+      <UdxNode name="FRC Exfiltration Loss" type="DTKT_ANY" description="FRC Exfiltration Loss">
+        <UdxNode name="FRC Exfiltration Loss hectare-m" type="DTKT_REAL" description="FRC Exfiltration Loss hectare-m" />
+        <UdxNode name="FRC Exfiltration Loss Depth" type="DTKT_REAL" description="FRC Exfiltration Loss Depth" />
+      </UdxNode>
+      <UdxNode name="FRC Initial Stored Volume" type="DTKT_ANY" description="FRC Initial Stored Volume">
+        <UdxNode name="FRC Initial Stored Volume hectare-m" type="DTKT_REAL" description="FRC Initial Stored Volume hectare-m" />
+        <UdxNode name="FRC Initial Stored Volume Depth" type="DTKT_REAL" description="FRC Initial Stored Volume Depth" />
+      </UdxNode>
+      <UdxNode name="FRC Final Stored Volume" type="DTKT_ANY" description="FRC Final Stored Volume">
+        <UdxNode name="FRC Final Stored Volume hectare-m" type="DTKT_REAL" description="FRC Final Stored Volume hectare-m" />
+        <UdxNode name="FRC Final Stored Volume Depth" type="DTKT_REAL" description="FRC Final Stored Volume Depth" />
+      </UdxNode>
+      <UdxNode name="FRC Continuity Error" type="DTKT_REAL" description="FRC Continuity Error" />
+    </UdxNode>
+    <UdxNode name="Highest Flow Instability Indexes" type="DTKT_LIST" description="Highest Flow Instability Indexes">
+      <UdxNode name="HFII Node" type="DTKT_ANY" description="HFII Node">
+        <UdxNode name="HFII LinkName" type="DTKT_STRING" description="HFII LinkName" />
+        <UdxNode name="HFII Index" type="DTKT_STRING" description="HFII Index" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Routing Time Step Summary" type="DTKT_LIST" description="Routing Time Step Summary">
+      <UdxNode name="RTSS Minimum Time Step Node" type="DTKT_ANY" description="One node of subcatchments">
+        <UdxNode name="RTSS Minimum Time Step Value" type="DTKT_REAL" description="RTSS Minimum Time Step Value" />
+        <UdxNode name="RTSS Minimum Time Step Unit" type="DTKT_STRING" description="RTSS Minimum Time Step Unit" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Subcatchment Runoff Summary" type="DTKT_LIST" description="Subcatchment Runoff Summary">
+      <UdxNode name="SRS Node" type="DTKT_ANY" description="SRS Node">
+        <UdxNode name="SRS Subcatchment" type="DTKT_STRING" description="SRS Subcatchment" />
+        <UdxNode name="SRS Total Precip" type="DTKT_REAL" description="SRS Total Precipa" />
+        <UdxNode name="SRS Total Runon" type="DTKT_REAL" description="SRS Total Runon" />
+        <UdxNode name="SRS Total Evap" type="DTKT_REAL" description="SRS Total Evap" />
+        <UdxNode name="SRS Total Infil" type="DTKT_REAL" description="SRS Total Infil" />
+        <UdxNode name="SRS Total Runoff(mm)" type="DTKT_REAL" description="SRS Total Runoff(mm)" />
+        <UdxNode name="SRS Total Runoff(ltr)" type="DTKT_REAL" description="SRS Total Runoff(ltr)" />
+        <UdxNode name="SRS Peak Runoff" type="DTKT_REAL" description="SRS Peak Runoff" />
+        <UdxNode name="SRS Runoff Coeff" type="DTKT_REAL" description="SRS Runoff Coeff" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Node Depth Summary" type="DTKT_LIST" description="Node Depth Summary">
+      <UdxNode name="NDS Nodes" type="DTKT_ANY" description="NDS Nodes">
+        <UdxNode name="NDS Node" type="DTKT_STRING" description="NDS Node" />
+        <UdxNode name="NDS Type" type="DTKT_STRING" description="NDS Type" />
+        <UdxNode name="NDS Average Depth" type="DTKT_REAL" description="NDS Average Depth" />
+        <UdxNode name="NDS Maximum Depth" type="DTKT_REAL" description="NDS Maximum Depth" />
+        <UdxNode name="NDS Maximum HGL" type="DTKT_REAL" description="NDS Maximum HGL" />
+        <UdxNode name="NDS Time of Max Occurrence days" type="DTKT_STRING" description="NDS Time of Max Occurrence days" />
+        <UdxNode name="NDS Time of Max Occurrence hr" type="DTKT_STRING" description="NDS Time of Max Occurrence hr" />
+        <UdxNode name="NDS Time of Max Occurrence min" type="DTKT_STRING" description="NDS Time of Max Occurrence min" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Node Inflow Summary" type="DTKT_LIST" description="Node Inflow Summary">
+      <UdxNode name="NIS Nodes" type="DTKT_ANY" description="NIS Nodes">
+        <UdxNode name="NIS Node" type="DTKT_STRING" description="NIS Node" />
+        <UdxNode name="NIS Type" type="DTKT_STRING" description="NIS Type" />
+        <UdxNode name="NIS Maximum Lateral Inflow" type="DTKT_REAL" description="NIS Maximum Lateral Inflow" />
+        <UdxNode name="NIS Maximum Total Inflow" type="DTKT_REAL" description="NIS Maximum Total Inflow)" />
+        <UdxNode name="NIS Time of Max Occurrence days" type="DTKT_STRING" description="NIS Time of Max Occurrence days" />
+        <UdxNode name="NIS Time of Max Occurrence hr" type="DTKT_STRING" description="NIS Time of Max Occurrence hr" />
+        <UdxNode name="NIS Time of Max Occurrence min" type="DTKT_STRING" description="NIS Time of Max Occurrence min" />
+        <UdxNode name="NIS Lateral Inflow Volume" type="DTKT_REAL" description="NIS Lateral Inflow Volume" />
+        <UdxNode name="NIS Total Inflow Volume" type="DTKT_REAL" description="NIS Total Inflow Volume" />
+        <UdxNode name="NIS Flow Balance Error Percent" type="DTKT_REAL" description="NIS Flow Balance Error Percent" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Node Surcharge Summary" type="DTKT_LIST" description="Node Surcharge Summary">
+      <UdxNode name="NSS Nodes" type="DTKT_ANY" description="NSS Nodes">
+        <UdxNode name="NSS Node" type="DTKT_STRING" description="NSS Node" />
+        <UdxNode name="NSS Type" type="DTKT_STRING" description="NSS Type" />
+        <UdxNode name="NSS Hours Surcharged" type="DTKT_REAL" description="NSS Hours Surcharged" />
+        <UdxNode name="NSS Max. Height Above Crown" type="DTKT_REAL" description="NSS Max. Height Above Crown" />
+        <UdxNode name="NSS Min. Depth Below Rim" type="DTKT_REAL" description="NSS Min. Depth Below Rim" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Node Flooding Summary" type="DTKT_LIST" description="Node Flooding Summary">
+      <UdxNode name="NFS nodes" type="DTKT_ANY" description="NFS nodes">
+        <UdxNode name="NFS Node" type="DTKT_STRING" description="NFS Node" />
+        <UdxNode name="NFS Hours Flooded" type="DTKT_REAL" description="NFS Hours Flooded" />
+        <UdxNode name="NFS Maximum Rate" type="DTKT_REAL" description="NFS Maximum Rate" />
+        <UdxNode name="NFS Time of Max Occurrence days" type="DTKT_STRING" description="NFS Time of Max Occurrence days" />
+        <UdxNode name="NFS Time of Max Occurrence hr" type="DTKT_STRING" description="NFS Time of Max Occurrence hr" />
+        <UdxNode name="NFS Time of Max Occurrence min" type="DTKT_STRING" description="NFS Time of Max Occurrence min" />
+        <UdxNode name="NFS Total Flood Volume" type="DTKT_REAL" description="NFS Total Flood Volume" />
+        <UdxNode name="NFS Maximum Ponded Volume" type="DTKT_REAL" description="NFS Maximum Ponded Volume" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Storage Volume Summary" type="DTKT_LIST" description="Storage Volume Summary">
+      <UdxNode name="SVS Node" type="DTKT_ANY" description="SVS Node">
+        <UdxNode name="SVS Storage Unit" type="DTKT_STRING" description="SVS Storage Unit" />
+        <UdxNode name="SVS Average Volume" type="DTKT_REAL" description="SVS Average Volume" />
+        <UdxNode name="SVS Avg Pcnt Full" type="DTKT_REAL" description="SVS Avg Pcnt Full" />
+        <UdxNode name="SVS Evap Pcnt Loss" type="DTKT_REAL" description="SVS Evap Pcnt Loss" />
+        <UdxNode name="SVS Exfil Pcnt Loss" type="DTKT_REAL" description="SVS Exfil Pcnt Loss" />
+        <UdxNode name="SVS Maximum Volume" type="DTKT_REAL" description="SVS Maximum Volume" />
+        <UdxNode name="SVS Max Pcnt Full" type="DTKT_REAL" description="SVS Max Pcnt Full" />
+        <UdxNode name="SVS Time of Max Occurrence days" type="DTKT_STRING" description="SVS Time of Max Occurrence days" />
+        <UdxNode name="SVS Time of Max Occurrence hr" type="DTKT_STRING" description="SVS Time of Max Occurrence hr" />
+        <UdxNode name="SVS Time of Max Occurrence min" type="DTKT_STRING" description="SVS Time of Max Occurrence min" />
+        <UdxNode name="SVS Maximum Outflow" type="DTKT_REAL" description="SVS Maximum Outflow" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Outfall Loading Summary" type="DTKT_LIST" description="Outfall Loading Summary">
+      <UdxNode name="OLS Node" type="DTKT_ANY" description="OLS Node">
+        <UdxNode name="OLS Outfall Node" type="DTKT_STRING" description="OLS Outfall Node" />
+        <UdxNode name="OLS Flow Freq Pcnt" type="DTKT_REAL" description="OLS Flow Freq Pcnt" />
+        <UdxNode name="OLS Avg Flow" type="DTKT_REAL" description="OLS Avg Flow" />
+        <UdxNode name="OLS Max Flow" type="DTKT_REAL" description="OLS Max Flow" />
+        <UdxNode name="OLS Total Volume" type="DTKT_REAL" description="OLS Total Volume" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Link Flow Summary" type="DTKT_LIST" description="Link Flow Summary">
+      <UdxNode name="LFS Node" type="DTKT_ANY" description="LFS Node">
+        <UdxNode name="LFS Link" type="DTKT_STRING" description="LFS Link" />
+        <UdxNode name="LFS Type" type="DTKT_STRING" description="LFS Type" />
+        <UdxNode name="LFS Maximum Flow" type="DTKT_REAL" description="LFS Maximum Flow" />
+        <UdxNode name="LFS Time of Max Occurrence days" type="DTKT_STRING" description="LFS Time of Max Occurrence days" />
+        <UdxNode name="LFS Time of Max Occurrence hr" type="DTKT_STRING" description="LFS Time of Max Occurrence hr" />
+        <UdxNode name="LFS Time of Max Occurrence min" type="DTKT_STRING" description="LFS Time of Max Occurrence min" />
+        <UdxNode name="LFS Maximum Veloc" type="DTKT_REAL" description="LFS Maximum Veloc" />
+        <UdxNode name="LFS Max/Full Flow" type="DTKT_REAL" description="LFS Max/Full Flow" />
+        <UdxNode name="LFS Max/Full Depth" type="DTKT_REAL" description="LFS Max/Full Depth" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Conduit Surcharge Summary" type="DTKT_LIST" description="Conduit Surcharge Summary">
+      <UdxNode name="CSS Node" type="DTKT_ANY" description="CSS Node">
+        <UdxNode name="CSS Conduit" type="DTKT_STRING" description="CSS Conduit" />
+        <UdxNode name="CSS Hours Full Both Ends" type="DTKT_REAL" description="CSS Hours Full Both Ends" />
+        <UdxNode name="CSS Hours Full Upstream" type="DTKT_REAL" description="CSS Hours Full Upstream" />
+        <UdxNode name="CSS Hours Full Dnstream" type="DTKT_REAL" description="CSS Hours Full Dnstream" />
+        <UdxNode name="CSS Hours Above Full Normal Flow" type="DTKT_REAL" description="CSS Hours Above Full Normal Flow" />
+        <UdxNode name="CSS Hours Capacity Limited" type="DTKT_REAL" description="CSS Hours Capacity Limited" />
+      </UdxNode>
+    </UdxNode>
+    <UdxNode name="Ends" type="DTKT_LIST" description="Ends">
+      <UdxNode name="Ends Analysis begun on" type="DTKT_STRING" description="Ends Analysis begun on" />
+    </UdxNode>
+  </UdxNode>
+  <SemanticAttachment>
+    <Concepts />
+    <SpatialRefs />
+    <Units />
+    <DataTemplates />
+  </SemanticAttachment>
+</UdxDeclaration>

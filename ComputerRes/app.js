@@ -91,11 +91,85 @@ if(settings.debug)
     guid : settings.debugGUID,
     socket : null,
     ms : {
-      ms_model : {
-        m_name : '测试模型'
-      },
-      mv_num : 'v0.1'
+        "_id" : "5989c9c350aed72b1c8a9b1e",
+        "ms_model" : {
+            "m_register" : false,
+            "m_id" : null,
+            "p_id" : "469f7bc5f572d284bbad8863dc27d4b4",
+            "m_url" : "http://hydrology.usu.edu/taudem/taudem5/",
+            "m_type" : "TauDEM_AreaD8 - DEM",
+            "m_name" : "TauDEM_AreaD8"
+        },
+        "mv_num" : "1.1.0.0",
+        "ms_des" : "TauDEM_AreaD8",
+        "ms_platform" : 1,
+        "ms_update" : "2017-8-8 22:25:07",
+        "ms_path" : "TauDEM_AreaD8_5989c9c350aed72b1c8a9b1e/",
+        "ms_img" : null,
+        "ms_xml" : "{\"ModelClass\":{\"$\":{\"name\":\"TauDEM_AreaD8\",\"uid\":\"d91e7c3f-41b3-4f62-a457-21c459dc8cfe\",\"style\":\"SimpleCalculation\"},\"AttributeSet\":{\"Categories\":{\"Category\":{\"$\":{\"principle\":\"DEM\",\"path\":\"TauDEM_AreaD8\"}}},\"LocalAttributes\":{\"LocalAttribute\":{\"$\":{\"local\":\"EN_US\",\"localName\":\"TauDEM_AreaD8\",\"wiki\":\"http://hydrology.usu.edu/taudem/taudem5/\"},\"Keywords\":\"TauDEM; AreaD8\",\"Abstract\":\"TauDEM_AreaD8\"}}},\"Behavior\":{\"RelatedDatasets\":{\"DatasetItem\":[{\"$\":{\"name\":\"Raster_Template\",\"type\":\"external\",\"externalId\":\"F73F31FF-2F23-4C7A-A57D-39D0C7A6C4E6\",\"description\":\"Raster_Data\"}},{\"$\":{\"name\":\"Vector_Template\",\"type\":\"external\",\"externalId\":\"4996E027-209B-4121-907B-1ED36A417D22\",\"description\":\"Vector_Data\"}},{\"$\":{\"name\":\"EdgeContamination_Param\",\"type\":\"internal\",\"description\":\"EdgeContamination\"},\"UdxDeclaration\":{\"UdxNode\":{\"UdxNode\":{\"$\":{\"name\":\"checkEdge\",\"type\":\"DTKT_INT\",\"description\":\"checkEdge\"}}}}}]},\"StateGroup\":{\"States\":{\"State\":{\"$\":{\"id\":\"851a1985-a3f6-4c13-be53-f1c765022929\",\"name\":\"RUNSTATE\",\"type\":\"basic\",\"description\":\"Model Start Runing\"},\"Event\":[{\"$\":{\"name\":\"D8FlowDirection\",\"type\":\"response\",\"optional\":\"False\",\"description\":\"Input D8FlowDirection\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"Outlets\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input Outlets\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Vector_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"WeightGrid\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input WeightGrid\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"EdgeContamination\",\"type\":\"response\",\"optional\":\"True\",\"description\":\"Input EdgeContamination\"},\"ResponseParameter\":{\"$\":{\"datasetReference\":\"EdgeContamination_Param\",\"description\":\"Load\"}}},{\"$\":{\"name\":\"AreaD8\",\"type\":\"noresponse\",\"optional\":\"False\",\"description\":\"Ouput AreaD8\"},\"DispatchParameter\":{\"$\":{\"datasetReference\":\"Raster_Template\",\"description\":\"Export\"}}}]}},\"StateTransitions\":\"\"}},\"Runtime\":{\"$\":{\"name\":\"TauDEM_AreaD8\",\"version\":\"1.1.0.0\",\"baseDir\":\"$(ModelServicePath)\\\\TauDEM_AreaD8\",\"entry\":\"TauDEM_AreaD8.exe\"},\"HardwareConfigures\":{\"Add\":{\"$\":{\"key\":\"Main Frequency\",\"value\":\"2.8\"}}},\"SoftwareConfigures\":{\"Add\":{\"$\":{\"key\":\"Memory Size\",\"value\":\"50M\"}}},\"Assemblies\":{\"Assembly\":[{\"$\":{\"name\":\"GDALRasterMapping.exe\",\"path\":\"$(DataMappingPath)\\\\GDALRasterMapping\\\\\"}},{\"$\":{\"name\":\"OGRVectorMapping.exe\",\"path\":\"$(DataMappingPath)\\\\OGRVectorMapping\\\\\"}}]},\"SupportiveResources\":{\"Add\":[{\"$\":{\"type\":\"library\",\"name\":\"GDAL\"}},{\"$\":{\"type\":\"runtime\",\"name\":\"MSMPI\"}}]}}}}",
+        "ms_status" : 1,
+        "ms_user" : {
+            "u_email" : "[Unknown]",
+            "u_name" : "[Batch]"
+        },
+        "ms_permission" : 0,
+        "__v" : 0
     },
+    log : [],
+    input : [
+        {
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "D8FlowDirection",
+            "DataId" : "gd_309ecda0-7c49-11e7-9659-a1f3754f22b6",
+            "Tag" : "udx_zip_D8FlowDir.zip",
+            "Destroyed" : false,
+            "Optional" : "False"
+        }, 
+        {
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "Outlets",
+            "DataId" : "gd_9c78dc40-7c4a-11e7-935e-f33d689b3c28",
+            "Tag" : "udx_zip_Outlets.zip",
+            "Destroyed" : false,
+            "Optional" : "True"
+        }, 
+        {
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "WeightGrid",
+            "DataId" : "gd_489d2a60-7cd4-11e7-b70f-750b08f27d27",
+            "Tag" : "udx_zip_PeukerDouglas.zip",
+            "Destroyed" : false,
+            "Optional" : "1"
+        }, 
+        {
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "EdgeContamination",
+            "DataId" : "gd_4fb2d340-7cd4-11e7-b70f-750b08f27d27",
+            "Tag" : "udx_xml_EdgeFlag.xml",
+            "Destroyed" : false,
+            "Optional" : "1"
+        }
+    ],
+    output : [
+        {
+            "StateId" : "851a1985-a3f6-4c13-be53-f1c765022929",
+            "StateName" : "RUNSTATE",
+            "StateDes" : "Model Start Runing",
+            "Event" : "AreaD8",
+            "Destroyed" : false,
+            "Tag" : "RUNSTATE-AreaD8",
+            "DataId" : "gd_64275620-7cd4-11e7-b70f-750b08f27d27"
+        }
+
+    ],
     start : date.toLocaleString(),
     state : 'MC_READY'
   };
@@ -104,11 +178,9 @@ if(settings.debug)
   global.debug = '调试模式';
 }
 
-app.taskInstanceColl = [];
 var ip = SysCtrl.getIPSync();
 if(ip){
     app.centerHost = SysCtrl.getIPSync();
     app.centerPort = settings.port;
 }
-
 module.exports = app;

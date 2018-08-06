@@ -1,0 +1,56 @@
+10
+
+dir
+0
+https://pc201509142307:441/svn/NGISVisualization/resource
+https://pc201509142307:441/svn/NGISVisualization
+add
+
+
+
+
+
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+87c3b397-541c-ee42-ae62-c152c9e1d411
+
+Test.xml
+file
+
+
+
+add
+
+date.json
+file
+
+
+
+add
+
+piedata.json
+file
+
+
+
+add
+
+testdata.json
+file
+
+
+
+add
+

@@ -1,0 +1,357 @@
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\AddressBook
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Connection Manager
+    SystemComponent    REG_DWORD    0x1
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\DirectDrawEx
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Fontcore
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IE40
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IE4Data
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IE5BAKEX
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\IEData
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MobileOptionPack
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SchedulingAgent
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WIC
+    NoRemove    REG_DWORD    0x1
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinRAR archiver
+    DisplayName    REG_SZ    WinRAR 5.40 (64-位)
+    DisplayVersion    REG_SZ    5.40.0
+    VersionMajor    REG_DWORD    0x5
+    VersionMinor    REG_DWORD    0x28
+    UninstallString    REG_SZ    C:\Program Files\WinRAR\uninstall.exe
+    DisplayIcon    REG_SZ    C:\Program Files\WinRAR\WinRAR.exe
+    InstallLocation    REG_SZ    C:\Program Files\WinRAR\
+    NoModify    REG_DWORD    0x1
+    NoRepair    REG_DWORD    0x1
+    Language    REG_DWORD    0x0
+    Publisher    REG_SZ    win.rar GmbH
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{0D3E9E15-DE7A-300B-96F1-B4AF12B96488}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    Caution. Removing this product might prevent some applications from running.
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    14.0.23026
+    HelpLink    REG_EXPAND_SZ    http://go.microsoft.com/fwlink/?LinkId=133405
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170814
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    C:\ProgramData\Package Cache\{0D3E9E15-DE7A-300B-96F1-B4AF12B96488}v14.0.23026\packages\vcRuntimeMinimum_amd64\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{0D3E9E15-DE7A-300B-96F1-B4AF12B96488}
+    NoModify    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x854
+    SystemComponent    REG_DWORD    0x1
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{0D3E9E15-DE7A-300B-96F1-B4AF12B96488}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0xe
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0xe0059f2
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft Visual C++ 2015 x64 Minimum Runtime - 14.0.23026
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{2EDC2FA3-1F34-34E5-9085-588C9EFD1CC6}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    Caution. Removing this product might prevent some applications from running.
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    11.0.60610
+    HelpLink    REG_EXPAND_SZ    http://go.microsoft.com/fwlink/?LinkId=133405
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170813
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    C:\ProgramData\Package Cache\{2EDC2FA3-1F34-34E5-9085-588C9EFD1CC6}v11.0.60610\packages\vcRuntimeMinimum_amd64\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{2EDC2FA3-1F34-34E5-9085-588C9EFD1CC6}
+    NoModify    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x7d0
+    SystemComponent    REG_DWORD    0x1
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{2EDC2FA3-1F34-34E5-9085-588C9EFD1CC6}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0xb
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0xb00ecc2
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft Visual C++ 2012 x64 Minimum Runtime - 11.0.60610
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{350AA351-21FA-3270-8B7A-835434E766AD}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    9.0.21022
+    HelpLink    REG_SZ    
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170813
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    e:\a77d063c87f17e7e887e1a384cece224\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{350AA351-21FA-3270-8B7A-835434E766AD}
+    NoModify    REG_DWORD    0x1
+    NoRepair    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x21b0
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{350AA351-21FA-3270-8B7A-835434E766AD}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0x9
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0x900521e
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft Visual C++ 2008 Redistributable - x64 9.0.21022
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{6E8E85E8-CE4B-4FF5-91F7-04999C9FAE6A}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    8.0.50727.42
+    HelpLink    REG_SZ    
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170813
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    C:\Users\ADMINI~1\AppData\Local\Temp\1\IXP001.TMP\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{6E8E85E8-CE4B-4FF5-91F7-04999C9FAE6A}
+    NoModify    REG_DWORD    0x1
+    NoRepair    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x1c68
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{6E8E85E8-CE4B-4FF5-91F7-04999C9FAE6A}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0x8
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0x800c627
+    Language    REG_DWORD    0x0
+    DisplayName    REG_SZ    Microsoft Visual C++ 2005 Redistributable (x64)
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{764384C5-BCA9-307C-9AAC-FD443662686A}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    Caution. Removing this product might prevent some applications from running.
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    11.0.60610
+    HelpLink    REG_EXPAND_SZ    http://go.microsoft.com/fwlink/?LinkId=133405
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170813
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    C:\ProgramData\Package Cache\{764384C5-BCA9-307C-9AAC-FD443662686A}v11.0.60610\packages\vcRuntimeAdditional_amd64\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{764384C5-BCA9-307C-9AAC-FD443662686A}
+    NoModify    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x2ff0
+    SystemComponent    REG_DWORD    0x1
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{764384C5-BCA9-307C-9AAC-FD443662686A}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0xb
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0xb00ecc2
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft Visual C++ 2012 x64 Additional Runtime - 11.0.60610
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8499ACD3-C1E3-45AB-BF96-DA491727EBE1}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    7.1.12437.25
+    HelpLink    REG_SZ    
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170814
+    InstallLocation    REG_SZ    C:\Program Files\Microsoft MPI\
+    InstallSource    REG_SZ    C:\Users\ADMINI~1\AppData\Local\Temp\2\541f4646-8407-4789-a2dc-79fdbb801cce\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{8499ACD3-C1E3-45AB-BF96-DA491727EBE1}
+    NoModify    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x26c9
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{8499ACD3-C1E3-45AB-BF96-DA491727EBE1}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0x7
+    VersionMinor    REG_DWORD    0x1
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0x7013095
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft MPI (7.1.12437.25)
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{929FBD26-9020-399B-9A7A-751D61F0B942}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    Caution. Removing this product might prevent some applications from running.
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    12.0.21005
+    HelpLink    REG_EXPAND_SZ    http://go.microsoft.com/fwlink/?LinkId=133405
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170813
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    C:\ProgramData\Package Cache\{929FBD26-9020-399B-9A7A-751D61F0B942}v12.0.21005\packages\vcRuntimeAdditional_amd64\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{929FBD26-9020-399B-9A7A-751D61F0B942}
+    NoModify    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x2e08
+    SystemComponent    REG_DWORD    0x1
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{929FBD26-9020-399B-9A7A-751D61F0B942}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0xc
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0xc00520d
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft Visual C++ 2013 x64 Additional Runtime - 12.0.21005
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{A471BB54-5B26-48F3-933A-4DD29F18601F}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    7.10.0
+    HelpLink    REG_SZ    
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170815
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    E:\install\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /I{A471BB54-5B26-48F3-933A-4DD29F18601F}
+    Publisher    REG_SZ    Node.js Foundation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x96c6
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /I{A471BB54-5B26-48F3-933A-4DD29F18601F}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0x7
+    VersionMinor    REG_DWORD    0xa
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0x70a0000
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Node.js
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{A749D8E6-B613-3BE3-8F5F-045C84EBA29B}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    Caution. Removing this product might prevent some applications from running.
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    12.0.21005
+    HelpLink    REG_EXPAND_SZ    http://go.microsoft.com/fwlink/?LinkId=133405
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170813
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    C:\ProgramData\Package Cache\{A749D8E6-B613-3BE3-8F5F-045C84EBA29B}v12.0.21005\packages\vcRuntimeMinimum_amd64\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{A749D8E6-B613-3BE3-8F5F-045C84EBA29B}
+    NoModify    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x9e4
+    SystemComponent    REG_DWORD    0x1
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{A749D8E6-B613-3BE3-8F5F-045C84EBA29B}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0xc
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0xc00520d
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft Visual C++ 2013 x64 Minimum Runtime - 12.0.21005
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{BC958BD2-5DAC-3862-BB1A-C1BE0790438D}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    Caution. Removing this product might prevent some applications from running.
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    14.0.23026
+    HelpLink    REG_EXPAND_SZ    http://go.microsoft.com/fwlink/?LinkId=133405
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170814
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    C:\ProgramData\Package Cache\{BC958BD2-5DAC-3862-BB1A-C1BE0790438D}v14.0.23026\packages\vcRuntimeAdditional_amd64\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{BC958BD2-5DAC-3862-BB1A-C1BE0790438D}
+    NoModify    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x2e4c
+    SystemComponent    REG_DWORD    0x1
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{BC958BD2-5DAC-3862-BB1A-C1BE0790438D}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0xe
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0xe0059f2
+    Language    REG_DWORD    0x409
+    DisplayName    REG_SZ    Microsoft Visual C++ 2015 x64 Additional Runtime - 14.0.23026
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{DA5E371C-6333-3D8A-93A4-6FD5B20BCC6E}
+    AuthorizedCDFPrefix    REG_SZ    
+    Comments    REG_SZ    Caution. Removing this product might prevent some applications from running.
+    Contact    REG_SZ    
+    DisplayVersion    REG_SZ    10.0.30319
+    HelpLink    REG_EXPAND_SZ    http://go.microsoft.com/fwlink/?LinkId=146008
+    HelpTelephone    REG_SZ    
+    InstallDate    REG_SZ    20170814
+    InstallLocation    REG_SZ    
+    InstallSource    REG_SZ    e:\37a738f904b18422fecd032f334995fd\
+    ModifyPath    REG_EXPAND_SZ    MsiExec.exe /X{DA5E371C-6333-3D8A-93A4-6FD5B20BCC6E}
+    NoModify    REG_DWORD    0x1
+    NoRepair    REG_DWORD    0x1
+    Publisher    REG_SZ    Microsoft Corporation
+    Readme    REG_SZ    
+    Size    REG_SZ    
+    EstimatedSize    REG_DWORD    0x36cb
+    UninstallString    REG_EXPAND_SZ    MsiExec.exe /X{DA5E371C-6333-3D8A-93A4-6FD5B20BCC6E}
+    URLInfoAbout    REG_SZ    
+    URLUpdateInfo    REG_SZ    
+    VersionMajor    REG_DWORD    0xa
+    VersionMinor    REG_DWORD    0x0
+    WindowsInstaller    REG_DWORD    0x1
+    Version    REG_DWORD    0xa00766f
+    Language    REG_DWORD    0x0
+    DisplayName    REG_SZ    Microsoft Visual C++ 2010  x64 Redistributable - 10.0.30319
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{EA457B21-F73E-494C-ACAB-524FDE069978}_is1
+    Inno Setup: Setup Version    REG_SZ    5.5.6 (u)
+    Inno Setup: App Path    REG_SZ    C:\Program Files\Microsoft VS Code
+    InstallLocation    REG_SZ    C:\Program Files\Microsoft VS Code\
+    Inno Setup: Icon Group    REG_SZ    Visual Studio Code
+    Inno Setup: User    REG_SZ    Administrator
+    Inno Setup: Selected Tasks    REG_SZ    desktopicon,addcontextmenufiles,addcontextmenufolders,associatewithfiles,addtopath
+    Inno Setup: Deselected Tasks    REG_SZ    
+    Inno Setup: Language    REG_SZ    simplifiedChinese
+    DisplayName    REG_SZ    Microsoft Visual Studio Code
+    DisplayIcon    REG_SZ    C:\Program Files\Microsoft VS Code\Code.exe
+    UninstallString    REG_SZ    "C:\Program Files\Microsoft VS Code\unins000.exe"
+    QuietUninstallString    REG_SZ    "C:\Program Files\Microsoft VS Code\unins000.exe" /SILENT
+    DisplayVersion    REG_SZ    1.16.1
+    Publisher    REG_SZ    Microsoft Corporation
+    URLInfoAbout    REG_SZ    https://code.visualstudio.com/
+    HelpLink    REG_SZ    https://code.visualstudio.com/
+    URLUpdateInfo    REG_SZ    https://code.visualstudio.com/
+    NoModify    REG_DWORD    0x1
+    NoRepair    REG_DWORD    0x1
+    InstallDate    REG_SZ    20170917
+    MajorVersion    REG_DWORD    0x1
+    MinorVersion    REG_DWORD    0x10
+    EstimatedSize    REG_DWORD    0x335b5
+

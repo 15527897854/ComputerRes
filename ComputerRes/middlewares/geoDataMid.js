@@ -90,9 +90,17 @@ GeoDataMid.postFileData = function(req, callback){
             console.log(err);
             return callback(err);
         }
+        //找数据的后缀名
+        var ext = files.myfile.name;
+        ext = ext.substr(ext.lastIndexOf('.') + 1);
+        var type = 'FILE';
+        if(ext == 'zip'){
+            type = 'ZIP';
+        }
+
         //生成数据ID
         var gdid = 'gd_' + uuid.v1();
-        var fname = gdid + '.xml';
+        var fname = gdid + '.' + ext;
 
         //读取文件状态
         if(files.myfile == undefined)
@@ -109,7 +117,7 @@ GeoDataMid.postFileData = function(req, callback){
                 return callback(err);
             }
             //判断文件大小
-            if(stats.size - 16 > setting.data_size)
+            if(stats.size - 16 > setting.data_size || type == 'ZIP')
             {
                 //重命名
                 fs.rename(files.myfile.path, setting.modelpath + '/../geo_data/' + fname, function () {
@@ -117,7 +125,7 @@ GeoDataMid.postFileData = function(req, callback){
                     var geodata = {
                         gd_id : gdid,
                         gd_tag : gd_tag,
-                        gd_type : 'FILE',
+                        gd_type : type,
                         gd_size : stats.size - 16,
                         gd_value : fname
                     };
@@ -178,5 +186,9 @@ GeoDataMid.postUrlData = function(req, callback){
     //生成数据ID
     var gdid = 'gd_' + uuid.v1();
 
+    
+}
+
+GeoDataMid.postUrlData = function(req, callback){
     
 }

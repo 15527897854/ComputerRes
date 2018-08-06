@@ -31,7 +31,7 @@ var DataUploader = React.createClass({
         }
         return {
             title : title,
-            isCtrl : isCtrl,
+            isCtrl: isCtrl,
             id : id,
             tag : '',
             gdid : '',

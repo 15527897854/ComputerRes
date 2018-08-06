@@ -72,6 +72,15 @@
                         </tbody>
                     </table>
                 </p>
+                <p id="p_log" style="white-space: pre-line">
+                    <strong>Log&nbsp;:&nbsp;</strong>
+                    <ul id="ul-log">
+                    <% for(var i = 0; i < msr.msr_log.length; i++){
+                        %><li><%= msr.msr_log[i] %></li><%
+                    }
+                    %>
+                    </ul>
+                </p>
                 <p id="p_des" style="white-space: pre-line">
                     <strong>Output Message&nbsp;:&nbsp;</strong>
                     <br />
@@ -81,7 +90,7 @@
                 <p><strong>Time of Running&nbsp;:&nbsp;</strong><span id="sp_time"><%=msr.msr_time.toString() %>&nbsp;s&nbsp;</span></p>
                 <p id="progressMess"><strong>Currect Porgress&nbsp;:&nbsp;</strong></p>
                 <div id="bar_pro_div" class="progress progress-striped active progress-sm">
-                    <div id="bar_pro" style="width: 0%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
+                    <div id="bar_pro" style="width: 100%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="100" role="progressbar" class="progress-bar progress-bar-success">
                         <span class="sr-only">0% Finisded</span>
                     </div>
                 </div>
@@ -479,44 +488,7 @@
                                 });
                             }
                             else{
-                                switch (resJson.data.state)
-                                {
-                                    case 'MC_ENTER':
-                                    {
-                                        setProcess(10);
-                                        break;
-                                    }
-                                    case 'MC_REQUEST':
-                                    {
-                                        setProcess(20);
-                                        break;
-                                    }
-                                    case 'MC_CHECKDATA':
-                                    {
-                                        setProcess(35);
-                                        break;
-                                    }
-                                    case 'MC_CALCULATE':
-                                    {
-                                        setProcess(50);
-                                        break;
-                                    }
-                                    case 'MC_CHECKRES':
-                                    {
-                                        setProcess(75);
-                                        break;
-                                    }
-                                    case 'MC_RESPONSE':
-                                    {
-                                        setProcess(90);
-                                        break;
-                                    }
-                                    case 'MC_EXIT':
-                                    {
-                                        setProcess(100);
-                                        break;
-                                    }
-                                }
+                                
                             }
                         }
                     }

@@ -596,7 +596,7 @@ var RmtModelSerTable = React.createClass({
                     <th>{window.LanguageConfig.ModelService.Version}</th>
                     <th>{window.LanguageConfig.ModelService.Type}</th>
                     <th>Permission</th>
-                    <th>Accessable</th>
+                    <th>Accessibility</th>
                     <th>{window.LanguageConfig.ModelService.Status}</th>
                     <th>{window.LanguageConfig.ModelServiceTable.Operation}</th>
                 </tr>
@@ -718,8 +718,8 @@ var RmtModelSerTable = React.createClass({
                 <div>
                     <button className="btn btn-success btn-sm" onClick={this.batchStart} ><i className="fa fa-play"></i> Start</button>&nbsp;
                     <button className="btn btn-danger btn-sm" onClick={this.batchStop}><i className="fa fa-stop"></i> Stop</button>&nbsp;
-                    <button className="btn btn-warning btn-sm" onClick={this.batchLock}><i className="fa fa-user"></i> hidden</button>&nbsp;
-                    <button className="btn btn-success btn-sm" onClick={this.batchUnlock}><i className="fa fa-users"></i> publish</button>
+                    <button className="btn btn-warning btn-sm" onClick={this.batchLock}><i className="fa fa-user"></i> Hidden</button>&nbsp;
+                    <button className="btn btn-success btn-sm" onClick={this.batchUnlock}><i className="fa fa-users"></i> Publish</button>
                 </div>
             );
         }

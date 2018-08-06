@@ -14,7 +14,7 @@ function RemoteReqControl() {}
 
 module.exports = RemoteReqControl;
 
-//Ê¹ï¿½ï¿½requestÄ£ï¿½é£¬ï¿½ï¿½getï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½urlï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½
+//Ê¹ÓÃrequestÄ£¿é£¬ÒÔget·½Ê½ÇëÇóurlÖÐµÄÄÚÈÝ
 RemoteReqControl.getRequest = function (req, url, callback) {
     req.pipe(request.get(url, function (err, response, data) {
         if(err)
@@ -25,7 +25,7 @@ RemoteReqControl.getRequest = function (req, url, callback) {
     }));
 };
 
-//Ê¹ï¿½ï¿½requestÄ£ï¿½é£¬ï¿½ï¿½postï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½urlï¿½Ðµï¿½ï¿½ï¿½ï¿½Ý£ï¿½postï¿½Ä±ï¿½ï¿½ï¿½reqï¿½ï¿½
+//Ê¹ÓÃrequestÄ£¿é£¬ÒÔpost·½Ê½ÇëÇóurlÖÐµÄÄÚÈÝ£¬postµÄ±íµ¥ÔÚreqÖÐ
 RemoteReqControl.postRequest = function (req, url, callback) {
     req.pipe(request.post(url, function (err, response, data) {
         if(err)
@@ -36,21 +36,13 @@ RemoteReqControl.postRequest = function (req, url, callback) {
     }));
 };
 
-//Ê¹ï¿½ï¿½requestÄ£ï¿½é£¬ï¿½ï¿½postï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½urlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½formï¿½ï¿½
+//Ê¹ÓÃrequestÄ£¿é£¬ÒÔpost·½Ê½ÇëÇóurl£¬±íµ¥ÔÚformÖÐ
 RemoteReqControl.postByServer = function (url, form, callback) {
     var options;
     if(form){
         options = {
             method:'POST',
             uri:url,
-            // ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½
-            // Ð´ï¿½ï¿½1
-            // body:JSON.stringify(form),
-            // headers:{    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½ï¿½ï¿½Ü¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½req.bodyï¿½ï¿½Ã»ï¿½ï¿½Öµ
-            //     'Content-Type': 'application/json;charset=utf-8'
-            // },
-            // Ð´ï¿½ï¿½2
-            // Í¬ï¿½ï¿½ï¿½ï¿½jsonï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½formï¿½ï¿½Ê½ï¿½ï¿½Îªstringï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½content-type
             body:form,
             json:true
         };
@@ -70,7 +62,7 @@ RemoteReqControl.postByServer = function (url, form, callback) {
         });
 };
 
-//Ê¹ï¿½ï¿½requestÄ£ï¿½é£¬ï¿½ï¿½getï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½urlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½formï¿½ï¿½
+//Ê¹ÓÃrequestÄ£¿é£¬ÒÔget·½Ê½ÇëÇóurl£¬±íµ¥ÔÚformÖÐ
 RemoteReqControl.getByServer = function (url, form, callback) {
     var options = {
         url:url,

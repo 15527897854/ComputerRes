@@ -1,0 +1,5 @@
+<config>
+	<type>exe</type>
+	<start>OGRVectorMapping.exe</start>
+	<schema>./</schema>
+</config>
